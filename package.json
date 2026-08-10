@@ -3,9 +3,9 @@
   "version": "0.2.1",
   "private": true,
   "scripts": {
-    "dev": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && cd .next/standalone && NODE_ENV=production node server.js",
+    "dev": "if [ -f .next/standalone/server.js ] && [ -f .next/BUILD_ID ]; then cd .next/standalone && NODE_ENV=production node server.js; else npm run build && cd .next/standalone && NODE_ENV=production node server.js; fi",
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
-    "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
+    "start": "NODE_ENV=production node .next/standalone/server.js",
     "lint": "eslint .",
     "db:push": "prisma db push --accept-data-loss",
     "db:generate": "prisma generate",
