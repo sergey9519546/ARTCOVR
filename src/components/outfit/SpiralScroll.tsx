@@ -1,8 +1,44 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-const ITEMS = ["/assets/products/off-by-design-front.jpg","/assets/products/kerned-confidence-front.jpg","/assets/products/specimen-no-hh01-front.jpg","/assets/products/grid-system-go-front.jpg","/assets/products/neutral-grotesk-front.jpg","/assets/products/red-dot-not-award-front.jpg","/assets/products/gridlocked-front.jpg","/assets/products/hello-week-001-front.jpg","/assets/products/hello-week-002-front.jpg","/assets/products/monochrome-manifest-front.jpg","/assets/products/positive-space-front.jpg","/assets/products/whitespace-matters-front.jpg","/assets/products/command-k-front.jpg"];
-const TITLES = ["Off by Design","Kerned Confidence","Specimen No. HH01","Grid System Go","Neutral Grotesk","Red Dot Not Award","Gridlocked","Hello Week 001","Hello Week 002","Monochrome Manifest","Positive Space","Whitespace Matters","Command + K"];
+// 26 images: 13 product fronts + 13 product backs (doubled from original 13)
+const ITEMS = [
+  "/assets/products/off-by-design-front.jpg",
+  "/assets/products/kerned-confidence-front.jpg",
+  "/assets/products/specimen-no-hh01-front.jpg",
+  "/assets/products/grid-system-go-front.jpg",
+  "/assets/products/neutral-grotesk-front.jpg",
+  "/assets/products/red-dot-not-award-front.jpg",
+  "/assets/products/gridlocked-front.jpg",
+  "/assets/products/hello-week-001-front.jpg",
+  "/assets/products/hello-week-002-front.jpg",
+  "/assets/products/monochrome-manifest-front.jpg",
+  "/assets/products/positive-space-front.jpg",
+  "/assets/products/whitespace-matters-front.jpg",
+  "/assets/products/command-k-front.jpg",
+  "/assets/products/off-by-design-back.jpg",
+  "/assets/products/kerned-confidence-back.jpg",
+  "/assets/products/specimen-no-hh01-back.jpg",
+  "/assets/products/grid-system-go-back.jpg",
+  "/assets/products/neutral-grotesk-back.jpg",
+  "/assets/products/red-dot-not-award-back.jpg",
+  "/assets/products/gridlocked-back.jpg",
+  "/assets/products/hello-week-001-back.jpg",
+  "/assets/products/hello-week-002-back.jpg",
+  "/assets/products/monochrome-manifest-back.jpg",
+  "/assets/products/positive-space-back.jpg",
+  "/assets/products/whitespace-matters-back.jpg",
+  "/assets/products/command-k-back.jpg"
+];
+const TITLES = [
+  "Off by Design", "Kerned Confidence", "Specimen No. HH01", "Grid System Go", "Neutral Grotesk",
+  "Red Dot Not Award", "Gridlocked", "Hello Week 001", "Hello Week 002", "Monochrome Manifest",
+  "Positive Space", "Whitespace Matters", "Command + K",
+  "Off by Design (Back)", "Kerned Confidence (Back)", "Specimen No. HH01 (Back)", "Grid System Go (Back)",
+  "Neutral Grotesk (Back)", "Red Dot Not Award (Back)", "Gridlocked (Back)", "Hello Week 001 (Back)",
+  "Hello Week 002 (Back)", "Monochrome Manifest (Back)", "Positive Space (Back)", "Whitespace Matters (Back)",
+  "Command + K (Back)"
+];
 
 export function SpiralScroll() {
   const sRef = useRef<HTMLElement>(null);
@@ -24,12 +60,12 @@ export function SpiralScroll() {
           const s = sRef.current, stg = stgRef.current, lbl = lRef.current;
           const n = ITEMS.length;
           const items = stg.querySelectorAll(".spiral-item");
-          const R = 350, VS = 100, T = 2.5;
+          const R = 350, VS = 60, T = 2.5;
           items.forEach(el => gsap.set(el as HTMLElement, { x:0, y:0, z:0, scale:0.3, opacity:0, rotationY:0 }));
           stRef.current = ScrollTrigger.create({
             trigger: s,
             start: "top top",
-            end: "+=5000",
+            end: "+=6000",
             pin: true,
             scrub: 1,
             onUpdate: (self: any) => {
@@ -97,7 +133,7 @@ export function SpiralScroll() {
       <div className="absolute bottom-8 left-6 z-10 text-cream/40 text-xs font-bold uppercase tracking-tight">OUTFIT® • 3D Spiral • 2026</div>
       <div ref={stgRef} className="relative will-change-transform" style={{ transformStyle: "preserve-3d", width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}>
         {ITEMS.map((src,i) => (
-          <div key={i} className="spiral-item absolute will-change-transform" style={{ top: "50%", left: "50%", transformStyle: "preserve-3d", width: "160px", height: "160px", marginLeft: "-80px", marginTop: "-80px" }}>
+          <div key={i} className="spiral-item absolute will-change-transform" style={{ top: "50%", left: "50%", transformStyle: "preserve-3d", width: "140px", height: "140px", marginLeft: "-70px", marginTop: "-70px" }}>
             <div className="w-full h-full overflow-hidden rounded-lg shadow-2xl" style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)" }}>
               <img src={src} alt={TITLES[i]} className="w-full h-full object-cover" loading="lazy" />
             </div>

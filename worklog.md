@@ -127,3 +127,38 @@ Stage Summary:
 - No DOM mutation errors, no hydration errors, no console errors
 - Files modified: package.json, next.config.ts, page.tsx, Preloader.tsx, TiltedCarousel.tsx, SpiralScroll.tsx, FullScreenSnap.tsx, useLenis.ts
 - Files created: ErrorBoundary.tsx, global-error.tsx, loading.tsx, api/health/route.ts
+
+---
+Task ID: double-scroll-images
+Agent: main
+Task: Add twice as many images for both scroll animation sections
+
+Work Log:
+- Checked available images: 13 front + 13 back = 26 unique product images available (avg 500KB each, all lazy-loaded)
+- Updated TiltedCarousel.tsx:
+  * Doubled ITEMS array from 13 to 26 (added all 13 back images after the 13 front images)
+  * Updated title parser to handle both -front.jpg and -back.jpg suffixes
+  * Increased scroll distance from 5000 to 6000px to accommodate the longer carousel
+  * Counter now shows "01 / 26" format
+- Updated SpiralScroll.tsx:
+  * Doubled ITEMS array from 13 to 26
+  * Added 13 new TITLES entries with "(Back)" suffix for back images
+  * Increased scroll distance from 5000 to 6000px
+  * Reduced vertical spacing (VS) from 100 to 60 to fit 26 items in spiral
+  * Reduced item size from 160px to 140px to prevent overlap with more items
+- Built project successfully
+- Verified with browser:
+  * Server starts in 73ms
+  * Both sections show 26 items (verified via DOM query)
+  * Carousel progress shows "18 / 26" when scrolled
+  * No console errors
+  * Memory stable at 264MB after scrolling through all sections (no leak)
+  * Visual verification via screenshots — both sections render correctly with no broken layouts
+
+Stage Summary:
+- Both scroll animation sections now have 26 images each (doubled from 13)
+- Used existing 13 front + 13 back product images (no new assets needed)
+- Memory impact minimal (~264MB stable) due to lazy loading
+- Scroll distances increased to 6000px for smoother progression through more items
+- Spiral item size reduced slightly to fit 26 items without overlap
+- Files modified: TiltedCarousel.tsx, SpiralScroll.tsx

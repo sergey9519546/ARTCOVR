@@ -1,8 +1,40 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const BASE = ["/assets/products/off-by-design-front.jpg","/assets/products/kerned-confidence-front.jpg","/assets/products/specimen-no-hh01-front.jpg","/assets/products/grid-system-go-front.jpg","/assets/products/neutral-grotesk-front.jpg","/assets/products/red-dot-not-award-front.jpg","/assets/products/gridlocked-front.jpg","/assets/products/hello-week-001-front.jpg","/assets/products/hello-week-002-front.jpg","/assets/products/monochrome-manifest-front.jpg","/assets/products/positive-space-front.jpg","/assets/products/whitespace-matters-front.jpg","/assets/products/command-k-front.jpg"];
-const ITEMS = BASE.map((s,i) => ({ src: s, title: s.split("/").pop()?.replace("-front.jpg","").replace(/-/g," ") || "", bg: i%2===0?"bg-red":"bg-[#d2cac3]" }));
+// 26 images: 13 product fronts + 13 product backs (doubled from original 13)
+const BASE = [
+  "/assets/products/off-by-design-front.jpg",
+  "/assets/products/kerned-confidence-front.jpg",
+  "/assets/products/specimen-no-hh01-front.jpg",
+  "/assets/products/grid-system-go-front.jpg",
+  "/assets/products/neutral-grotesk-front.jpg",
+  "/assets/products/red-dot-not-award-front.jpg",
+  "/assets/products/gridlocked-front.jpg",
+  "/assets/products/hello-week-001-front.jpg",
+  "/assets/products/hello-week-002-front.jpg",
+  "/assets/products/monochrome-manifest-front.jpg",
+  "/assets/products/positive-space-front.jpg",
+  "/assets/products/whitespace-matters-front.jpg",
+  "/assets/products/command-k-front.jpg",
+  "/assets/products/off-by-design-back.jpg",
+  "/assets/products/kerned-confidence-back.jpg",
+  "/assets/products/specimen-no-hh01-back.jpg",
+  "/assets/products/grid-system-go-back.jpg",
+  "/assets/products/neutral-grotesk-back.jpg",
+  "/assets/products/red-dot-not-award-back.jpg",
+  "/assets/products/gridlocked-back.jpg",
+  "/assets/products/hello-week-001-back.jpg",
+  "/assets/products/hello-week-002-back.jpg",
+  "/assets/products/monochrome-manifest-back.jpg",
+  "/assets/products/positive-space-back.jpg",
+  "/assets/products/whitespace-matters-back.jpg",
+  "/assets/products/command-k-back.jpg"
+];
+const ITEMS = BASE.map((s,i) => ({
+  src: s,
+  title: s.split("/").pop()?.replace(/-(front|back)\.jpg$/, "").replace(/-/g, " ") || "",
+  bg: i%2===0 ? "bg-red" : "bg-[#d2cac3]"
+}));
 const CW = 300, CH = 300, CG = 20;
 
 export function TiltedCarousel() {
@@ -16,7 +48,6 @@ export function TiltedCarousel() {
     if (!sRef.current || !tRef.current) return;
     let cancelled = false;
 
-    // Lazy-load GSAP only when component mounts — saves memory if section never reached
     Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
       .then(([gsapMod, stMod]) => {
         if (cancelled || !sRef.current || !tRef.current) return;
@@ -30,7 +61,7 @@ export function TiltedCarousel() {
           stRef.current = ScrollTrigger.create({
             trigger: s,
             start: "top top",
-            end: "+=5000",
+            end: "+=6000",
             pin: true,
             scrub: 0.8,
             onUpdate: (self: any) => {
