@@ -27,5 +27,5 @@ export function CustomCursor() {
     return () => { cancelAnimationFrame(rafId); window.removeEventListener("mousemove", onMove); document.removeEventListener("mouseleave", onLeave); document.removeEventListener("mouseenter", onEnter); };
   }, [enabled]);
   if (!enabled) return null;
-  return (<div ref={cursorRef} className="pointer-events-none fixed top-0 left-0 z-[9999] transition-opacity duration-200 ease-in-out will-change-transform" style={{ opacity: visible ? 1 : 0 }} aria-hidden="true"><div><div className="-mt-1 -ml-1 h-2 w-2 rounded-full bg-[var(--cursor-color)] transition-[width,height,margin,opacity] duration-200 ease-in-out" /></div></div>);
+  return (<div ref={cursorRef} className="pointer-events-none fixed top-0 left-0 z-[9999] will-change-transform" style={{ opacity: visible ? 1 : 0 }} aria-hidden="true"><div><div className="-mt-1 -ml-1 h-2 w-2 rounded-full bg-[var(--cursor-color)]" /></div></div>);
 }

@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState, useCallback, Component, ReactNode } from "react";
+import { useEffect, useState, useCallback, Component, ReactNode, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { Preloader } from "@/components/outfit/Preloader";
 import { Header } from "@/components/outfit/Header";
 import { ThemeSwitcher } from "@/components/outfit/ThemeSwitcher";
@@ -9,11 +10,14 @@ import { PageLayer } from "@/components/outfit/PageLayer";
 import { PageTransition } from "@/components/outfit/PageTransition";
 import { Hero } from "@/components/outfit/Hero";
 import { ProductGrid } from "@/components/outfit/ProductGrid";
-import { TiltedCarousel } from "@/components/outfit/TiltedCarousel";
-import { SpiralScroll } from "@/components/outfit/SpiralScroll";
-import { FullScreenSnap } from "@/components/outfit/FullScreenSnap";
-import { Footer } from "@/components/outfit/Footer";
+import { ScrollProgress } from "@/components/outfit/ScrollProgress";
 import { useLenis } from "@/hooks/outfit/useLenis";
+
+// Improvement #5: Dynamic imports for heavy scroll components (code splitting)
+const TiltedCarousel = dynamic(() => import("@/components/outfit/TiltedCarousel").then(m => m.TiltedCarousel), { ssr: false, loading: () => <div className="h-screen w-full bg-cream" /> });
+const SpiralScroll = dynamic(() => import("@/components/outfit/SpiralScroll").then(m => m.SpiralScroll), { ssr: false, loading: () => <div className="h-screen w-full bg-black" /> });
+const FullScreenSnap = dynamic(() => import("@/components/outfit/FullScreenSnap").then(m => m.FullScreenSnap), { ssr: false, loading: () => <div className="h-screen w-full bg-cream" /> });
+const Footer = dynamic(() => import("@/components/outfit/Footer").then(m => m.Footer), { ssr: true });
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   constructor(props: { children: ReactNode }) { super(props); this.state = { hasError: false }; }
@@ -31,6 +35,7 @@ export default function Home() {
   const htc = useCallback(() => setPtActive(false), []);
   return (<>
     <a href="#page" className="skip-link">Skip to content</a>
+    <ErrorBoundary><ScrollProgress /></ErrorBoundary>
     <ErrorBoundary><CustomCursor /></ErrorBoundary>
     <ErrorBoundary><Preloader onComplete={() => setPreloaderDone(true)} /></ErrorBoundary>
     <ErrorBoundary><Header onMenuToggle={() => setMenuOpen(v=>!v)} menuOpen={menuOpen} /></ErrorBoundary>
