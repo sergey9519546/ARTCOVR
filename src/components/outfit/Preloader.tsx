@@ -12,26 +12,20 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
   const [exited, setExited] = useState(false);
   useEffect(() => {
     document.documentElement.classList.add("ready");
-    // Improvement #17: Skip preloader if already shown this session
-    if (sessionStorage.getItem("preloader-done") === "1") {
-      setVi(6); setCounter(100); setExited(true);
-      const t = setTimeout(() => onComplete?.(), 100);
-      return () => clearTimeout(t);
-    }
     // Check for reduced motion preference — skip animation entirely
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
       setVi(6); setCounter(100);
-      const t = setTimeout(() => { setExited(true); onComplete?.(); sessionStorage.setItem("preloader-done","1"); }, 500);
+      const t = setTimeout(() => { setExited(true); onComplete?.(); }, 500);
       return () => clearTimeout(t);
     }
-    // Improvement #14: Safety timeout — if images fail, still complete
+    // Safety timeout — if images fail to load, still complete the preloader
     const safety = setTimeout(() => { setVi(6); setCounter(100); }, 8000);
-    const timers: number[] = COUNTER_STEPS.map(s => setTimeout(() => setCounter(s.v), s.d));
+    const timers: ReturnType<typeof setTimeout>[] = COUNTER_STEPS.map(s => setTimeout(() => setCounter(s.v), s.d));
     for (let i = 0; i < PRELOADER_IMAGES.length; i++) timers.push(setTimeout(() => setVi(i+1), IMAGE_START + i*IMAGE_INTERVAL));
     timers.push(setTimeout(() => setExited(true), EXIT_TIME));
-    timers.push(setTimeout(() => { sessionStorage.setItem("preloader-done","1"); onComplete?.(); }, COMPLETE_TIME));
+    timers.push(setTimeout(() => onComplete?.(), COMPLETE_TIME));
     return () => { clearTimeout(safety); timers.forEach(t => clearTimeout(t)); };
   }, [onComplete]);
-  return (<div className="dark:bg-cream text-cream fixed inset-0 z-50 flex items-center justify-center gap-8 bg-black dark:text-black" style={{ clipPath: exited ? "inset(0% 0% 100% 0%)" : "inset(0% 0% 0% 0%)", transition: "clip-path 0.7s cubic-bezier(0.19,1,0.22,1)", contain: "layout style paint" }} aria-hidden="true" role="status" aria-live="polite"><div className="relative"><div className="fixed inset-0 flex items-center justify-center" style={{ contain: "layout paint style" }}>{PRELOADER_IMAGES.map((src,i) => { const vis = i < vi; return (<img key={src} src={src} alt="" loading="eager" width={450} height={450} decoding="async" className="absolute aspect-square w-[30vw] object-cover md:w-[12vw]" style={{ color: "transparent", willChange: "transform", transform: `translate3d(0,0,0) rotate(${ROTATIONS[i]}deg) scale(${vis?1:0})`, transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)", zIndex: i+1 }} sizes="(max-width: 768px) 30vw, 12vw" />); })}</div><svg width="28rem" viewBox="0 0 1391 296" xmlns="http://www.w3.org/2000/svg" className="dark:fill-red fill-cream relative mx-auto max-w-[70%] overflow-visible mix-blend-difference md:max-w-none dark:mix-blend-multiply" style={{ zIndex: 20 }}>{P.map((d,i) => { const last = i === P.length-1; const vis = last ? counter >= 16 : counter >= 4; return <path key={i} d={d} opacity={vis?1:0} style={{ transition: "opacity 0.3s ease-out" }} />; })}</svg><div className="absolute top-[200%] left-[80%] overflow-hidden text-2xl md:top-[-40%] md:left-[105%]"><span className="dark:text-red text-cream block text-right" aria-label={`Loading ${counter} percent`}>{String(counter).padStart(3,"0")}</span></div></div></div>);
+  return (<div className="dark:bg-cream text-cream fixed inset-0 z-50 flex items-center justify-center gap-8 bg-black dark:text-black" style={{ clipPath: exited ? "inset(0% 0% 100% 0%)" : "inset(0% 0% 0% 0%)", transition: "clip-path 0.7s cubic-bezier(0.19,1,0.22,1)", contain: "layout style paint" }} role="status" aria-live="polite" aria-label={`Loading ${counter} percent`}><div className="relative"><div className="fixed inset-0 flex items-center justify-center" style={{ contain: "layout paint style" }}>{PRELOADER_IMAGES.map((src,i) => { const vis = i < vi; return (<img key={src} src={src} alt="" loading="eager" width={450} height={450} decoding="async" className="absolute aspect-square w-[30vw] object-cover md:w-[12vw]" style={{ color: "transparent", willChange: "transform", transform: `translate3d(0,0,0) rotate(${ROTATIONS[i]}deg) scale(${vis?1:0})`, transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)", zIndex: i+1 }} sizes="(max-width: 768px) 30vw, 12vw" />); })}</div><svg width="28rem" viewBox="0 0 1391 296" xmlns="http://www.w3.org/2000/svg" className="dark:fill-red fill-cream relative mx-auto max-w-[70%] overflow-visible mix-blend-difference md:max-w-none dark:mix-blend-multiply" style={{ zIndex: 20 }}>{P.map((d,i) => { const last = i === P.length-1; const vis = last ? counter >= 16 : counter >= 4; return <path key={i} d={d} opacity={vis?1:0} style={{ transition: "opacity 0.3s ease-out" }} />; })}</svg><div className="absolute top-[-40%] left-[105%] overflow-hidden text-2xl"><span className="dark:text-red text-cream block text-right">{String(counter).padStart(3,"0")}</span></div></div></div>);
 }

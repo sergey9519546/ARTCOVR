@@ -20,7 +20,7 @@ html.has-custom-cursor,html.has-custom-cursor *{cursor:none!important}
 #header,#theme-switcher{transition:opacity 2s,transform 2s;transition-timing-function:var(--ease-out-extreme);opacity:0;transition-delay:0.5s;transform:translateY(-6rem)}
 html.loaded #header,html.loaded #theme-switcher{opacity:1;transform:translateY(0)}
 #header>div{transition:color 0.4s ease-in-out}
-#header>div:where([data-theme="red"]*){color:#12e4dc}
+#header>div:where([data-theme="red"]*){color:oklab(0.73 -0.14 -0.1)}
 html.lenis,html.lenis body{height:auto}.lenis{scroll-behavior:auto!important}.lenis [data-lenis-prevent]{overscroll-behavior:contain}.lenis.lenis-stopped{overflow:hidden}
 #layer{transition:clip-path 0.8s var(--ease-out-extreme);clip-path:inset(100% 0% 0% 0%)}#layer.active{clip-path:inset(0% 0% 0% 0%)}
 .mobile-menu{transition:opacity 0.4s var(--ease-out-extreme),visibility 0.4s var(--ease-out-extreme)}.mobile-menu.closed{opacity:0;visibility:hidden;pointer-events:none}.mobile-menu.open{opacity:1;visibility:visible}
