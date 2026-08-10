@@ -11,10 +11,10 @@ const nextConfig: NextConfig = {
   },
   // Compress responses
   compress: true,
-  // Limit image optimization memory
+  // Limit image optimization memory — use unoptimized for local assets (faster, no CPU bottleneck)
   images: {
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 86400,
   },
   // Avoid OOM during static generation
   staticPageGenerationTimeout: 120,
