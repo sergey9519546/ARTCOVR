@@ -21,7 +21,22 @@ html.has-custom-cursor,html.has-custom-cursor *{cursor:none!important}
 html.loaded #header,html.loaded #theme-switcher{opacity:1;transform:translateY(0)}
 #header>div{transition:color 0.4s ease-in-out}
 #header>div:where([data-theme="red"]*){color:#12e4dc}
-html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}.lenis.lenis-stopped{overflow:hidden}
+html.lenis,html.lenis body{height:auto}.lenis{scroll-behavior:auto!important}.lenis [data-lenis-prevent]{overscroll-behavior:contain}.lenis.lenis-stopped{overflow:hidden}
 #layer{transition:clip-path 0.8s var(--ease-out-extreme);clip-path:inset(100% 0% 0% 0%)}#layer.active{clip-path:inset(0% 0% 0% 0%)}
 .mobile-menu{transition:opacity 0.4s var(--ease-out-extreme),visibility 0.4s var(--ease-out-extreme)}.mobile-menu.closed{opacity:0;visibility:hidden;pointer-events:none}.mobile-menu.open{opacity:1;visibility:visible}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+
+/* === IMPROVEMENTS === */
+/* Performance: content-visibility for off-screen product cards */
+.product-card-wrapper { content-visibility: auto; contain-intrinsic-size: 300px; }
+/* Performance: will-change on animated elements */
+.carousel-card, .spiral-item { will-change: transform; }
+/* Accessibility: focus-visible styles */
+a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+/* Accessibility: skip to content link */
+.skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px 16px; z-index: 100; transition: top 0.3s; }
+.skip-link:focus { top: 0; }
+/* UX: smooth image loading */
+img { background-color: #d2cac3; }
+/* Performance: GPU acceleration for scroll animations */
+[data-product], .carousel-card, .spiral-item { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
