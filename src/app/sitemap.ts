@@ -8,6 +8,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: base, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/bag`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/shipping-and-return`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${base}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
   ];
   const allProducts = [...productsRow1, ...productsRow2, ...productsRow3, ...productsRow4];
   for (const p of allProducts) {

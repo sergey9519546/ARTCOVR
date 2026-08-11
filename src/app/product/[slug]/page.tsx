@@ -11,6 +11,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   const [selectedSize, setSelectedSize] = useState("M");
   const [showBack, setShowBack] = useState(false);
   const [added, setAdded] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [slug, setSlug] = useState<string>("");
 
   useEffect(() => {
@@ -101,7 +102,10 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             <p className="mb-8 text-2xl font-bold">{product.price}</p>
 
             <div className="mb-8">
-              <p className="mb-4 text-sm font-bold uppercase tracking-tight">Size</p>
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-sm font-bold uppercase tracking-tight">Size</p>
+                <button onClick={() => setShowSizeGuide(!showSizeGuide)} className="text-xs underline opacity-60 hover:opacity-100">Size guide</button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {sizes.map(s => (
                   <button
@@ -118,6 +122,37 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                   </button>
                 ))}
               </div>
+              {showSizeGuide && (
+                <div className="mt-4 overflow-hidden rounded-lg border border-current/10">
+                  <table className="w-full text-xs">
+                    <thead className="bg-current/5">
+                      <tr>
+                        <th className="p-3 text-left font-bold uppercase">Size</th>
+                        <th className="p-3 text-left font-bold uppercase">Chest (in)</th>
+                        <th className="p-3 text-left font-bold uppercase">Length (in)</th>
+                        <th className="p-3 text-left font-bold uppercase">Sleeve (in)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["XS", "32-34", "26", "8"],
+                        ["S", "34-36", "27", "8.5"],
+                        ["M", "38-40", "28", "9"],
+                        ["L", "42-44", "29", "9.5"],
+                        ["XL", "46-48", "30", "10"],
+                        ["XXL", "50-52", "31", "10.5"],
+                      ].map(row => (
+                        <tr key={row[0]} className="border-t border-current/10">
+                          <td className="p-3 font-bold">{row[0]}</td>
+                          <td className="p-3">{row[1]}</td>
+                          <td className="p-3">{row[2]}</td>
+                          <td className="p-3">{row[3]}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
 
             <button
