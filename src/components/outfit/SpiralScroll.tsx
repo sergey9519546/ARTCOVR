@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // 26 images: 13 product fronts + 13 product backs (doubled from original 13)
 const ITEMS = [
@@ -48,26 +50,19 @@ export function SpiralScroll() {
 
   useEffect(() => {
     if (!sRef.current || !stgRef.current) return;
-    let cancelled = false;
-
-    Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
-      .then(([gsapMod, stMod]) => {
-        if (cancelled || !sRef.current || !stgRef.current) return;
-        try {
-          const gsap = gsapMod.default;
-          const ScrollTrigger = stMod.ScrollTrigger;
-          gsap.registerPlugin(ScrollTrigger);
-          const s = sRef.current, stg = stgRef.current, lbl = lRef.current;
-          const n = ITEMS.length;
-          const items = stg.querySelectorAll(".spiral-item");
-          const R = 350, VS = 60, T = 2.5;
-          // Pre-calculate all spiral positions once at init (improvement #35)
-          const positions = Array.from({length: n}, (_, i) => {
-            const ip = i/(n-1), a = ip*T*Math.PI*2;
-            return { x: Math.cos(a)*R, y: (i-n/2)*VS, z: Math.sin(a)*R, sc: 1-ip*0.4, rs: (i/n)*0.8, re2: (i/n)*0.8+0.2 };
-          });
-          items.forEach(el => gsap.set(el as HTMLElement, { x:0, y:0, z:0, scale:0.3, opacity:0, rotationY:0 }));
-          stRef.current = ScrollTrigger.create({
+    try {
+      gsap.registerPlugin(ScrollTrigger);
+      const s = sRef.current, stg = stgRef.current, lbl = lRef.current;
+      const n = ITEMS.length;
+      const items = stg.querySelectorAll(".spiral-item");
+      const R = 350, VS = 60, T = 2.5;
+      // Pre-calculate all spiral positions once at init (improvement #35)
+      const positions = Array.from({length: n}, (_, i) => {
+        const ip = i/(n-1), a = ip*T*Math.PI*2;
+        return { x: Math.cos(a)*R, y: (i-n/2)*VS, z: Math.sin(a)*R, sc: 1-ip*0.4, rs: (i/n)*0.8, re2: (i/n)*0.8+0.2 };
+      });
+      items.forEach(el => gsap.set(el as HTMLElement, { x:0, y:0, z:0, scale:0.3, opacity:0, rotationY:0 }));
+      stRef.current = ScrollTrigger.create({
             trigger: s,
             start: "top top",
             end: "+=6000",
@@ -109,14 +104,11 @@ export function SpiralScroll() {
               } catch (e) { console.error("Spiral leaveBack error:", e); }
             }
           });
-        } catch (e) {
-          console.error("Spiral GSAP init failed:", e);
-        }
-      })
-      .catch((e) => console.error("Spiral GSAP load failed:", e));
+    } catch (e) {
+      console.error("Spiral GSAP init failed:", e);
+    }
 
     return () => {
-      cancelled = true;
       try {
         if (stRef.current) stRef.current.kill();
       } catch (e) { console.error("Spiral cleanup error:", e); }

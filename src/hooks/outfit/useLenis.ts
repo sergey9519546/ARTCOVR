@@ -1,10 +1,12 @@
 "use client";
 import { useEffect } from "react";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export function useLenis(enabled: boolean = true) {
   useEffect(() => {
     if (!enabled) return;
-    let cancelled = false;
     let lenis: any = null;
     let rafId = 0;
 
@@ -17,36 +19,37 @@ export function useLenis(enabled: boolean = true) {
       return;
     }
 
-    // Lazy-load Lenis to save memory
-    import("lenis")
-      .then(({ default: Lenis }) => {
-        if (cancelled) return;
+    try {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      document.documentElement.classList.add("lenis");
+      (window as any).__lenis = lenis;
+
+      // Connect Lenis scroll to GSAP ScrollTrigger
+      gsap.registerPlugin(ScrollTrigger);
+      lenis.on("scroll", ScrollTrigger.update);
+
+      // Refresh ScrollTrigger after a brief delay to ensure all components have mounted
+      setTimeout(() => ScrollTrigger.refresh(), 100);
+
+      const raf = (time: number) => {
         try {
-          lenis = new Lenis({
-            duration: 1.2,
-            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothWheel: true,
-          });
-          document.documentElement.classList.add("lenis");
-          (window as any).__lenis = lenis;
-          const raf = (time: number) => {
-            try {
-              if (lenis) lenis.raf(time);
-              rafId = requestAnimationFrame(raf);
-            } catch (e) {
-              console.error("Lenis raf error:", e);
-              cancelAnimationFrame(rafId);
-            }
-          };
+          if (lenis) lenis.raf(time);
           rafId = requestAnimationFrame(raf);
         } catch (e) {
-          console.error("Lenis init failed:", e);
+          console.error("Lenis raf error:", e);
+          cancelAnimationFrame(rafId);
         }
-      })
-      .catch((e) => console.error("Lenis load failed:", e));
+      };
+      rafId = requestAnimationFrame(raf);
+    } catch (e) {
+      console.error("Lenis init failed:", e);
+    }
 
     return () => {
-      cancelled = true;
       try {
         if (rafId) cancelAnimationFrame(rafId);
         if (lenis) lenis.destroy();

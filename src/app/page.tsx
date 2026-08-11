@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Preloader } from "@/components/outfit/Preloader";
 import { Header } from "@/components/outfit/Header";
 import { ThemeSwitcher } from "@/components/outfit/ThemeSwitcher";
@@ -32,20 +34,12 @@ export default function Home() {
     if (!preloaderDone) return;
     try {
       document.documentElement.classList.add("loaded");
-      import("gsap").then(({ default: gsap }) => {
-        import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
-          try {
-            gsap.registerPlugin(ScrollTrigger);
-            const l = (window as any).__lenis;
-            if (l) l.on("scroll", ScrollTrigger.update);
-            ScrollTrigger.refresh();
-          } catch (e) {
-            console.error("GSAP init failed:", e);
-          }
-        }).catch((e) => console.error("ScrollTrigger load failed:", e));
-      }).catch((e) => console.error("GSAP load failed:", e));
+      gsap.registerPlugin(ScrollTrigger);
+      const l = (window as any).__lenis;
+      if (l) l.on("scroll", ScrollTrigger.update);
+      ScrollTrigger.refresh();
     } catch (e) {
-      console.error("Post-preloader init failed:", e);
+      console.error("GSAP init failed:", e);
     }
   }, [preloaderDone]);
 
