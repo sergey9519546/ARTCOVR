@@ -17,7 +17,7 @@ const FAQS = [
   },
   {
     q: "How do I find my size?",
-    a: "Each product page has a size guide table showing chest, length, and sleeve measurements in inches. If you&apos;re between sizes, we recommend sizing up for a relaxed fit.",
+    a: "Each product page has a size guide table showing chest, length, and sleeve measurements in inches. If you're between sizes, we recommend sizing up for a relaxed fit.",
   },
   {
     q: "Are your products ethically made?",
@@ -69,7 +69,7 @@ export default function FAQPage() {
 
         <div className="mt-16 rounded-lg border border-current/10 p-8 text-center">
           <p className="text-lg font-bold">Still have questions?</p>
-          <p className="mt-2 text-sm opacity-60">We&apos;re here to help.</p>
+          <p className="mt-2 text-sm opacity-60">We're here to help.</p>
           <Link href="/contact" className="mt-4 inline-block rounded-full bg-current px-8 py-3 text-sm font-bold uppercase tracking-tight text-background">Contact us</Link>
         </div>
 

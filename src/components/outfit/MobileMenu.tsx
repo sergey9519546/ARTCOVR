@@ -1,5 +1,13 @@
 "use client";
-const ITEMS = [{l:"Shop",h:"/"},{l:"Bag",h:"/bag"},{l:"Shipping & Returns",h:"/shipping-and-return"},{l:"Visit ++hellohello",h:"https://www.hellohello.is"}];
+const ITEMS = [
+  { l: "Shop", h: "/" },
+  { l: "Bag", h: "/bag" },
+  { l: "About", h: "/about" },
+  { l: "Contact", h: "/contact" },
+  { l: "FAQ", h: "/faq" },
+  { l: "Shipping & Returns", h: "/shipping-and-return" },
+  { l: "Visit ++hellohello", h: "https://www.hellohello.is" },
+];
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  return (<div className={`fixed inset-0 z-[2] flex h-dvh w-full items-center justify-center bg-black text-white dark:bg-white dark:text-black red:bg-red red:text-white ${open?"":"invisible"}`} aria-hidden={!open}><div className="flex h-dvh w-full flex-col justify-between px-4 py-8 lg:px-6"><ul className="mt-20 flex w-full flex-col text-6xl font-normal tracking-tight">{ITEMS.map((item,i) => <li key={item.l} className="overflow-hidden"><a className="link-hover block w-fit py-2" href={item.h} onClick={onClose} style={{opacity:open?1:0,transform:open?"translateY(0)":"translateY(100%)",transition:`opacity 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1+i*0.08}s, transform 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1+i*0.08}s`}}>{item.l}</a></li>)}</ul><div className="flex flex-col gap-2 text-sm"><p className="opacity-70">Libertad 2529, Office 102</p><p className="opacity-70">Montevideo, Uruguay</p><p className="opacity-70">©26 ++hellohello</p></div></div></div>);
+  return (<div className={`fixed inset-0 z-[2] flex h-dvh w-full items-center justify-center bg-black text-white dark:bg-white dark:text-black red:bg-red red:text-white ${open?"":"invisible"}`} aria-hidden={!open}><div className="flex h-dvh w-full flex-col justify-between px-4 py-8 lg:px-6"><ul className="mt-20 flex w-full flex-col text-5xl font-normal tracking-tight md:text-6xl">{ITEMS.map((item,i) => <li key={item.l} className="overflow-hidden"><a className="link-hover block w-fit py-2" href={item.h} onClick={onClose} style={{opacity:open?1:0,transform:open?"translateY(0)":"translateY(100%)",transition:`opacity 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1+i*0.07}s, transform 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1+i*0.07}s`}}>{item.l}</a></li>)}</ul><div className="flex flex-col gap-2 text-sm"><p className="opacity-70">Libertad 2529, Office 102</p><p className="opacity-70">Montevideo, Uruguay</p><p className="opacity-70">©26 ++hellohello</p></div></div></div>);
 }

@@ -123,7 +123,7 @@ export function SpiralScroll() {
         <span className="opacity-50">list</span>
       </div>
       <div className="absolute top-24 right-6 z-[4]">
-        <button className="flex items-center gap-2 rounded-full border border-cream/20 px-4 py-2 text-cream text-xs font-bold uppercase tracking-tight hover:bg-cream/10 transition-colors">menu <span className="h-1.5 w-1.5 rounded-full bg-cream" /></button>
+        <a href="/" className="flex items-center gap-2 rounded-full border border-cream/20 px-4 py-2 text-cream text-xs font-bold uppercase tracking-tight hover:bg-cream/10 transition-colors">menu <span className="h-1.5 w-1.5 rounded-full bg-cream" /></a>
       </div>
       <div className="absolute bottom-8 left-6 z-10 text-cream/40 text-xs font-bold uppercase tracking-tight">OUTFIT® • 3D Spiral • 2026</div>
       <div ref={stgRef} className="relative will-change-transform" style={{ transformStyle: "preserve-3d", width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }}>

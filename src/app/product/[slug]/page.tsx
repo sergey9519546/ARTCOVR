@@ -46,6 +46,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
         });
       }
       localStorage.setItem("bag", JSON.stringify(bag));
+      window.dispatchEvent(new Event("bag-updated"));
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
     } catch (e) {
@@ -97,6 +98,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             <div className="mb-2 flex items-center gap-2 text-xs uppercase opacity-60">
               <div className="h-2 w-2 rounded-full bg-current" />
               <span>{product.category}</span>
+              <span className="opacity-40">•</span>
+              <span className="text-green-700 dark:text-green-400 red:text-green-600">In stock</span>
             </div>
             <h1 className="mb-2 text-4xl font-[900] tracking-tighter md:text-5xl">{product.name}</h1>
             <p className="mb-8 text-2xl font-bold">{product.price}</p>
@@ -155,12 +158,19 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               )}
             </div>
 
-            <button
-              onClick={addToBag}
-              className="mb-4 w-full rounded-full bg-current px-8 py-4 text-sm font-bold uppercase tracking-tight text-background transition-transform hover:scale-[1.02]"
-            >
-              {added ? "✓ Added to Bag" : "Add to Bag"}
-            </button>
+            <div className="mb-4 flex gap-2">
+              <button
+                onClick={addToBag}
+                className="flex-1 rounded-full bg-current px-8 py-4 text-sm font-bold uppercase tracking-tight text-background transition-transform hover:scale-[1.02]"
+              >
+                {added ? "✓ Added to Bag" : "Add to Bag"}
+              </button>
+              {added && (
+                <Link href="/bag" className="rounded-full border border-current/20 px-6 py-4 text-sm font-bold uppercase tracking-tight transition-colors hover:bg-current/10">
+                  View Bag
+                </Link>
+              )}
+            </div>
 
             <div className="mt-8 space-y-4 text-sm leading-6 opacity-70">
               <p>Created by the ++hellohello team. Carefully designed apparel for the creatively passionate. Made to be worn, or judged, or both.</p>

@@ -61,7 +61,7 @@ export function FullScreenSnap() {
       <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[2] flex items-center gap-6 rounded-full bg-black/90 backdrop-blur-sm px-6 py-3 text-cream text-sm font-bold shadow-lg transition-opacity duration-300 ${iv?"opacity-100":"opacity-0 pointer-events-none"}`}>
         <span>OUTFIT®</span>
         <span className="opacity-50">|</span>
-        <button className="link-hover">Menu</button>
+        <a href="/" className="link-hover">Menu</a>
       </div>
       <div style={{ scrollSnapType: "y proximity" }}>
         {SS.map(s => (

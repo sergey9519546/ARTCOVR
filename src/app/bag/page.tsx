@@ -33,6 +33,7 @@ export default function BagPage() {
     const next = items.filter(i => !(i.slug === slug && i.size === size));
     setItems(next);
     localStorage.setItem("bag", JSON.stringify(next));
+    window.dispatchEvent(new Event("bag-updated"));
   };
 
   const updateQty = (slug: string, size: string, delta: number) => {
@@ -44,6 +45,7 @@ export default function BagPage() {
     });
     setItems(next);
     localStorage.setItem("bag", JSON.stringify(next));
+    window.dispatchEvent(new Event("bag-updated"));
   };
 
   const total = items.reduce((sum, i) => {
