@@ -61,6 +61,11 @@ export function SpiralScroll() {
           const n = ITEMS.length;
           const items = stg.querySelectorAll(".spiral-item");
           const R = 350, VS = 60, T = 2.5;
+          // Pre-calculate all spiral positions once at init (improvement #35)
+          const positions = Array.from({length: n}, (_, i) => {
+            const ip = i/(n-1), a = ip*T*Math.PI*2;
+            return { x: Math.cos(a)*R, y: (i-n/2)*VS, z: Math.sin(a)*R, sc: 1-ip*0.4, rs: (i/n)*0.8, re2: (i/n)*0.8+0.2 };
+          });
           items.forEach(el => gsap.set(el as HTMLElement, { x:0, y:0, z:0, scale:0.3, opacity:0, rotationY:0 }));
           stRef.current = ScrollTrigger.create({
             trigger: s,
@@ -73,14 +78,12 @@ export function SpiralScroll() {
                 const p = self.progress, re = 0.7, rp = Math.min(p/re, 1);
                 items.forEach((el: any, i: number) => {
                   const h = el as HTMLElement;
-                  const rs = (i/n)*0.8, re2 = rs+0.2;
-                  if (rp < rs) {
+                  const pos = positions[i];
+                  if (rp < pos.rs) {
                     gsap.set(h, { x:0, y:0, z:0, scale:0.3, opacity:0, rotationY:0 });
                   } else {
-                    const ip = i/(n-1), a = ip*T*Math.PI*2;
-                    const x = Math.cos(a)*R, y = (i-n/2)*VS, z = Math.sin(a)*R, sc = 1-ip*0.4;
-                    const lp = Math.min(1, Math.max(0, (rp-rs)/(re2-rs)));
-                    gsap.set(h, { x:x*lp, y:y*lp, z:z*lp, scale:0.3+(sc-0.3)*lp, opacity:lp, rotationY:0 });
+                    const lp = Math.min(1, Math.max(0, (rp-pos.rs)/(pos.re2-pos.rs)));
+                    gsap.set(h, { x:pos.x*lp, y:pos.y*lp, z:pos.z*lp, scale:0.3+(pos.sc-0.3)*lp, opacity:lp, rotationY:0 });
                   }
                 });
                 if (p > re) {

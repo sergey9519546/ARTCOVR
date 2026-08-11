@@ -95,6 +95,26 @@ export function TiltedCarousel() {
     };
   }, []);
 
+  // Keyboard navigation (improvement #45) — arrow keys to scroll through carousel
+  useEffect(() => {
+    if (!sRef.current) return;
+    const s = sRef.current;
+    const onKey = (e: KeyboardEvent) => {
+      // Only respond when carousel section is in viewport
+      const rect = s.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        const dir = e.key === "ArrowRight" ? 1 : -1;
+        const next = Math.max(0, Math.min(ITEMS.length-1, aiRef.current + dir));
+        const targetY = window.scrollY + (next - aiRef.current) * (CW + CG) * 0.8;
+        window.scrollTo({ top: targetY, behavior: "smooth" });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <section ref={sRef} className="relative h-screen w-full overflow-hidden bg-cream flex items-center">
       <div className="absolute top-26 left-4 lg:left-6 text-xs font-bold uppercase tracking-tight z-10"><p>The Collection</p></div>
