@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Preloader } from "@/components/outfit/Preloader";
 import { Header } from "@/components/outfit/Header";
 import { ThemeSwitcher } from "@/components/outfit/ThemeSwitcher";
@@ -18,9 +19,11 @@ import { FullScreenSnap } from "@/components/outfit/FullScreenSnap";
 import { Footer } from "@/components/outfit/Footer";
 
 export default function Home() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [preloaderDone, setPreloaderDone] = useState(false);
   const [ptActive, setPtActive] = useState(false);
+  const pendingUrl = useRef<string | null>(null);
 
   useLenis(preloaderDone);
 
@@ -46,14 +49,18 @@ export default function Home() {
     }
   }, [preloaderDone]);
 
-  // Product click handler for page transition
+  // Product click handler for page transition — captures href, prevents default, triggers transition
   useEffect(() => {
     if (!preloaderDone) return;
     const hc = (e: MouseEvent) => {
       try {
         const t = e.target as HTMLElement;
         const pl = t.closest("[data-product='true']") as HTMLAnchorElement;
-        if (pl) { e.preventDefault(); setPtActive(true); }
+        if (pl && pl.href) {
+          e.preventDefault();
+          pendingUrl.current = pl.href;
+          setPtActive(true);
+        }
       } catch (err) {
         console.error("Click handler error:", err);
       }
@@ -74,7 +81,16 @@ export default function Home() {
     };
   }, []);
 
-  const htc = useCallback(() => setPtActive(false), []);
+  // Navigate to product page after transition completes
+  const htc = useCallback(() => {
+    setPtActive(false);
+    if (pendingUrl.current) {
+      const url = pendingUrl.current;
+      pendingUrl.current = null;
+      // Use a small delay to let the transition finish visually
+      setTimeout(() => router.push(url), 100);
+    }
+  }, [router]);
 
   return (<>
     <a href="#page" className="skip-link">Skip to content</a>

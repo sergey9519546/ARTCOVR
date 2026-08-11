@@ -199,3 +199,79 @@ Stage Summary:
 - No memory leaks under aggressive scrolling stress test
 - Dev script starts instantly (no rebuild) when .next/ exists
 - Files modified: next.config.ts, ProductCard.tsx
+
+---
+Task ID: comprehensive-audit-fixes
+Agent: main
+Task: Search all the things you could have possibly missed — comprehensive audit
+
+Work Log:
+- Audited all routes and found 3 missing pages linked from the site:
+  * /bag — linked in header, returned 404
+  * /shipping-and-return — linked in hero and mobile menu, returned 404
+  * /product/[slug] — all 13 product links returned 404
+- Audited all internal/external links — all external links valid, all /assets/ files exist
+- Found mobile shipping link in Hero pointed to "#" instead of "/shipping-and-return"
+- Found page transition didn't navigate after completing — just prevented default and showed transition
+- Found sitemap.xml didn't include product routes
+- Created /bag page:
+  * Reads from localStorage "bag" key
+  * Shows empty state with OUTFIT wordmark
+  * Shows items with image, name, size, qty controls, remove button
+  * Calculates subtotal
+  * Has checkout button and back-to-shop link
+- Created /shipping-and-return page:
+  * Static page with 4 sections: Shipping, Returns, Damaged/Defective, Contact
+  * Rich content with shipping times, costs, return policy
+  * Has back-to-shop link
+- Created /product/[slug] page:
+  * Reads product from products.ts by slug
+  * Shows large product image with front/back toggle
+  * Size selector (XS-XXL) with selected state
+  * Add to Bag button — saves to localStorage
+  * Shows "✓ Added to Bag" confirmation
+  * Related products section (4 items)
+  * Breadcrumb navigation
+  * Calls notFound() for invalid slugs
+- Fixed page transition navigation:
+  * Added useRouter from next/navigation
+  * Added pendingUrl ref to capture clicked product href
+  * After transition completes, navigates to the product page
+  * Added 100ms delay for smooth visual transition
+- Fixed Hero mobile shipping link: changed href="#" to href="/shipping-and-return"
+- Updated sitemap.ts to include all 13 product routes (16 URLs total now)
+- Built project successfully — 9 routes compile
+- Verified all routes return 200:
+  * / → 200
+  * /bag → 200
+  * /shipping-and-return → 200
+  * /product/off-by-design → 200
+  * /product/kerned-confidence-1 → 200
+  * /product/specimen-no-hh01 → 200
+  * /product/command-k → 200
+  * /api/health → 200
+  * /sitemap.xml → 200 (16 URLs)
+  * /robots.txt → 200
+  * /nonexistent → 404
+- Verified with browser:
+  * Homepage loads with no errors, all components render
+  * Clicking product triggers page transition → navigates to product page
+  * Product page shows image, 6 size buttons, Add to Bag button
+  * Add to Bag flow works: click → localStorage → bag shows "1 item"
+  * Bag empty state shows correctly
+  * Shipping page shows 4 sections with content
+  * Mobile menu opens with 4 working links
+  * Mobile menu shipping link navigates to /shipping-and-return
+  * No console errors, no page errors
+  * Memory: 101MB
+
+Stage Summary:
+- 3 missing routes created: /bag, /shipping-and-return, /product/[slug]
+- Page transition now navigates to product page after completing
+- Mobile shipping link fixed (was #)
+- Sitemap includes all 13 product routes
+- All internal links now resolve to real pages
+- Full shopping flow works: browse → click product → view details → select size → add to bag → view bag
+- No errors, memory stable at 101MB
+- Files created: bag/page.tsx, shipping-and-return/page.tsx, product/[slug]/page.tsx
+- Files modified: page.tsx, Hero.tsx, sitemap.ts
