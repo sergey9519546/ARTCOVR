@@ -30,12 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (keep documented placeholders in version control)
 .env*
+!.env.example
+!supabase/.env.example
 
 # vercel
 .vercel
-
 
 # typescript
 *.tsbuildinfo
@@ -48,7 +49,27 @@ dev.log
 dev.out.log
 test
 prompt
-
 server.log
+
 # Skills directory
 /skills/
+
+# Local agent execution ledger
+/.superpowers/
+
+# Supabase local runtime and generated secrets
+/supabase/.branches/
+/supabase/.temp/
+
+# Sites deployment metadata is generated during private staging publish
+/.openai/
+
+# Local catalog review artifacts and private source locators (never deployed)
+/outputs/catalog/review-assets/
+/outputs/catalog/thumbnails/
+/outputs/catalog/*.ndjson
+/outputs/catalog/*.xlsx
+/outputs/catalog/*.png
+/outputs/catalog/*.private.json
+/catalog/candidates.csv
+/catalog/candidates.json

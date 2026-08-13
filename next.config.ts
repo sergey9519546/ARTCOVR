@@ -1,22 +1,79 @@
 import type { NextConfig } from "next";
+
+const isDevelopment = process.env.NODE_ENV !== "production";
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://*.supabase.co",
+  "font-src 'self' data:",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "media-src 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+const securityHeaders = [
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=31536000",
+  },
+];
+
+const privateRouteHeaders = [
+  { key: "Cache-Control", value: "private, no-store" },
+  { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+];
+
 const nextConfig: NextConfig = {
   output: "standalone",
-  typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
-  reactStrictMode: false,
+  reactStrictMode: true,
   devIndicators: false,
-  // Reduce memory usage during build
+  poweredByHeader: false,
   experimental: {
     optimizePackageImports: ["gsap", "lenis", "@number-flow/react"],
   },
-  // Compress responses
+  turbopack: {
+    root: process.cwd(),
+  },
   compress: true,
-  // Limit image optimization memory — use unoptimized for local assets (faster, no CPU bottleneck)
   images: {
-    unoptimized: true,
     formats: ["image/avif", "image/webp"],
   },
-  // Avoid OOM during static generation
   staticPageGenerationTimeout: 120,
+  async redirects() {
+    return [
+      { source: "/bag", destination: "/archive", permanent: true },
+      {
+        source: "/shipping-and-return",
+        destination: "/refunds",
+        permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      { source: "/api/:path*", headers: privateRouteHeaders },
+      { source: "/auth/:path*", headers: privateRouteHeaders },
+      { source: "/checkout/:path*", headers: privateRouteHeaders },
+      { source: "/my-images", headers: privateRouteHeaders },
+      { source: "/sign-in", headers: privateRouteHeaders },
+    ];
+  },
 };
 export default nextConfig;

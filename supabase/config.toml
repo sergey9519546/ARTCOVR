@@ -1,0 +1,18 @@
+project_id = "artcovr"
+
+[functions.generate-image]
+verify_jwt = false
+[functions.generation-status]
+verify_jwt = false
+[functions.create-checkout]
+verify_jwt = false
+[functions.stripe-webhook]
+verify_jwt = false
+[functions.submit-inquiry]
+verify_jwt = false
+[functions.generation-watchdog]
+verify_jwt = false
+[functions.commerce-watchdog]
+verify_jwt = false
+[functions.my-images]
+verify_jwt = false

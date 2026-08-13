@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
 
-export async function GET() {
-  return NextResponse.json({ message: "Hello, world!" });
+export function GET(request: Request) {
+  return NextResponse.redirect(new URL("/api/health", request.url), 308);
 }

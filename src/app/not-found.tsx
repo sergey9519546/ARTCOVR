@@ -1,24 +1,9 @@
-"use client";
 import Link from "next/link";
-import { OutfitWordmark } from "@/components/outfit/Svgs";
+import type { Metadata } from "next";
 
-export default function NotFound() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-4 py-32 lg:px-6">
-      <div className="mx-auto max-w-2xl text-center">
-        <div className="mb-12 w-48 mx-auto opacity-30"><OutfitWordmark /></div>
-        <h1 className="mb-4 text-[20vw] font-[900] leading-[0.9] tracking-tighter md:text-[12rem]">404</h1>
-        <p className="mb-2 text-2xl font-bold tracking-tight md:text-3xl">Page not found</p>
-        <p className="mb-12 text-sm opacity-60 md:text-base">The page you&apos;re looking for doesn&apos;t exist or has been moved.</p>
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-          <Link href="/" className="rounded-full bg-current px-8 py-4 text-sm font-bold uppercase tracking-tight text-background transition-transform hover:scale-105">
-            Back to shop
-          </Link>
-          <Link href="/shipping-and-return" className="link-hover rounded-full border border-current/20 px-8 py-4 text-sm font-bold uppercase tracking-tight">
-            Shipping &amp; Returns
-          </Link>
-        </div>
-      </div>
-    </main>
-  );
-}
+export const metadata: Metadata = {
+  title: "Page Not Found",
+  robots: { index: false, follow: false, noarchive: true },
+};
+
+export default function NotFound() { return <main className="grid min-h-[100dvh] place-items-center bg-[#f3eee6] px-4 text-[#0b0b0b]"><div className="border-t-2 border-current pt-5"><p className="text-[11px] font-bold uppercase tracking-[.1em]">404</p><h1 className="mt-5 text-6xl font-extrabold tracking-tighter md:text-8xl">NOT IN THIS ARCHIVE.</h1><Link href="/archive" className="artcovr-button mt-8 inline-block px-5 py-4 text-xs font-bold uppercase tracking-[.08em]">Return to archive</Link></div></main>; }

@@ -1,20 +1,37 @@
 import type { MetadataRoute } from "next";
-import { productsRow1, productsRow2, productsRow3, productsRow4 } from "@/lib/outfit/products";
+import { displayArtworks } from "@/lib/artcovr/artworks";
+import {
+  absoluteSiteUrl,
+  getSiteUrl,
+  isSearchIndexingDisabled,
+} from "@/lib/artcovr/seo";
+
+const PUBLIC_ROUTES = [
+  ["/", "weekly", 1],
+  ["/archive", "weekly", 0.9],
+  ["/about", "monthly", 0.6],
+  ["/faq", "monthly", 0.6],
+  ["/license", "monthly", 0.6],
+  ["/refunds", "monthly", 0.5],
+  ["/contact", "monthly", 0.5],
+  ["/legal/privacy", "yearly", 0.3],
+  ["/legal/terms", "yearly", 0.3],
+] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://outfit.hellohello.is";
-  const now = new Date();
-  const routes: MetadataRoute.Sitemap = [
-    { url: base, lastModified: now, changeFrequency: "weekly", priority: 1 },
-    { url: `${base}/bag`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${base}/shipping-and-return`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${base}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${base}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${base}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+  if (isSearchIndexingDisabled()) return [];
+  const siteUrl = getSiteUrl();
+
+  return [
+    ...PUBLIC_ROUTES.map(([path, changeFrequency, priority]) => ({
+      url: absoluteSiteUrl(path, siteUrl),
+      changeFrequency,
+      priority,
+    })),
+    ...displayArtworks.map((artwork) => ({
+      url: absoluteSiteUrl(`/product/${artwork.slug}`, siteUrl),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
   ];
-  const allProducts = [...productsRow1, ...productsRow2, ...productsRow3, ...productsRow4];
-  for (const p of allProducts) {
-    routes.push({ url: `${base}/product/${p.slug}`, lastModified: now, changeFrequency: "monthly", priority: 0.7 });
-  }
-  return routes;
 }

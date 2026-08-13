@@ -1,0 +1,2 @@
+slug,title,description,sale_mode,price_cents,currency,base_object_key,catalog_object_key,rights_approved_at,publication_approved_at,published_at,is_listed
+example-exclusive,Example Exclusive,Replace before import,exclusive,25000,USD,source/REPLACE/original.png,catalog/REPLACE/cover-watermarked.webp,,,,false

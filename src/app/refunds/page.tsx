@@ -1,0 +1,2 @@
+import { PublicPage } from "@/components/artcovr/PublicPage";
+export default function RefundsPage() { return <PublicPage eyebrow="Support" title="REFUNDS"><p>Refund requests are reviewed by the owner. If a full refund is approved, unused generation access and future signed download links are disabled.</p><p className="mt-6">Files already downloaded cannot be recalled. Refunded exclusive artwork is not automatically returned to sale. Contact us with the purchase email and order details so the request can be reviewed.</p></PublicPage>; }

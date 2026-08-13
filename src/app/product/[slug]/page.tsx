@@ -1,209 +1,85 @@
-"use client";
-import { useState, useEffect } from "react";
+import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { productsRow1, productsRow2, productsRow3, productsRow4, type Product } from "@/lib/outfit/products";
+import { PromptStudio } from "@/components/artcovr/PromptStudio";
+import { SiteFooter } from "@/components/artcovr/SiteFooter";
+import { SiteHeader } from "@/components/artcovr/SiteHeader";
+import { displayArtworks, getArtworkBySlug, getCheckoutTotal, isCheckoutReady } from "@/lib/artcovr/artworks";
+import {
+  buildArtworkStructuredData,
+  createPageMetadata,
+  serializeJsonLd,
+} from "@/lib/artcovr/seo";
 
-const ALL_PRODUCTS: Product[] = [...productsRow1, ...productsRow2, ...productsRow3, ...productsRow4];
+export function generateStaticParams() {
+  return displayArtworks.map((artwork) => ({ slug: artwork.slug }));
+}
 
-export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
-  const [product, setProduct] = useState<Product | null>(null);
-  const [selectedSize, setSelectedSize] = useState("M");
-  const [showBack, setShowBack] = useState(false);
-  const [added, setAdded] = useState(false);
-  const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [slug, setSlug] = useState<string>("");
+type Props = { params: Promise<{ slug: string }> };
 
-  useEffect(() => {
-    params.then(p => {
-      setSlug(p.slug);
-      const found = ALL_PRODUCTS.find(pr => pr.slug === p.slug);
-      if (!found) {
-        notFound();
-        return;
-      }
-      setProduct(found);
-    });
-  }, [params]);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const art = getArtworkBySlug((await params).slug);
+  if (!art) return {};
 
-  const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+  return createPageMetadata({
+    title: art.title,
+    description: art.description,
+    path: `/product/${art.slug}`,
+    index: isCheckoutReady(art),
+    image: { url: art.image, alt: art.alt },
+  });
+}
 
-  const addToBag = () => {
-    if (!product) return;
-    try {
-      const bag = JSON.parse(localStorage.getItem("bag") || "[]");
-      const existing = bag.find((i: any) => i.slug === product.slug && i.size === selectedSize);
-      if (existing) {
-        existing.qty += 1;
-      } else {
-        bag.push({
-          slug: product.slug,
-          name: product.name,
-          price: product.price,
-          image: product.frontImage,
-          size: selectedSize,
-          qty: 1,
-        });
-      }
-      localStorage.setItem("bag", JSON.stringify(bag));
-      window.dispatchEvent(new Event("bag-updated"));
-      setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
-    } catch (e) {
-      console.error("Add to bag failed:", e);
-    }
-  };
-
-  if (!product) {
-    return (
-      <main className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          <p className="text-sm opacity-60">Loading...</p>
-        </div>
-      </main>
-    );
-  }
-
-  const related = ALL_PRODUCTS.filter(p => p.slug !== product.slug).slice(0, 4);
+export default async function ProductPage({ params }: Props) {
+  const art = getArtworkBySlug((await params).slug);
+  if (!art) notFound();
+  const jsonLd = buildArtworkStructuredData(art);
+  const checkoutReady = isCheckoutReady(art);
+  const licenseMode = art.saleMode === "exclusive"
+    ? "Exclusive commercial license"
+    : art.saleMode === "repeatable"
+      ? "Non-exclusive commercial license"
+      : "License mode pending";
 
   return (
-    <main className="min-h-screen px-4 py-32 lg:px-6">
-      <div className="mx-auto max-w-6xl">
-        {/* Breadcrumb */}
-        <nav className="mb-8 text-sm uppercase opacity-60">
-          <Link href="/" className="link-hover">Shop</Link>
-          <span className="mx-2">/</span>
-          <span>{product.name}</span>
+    <>
+      <SiteHeader />
+      <main id="main" className="mx-auto max-w-[1400px] px-4 pb-24 pt-32 lg:px-7">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+        <nav aria-label="Breadcrumb" className="text-[11px] font-bold uppercase tracking-[.1em]">
+          <Link href="/archive" className="link-hover">Archive</Link><span className="mx-2">/</span><span>{art.title}</span>
         </nav>
-
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
-          {/* Image */}
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-[#d2cac3]">
-            <img
-              src={showBack ? product.backImage : product.frontImage}
-              alt={product.name}
-              className="h-full w-full object-cover transition-opacity duration-300"
-            />
-            <button
-              onClick={() => setShowBack(!showBack)}
-              className="absolute bottom-4 right-4 rounded-full bg-black/80 px-4 py-2 text-xs font-bold uppercase tracking-tight text-white backdrop-blur-sm hover:bg-black"
-            >
-              {showBack ? "View Front" : "View Back"}
-            </button>
-          </div>
-
-          {/* Details */}
-          <div className="flex flex-col">
-            <div className="mb-2 flex items-center gap-2 text-xs uppercase opacity-60">
-              <div className="h-2 w-2 rounded-full bg-current" />
-              <span>{product.category}</span>
-              <span className="opacity-40">•</span>
-              <span className="text-green-700 dark:text-green-400 red:text-green-600">In stock</span>
-            </div>
-            <h1 className="mb-2 text-4xl font-[900] tracking-tighter md:text-5xl">{product.name}</h1>
-            <p className="mb-8 text-2xl font-bold">{product.price}</p>
-
-            <div className="mb-8">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm font-bold uppercase tracking-tight">Size</p>
-                <button onClick={() => setShowSizeGuide(!showSizeGuide)} className="text-xs underline opacity-60 hover:opacity-100">Size guide</button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setSelectedSize(s)}
-                    className={`h-12 w-12 rounded-lg border-2 font-bold transition-all ${
-                      selectedSize === s
-                        ? "border-current bg-current text-background"
-                        : "border-current/20 hover:border-current/50"
-                    }`}
-                    aria-pressed={selectedSize === s}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-              {showSizeGuide && (
-                <div className="mt-4 overflow-hidden rounded-lg border border-current/10">
-                  <table className="w-full text-xs">
-                    <thead className="bg-current/5">
-                      <tr>
-                        <th className="p-3 text-left font-bold uppercase">Size</th>
-                        <th className="p-3 text-left font-bold uppercase">Chest (in)</th>
-                        <th className="p-3 text-left font-bold uppercase">Length (in)</th>
-                        <th className="p-3 text-left font-bold uppercase">Sleeve (in)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        ["XS", "32-34", "26", "8"],
-                        ["S", "34-36", "27", "8.5"],
-                        ["M", "38-40", "28", "9"],
-                        ["L", "42-44", "29", "9.5"],
-                        ["XL", "46-48", "30", "10"],
-                        ["XXL", "50-52", "31", "10.5"],
-                      ].map(row => (
-                        <tr key={row[0]} className="border-t border-current/10">
-                          <td className="p-3 font-bold">{row[0]}</td>
-                          <td className="p-3">{row[1]}</td>
-                          <td className="p-3">{row[2]}</td>
-                          <td className="p-3">{row[3]}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-
-            <div className="mb-4 flex gap-2">
-              <button
-                onClick={addToBag}
-                className="flex-1 rounded-full bg-current px-8 py-4 text-sm font-bold uppercase tracking-tight text-background transition-transform hover:scale-[1.02]"
-              >
-                {added ? "✓ Added to Bag" : "Add to Bag"}
-              </button>
-              {added && (
-                <Link href="/bag" className="rounded-full border border-current/20 px-6 py-4 text-sm font-bold uppercase tracking-tight transition-colors hover:bg-current/10">
-                  View Bag
-                </Link>
-              )}
-            </div>
-
-            <div className="mt-8 space-y-4 text-sm leading-6 opacity-70">
-              <p>Created by the ++hellohello team. Carefully designed apparel for the creatively passionate. Made to be worn, or judged, or both.</p>
-              <p>100% combed cotton. Screen printed in Montevideo, Uruguay. Machine wash cold, tumble dry low.</p>
-              <p>
-                <Link href="/shipping-and-return" className="link-hover">Shipping & Returns →</Link>
-              </p>
-            </div>
-          </div>
+        <div className="mt-7 grid gap-10 border-t-2 border-current pt-5 md:grid-cols-[1.1fr_.9fr]">
+          <figure className="relative aspect-square overflow-hidden bg-[#e9e2d7]">
+            <Image src={art.image} alt={art.alt} fill preload loading="eager" sizes="(min-width: 768px) 56vw, 100vw" className="object-cover" />
+          </figure>
+          <section>
+            <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">Artwork preview</p>
+            <h1 className="mt-3 break-words text-4xl font-extrabold tracking-tighter md:text-6xl">{art.title}</h1>
+            <p className="mt-6 text-sm font-bold uppercase tracking-[.08em]">
+              {checkoutReady ? licenseMode : "Rights and pricing pending owner approval"}
+            </p>
+            <dl className="mt-7 divide-y divide-current/20 border-y border-current/20 text-sm">
+              <div className="flex justify-between gap-6 py-3"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending"}</dd></div>
+              <div className="flex justify-between gap-6 py-3"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
+              <div className="flex justify-between py-3"><dt>Pricing</dt><dd>{getCheckoutTotal(art.priceCents)}</dd></div>
+            </dl>
+            <p className="mt-7 max-w-[50ch] text-sm leading-6 opacity-70">
+              {checkoutReady
+                ? art.description
+                : "This candidate is in the ARTCOVR launch selection. Checkout opens only after commercial rights, price, license mode, and publication are approved."}
+            </p>
+            {checkoutReady ? (
+              <Link href={`/checkout/${art.slug}`} className="artcovr-button mt-7 inline-block px-5 py-4 text-xs font-bold uppercase tracking-[.08em]">Review license</Link>
+            ) : (
+              <p className="mt-7 text-xs font-bold uppercase tracking-[.08em] opacity-60">Checkout pending owner approval</p>
+            )}
+          </section>
         </div>
-
-        {/* Related */}
-        <section className="mt-24">
-          <h2 className="mb-8 text-2xl font-bold uppercase tracking-tight">You may also like</h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {related.map(p => (
-              <Link key={p.slug} href={`/product/${p.slug}`} className="group block">
-                <div className="relative aspect-square overflow-hidden rounded-lg bg-[#d2cac3]">
-                  <img src={p.frontImage} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                </div>
-                <div className="mt-3 flex justify-between text-sm">
-                  <p>{p.name}</p>
-                  <p className="font-bold">{p.price}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <div className="mt-16">
-          <Link href="/" className="link-hover text-sm uppercase">← Back to shop</Link>
-        </div>
-      </div>
-    </main>
+        <div className="mt-20"><PromptStudio artwork={art} /></div>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

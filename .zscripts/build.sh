@@ -3,7 +3,7 @@
 # 将 stderr 重定向到 stdout，避免 execute_command 因为 stderr 输出而报错
 exec 2>&1
 
-set -e
+set -euo pipefail
 
 # 获取脚本所在目录（.zscripts 目录，即 workspace-agent/.zscripts）
 # 使用 $0 获取脚本路径（兼容 sh 和 bash）
@@ -27,74 +27,52 @@ cd "$NEXTJS_PROJECT_DIR" || exit 1
 # 设置环境变量
 export NEXT_TELEMETRY_DISABLED=1
 
-BUILD_DIR="/tmp/build_fullstack_$BUILD_ID"
+case "${BUILD_ID:-}" in
+    ""|*[!A-Za-z0-9._-]*)
+        echo "❌ BUILD_ID must be a non-empty safe identifier."
+        exit 1
+        ;;
+esac
+
+BUILD_DIR="/tmp/build_fullstack_${BUILD_ID}"
+case "$BUILD_DIR" in
+    /tmp/build_fullstack_*) ;;
+    *) echo "❌ Refusing unsafe build directory: $BUILD_DIR"; exit 1 ;;
+esac
+PACKAGE_FILE="${BUILD_DIR}.tar.gz"
+cleanup_build_dir() {
+    case "$BUILD_DIR" in
+        /tmp/build_fullstack_*) rm -rf -- "$BUILD_DIR" ;;
+    esac
+}
+trap cleanup_build_dir EXIT
 echo "📁 清理并创建构建目录: $BUILD_DIR"
+cleanup_build_dir
+rm -f -- "$PACKAGE_FILE"
 mkdir -p "$BUILD_DIR"
 
 # 安装依赖
 echo "📦 安装依赖..."
-bun install
+bun install --frozen-lockfile
+
+# Run deterministic release gates before packaging. Empty public catalogs are
+# allowed for private review builds, but the projection must match the approval
+# artifact and all contracts must remain green.
+echo "🔎 验证目录投影和应用契约..."
+bun run catalog:project:check
+bun run test
+bun run typecheck
+bun run lint
 
 # 构建 Next.js 应用
 echo "🔨 构建 Next.js 应用..."
 bun run build
 
-# 校验 standalone 服务端入口是否生成（部署成功率守卫）。
-# Next 仅在 next.config 含 output:"standalone" 时产出 .next/standalone/server.js。
-# 若用户/AI 编辑项目时改写或删除了该配置，bun run build 仍会成功（static 照常
-# 产出、退出码 0），但 standalone 缺失——打出的包里没有 server.js，部署到 FC 后
-# start.sh 找不到 next-service-dist/server.js → 不启动 Next → Caddy:81 反代空的
-# 3000 → FC 健康检查 120s 超时失败（线上 warmup_412 / FunctionNotStarted 的主因）。
-# 这里做一次自愈：仅在确实缺失时，给 next.config 补回 output:"standalone" 并重建。
-# 正常项目（已生成 server.js）整段跳过，不读写任何用户文件。
+# Deployment builds validate source configuration; they never rewrite source
+# files or silently change the selected Next.js output mode.
 if [ ! -f ".next/standalone/server.js" ]; then
-    echo "⚠️  构建未产出 .next/standalone/server.js，开始自愈 next.config 的 output 配置..."
-    NEXT_CONFIG_FILE="$(ls next.config.ts next.config.js next.config.mjs next.config.cjs 2>/dev/null | head -1)"
-
-    if [ -z "$NEXT_CONFIG_FILE" ]; then
-        echo "❌ 构建失败：未找到 next.config.*，无法生成 standalone 部署产物。"
-        exit 1
-    fi
-
-    if grep -Eq "output\s*:\s*['\"]standalone['\"]" "$NEXT_CONFIG_FILE"; then
-        # 已声明 standalone 却仍没产出 server.js，说明不是配置缺失（可能 build 真
-        # 出错、自定义 distDir 等）。不臆改用户配置，直接失败并暴露原因。
-        echo "❌ 构建失败：$NEXT_CONFIG_FILE 已含 output:\"standalone\"，但仍未生成 .next/standalone/server.js。"
-        echo "   请检查上方构建日志中的报错或项目自定义的构建配置。"
-        exit 1
-    fi
-
-    if grep -Eq "output\s*:\s*['\"]" "$NEXT_CONFIG_FILE"; then
-        # 已显式声明了其它 output（如 "export" 静态导出 / "standalone" 之外的值）。
-        # "export" 与本部署模型（standalone + 自定义 server）互斥——不能注入第二个
-        # output 覆盖用户意图（JS 对象重复 key 后者生效，注入也无效）。明确失败。
-        echo "❌ 构建失败：$NEXT_CONFIG_FILE 已声明非 standalone 的 output（如 \"export\" 静态导出），与当前部署模型不兼容。"
-        echo "   当前部署需要 output:\"standalone\"。请改为 standalone，或确认该项目是否应走静态托管而非部署沙箱。"
-        exit 1
-    fi
-
-    echo "🔧 检测到 $NEXT_CONFIG_FILE 缺少 output:\"standalone\"，自动注入后重新构建..."
-    cp "$NEXT_CONFIG_FILE" "${NEXT_CONFIG_FILE}.zbak"
-    # 在第一个配置对象字面量起始的 { 之后插入 output:"standalone"，
-    # 覆盖脚手架常见写法：const nextConfig...= {  /  export default {  /  module.exports = {
-    perl -0pi -e 's/((?:const\s+\w+[^=]*=|export\s+default|module\.exports\s*=)\s*\{)/$1\n  output: "standalone",/' "$NEXT_CONFIG_FILE"
-
-    if ! grep -Eq "output\s*:\s*['\"]standalone['\"]" "$NEXT_CONFIG_FILE"; then
-        echo "❌ 未能匹配到可注入的配置对象，next.config 写法非常规，需人工添加 output:\"standalone\"。"
-        echo "   当前 $NEXT_CONFIG_FILE 内容："
-        cat "$NEXT_CONFIG_FILE"
-        mv "${NEXT_CONFIG_FILE}.zbak" "$NEXT_CONFIG_FILE"
-        exit 1
-    fi
-
-    echo "🔨 已注入 output:\"standalone\"，重新构建..."
-    bun run build
-
-    if [ ! -f ".next/standalone/server.js" ]; then
-        echo "❌ 注入 output:\"standalone\" 并重建后，仍未生成 .next/standalone/server.js。"
-        exit 1
-    fi
-    echo "✅ 自愈成功：standalone 服务端入口已生成。"
+    echo "❌ 构建未产出 .next/standalone/server.js。请在 next.config 中显式配置 output: \"standalone\"。"
+    exit 1
 fi
 
 # 构建 mini-services
@@ -135,23 +113,25 @@ if [ -d "public" ]; then
     cp -r public "$BUILD_DIR/next-service-dist/"
 fi
 
-# Python 不继承 workspace-agent 的 /home/z/.venv。若项目包含 Python 源码或
-# 依赖清单，在构建期将生产依赖固化到产物，并保持 Python 源码的项目相对路径。
-PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
-    bash "$SCRIPT_DIR/python-runtime-build.sh"
-
-# 有 Preview 数据库时复制现有数据；没有时直接在部署产物中初始化空库。
-# 模板源码不携带 db/custom.db，不能依赖 dev.sh 必须在 Deploy 前成功运行过。
-PROJECT_DIR="$NEXTJS_PROJECT_DIR" BUILD_DIR="$BUILD_DIR" \
-    bash "$SCRIPT_DIR/database-runtime-build.sh"
-
-# 复制 Caddyfile（如果存在）
-if [ -f "Caddyfile" ]; then
-    echo "  - 复制 Caddyfile"
-    cp Caddyfile "$BUILD_DIR/"
+if [ "${NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING:-0}" != "1" ]; then
+    echo "🧹 从公共包中移除未批准的审核图像..."
+    bun run catalog:prune:deployment -- "$BUILD_DIR/next-service-dist/public"
 else
-    echo "ℹ️  Caddyfile 不存在，跳过"
+    echo "ℹ️  私有审核构建保留审核图像；此包必须部署到访问受控的 Sites staging。"
 fi
+
+# Deployment packages must not regain deleted media, local configuration, or
+# legacy brand files through a stale standalone trace.
+if find "$BUILD_DIR" -type f \( -iname '*.mp4' -o -iname '*.mov' -o -iname '*.webm' -o -iname '*.avi' \) -print -quit | grep -q .; then
+    echo "❌ Refusing to package video assets."
+    exit 1
+fi
+if find "$BUILD_DIR" -type f \( -name '.env' -o -name '.env.*' \) -print -quit | grep -q .; then
+    echo "❌ Refusing to package environment files."
+    exit 1
+fi
+
+# ARTCOVR intentionally does not package the legacy arbitrary-port Caddy proxy.
 
 # 复制 start.sh 脚本
 echo "  - 复制 start.sh 到 $BUILD_DIR"
@@ -159,15 +139,11 @@ cp "$SCRIPT_DIR/start.sh" "$BUILD_DIR/start.sh"
 chmod +x "$BUILD_DIR/start.sh"
 
 # 打包到 $BUILD_DIR.tar.gz
-PACKAGE_FILE="${BUILD_DIR}.tar.gz"
 echo ""
 echo "📦 打包构建产物到 $PACKAGE_FILE..."
 cd "$BUILD_DIR" || exit 1
 tar -czf "$PACKAGE_FILE" .
 cd - > /dev/null || exit 1
-
-# # 清理临时目录
-# rm -rf "$BUILD_DIR"
 
 echo ""
 echo "✅ 构建完成！所有产物已打包到 $PACKAGE_FILE"

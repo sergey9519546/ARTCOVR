@@ -1,0 +1,28 @@
+import Image from "next/image";
+import Link from "next/link";
+import { isCheckoutReady, type Artwork } from "@/lib/artcovr/artworks";
+
+export function ArtworkCard({ artwork, priority = false }: { artwork: Artwork; priority?: boolean }) {
+  return (
+    <article className="group">
+      <Link href={`/product/${artwork.slug}`} className="block" aria-label={`View ${artwork.title}`}>
+        <div className="relative aspect-square overflow-hidden bg-[#e9e2d7]">
+          <Image src={artwork.image} alt={artwork.alt} fill preload={priority} loading={priority ? "eager" : "lazy"} sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+        </div>
+        <div className="mt-3 flex items-start justify-between gap-4 text-xs font-bold uppercase tracking-[.06em]">
+          <div>
+            <h2 className="text-base normal-case tracking-tight">{artwork.title}</h2>
+            <p className="mt-1 opacity-60">
+              {isCheckoutReady(artwork)
+                ? artwork.saleMode === "exclusive"
+                  ? "Exclusive license available"
+                  : "Commercial license available"
+                : "Availability pending"}
+            </p>
+          </div>
+          <span aria-hidden="true">↗</span>
+        </div>
+      </Link>
+    </article>
+  );
+}

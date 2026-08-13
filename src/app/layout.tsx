@@ -1,12 +1,101 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import {
+  buildOrganizationStructuredData,
+  getSiteUrl,
+  isSearchIndexingDisabled,
+  serializeJsonLd,
+} from "@/lib/artcovr/seo";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { ScrollToTop } from "@/components/outfit/ScrollToTop";
-import { BackToTop } from "@/components/outfit/BackToTop";
-const outfitFont = localFont({ src: [{ path: "../../public/assets/NeueHaasGroteskTextPro-Regular.woff2", weight: "400", style: "normal" }, { path: "../../public/assets/NeueHaasGroteskTextPro-Medium.woff2", weight: "700", style: "normal" }, { path: "../../public/assets/NeueHaasGroteskTextPro-Bold.woff2", weight: "800", style: "normal" }], variable: "--font-outfit", display: "swap", fallback: ["ui-sans-serif", "system-ui", "Arial", "sans-serif"] });
-export const metadata: Metadata = { title: "OUTFIT® by ++hellohello", description: "Created by the ++hellohello team, this store and signature collection celebrates our collective creativity and passion for apparel. Carefully designed.", icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png" }, manifest: "/manifest.json", openGraph: { title: "OUTFIT® by ++hellohello", description: "Signature collection by ++hellohello. Carefully designed apparel for the creatively passionate.", type: "website", url: "https://outfit.hellohello.is", siteName: "OUTFIT®", images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "OUTFIT® by ++hellohello" }] }, twitter: { card: "summary_large_image", title: "OUTFIT® by ++hellohello", description: "Signature collection by ++hellohello. Carefully designed apparel.", images: ["/og-image.png"] } };
-const JSONLD = { "@context": "https://schema.org", "@type": "Store", name: "OUTFIT®", description: "Signature collection by ++hellohello. Carefully designed apparel.", brand: { "@type": "Brand", name: "OUTFIT®" }, founder: { "@type": "Organization", name: "++hellohello", url: "https://www.hellohello.is" }, address: { "@type": "PostalAddress", streetAddress: "Libertad 2529, Office 102", addressLocality: "Montevideo", addressCountry: "UY" } };
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (<html lang="en" suppressHydrationWarning className={`${outfitFont.className}`}><head><meta name="color-scheme" content="light dark" /><link rel="preload" as="image" href="/assets/preloader-1.jpg" fetchPriority="high" /><link rel="preload" as="image" href="/assets/preloader-2.jpg" fetchPriority="high" /><link rel="preload" as="image" href="/assets/preloader-3.jpg" fetchPriority="high" /><link rel="preload" as="font" type="font/woff2" href="/assets/NeueHaasGroteskTextPro-Regular.woff2" crossOrigin="anonymous" /><link rel="preload" as="font" type="font/woff2" href="/assets/NeueHaasGroteskTextPro-Medium.woff2" crossOrigin="anonymous" /><script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('theme');if(!t){t='red';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','red');}})();` }} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSONLD) }} /></head><body className={`${outfitFont.className} bg-cream selection:bg-red red:bg-cream red:text-red red:selection:bg-black text-black selection:text-white dark:bg-black dark:text-white`}><ScrollToTop />{children}<BackToTop /><Toaster /></body></html>);
+
+const display = localFont({
+  src: [
+    {
+      path: "../../public/assets/NeueHaasGroteskTextPro-Regular.woff2",
+      weight: "400",
+    },
+    {
+      path: "../../public/assets/NeueHaasGroteskTextPro-Medium.woff2",
+      weight: "700",
+    },
+    {
+      path: "../../public/assets/NeueHaasGroteskTextPro-Bold.woff2",
+      weight: "800",
+    },
+  ],
+  variable: "--font-artcovr",
+  display: "swap",
+});
+
+const siteUrl = getSiteUrl();
+const indexingDisabled = isSearchIndexingDisabled();
+const title = "ARTCOVR — Cover art, made yours";
+const description =
+  "Discover distinctive square cover art and shape a purchased artwork with your own prompt.";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: { default: title, template: "%s — ARTCOVR" },
+  description,
+  applicationName: "ARTCOVR",
+  authors: [{ name: "ARTCOVR", url: siteUrl }],
+  creator: "ARTCOVR",
+  publisher: "ARTCOVR",
+  category: "art",
+  alternates: { canonical: "/" },
+  formatDetection: { telephone: false, email: false, address: false },
+  robots: indexingDisabled
+    ? { index: false, follow: false, noarchive: true, noimageindex: true }
+    : {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    siteName: "ARTCOVR",
+    title,
+    description,
+    url: siteUrl,
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "ARTCOVR" }],
+  },
+  twitter: { card: "summary_large_image", title, description, images: ["/og-image.png"] },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const organization = buildOrganizationStructuredData(siteUrl);
+
+  return (
+    <html lang="en" className={display.className} data-theme="red" suppressHydrationWarning>
+      <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'||t==='red'?t:'red'}catch(e){document.documentElement.dataset.theme='red'}",
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(organization) }}
+        />
+        {children}
+      </body>
+    </html>
+  );
 }

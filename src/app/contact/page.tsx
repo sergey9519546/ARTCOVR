@@ -1,74 +1,64 @@
 "use client";
-import { useState } from "react";
+
 import Link from "next/link";
+import { type FormEvent, useState } from "react";
+import { PublicPage } from "@/components/artcovr/PublicPage";
+import { ArtcovrApiError, submitInquiry } from "@/lib/artcovr/functions";
 
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [needsSignIn, setNeedsSignIn] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSent(true);
-    setForm({ name: "", email: "", subject: "", message: "" });
-    setTimeout(() => setSent(false), 5000);
-  };
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSending(true);
+    setError("");
+    setNeedsSignIn(false);
+    const form = new FormData(event.currentTarget);
+
+    try {
+      await submitInquiry(String(form.get("name") || ""), String(form.get("message") || ""));
+      setSent(true);
+    } catch (reason) {
+      setNeedsSignIn(reason instanceof ArtcovrApiError && reason.code === "unauthorized");
+      setError(reason instanceof Error ? reason.message : "Your inquiry could not be sent.");
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
-    <main className="min-h-screen px-4 py-32 lg:px-6">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-12">
-          <div className="mb-6 h-[5px] w-full bg-current" />
-          <h1 className="text-6xl font-[900] tracking-tighter md:text-8xl">Contact</h1>
-        </div>
-
-        <p className="mb-12 text-lg opacity-70">Have a question? Want to collaborate? Drop us a line.</p>
-
-        {sent ? (
-          <div className="rounded-lg border border-current/20 p-8 text-center">
-            <p className="text-2xl font-bold">Message sent!</p>
-            <p className="mt-2 text-sm opacity-60">We&apos;ll get back to you within 48 hours.</p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-tight">Name</label>
-                <input required type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full rounded-lg border border-current/20 bg-transparent px-4 py-3 text-sm outline-none focus:border-current" />
-              </div>
-              <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-tight">Email</label>
-                <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full rounded-lg border border-current/20 bg-transparent px-4 py-3 text-sm outline-none focus:border-current" />
-              </div>
+    <PublicPage eyebrow="Support" title={<>CUSTOM<br />INQUIRY.</>}>
+      <p className="max-w-[50ch] text-sm leading-6 opacity-70">
+        For a release with different needs, tell us what you are making and the artwork you are considering. Sign in with your email before sending so we can reply to the verified address on your account.
+      </p>
+      {sent ? (
+        <p role="status" className="mt-8 border-l-2 border-current pl-4 font-bold">
+          Your inquiry has been received. We’ll reply by email.
+        </p>
+      ) : (
+        <form onSubmit={submit} className="mt-8 grid gap-5">
+          <label className="text-xs font-bold uppercase tracking-[.08em]">
+            Name
+            <input name="name" required className="mt-2 block w-full border border-current/30 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none focus:border-current" />
+          </label>
+          <label className="text-xs font-bold uppercase tracking-[.08em]">
+            Tell us about the release
+            <textarea name="message" required rows={6} className="mt-2 block w-full resize-y border border-current/30 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none focus:border-current" />
+          </label>
+          <button disabled={sending} className="artcovr-button w-fit px-5 py-4 text-xs font-bold uppercase tracking-[.08em] disabled:cursor-wait disabled:opacity-50">
+            {sending ? "Sending…" : "Send inquiry"}
+          </button>
+          {error && (
+            <div role="alert" className="border-l-2 border-red-700 pl-4 text-sm">
+              <p>{error}</p>
+              {needsSignIn && <Link href="/sign-in" className="link-hover mt-2 inline-block font-bold">Sign in with email</Link>}
             </div>
-            <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-tight">Subject</label>
-              <input required type="text" value={form.subject} onChange={e => setForm({...form, subject: e.target.value})} className="w-full rounded-lg border border-current/20 bg-transparent px-4 py-3 text-sm outline-none focus:border-current" />
-            </div>
-            <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-tight">Message</label>
-              <textarea required rows={6} value={form.message} onChange={e => setForm({...form, message: e.target.value})} className="w-full resize-none rounded-lg border border-current/20 bg-transparent px-4 py-3 text-sm outline-none focus:border-current" />
-            </div>
-            <button type="submit" className="w-full rounded-full bg-current px-8 py-4 text-sm font-bold uppercase tracking-tight text-background transition-transform hover:scale-105">Send message</button>
-          </form>
-        )}
-
-        <div className="mt-16 grid grid-cols-1 gap-8 border-t border-current/10 pt-8 md:grid-cols-2">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-tight opacity-60">Studio</p>
-            <p className="mt-2">Libertad 2529, Office 102</p>
-            <p>Montevideo, Uruguay</p>
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-tight opacity-60">Elsewhere</p>
-            <p className="mt-2"><a href="https://www.hellohello.is" target="_blank" rel="noopener noreferrer" className="link-hover">++hellohello →</a></p>
-            <p><a href="https://www.instagram.com/hellohelloteam" target="_blank" rel="noopener noreferrer" className="link-hover">Instagram →</a></p>
-          </div>
-        </div>
-
-        <div className="mt-16">
-          <Link href="/" className="link-hover text-sm uppercase">← Back to shop</Link>
-        </div>
-      </div>
-    </main>
+          )}
+        </form>
+      )}
+    </PublicPage>
   );
 }

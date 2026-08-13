@@ -1,14 +1,13 @@
 {
-  "name": "OUTFIT® by ++hellohello",
-  "short_name": "OUTFIT®",
-  "description": "Signature collection by ++hellohello. Carefully designed apparel.",
+  "name": "ARTCOVR",
+  "short_name": "ARTCOVR",
+  "description": "Distinctive cover art, shaped by your prompt.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f3ecd9",
-  "theme_color": "#122519",
+  "background_color": "#f3eee6",
+  "theme_color": "#0b0b0b",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
