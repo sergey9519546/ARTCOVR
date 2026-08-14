@@ -29,10 +29,12 @@ test("the supplied gallery surfaces expose the complete 100-cover catalog withou
     const images = links.flatMap((link) => Array.from(link.querySelectorAll<HTMLImageElement>("img")));
     await Promise.all(
       images.map(async (image) => {
+        image.loading = "eager";
         if (image.complete) return;
         await new Promise<void>((resolve) => {
-          image.addEventListener("load", () => resolve(), { once: true });
-          image.addEventListener("error", () => resolve(), { once: true });
+          const timer = setTimeout(resolve, 8000);
+          image.addEventListener("load", () => { clearTimeout(timer); resolve(); }, { once: true });
+          image.addEventListener("error", () => { clearTimeout(timer); resolve(); }, { once: true });
         });
       }),
     );

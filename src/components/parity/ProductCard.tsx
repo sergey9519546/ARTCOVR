@@ -34,31 +34,18 @@ export const ProductCard = memo(function ProductCard({
             {artwork.title}
           </div>
         ) : (
-          <>
-            <Image
-              alt={artwork.alt}
-              draggable={false}
-              fill
-              priority={priority}
-              loading={priority ? "eager" : "lazy"}
-              unoptimized
-              className="object-cover"
-              src={artwork.image}
-              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 40vw, 80vw"
-              onError={() => setImageError(true)}
-            />
-            <Image
-              aria-hidden="true"
-              alt=""
-              draggable={false}
-              fill
-              loading="lazy"
-              unoptimized
-              className="scale-[1.18] object-cover brightness-[0.82] contrast-[1.08] transition-all duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] [clip-path:polygon(0%_0%,_0%_0%,_0%_100%,_0%_100%)] group-hover:scale-[1.04] group-hover:brightness-100 group-hover:contrast-100 group-hover:[clip-path:polygon(0%_0%,_100%_0%,_100%_100%,_0%_100%)]"
-              src={artwork.image}
-              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 40vw, 80vw"
-            />
-          </>
+          <Image
+            alt={artwork.alt}
+            draggable={false}
+            fill
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
+            unoptimized
+            className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]"
+            src={artwork.image}
+            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 40vw, 80vw"
+            onError={() => setImageError(true)}
+          />
         )}
       </div>
       <div className="mt-3 flex flex-col justify-between gap-2 text-lg leading-5 md:flex-row">

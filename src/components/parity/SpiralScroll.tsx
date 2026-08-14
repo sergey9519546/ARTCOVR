@@ -44,17 +44,18 @@ export function SpiralScroll() {
     const stage = stageRef.current;
     const label = labelRef.current;
     const itemElements = stage.querySelectorAll<HTMLElement>(".spiral-item");
-    const radius = 350;
-    const verticalSpacing = Math.max(34, 1500 / ITEMS.length);
-    const turns = Math.max(2.5, ITEMS.length / 10);
+    const radius = 520;
+    const verticalSpacing = Math.max(46, 980 / ITEMS.length);
+    const turns = Math.max(3.2, ITEMS.length / 9);
     const positions = ITEMS.map((_, index) => {
       const itemProgress = index / (ITEMS.length - 1);
-      const angle = itemProgress * turns * Math.PI * 2;
+      const angle = itemProgress * turns * Math.PI * 2 - Math.PI / 2;
+      const centerBias = 1 - Math.abs(itemProgress - 0.5) * 1.6;
       return {
         x: Math.cos(angle) * radius,
-        y: (index - ITEMS.length / 2) * verticalSpacing,
-        z: Math.sin(angle) * radius,
-        scale: 1 - itemProgress * 0.4,
+        y: (index - ITEMS.length / 2) * verticalSpacing + Math.sin(angle) * 80,
+        z: Math.sin(angle) * radius * 1.4,
+        scale: 0.52 + centerBias * 1.4,
         revealStart: (index / ITEMS.length) * 0.8,
         revealEnd: (index / ITEMS.length) * 0.8 + 0.2,
       };
@@ -64,9 +65,10 @@ export function SpiralScroll() {
       x: 0,
       y: 0,
       z: 0,
-      scale: 0.3,
+      scale: 0.24,
       opacity: 0,
       rotationY: 0,
+      rotationX: 0,
     });
     triggerRef.current = ScrollTrigger.create({
       trigger: section,
@@ -95,19 +97,23 @@ export function SpiralScroll() {
             x: position.x * localProgress,
             y: position.y * localProgress,
             z: position.z * localProgress,
-            scale: 0.3 + (position.scale - 0.3) * localProgress,
+            scale: 0.24 + (position.scale - 0.24) * localProgress,
             opacity: localProgress,
+            rotationY: 28 + position.x * 0.04,
+            rotationX: -16 + (1 - localProgress) * 14,
           });
         });
 
         if (progress > revealEnd) {
           const rotationProgress = (progress - revealEnd) / (1 - revealEnd);
           gsap.set(stage, {
-            rotationY: rotationProgress * 120,
-            scale: 1 + rotationProgress * 0.4,
+            rotationY: rotationProgress * 170,
+            rotationX: 12 - rotationProgress * 8,
+            rotationZ: -18 + rotationProgress * 18,
+            scale: 1 + rotationProgress * 0.5,
           });
         } else {
-          gsap.set(stage, { rotationY: 0, scale: 1 });
+          gsap.set(stage, { rotationY: 0, rotationX: 0, rotationZ: 0, scale: 1 });
         }
 
         if (label) {
@@ -126,8 +132,8 @@ export function SpiralScroll() {
         }
       },
       onLeaveBack: () => {
-        gsap.set(itemElements, { x: 0, y: 0, z: 0, scale: 0.3, opacity: 0 });
-        gsap.set(stage, { rotationY: 0, scale: 1 });
+        gsap.set(itemElements, { x: 0, y: 0, z: 0, scale: 0.24, opacity: 0, rotationY: 0, rotationX: 0 });
+        gsap.set(stage, { rotationY: 0, rotationX: 0, rotationZ: 0, scale: 1 });
         if (label) label.style.opacity = "0";
       },
     });
@@ -210,17 +216,17 @@ export function SpiralScroll() {
             href={`/product/${artwork.slug}`}
             data-artwork="true"
             aria-label={`View ${artwork.title}`}
-            className="spiral-item absolute top-1/2 left-1/2 -mt-[70px] -ml-[70px] h-[140px] w-[140px] will-change-transform"
+            className="spiral-item absolute top-1/2 left-1/2 -mt-[120px] -ml-[120px] h-[240px] w-[240px] will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
-            <span className="block h-full w-full overflow-hidden rounded-lg border border-white/10 bg-[#1a1a1a] shadow-2xl">
+            <span className="block h-full w-full overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
               <img
                 src={artwork.image}
                 alt=""
                 className="h-full w-full object-cover"
                 loading="lazy"
-                width={140}
-                height={140}
+                width={240}
+                height={240}
               />
             </span>
           </Link>

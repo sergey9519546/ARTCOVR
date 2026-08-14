@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-export type Theme = "light" | "dark";
+export type Theme = "light" | "dark" | "red";
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
@@ -8,9 +8,9 @@ export function useTheme() {
     let stored: string | null = null;
     try { stored = localStorage.getItem("theme"); } catch {}
     const current = document.documentElement.getAttribute("data-theme");
-    const next: Theme = stored === "light" || stored === "dark"
+    const next: Theme = stored === "light" || stored === "dark" || stored === "red"
       ? stored
-      : current === "light" || current === "dark"
+      : current === "light" || current === "dark" || current === "red"
         ? current
         : "light";
     document.documentElement.setAttribute("data-theme", next);

@@ -3,6 +3,7 @@ import { useTheme, type Theme } from "@/hooks/artcovr/useTheme";
 const THEMES: { id: Theme; label: string; bg: string; shadow: string }[] = [
   { id: "dark", label: "Switch to dark theme", bg: "bg-black", shadow: "shadow-[inset_0_0_0_0.05em_black]" },
   { id: "light", label: "Switch to light theme", bg: "bg-cream", shadow: "shadow-[inset_0_0_0_0.05em_black]" },
+  { id: "red", label: "Switch to red theme", bg: "bg-red", shadow: "shadow-[inset_0_0_0_0.05em_#122519]" },
 ];
 export function ThemeSwitcher() {
   const { theme, setTheme, mounted } = useTheme();

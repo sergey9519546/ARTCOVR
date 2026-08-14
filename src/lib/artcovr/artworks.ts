@@ -94,33 +94,57 @@ export function searchArtworks(query: string, items: readonly Artwork[] = displa
 export function pickIntroArtworks(items: readonly Artwork[] = displayArtworks, count = 6) {
   if (items.length <= count) return [...items];
 
-  const groups = new Map<string, Artwork[]>();
-  for (const item of items) {
-    const group = groups.get(item.category) ?? [];
-    group.push(item);
-    groups.set(item.category, group);
-  }
+  const preferredIntroSlugs = [
+    "cart-of-hours",
+    "last-sock-on-the-line",
+    "nesting-appliance",
+    "transit-diagram",
+    "corrupted-digital-dreamscape",
+    "velvet-moss-surrealism",
+  ];
 
-  const categoryOrder = [...groups.keys()];
-  const picked = new Set<string>();
+  const bySlug = new Map(items.map((item) => [item.slug, item]));
   const selected: Artwork[] = [];
+  const seen = new Set<string>();
 
-  for (const category of categoryOrder) {
-    const candidate = groups.get(category)?.find((item) => !picked.has(item.id));
-    if (!candidate) continue;
-    picked.add(candidate.id);
+  for (const slug of preferredIntroSlugs) {
+    const candidate = bySlug.get(slug);
+    if (!candidate || seen.has(candidate.id)) continue;
+    seen.add(candidate.id);
     selected.push(candidate);
     if (selected.length >= count) return selected;
   }
 
-  for (const item of items) {
-    if (picked.has(item.id)) continue;
-    picked.add(item.id);
+  const categoryPriority = [
+    "Minimal / Abstract",
+    "Graphic / Illustration / Print",
+    "Surreal / Hybrid",
+    "Mixed Media / Collage",
+    "Material / Sculptural / Organic",
+    "Painterly / Illustrative",
+    "Digital / Computational",
+  ];
+
+  const fallback = [...items].sort((left, right) => {
+    const leftCategoryIndex = categoryPriority.indexOf(left.category);
+    const rightCategoryIndex = categoryPriority.indexOf(right.category);
+    const categoryDelta = (leftCategoryIndex === -1 ? categoryPriority.length : leftCategoryIndex) -
+      (rightCategoryIndex === -1 ? categoryPriority.length : rightCategoryIndex);
+    if (categoryDelta !== 0) return categoryDelta;
+
+    const leftMood = left.moodTags.join("|");
+    const rightMood = right.moodTags.join("|");
+    return leftMood.localeCompare(rightMood);
+  });
+
+  for (const item of fallback) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
     selected.push(item);
-    if (selected.length >= count) return selected;
+    if (selected.length >= count) break;
   }
 
-  return [...selected];
+  return selected.slice(0, count);
 }
 
 export function getArtworkBySlug(slug: string) {

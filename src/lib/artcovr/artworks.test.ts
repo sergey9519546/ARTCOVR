@@ -25,11 +25,17 @@ describe("artwork helpers", () => {
     assert.equal(displayArtworks[0]?.slug, stagingArtworks[0]?.slug);
   });
 
-  test("picks a diverse intro-art set with category spread", () => {
+  test("picks a diverse intro-art set with category and mood spread", () => {
     const introArtworks = pickIntroArtworks(displayArtworks, 6);
     assert.equal(introArtworks.length, 6);
     const uniqueCategories = new Set(introArtworks.map((artwork) => artwork.category));
-    assert.ok(uniqueCategories.size >= 4);
+    const uniqueMoods = new Set(introArtworks.flatMap((artwork) => artwork.moodTags));
+    const hasGraphic = introArtworks.some((artwork) => artwork.slug === "last-sock-on-the-line");
+    const hasMinimal = introArtworks.some((artwork) => artwork.slug === "transit-diagram");
+    const hasDigital = introArtworks.some((artwork) => artwork.slug === "corrupted-digital-dreamscape");
+    assert.ok(uniqueCategories.size >= 5);
+    assert.ok(uniqueMoods.size >= 10);
+    assert.ok(hasGraphic && hasMinimal && hasDigital);
   });
 
   test("searches artwork metadata across categories, moods, and descriptors", () => {

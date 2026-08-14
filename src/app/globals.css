@@ -3,11 +3,13 @@
 
 /* These variants and tokens are part of the supplied archive UI contract. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant red (&:where([data-theme="red"], [data-theme="red"] *));
 
 @theme {
   --color-cream: #f3ecd9;
   --color-paper: #f3ecd9;
   --color-carbon: #0b0b0b;
+  --color-red: #122519;
   --color-white: #f3ecd9;
   --color-signal: #122519;
   --color-graphite: #74746f;
@@ -49,6 +51,17 @@ html[data-theme="dark"] {
   --input: rgb(243 236 217 / 22%);
   --ring: rgb(243 236 217 / 55%);
   --cursor-color: #f3ecd9;
+}
+html[data-theme="red"] {
+  color-scheme: light;
+  --background: #f3ecd9;
+  --foreground: #122519;
+  --card: #fff;
+  --card-foreground: #122519;
+  --border: rgb(18 37 25 / 18%);
+  --input: rgb(18 37 25 / 22%);
+  --ring: rgb(18 37 25 / 50%);
+  --cursor-color: #122519;
 }
 * { box-sizing: border-box; }
 html {
