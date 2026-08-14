@@ -5,6 +5,7 @@ import { selectPublicCatalog } from "./catalog-visibility.ts";
 import {
   orderByDiversityRank,
   relatedVisualSlugs,
+  spreadByVisualCluster,
   visualLabelSearchTerms,
 } from "./visual-index.ts";
 
@@ -96,14 +97,19 @@ export function balanceDisplayOrder<T extends { category: string }>(items: reado
 }
 
 /**
- * Display order: the image-vector diversity traversal from visual-index.json
- * whenever every displayed work carries a rank, so visually similar works
- * never land in neighbouring grid cells. The private staging catalog is not in
- * the index (and a partially indexed catalog would produce a half-sorted
- * grid), so both cases fall back to the category round-robin.
+ * Display order: the palette-spread traversal from visual-index.json, which
+ * keeps the colour cast a viewer actually reads from repeating in neighbouring
+ * grid cells while still using the image-vector diversity rank to order works
+ * within a palette. Falls back to the raw vector traversal, then to the
+ * category round-robin: the private staging catalog is not in the index, and a
+ * partially indexed catalog would produce a half-sorted grid.
  */
 export function orderForDisplay(items: readonly Artwork[]) {
-  return orderByDiversityRank(items) ?? balanceDisplayOrder(items);
+  return (
+    spreadByVisualCluster(items) ??
+    orderByDiversityRank(items) ??
+    balanceDisplayOrder(items)
+  );
 }
 
 export const displayArtworks = orderForDisplay(

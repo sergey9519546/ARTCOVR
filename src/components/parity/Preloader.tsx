@@ -81,8 +81,14 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
   return (
     <div
       id="artcovr-preloader"
-      className="fixed inset-0 z-50 overflow-hidden bg-black text-white"
+      className="fixed inset-0 z-50 flex items-center justify-center gap-8"
       style={{
+        // Light is the primary theme, so the intro takes the theme background
+        // (cream) rather than a hardcoded black. The wordmark and counter stay
+        // a constant cream under mix-blend-difference, which resolves to black
+        // on the cream ground and to cream on the dark-theme ground.
+        background: "var(--background)",
+        color: "var(--foreground)",
         clipPath: exited ? "inset(0% 0% 100% 0%)" : "inset(0% 0% 0% 0%)",
         transition: "clip-path 0.7s cubic-bezier(0.19,1,0.22,1)",
         contain: "layout style paint",
@@ -92,53 +98,56 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
       aria-live={exited ? undefined : "polite"}
       aria-label={exited ? undefined : `Loading ${counter} percent`}
     >
-      <div className="absolute inset-0 isolate">
-        {PRELOADER_IMAGES.map((artwork, index) => {
-          const visible = index < visibleImages;
-          const imageScale = visible ? 1 : 0.72;
-          const centerShiftX = (index - (PRELOADER_IMAGES.length - 1) / 2) * 26;
-          const centerShiftY = (index % 2 === 0 ? -18 : 18) + index * 10;
-          return (
-            <img
-              key={artwork.id}
-              src={artwork.image}
-              alt=""
-              loading="eager"
-              width={540}
-              height={540}
-              decoding="async"
-              className="absolute left-1/2 top-1/2 aspect-square w-[58vw] object-cover sm:w-[36vw] md:w-[22vw] lg:w-[18vw]"
-              style={{
-                color: "transparent",
-                willChange: "transform",
-                transform: `translate3d(calc(-50% + ${centerShiftX}px), calc(-50% + ${centerShiftY}px), 0) rotate(${ROTATIONS[index]}deg) scale(${imageScale})`,
-                transition: "transform 0.55s cubic-bezier(0.19,1,0.22,1), opacity 0.55s ease",
-                zIndex: index + 1,
-                opacity: visible ? 1 : 0.18,
-                filter: visible ? "saturate(1.04) contrast(1.02)" : "saturate(0.8) contrast(0.92)",
-              }}
-              sizes="(max-width: 768px) 58vw, (max-width: 1024px) 36vw, 18vw"
-            />
-          );
-        })}
-      </div>
-
-      <div className="relative z-20 flex h-full items-center justify-center">
+      <div className="relative">
+        {/*
+         * The archive intro stacks every cover on the exact same centre point,
+         * each one rotated and punched in from scale 0. The cards must not be
+         * fanned apart across the viewport: the overlap is the effect.
+         */}
+        <div className="fixed inset-0 flex items-center justify-center" style={{ contain: "layout paint style" }}>
+          {PRELOADER_IMAGES.map((artwork, index) => {
+            const visible = index < visibleImages;
+            return (
+              <img
+                key={artwork.id}
+                src={artwork.image}
+                alt=""
+                loading="eager"
+                width={450}
+                height={450}
+                decoding="async"
+                className="absolute aspect-square w-[30vw] object-cover md:w-[12vw]"
+                style={{
+                  color: "transparent",
+                  willChange: "transform",
+                  transform: `translate3d(0,0,0) rotate(${ROTATIONS[index]}deg) scale(${visible ? 1 : 0})`,
+                  transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)",
+                  zIndex: index + 1,
+                }}
+                sizes="(max-width: 768px) 30vw, 12vw"
+              />
+            );
+          })}
+        </div>
         <div
           aria-hidden="true"
-          className="text-center text-[clamp(3.7rem,8vw,10rem)] font-black leading-[0.78] tracking-[-0.09em] text-white"
-          style={{ mixBlendMode: "difference" }}
+          className="text-cream relative mx-auto w-[28rem] max-w-[70vw] overflow-visible text-center text-[clamp(3.2rem,8vw,7.5rem)] font-black leading-none tracking-[-0.09em] mix-blend-difference md:max-w-none"
+          style={{ zIndex: 20 }}
         >
           ARTCOVR
         </div>
+        <div className="absolute -top-10 right-0 overflow-hidden text-2xl mix-blend-difference">
+          <span className="text-cream block text-right">{String(counter).padStart(3, "0")}</span>
+        </div>
       </div>
-
-      <div className="absolute right-8 top-8 z-30 text-[0.7rem] font-bold uppercase tracking-[0.24em] text-white" style={{ mixBlendMode: "difference" }}>
-        {String(counter).padStart(3, "0")}
-      </div>
-
-      <div className="absolute right-0 bottom-0 left-0 z-30 h-[3px] bg-white/10">
-        <div className="h-full bg-white transition-all duration-300 ease-out" style={{ width: `${counter}%` }} />
+      <div
+        className="absolute right-0 bottom-0 left-0 h-[3px]"
+        style={{ background: "color-mix(in srgb, var(--foreground) 12%, transparent)" }}
+      >
+        <div
+          className="h-full transition-all duration-300 ease-out"
+          style={{ width: `${counter}%`, background: "var(--foreground)" }}
+        />
       </div>
     </div>
   );

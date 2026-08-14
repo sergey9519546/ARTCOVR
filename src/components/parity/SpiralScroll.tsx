@@ -20,12 +20,44 @@ function sampleSpiralItems(offset: number) {
 const STATIC_MEDIA_QUERY =
   "(prefers-reduced-motion: reduce), (pointer: coarse)";
 
+/*
+ * The archive spiral is a depth tunnel, not a stack of absolutely-placed rows.
+ * Every cover sits at a fixed angle on an ellipse and at a fixed station along
+ * z; scrolling moves the camera down the tunnel, so covers rise out of the far
+ * distance, pass the viewer, and leave. Perspective does the scaling, which is
+ * what keeps the composition centred at every scroll position — the previous
+ * version drove x/y/scale by hand and pushed the whole run off-frame.
+ */
+const RADIUS_X = 360;
+const RADIUS_Y = 190;
+const TURNS = 3.5;
+const DEPTH_STEP = 430;
+/** Depth window a cover is drawn in, relative to the camera. */
+const DEPTH_FAR = -2600;
+const DEPTH_NEAR = 420;
+/** Depth of the final cover when the scroll ends, so the last frame stays full. */
+const DEPTH_END = -1700;
+const FADE_IN = 750;
+const FADE_OUT = 340;
+const PERSPECTIVE = 1400;
+
+const CARD_MIN = 200;
+const CARD_MAX = 300;
+const CARD_VIEWPORT_RATIO = 0.24;
+
+function computeCardSize(viewportHeight: number) {
+  return Math.round(
+    Math.min(Math.max(viewportHeight * CARD_VIEWPORT_RATIO, CARD_MIN), CARD_MAX),
+  );
+}
+
 export function SpiralScroll() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<ReturnType<typeof ScrollTrigger.create> | null>(null);
   const [staticMode, setStaticMode] = useState(false);
+  const [cardSize, setCardSize] = useState(CARD_MIN);
   const ITEMS = sampleSpiralItems(0);
 
   useEffect(() => {
@@ -37,6 +69,13 @@ export function SpiralScroll() {
   }, []);
 
   useEffect(() => {
+    const updateSize = () => setCardSize(computeCardSize(window.innerHeight));
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  useEffect(() => {
     if (staticMode || ITEMS.length < 2 || !sectionRef.current || !stageRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -44,32 +83,59 @@ export function SpiralScroll() {
     const stage = stageRef.current;
     const label = labelRef.current;
     const itemElements = stage.querySelectorAll<HTMLElement>(".spiral-item");
-    const radius = 520;
-    const verticalSpacing = Math.max(46, 980 / ITEMS.length);
-    const turns = Math.max(3.2, ITEMS.length / 9);
+
+    // Fixed station for every cover: an angle on the ellipse and a depth.
+    const angleStep = (TURNS * Math.PI * 2) / Math.max(1, ITEMS.length - 1);
     const positions = ITEMS.map((_, index) => {
-      const itemProgress = index / (ITEMS.length - 1);
-      const angle = itemProgress * turns * Math.PI * 2 - Math.PI / 2;
-      const centerBias = 1 - Math.abs(itemProgress - 0.5) * 1.6;
+      const angle = index * angleStep - Math.PI / 2;
       return {
-        x: Math.cos(angle) * radius,
-        y: (index - ITEMS.length / 2) * verticalSpacing + Math.sin(angle) * 80,
-        z: Math.sin(angle) * radius * 1.4,
-        scale: 0.52 + centerBias * 1.4,
-        revealStart: (index / ITEMS.length) * 0.8,
-        revealEnd: (index / ITEMS.length) * 0.8 + 0.2,
+        x: Math.cos(angle) * RADIUS_X,
+        y: Math.sin(angle) * RADIUS_Y,
+        station: index * DEPTH_STEP,
       };
     });
 
-    gsap.set(itemElements, {
-      x: 0,
-      y: 0,
-      z: 0,
-      scale: 0.24,
-      opacity: 0,
-      rotationY: 0,
-      rotationX: 0,
-    });
+    // The camera stops while the last covers are still mid-flight rather than
+    // travelling past all of them: running to the end of the tunnel empties the
+    // frame, so the section would finish on blank ground.
+    const travelStart = DEPTH_FAR + FADE_IN;
+    const travelEnd = positions[positions.length - 1].station + DEPTH_END;
+    const travelRange = travelEnd - travelStart;
+
+    const place = (progress: number) => {
+      const camera = travelStart + progress * travelRange;
+
+      itemElements.forEach((element, index) => {
+        const position = positions[index];
+        const z = camera - position.station;
+
+        if (z <= DEPTH_FAR || z >= DEPTH_NEAR) {
+          gsap.set(element, { opacity: 0 });
+          return;
+        }
+
+        const fadeIn = Math.min(1, (z - DEPTH_FAR) / FADE_IN);
+        const fadeOut = Math.min(1, (DEPTH_NEAR - z) / FADE_OUT);
+
+        gsap.set(element, {
+          x: position.x,
+          y: position.y,
+          z,
+          opacity: Math.min(fadeIn, fadeOut),
+          // Covers angle back toward the centre line of the tunnel.
+          rotationY: -position.x * 0.045,
+          rotationX: position.y * 0.02,
+        });
+      });
+
+      // A slow roll of the whole tunnel; deliberately small, so the run never
+      // leaves frame the way the old 170-degree stage spin did.
+      gsap.set(stage, { rotationZ: -5 + progress * 10 });
+    };
+
+    gsap.set(itemElements, { opacity: 0, transformOrigin: "50% 50%" });
+    place(0);
+
     triggerRef.current = ScrollTrigger.create({
       trigger: section,
       start: "top top",
@@ -77,44 +143,7 @@ export function SpiralScroll() {
       pin: true,
       scrub: 1,
       onUpdate: ({ progress }) => {
-        const revealEnd = 0.7;
-        const revealProgress = Math.min(progress / revealEnd, 1);
-        itemElements.forEach((element, index) => {
-          const position = positions[index];
-          if (revealProgress < position.revealStart) {
-            gsap.set(element, { x: 0, y: 0, z: 0, scale: 0.3, opacity: 0 });
-            return;
-          }
-          const localProgress = Math.min(
-            1,
-            Math.max(
-              0,
-              (revealProgress - position.revealStart) /
-                (position.revealEnd - position.revealStart),
-            ),
-          );
-          gsap.set(element, {
-            x: position.x * localProgress,
-            y: position.y * localProgress,
-            z: position.z * localProgress,
-            scale: 0.24 + (position.scale - 0.24) * localProgress,
-            opacity: localProgress,
-            rotationY: 28 + position.x * 0.04,
-            rotationX: -16 + (1 - localProgress) * 14,
-          });
-        });
-
-        if (progress > revealEnd) {
-          const rotationProgress = (progress - revealEnd) / (1 - revealEnd);
-          gsap.set(stage, {
-            rotationY: rotationProgress * 170,
-            rotationX: 12 - rotationProgress * 8,
-            rotationZ: -18 + rotationProgress * 18,
-            scale: 1 + rotationProgress * 0.5,
-          });
-        } else {
-          gsap.set(stage, { rotationY: 0, rotationX: 0, rotationZ: 0, scale: 1 });
-        }
+        place(progress);
 
         if (label) {
           const index = Math.min(ITEMS.length - 1, Math.floor(progress * ITEMS.length));
@@ -132,8 +161,7 @@ export function SpiralScroll() {
         }
       },
       onLeaveBack: () => {
-        gsap.set(itemElements, { x: 0, y: 0, z: 0, scale: 0.24, opacity: 0, rotationY: 0, rotationX: 0 });
-        gsap.set(stage, { rotationY: 0, rotationX: 0, rotationZ: 0, scale: 1 });
+        place(0);
         if (label) label.style.opacity = "0";
       },
     });
@@ -144,14 +172,18 @@ export function SpiralScroll() {
       gsap.set(stage, { clearProps: "transform" });
       gsap.set(itemElements, { clearProps: "transform,opacity" });
     };
-  }, [staticMode]);
+  }, [staticMode, cardSize]);
 
   if (ITEMS.length === 0) return null;
 
   if (staticMode || ITEMS.length < 2) {
     const staticItems = displayArtworks;
     return (
-      <section className="bg-black px-4 py-20 text-cream" aria-label="ARTCOVR archive sequence">
+      <section
+        className="px-4 py-20"
+        style={{ background: "var(--background)", color: "var(--foreground)" }}
+        aria-label="ARTCOVR archive sequence"
+      >
         <div className="mb-10 flex items-center justify-between text-xs font-bold uppercase tracking-tight">
           <span>ARTCOVR archive</span>
           <Link href="/archive" className="border-b border-current pb-1">View all</Link>
@@ -186,23 +218,27 @@ export function SpiralScroll() {
     <section
       ref={sectionRef}
       aria-label="ARTCOVR spiral archive"
-      className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-black"
-      style={{ perspective: "1600px" }}
+      className="relative flex h-screen w-full items-center justify-center overflow-hidden"
+      style={{
+        background: "var(--background)",
+        color: "var(--foreground)",
+        perspective: `${PERSPECTIVE}px`,
+      }}
     >
-      <div className="absolute top-24 left-1/2 z-[4] flex -translate-x-1/2 items-center gap-3 text-sm font-bold uppercase tracking-tight text-cream">
-        <span className="border-b border-cream pb-0.5">archive</span>
+      <div className="absolute top-24 left-1/2 z-[4] flex -translate-x-1/2 items-center gap-3 text-sm font-bold tracking-tight uppercase">
+        <span className="border-b border-current pb-0.5">archive</span>
         <span className="opacity-30">•</span>
         <span className="opacity-50">spiral</span>
       </div>
       <div className="absolute top-24 right-6 z-[4]">
         <Link
           href="/archive"
-          className="flex items-center gap-2 rounded-full border border-cream/20 px-4 py-2 text-xs font-bold uppercase tracking-tight text-cream transition-colors hover:bg-cream/10"
+          className="flex items-center gap-2 rounded-full border border-current/20 px-4 py-2 text-xs font-bold tracking-tight uppercase transition-colors hover:bg-current/10"
         >
-          archive <span className="h-1.5 w-1.5 rounded-full bg-cream" />
+          archive <span className="h-1.5 w-1.5 rounded-full bg-current" />
         </Link>
       </div>
-      <div className="absolute bottom-8 left-6 z-10 text-xs font-bold uppercase tracking-tight text-cream/40">
+      <div className="absolute bottom-8 left-6 z-10 text-xs font-bold tracking-tight uppercase opacity-40">
         ARTCOVR® • COVER ARCHIVE • 2026
       </div>
       <div
@@ -216,17 +252,30 @@ export function SpiralScroll() {
             href={`/product/${artwork.slug}`}
             data-artwork="true"
             aria-label={`View ${artwork.title}`}
-            className="spiral-item absolute top-1/2 left-1/2 -mt-[120px] -ml-[120px] h-[240px] w-[240px] will-change-transform"
-            style={{ transformStyle: "preserve-3d" }}
+            className="spiral-item absolute top-1/2 left-1/2 will-change-transform"
+            style={{
+              transformStyle: "preserve-3d",
+              width: `${cardSize}px`,
+              height: `${cardSize}px`,
+              marginTop: `${-cardSize / 2}px`,
+              marginLeft: `${-cardSize / 2}px`,
+            }}
           >
-            <span className="block h-full w-full overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
+            <span
+              className="block h-full w-full overflow-hidden"
+              style={{
+                background: "var(--card)",
+                border: "1px solid var(--border)",
+                boxShadow: "0 30px 60px color-mix(in srgb, var(--foreground) 18%, transparent)",
+              }}
+            >
               <img
                 src={artwork.image}
                 alt=""
                 className="h-full w-full object-cover"
                 loading="lazy"
-                width={240}
-                height={240}
+                width={cardSize}
+                height={cardSize}
               />
             </span>
           </Link>
@@ -235,8 +284,12 @@ export function SpiralScroll() {
       <div
         ref={labelRef}
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-32 left-1/2 z-20 -translate-x-1/2 rounded-full bg-cream px-6 py-3 text-sm font-bold uppercase tracking-tight text-black transition-opacity duration-300"
-        style={{ opacity: 0 }}
+        className="pointer-events-none absolute bottom-32 left-1/2 z-20 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-bold tracking-tight uppercase transition-opacity duration-300"
+        style={{
+          opacity: 0,
+          background: "var(--foreground)",
+          color: "var(--background)",
+        }}
       />
     </section>
   );

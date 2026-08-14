@@ -14,9 +14,22 @@ const ITEMS = displayArtworks.map((artwork, index) => ({
   alt: artwork.alt,
   bg: index % 2 === 0 ? "bg-[#ece6dc]" : "bg-[#d9d1c8]",
 }));
-const CW = 300;
-const CH = 300;
-const CG = 20;
+/*
+ * The archive cards are sized from the viewport, not from a fixed 300px box:
+ * a card fills roughly two thirds of the screen height so a single cover reads
+ * as the subject of the section rather than as a thumbnail in a filmstrip.
+ */
+const CARD_MIN = 320;
+const CARD_MAX = 880;
+const CARD_VIEWPORT_RATIO = 0.66;
+const CARD_GAP_RATIO = 0.06;
+
+function computeCardSize(viewportHeight: number) {
+  return Math.round(
+    Math.min(Math.max(viewportHeight * CARD_VIEWPORT_RATIO, CARD_MIN), CARD_MAX),
+  );
+}
+
 const STATIC_MEDIA_QUERY =
   "(prefers-reduced-motion: reduce), (pointer: coarse)";
 const SCROLL_PIXELS_PER_CARD = 170;
@@ -26,10 +39,15 @@ export function TiltedCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [staticMode, setStaticMode] = useState(false);
+  const [cardSize, setCardSize] = useState(CARD_MIN);
   const activeIndexRef = useRef(0);
   const scrollTriggerRef = useRef<ReturnType<
     typeof ScrollTrigger.create
   > | null>(null);
+
+  const CW = cardSize;
+  const CH = cardSize;
+  const CG = Math.round(cardSize * CARD_GAP_RATIO);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
@@ -37,6 +55,13 @@ export function TiltedCarousel() {
     updateMode();
     mediaQuery.addEventListener("change", updateMode);
     return () => mediaQuery.removeEventListener("change", updateMode);
+  }, []);
+
+  useEffect(() => {
+    const updateSize = () => setCardSize(computeCardSize(window.innerHeight));
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
   }, []);
 
   useEffect(() => {
@@ -101,7 +126,7 @@ export function TiltedCarousel() {
         console.error("Carousel cleanup error:", error);
       }
     };
-  }, [staticMode]);
+  }, [staticMode, CW, CG]);
 
   // Preserve the archive's keyboard navigation; static mode scrolls the track
   // horizontally so reduced-motion and touch users are never forced through a pin.
@@ -136,7 +161,7 @@ export function TiltedCarousel() {
 
     section.addEventListener("keydown", onKey);
     return () => section.removeEventListener("keydown", onKey);
-  }, [staticMode]);
+  }, [staticMode, CW, CG]);
 
   if (ITEMS.length === 0) return null;
 
