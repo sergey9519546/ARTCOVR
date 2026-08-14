@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+
+export const dynamic = "force-static";
 import { displayArtworks } from "@/lib/artcovr/artworks";
 import {
   absoluteSiteUrl,

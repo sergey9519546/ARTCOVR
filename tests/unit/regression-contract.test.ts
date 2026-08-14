@@ -63,9 +63,11 @@ test("private catalog staging is explicit and separated from the public projecti
 });
 
 test("auth callback keeps redirect destinations on the app origin", async () => {
-  const callback = await read("src/app/auth/callback/route.ts");
-  assert.match(callback, /value\.includes\("\\\\"\)/);
-  assert.match(callback, /destination\.origin !== requestUrl\.origin/);
+  const callback = await read("src/app/auth/callback/page.tsx");
+  assert.match(callback, /safeNext/);
+  assert.match(callback, /sign-in\?error=callback/);
+  assert.match(callback, /getSupabaseBrowserClient/);
+  assert.match(callback, /exchangeCodeForSession/);
 });
 
 test("contact confirms only after persisting an inquiry", async () => {

@@ -17,6 +17,12 @@ const contentSecurityPolicy = [
   "frame-ancestors 'none'",
 ].join("; ");
 
+// Security header declarations. In `next dev` (used by the Playwright e2e
+// suite) Next.js attaches these to every response. In `output: "export"`
+// builds these `headers()`/`redirects()` functions are inert — Cloudflare
+// Pages serves the equivalent headers from `public/_headers`. Keep this list
+// and `public/_headers` in sync; the seo-security-contract unit test asserts
+// the declarations below exist in this file.
 const securityHeaders = [
   { key: "Content-Security-Policy", value: contentSecurityPolicy },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -40,7 +46,7 @@ const privateRouteHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: "export",
   reactStrictMode: true,
   devIndicators: false,
   poweredByHeader: false,
@@ -52,9 +58,13 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   images: {
-    formats: ["image/avif", "image/webp"],
+    unoptimized: true,
   },
   staticPageGenerationTimeout: 120,
+  // Legacy redirects. Honored in `next dev` (the e2e legacy-redirect test
+  // relies on them). In `output: "export"` builds these are inert; Cloudflare
+  // Pages serves the equivalent rules from `public/_redirects`. Keep both
+  // sources in sync.
   async redirects() {
     return [
       { source: "/bag", destination: "/archive", permanent: true },
@@ -65,6 +75,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // See the `securityHeaders` note above. Honored in `next dev`; mirrored in
+  // `public/_headers` for static export. Keep both in sync.
   async headers() {
     return [
       { source: "/(.*)", headers: securityHeaders },

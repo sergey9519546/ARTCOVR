@@ -23,14 +23,21 @@ test("support and license copy matches the confirmed ARTCOVR product", async () 
   assert.doesNotMatch(copy, /number of licenses available/i);
 });
 
-test("health diagnostics remain host-relative, dynamic, and uncached", async () => {
-  const [redirect, health] = await Promise.all([
-    read("src/app/api/route.ts"),
-    read("src/app/api/health/route.ts"),
-  ]);
-  assert.match(redirect, /new URL\("\/api\/health", request\.url\)/);
-  assert.doesNotMatch(redirect, /artcovr\.com/);
-  assert.match(health, /force-dynamic/);
-  assert.match(health, /Cache-Control.*no-store/);
-  assert.doesNotMatch(health, /process\.uptime/);
+test("health diagnostics: static export uses no server route handlers", async () => {
+  // The /api/health Route Handler was removed for Cloudflare Pages static export.
+  // Health checks are served by Cloudflare infrastructure. Verify the old dynamic
+  // route files no longer exist in the source tree.
+  const { access } = await import("node:fs/promises");
+  const { fileURLToPath } = await import("node:url");
+  const root = fileURLToPath(new URL("../../src/app/api", import.meta.url));
+  await assert.rejects(
+    () => access(`${root}/health/route.ts`),
+    /ENOENT/,
+    "api/health/route.ts should not exist in a static export build",
+  );
+  await assert.rejects(
+    () => access(`${root}/route.ts`),
+    /ENOENT/,
+    "api/route.ts should not exist in a static export build",
+  );
 });

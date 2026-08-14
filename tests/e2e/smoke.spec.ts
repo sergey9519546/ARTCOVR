@@ -38,15 +38,11 @@ test("legacy routes are real permanent redirects", async ({ request }) => {
   expect(shipping.headers().location).toMatch(/\/refunds$/);
 });
 
-test("health endpoint is uncached and supports HEAD", async ({ request }) => {
+test("static export has no /api/health server route", async ({ request }) => {
+  // In static export mode the /api/health Route Handler is removed.
+  // Requesting it on the Cloudflare CDN returns 404.
   const response = await request.get("/api/health");
-  expect(response.status()).toBe(200);
-  expect(response.headers()["cache-control"]).toContain("no-store");
-  expect(await response.json()).toMatchObject({ status: "ok" });
-
-  const head = await request.head("/api/health");
-  expect(head.status()).toBe(204);
-  expect(head.headers()["cache-control"]).toContain("no-store");
+  expect(response.status()).toBe(404);
 });
 
 test("security headers are attached and implementation branding is suppressed", async ({ request }) => {

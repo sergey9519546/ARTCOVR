@@ -81,7 +81,7 @@ test("server-rendered home remains usable when JavaScript is disabled", async ({
     viewport: { width: 1280, height: 800 },
   });
   const page = await context.newPage();
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: /cover art/i })).toBeVisible();
   await expect(page.locator("main")).not.toHaveAttribute("inert", "");
   await expect(page.locator('[role="status"][aria-label^="Loading"]')).toBeHidden();
