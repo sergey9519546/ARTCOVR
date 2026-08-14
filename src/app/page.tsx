@@ -36,7 +36,13 @@ export default function Home() {
   useEffect(() => {
     setHydrated(true);
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
-    const updateMode = () => setMotionAllowed(!mediaQuery.matches);
+    const updateMode = () => {
+      const allowed = !mediaQuery.matches;
+      setMotionAllowed(allowed);
+      if (!allowed) {
+        setPreloaderDone(true);
+      }
+    };
     updateMode();
     mediaQuery.addEventListener("change", updateMode);
     return () => mediaQuery.removeEventListener("change", updateMode);
@@ -58,7 +64,7 @@ export default function Home() {
   }, [preloaderDone]);
 
   useEffect(() => {
-    if (!preloaderDone) return;
+    if (!preloaderDone || !motionAllowed) return;
 
     const handleArtworkClick = (event: MouseEvent) => {
       if (
@@ -88,7 +94,7 @@ export default function Home() {
 
     document.addEventListener("click", handleArtworkClick);
     return () => document.removeEventListener("click", handleArtworkClick);
-  }, [preloaderDone]);
+  }, [preloaderDone, motionAllowed]);
 
   const finishTransition = useCallback(() => {
     const destination = pendingUrl.current;
