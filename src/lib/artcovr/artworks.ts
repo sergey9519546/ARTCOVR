@@ -26,8 +26,10 @@ export type Artwork = {
  * Public production routes must use `artworks`, which includes only rows that
  * passed both rights and publication approval.
  */
-export const stagingArtworks = curatedReview satisfies Artwork[];
-const approvedPublicArtworks = selectPublicCatalog(curatedPublic satisfies Artwork[]);
+const curatedPublicTyped = curatedPublic as Artwork[];
+const curatedReviewTyped = curatedReview as Artwork[];
+export const stagingArtworks = curatedReviewTyped;
+const approvedPublicArtworks = selectPublicCatalog(curatedPublicTyped);
 export const artworks = approvedPublicArtworks.length > 0 ? approvedPublicArtworks : stagingArtworks;
 export const isPrivateStaging =
   process.env.NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING === "1";

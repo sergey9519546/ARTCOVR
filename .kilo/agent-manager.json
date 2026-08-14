@@ -1,9 +1,46 @@
 {
-  "worktrees": {},
+  "worktrees": {
+    "wt-1786678915502-1": {
+      "branch": "resilient-park",
+      "path": "c:\\users\\serge\\desktop\\artcovr\\.kilo\\worktrees\\resilient-park",
+      "parentBranch": "artcovr-storefront",
+      "createdAt": "2026-08-14T03:41:55.502Z",
+      "groupId": "grp-1786678913988",
+      "branchOwned": true
+    },
+    "wt-1786678916859-2": {
+      "branch": "defiant-mollusk",
+      "path": "c:\\users\\serge\\desktop\\artcovr\\.kilo\\worktrees\\defiant-mollusk",
+      "parentBranch": "artcovr-storefront",
+      "createdAt": "2026-08-14T03:41:56.859Z",
+      "groupId": "grp-1786678913988",
+      "branchOwned": true
+    },
+    "wt-1786678918217-3": {
+      "branch": "oval-watcher",
+      "path": "c:\\users\\serge\\desktop\\artcovr\\.kilo\\worktrees\\oval-watcher",
+      "parentBranch": "artcovr-storefront",
+      "createdAt": "2026-08-14T03:41:58.217Z",
+      "groupId": "grp-1786678913988",
+      "branchOwned": true
+    }
+  },
   "sessions": {
     "ses_002460b9fffeY0U3d2bFnaR8FN": {
       "worktreeId": null,
       "createdAt": "2026-08-14T00:44:10.238Z"
+    },
+    "ses_001a3439bffeSkmghJYLn3K4qY": {
+      "worktreeId": "wt-1786678915502-1",
+      "createdAt": "2026-08-14T03:41:58.261Z"
+    },
+    "ses_001a34068ffek0emBJY1NOWih4": {
+      "worktreeId": "wt-1786678916859-2",
+      "createdAt": "2026-08-14T03:41:59.075Z"
+    },
+    "ses_001a33ecfffer9ngSxqXVv3Ybk": {
+      "worktreeId": "wt-1786678918217-3",
+      "createdAt": "2026-08-14T03:41:59.502Z"
     }
   },
   "tabOrder": {
@@ -11,5 +48,10 @@
       "ses_002460b9fffeY0U3d2bFnaR8FN"
     ]
   },
+  "worktreeOrder": [
+    "wt-1786678915502-1",
+    "wt-1786678916859-2",
+    "wt-1786678918217-3"
+  ],
   "sessionsCollapsed": true
 }
