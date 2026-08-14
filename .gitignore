@@ -73,3 +73,7 @@ server.log
 /outputs/catalog/*.private.json
 /catalog/candidates.csv
 /catalog/candidates.json
+
+# Build-session scratch: screen recordings and pasted uploads are never runtime data
+/upload/
+*.mp4
