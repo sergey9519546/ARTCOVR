@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { displayArtworks } from "@/lib/artcovr/artworks";
+import { displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
 
-const PRELOADER_IMAGES = displayArtworks.slice(0, 6);
+const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 6);
 const ROTATIONS = [9.98, -12.43, -2.99, -6.51, 17.67, -1.09];
 const COUNTER_STEPS = [
   { d: 800, v: 1 }, { d: 1100, v: 4 }, { d: 1300, v: 9 },
@@ -89,18 +89,19 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 src={artwork.image}
                 alt=""
                 loading="eager"
-                width={450}
-                height={450}
+                width={520}
+                height={520}
                 decoding="async"
-                className="absolute aspect-square w-[30vw] object-cover md:w-[12vw]"
+                className="absolute aspect-square w-[56vw] object-cover sm:w-[36vw] md:w-[22vw] lg:w-[19vw]"
                 style={{
                   color: "transparent",
                   willChange: "transform",
-                  transform: `translate3d(0,0,0) rotate(${ROTATIONS[index]}deg) scale(${visible ? 1 : 0})`,
-                  transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)",
+                  transform: `translate3d(${index % 2 === 0 ? 0 : 12}px, ${index * 4}px, 0) rotate(${ROTATIONS[index]}deg) scale(${visible ? 1 : 0})`,
+                  transition: "transform 0.55s cubic-bezier(0.19,1,0.22,1)",
                   zIndex: index + 1,
+                  filter: visible ? "saturate(1.04) contrast(1.02)" : "saturate(0.9) contrast(0.95)",
                 }}
-                sizes="(max-width: 768px) 30vw, 12vw"
+                sizes="(max-width: 768px) 56vw, (max-width: 1024px) 36vw, 19vw"
               />
             );
           })}

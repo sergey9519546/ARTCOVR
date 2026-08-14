@@ -18,7 +18,7 @@ export function Header({
     <nav
       id="header"
       aria-label="Primary navigation"
-      className="red:text-[oklab(0.73_-0.14_-0.1)] fixed top-0 left-0 z-[3] flex w-full items-center justify-between text-white mix-blend-difference"
+      className="fixed top-0 left-0 z-[3] flex w-full items-center justify-between text-white mix-blend-difference"
     >
       <div className="mx-auto flex w-full items-center justify-between px-4 py-8 lg:px-6">
         <Link className="mr-2 text-xl font-[900] tracking-[-0.06em] lg:mr-6" href="/" aria-label="ARTCOVR home">

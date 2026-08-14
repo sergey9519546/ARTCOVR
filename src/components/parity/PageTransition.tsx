@@ -28,14 +28,12 @@ export function PageTransition({ active, onComplete }: { active: boolean; onComp
   if (phase === "idle" || phase === "done") return null;
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-red text-cream"
+      className="pointer-events-none fixed inset-0 z-[100] bg-black dark:bg-cream"
       style={{
         clipPath: phase === "exiting" ? "inset(100% 0% 0% 0%)" : "inset(0% 0% 0% 0%)",
         transition: phase === "exiting" ? "clip-path 0.7s cubic-bezier(0.19,1,0.22,1)" : "none",
       }}
       aria-hidden="true"
-    >
-      <div className="text-[12vw] font-[900] tracking-[-0.08em] transition-opacity duration-300 md:text-[7vw]">ARTCOVR</div>
-    </div>
+    />
   );
 }

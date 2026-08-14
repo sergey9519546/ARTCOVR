@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:gap-8">
         <div className="flex-1 text-[2.75rem] leading-[1] font-[900] tracking-tighter text-balance md:text-[6vw]">
           <p>Cover art, made yours.</p>
-          <p className="text-[#5A5A5A] red:text-red">Start with art. Prompt what comes next.</p>
+          <p className="text-[#5A5A5A]">Start with art. Prompt what comes next.</p>
         </div>
         <p className="text-[45vw] leading-[1] font-[900] tracking-tighter md:text-[12.75vw]">©26</p>
       </div>

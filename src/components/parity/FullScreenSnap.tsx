@@ -33,8 +33,8 @@ const SECTIONS = [
   },
   {
     id: "iterate",
-    bg: "bg-red",
-    fg: "text-cream",
+    bg: "bg-[#d7d0c7]",
+    fg: "text-black",
     title: "Make it",
     sub: "your own",
     desc: "Each visible result becomes the starting point for your next prompt. Reset returns to the original.",

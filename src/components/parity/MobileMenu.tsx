@@ -75,7 +75,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
       role="dialog"
       aria-modal={open ? "true" : undefined}
       aria-label="Navigation menu"
-      className={`fixed inset-0 z-40 flex h-dvh w-full items-center justify-center overflow-y-auto bg-black text-white dark:bg-white dark:text-black red:bg-red red:text-white ${open ? "" : "invisible"}`}
+      className={`fixed inset-0 z-40 flex h-dvh w-full items-center justify-center overflow-y-auto bg-black text-white dark:bg-white dark:text-black ${open ? "" : "invisible"}`}
       aria-hidden={!open}
       inert={!open ? true : undefined}
     >

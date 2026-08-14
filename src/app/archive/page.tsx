@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
+import { ArchiveSearch } from "@/components/artcovr/ArchiveSearch";
 import { SiteFooter } from "@/components/artcovr/SiteFooter";
 import { SiteHeader } from "@/components/artcovr/SiteHeader";
 import { displayArtworks, isPrivateStaging } from "@/lib/artcovr/artworks";
@@ -47,13 +47,7 @@ export default function ArchivePage() {
           </p>
         </div>
         <section aria-label="Artwork archive" className="mt-20">
-          {displayArtworks.length > 0 ? (
-            <ArtworkGrid items={displayArtworks} />
-          ) : (
-            <p className="border-y border-current/20 py-10 text-xl font-bold">
-              The first approved collection is being prepared.
-            </p>
-          )}
+          <ArchiveSearch items={displayArtworks} />
         </section>
       </main>
       <SiteFooter />

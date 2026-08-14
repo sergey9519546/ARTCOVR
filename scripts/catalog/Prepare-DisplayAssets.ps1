@@ -100,28 +100,6 @@ function New-ScaledBitmap {
   return $bitmap
 }
 
-function Add-RasterWatermark {
-  param([Parameter(Mandatory)] [System.Drawing.Bitmap]$Bitmap)
-
-  $graphics = [System.Drawing.Graphics]::FromImage($Bitmap)
-  $smallFont = [System.Drawing.Font]::new('Arial', 22, [System.Drawing.FontStyle]::Bold, [System.Drawing.GraphicsUnit]::Pixel)
-  $badgeInk = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(210, 255, 255, 255))
-  $badgeBackground = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(120, 0, 0, 0))
-  try {
-    $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
-    $graphics.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
-    $badge = [System.Drawing.RectangleF]::new($Bitmap.Width - 232, $Bitmap.Height - 58, 214, 40)
-    $graphics.FillRectangle($badgeBackground, $badge)
-    $graphics.DrawString('ARTCOVR PREVIEW', $smallFont, $badgeInk, $Bitmap.Width - 218, $Bitmap.Height - 52)
-  }
-  finally {
-    $badgeBackground.Dispose()
-    $badgeInk.Dispose()
-    $smallFont.Dispose()
-    $graphics.Dispose()
-  }
-}
-
 $written = [System.Collections.Generic.List[string]]::new()
 foreach ($candidate in $candidates) {
   if ($candidate.validationStatus -ne 'technical-pass') { continue }
@@ -150,7 +128,6 @@ foreach ($candidate in $candidates) {
     }
     $display = New-ScaledBitmap -Source $source -Width $DisplaySize -Height $DisplaySize
     try {
-      Add-RasterWatermark -Bitmap $display
       $display.Save($outputPath, $jpegEncoder, $encoderParameters)
       $thumbnail = New-ScaledBitmap -Source $display -Width 128 -Height 128
       try {

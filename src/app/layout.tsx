@@ -82,12 +82,12 @@ export default function RootLayout({
   const organization = buildOrganizationStructuredData(siteUrl);
 
   return (
-    <html lang="en" className={display.className} data-theme="red" suppressHydrationWarning>
+    <html lang="en" className={display.className} data-theme="dark" suppressHydrationWarning>
       <body>
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'||t==='red'?t:'red'}catch(e){document.documentElement.dataset.theme='red'}",
+              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:'dark'}catch(e){document.documentElement.dataset.theme='dark'}",
           }}
         />
         <script

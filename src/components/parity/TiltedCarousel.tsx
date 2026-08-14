@@ -12,7 +12,7 @@ const ITEMS = displayArtworks.map((artwork, index) => ({
   title: artwork.title,
   slug: artwork.slug,
   alt: artwork.alt,
-  bg: index % 2 === 0 ? "bg-red" : "bg-[#d2cac3]",
+  bg: index % 2 === 0 ? "bg-[#ece6dc]" : "bg-[#d9d1c8]",
 }));
 const CW = 300;
 const CH = 300;
