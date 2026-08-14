@@ -29,6 +29,7 @@
     "catalog:prune:deployment": "node --experimental-strip-types scripts/catalog/prune-deployment-assets.ts",
     "catalog:revocations:dry-run": "node --experimental-strip-types scripts/catalog/build-revocations.ts",
     "catalog:revocations:write": "node --experimental-strip-types scripts/catalog/build-revocations.ts --write",
+    "catalog:visual-index": "node --experimental-strip-types scripts/catalog/build-visual-index.ts",
     "catalog:supabase:dry-run": "node --experimental-strip-types scripts/catalog/build-supabase-import.ts",
     "catalog:supabase:write": "node --experimental-strip-types scripts/catalog/build-supabase-import.ts --write",
     "gen-icons": "bun scripts/gen-icons.ts"

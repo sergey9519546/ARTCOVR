@@ -1,0 +1,104 @@
+{
+  "source": "metadata-atlas/out/meta_ai_schema.json (atlas_version 1.0) \u2014 the owner's fastText task vocabularies over 22,133 labelled images",
+  "note": "Verbatim label sets. Label strings are the owner's canonical spelling and must never be re-cased or re-spelled here.",
+  "tasks": {
+    "style": {
+      "group": "core_6_original",
+      "labels": [
+        "Surrealism",
+        "Baroque",
+        "Impressionism",
+        "Expressionism",
+        "Abstract",
+        "Minimalism"
+      ]
+    },
+    "medium": {
+      "group": "core_6_original",
+      "labels": [
+        "Oil_Painting",
+        "Digital_Art",
+        "Watercolor",
+        "3D_Render",
+        "Photograph",
+        "Pencil_Sketch"
+      ]
+    },
+    "mood": {
+      "group": "core_6_original",
+      "labels": [
+        "Melancholic__Solitary",
+        "Vibrant__Energetic",
+        "Serene__Peaceful",
+        "Eerie__Dark",
+        "Mysterious__Dreamy",
+        "Majestic__Epic"
+      ]
+    },
+    "category": {
+      "group": "core_6_original",
+      "labels": [
+        "Material_Transmutation",
+        "Scale__Proportion_Impossibilities",
+        "Environmental_Bleed_Sky_Sea_Forest_Invading",
+        "Architectural__Spatial_Paradox",
+        "Light__Shadow_Paradox",
+        "Biomechanical__Organic-Mechanical_Hybrids",
+        "Temporal_Layering__Simultaneous_Time",
+        "General_Generation",
+        "Animate_Objects__Objects_with_Consciousness",
+        "Symbolic__Mythic_Overlay",
+        "Duplication_Recursion__Infinite_Repetition"
+      ]
+    },
+    "weather": {
+      "group": "core_6_original",
+      "labels": [
+        "rainy",
+        "cloudy",
+        "foggy",
+        "clear",
+        "stormy",
+        "snowy",
+        "clear_and_calm",
+        "foggy_and_rainy",
+        "calm_and_clear",
+        "foggy_and_snowy",
+        "partly_cloudy",
+        "snowy_and_cold"
+      ]
+    },
+    "colorblend": {
+      "group": "core_6_original",
+      "labels": [
+        "Cool_Oceanic_Winter",
+        "Warm_Autumnal_Sunset",
+        "Earth_Organic",
+        "Accent_Noir_Red",
+        "Film_Noir_Shadowy",
+        "Balanced_Neutral",
+        "Teal__Orange_Cinematic",
+        "Accent_Noir_Blue",
+        "Accent_Noir_Orange",
+        "Accent_Noir_Green",
+        "Pastel_Whimsical",
+        "Royal_Opulent",
+        "Accent_Noir_Yellow"
+      ]
+    },
+    "domcolor": {
+      "group": "semantic",
+      "labels": [
+        "Red",
+        "Gray",
+        "Blue",
+        "Black",
+        "Orange",
+        "Green",
+        "Yellow",
+        "White",
+        "Purple"
+      ]
+    }
+  }
+}

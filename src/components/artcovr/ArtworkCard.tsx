@@ -1,8 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { isCheckoutReady, type Artwork } from "@/lib/artcovr/artworks";
+import { getVisualStyleLabel, isCheckoutReady, type Artwork } from "@/lib/artcovr/artworks";
+import { humanizeVisualLabel } from "@/lib/artcovr/visual-index";
 
 export function ArtworkCard({ artwork, priority = false }: { artwork: Artwork; priority?: boolean }) {
+  // Machine style label from the committed visual index; absent for any work
+  // that is not indexed, in which case the card renders exactly as before.
+  const styleLabel = getVisualStyleLabel(artwork.slug);
   return (
     <article className="group">
       <Link href={`/product/${artwork.slug}`} className="block" aria-label={`View ${artwork.title}`}>
@@ -19,6 +23,11 @@ export function ArtworkCard({ artwork, priority = false }: { artwork: Artwork; p
                   : "Commercial license available"
                 : "Availability pending"}
             </p>
+            {styleLabel ? (
+              <p className="mt-1 text-[10px] uppercase tracking-[.12em] opacity-40">
+                {humanizeVisualLabel(styleLabel)}
+              </p>
+            ) : null}
           </div>
           <span aria-hidden="true">↗</span>
         </div>

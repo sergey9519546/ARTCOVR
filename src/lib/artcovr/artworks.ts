@@ -2,6 +2,13 @@ import curatedPublic from "./curated-public.json" with { type: "json" };
 import curatedReview from "#staging-catalog" with { type: "json" };
 import stagingIntroJson from "#staging-intro" with { type: "json" };
 import { selectPublicCatalog } from "./catalog-visibility.ts";
+import {
+  orderByDiversityRank,
+  relatedVisualSlugs,
+  visualLabelSearchTerms,
+} from "./visual-index.ts";
+
+export { visualIndex, getVisualEntry, getVisualStyleLabel } from "./visual-index.ts";
 
 export type Artwork = {
   id: string;
@@ -88,7 +95,18 @@ export function balanceDisplayOrder<T extends { category: string }>(items: reado
   return [...items];
 }
 
-export const displayArtworks = balanceDisplayOrder(
+/**
+ * Display order: the image-vector diversity traversal from visual-index.json
+ * whenever every displayed work carries a rank, so visually similar works
+ * never land in neighbouring grid cells. The private staging catalog is not in
+ * the index (and a partially indexed catalog would produce a half-sorted
+ * grid), so both cases fall back to the category round-robin.
+ */
+export function orderForDisplay(items: readonly Artwork[]) {
+  return orderByDiversityRank(items) ?? balanceDisplayOrder(items);
+}
+
+export const displayArtworks = orderForDisplay(
   isPrivateStaging ? stagingArtworks : artworks,
 );
 
@@ -107,6 +125,9 @@ export function buildArtworkSearchText(artwork: Artwork) {
     artwork.saleMode,
     artwork.licenseLabel,
     ...artwork.moodTags,
+    // Machine visual labels (fastText task vocabularies) so archive queries
+    // like "minimalism", "film noir shadowy", or "foggy" reach the catalog.
+    ...visualLabelSearchTerms(artwork.slug),
   ].filter((value): value is string => typeof value === "string" && value.trim().length > 0).join(" ");
 }
 
@@ -183,6 +204,24 @@ export function pickIntroArtworks(
 
 export function getArtworkBySlug(slug: string) {
   return displayArtworks.find((artwork) => artwork.slug === slug);
+}
+
+/**
+ * Visually nearest works that are actually displayable. Related slugs come
+ * from the committed visual index, but only works present in the current
+ * display catalog may be linked: a pruned or unapproved slug must never
+ * surface as a related work.
+ */
+export function getRelatedArtworks(slug: string, count = 4) {
+  const related: Artwork[] = [];
+  for (const relatedSlug of relatedVisualSlugs(slug, count * 2)) {
+    if (relatedSlug === slug) continue;
+    const artwork = getArtworkBySlug(relatedSlug);
+    if (!artwork) continue;
+    related.push(artwork);
+    if (related.length >= count) break;
+  }
+  return related;
 }
 
 /**
