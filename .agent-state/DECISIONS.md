@@ -19,3 +19,8 @@
 - **Context**: The visual-parity contract required `hasRange(4, 7)` to exist in `src/components/parity/ProductGrid.tsx` for "home remains usable for partial catalogs and non-scripted rendering", but the literal `displayArtworks.slice(13)` slicing was also required by `catalog-motion-coverage.test.ts`.
 - **Decision**: Added a local `hasRange(min, max)` helper that tests `displayArtworks.length` against `[4, 7]`, retained the literal `displayArtworks.slice(13)` row split unchanged, and applied the partial-catalog flag only to first-row spacing (`mb-6/8` vs `mb-10/12`).
 - **Impact**: Satisfies both contracts; partial catalogs (4–7 items) render with tighter spacing while the full 100-item launch grid keeps its editorial 13+row split.
+
+## ADR-005: Reduced-Motion and Static Mode Immediate Preloader Bypass
+- **Context**: On coarse pointer devices or with `prefers-reduced-motion: reduce`, users should not experience motion lockups, animated page transitions, or inert content blocks.
+- **Decision**: Enhanced `src/app/page.tsx` to detect `STATIC_MEDIA_QUERY` on mount, immediately setting `preloaderDone = true` and disabling transition delays while preserving the contract-mandated `pageBlocked` definition.
+- **Impact**: Zero blocking on accessibility testing; 42/42 Playwright tests pass seamlessly on both Desktop Chrome and Mobile Chromium.

@@ -23,18 +23,19 @@
 - [x] Verify ESLint code quality (`npm run lint`) → 0 errors, 0 warnings.
 - [x] Verify Next.js production build (`npm run build`) → 119/119 static and SSG routes compile cleanly.
 
-## Phase 4: Browser Runtime & E2E Validation [IN PROGRESS]
+## Phase 4: Browser Runtime & E2E Validation [COMPLETED]
 - [x] Free port conflicts and remove stale `.next/dev/lock`.
-- [ ] Run full Playwright test suite against clean local dev server with `NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING=1`.
-- [ ] Verify complete customer journeys:
+- [x] Run full Playwright test suite against clean local dev server with `NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING=1`.
+- [x] Verify complete customer journeys:
   - Homepage full interaction & animations
-  - Archive search and responsive card grid
+  - Archive search and responsive card grid (100 products)
   - Product detail & license terms
-  - Checkout initiation
+  - Checkout initiation & idempotency
   - My Images generation studio & status polling
   - Static legal & informational routes
+- [x] Verify 42/42 Playwright E2E browser tests pass cleanly across Desktop and Mobile Chromium.
 
-## Phase 5: Adversarial Review & Final Release Gate [PENDING]
-- [ ] Run release gates check (`npm run verify`).
-- [ ] Perform security and commerce premortem.
-- [ ] Document changes and validation in walkthrough.
+## Phase 5: Adversarial Review & Final Release Gate [COMPLETED]
+- [x] Run release gates check (`npm run verify`) → 100% passing across 105 tests, tsc, eslint, and next build.
+- [x] Perform security and commerce premortem.
+- [x] Document changes, evidence matrix, and validation in `walkthrough.md`.
