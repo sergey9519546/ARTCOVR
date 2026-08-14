@@ -34,7 +34,7 @@ const serialized = `${JSON.stringify(projected, null, 2)}\n`;
 
 if (checkOnly) {
   const current = await readFile(projectionPath, "utf8");
-  if (current !== serialized) {
+  if (current.replace(/\r\n/g, "\n") !== serialized.replace(/\r\n/g, "\n")) {
     throw new Error("Public catalog projection is stale. Run npm run catalog:project.");
   }
 } else {

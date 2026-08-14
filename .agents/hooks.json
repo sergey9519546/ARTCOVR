@@ -1,0 +1,7 @@
+{
+  "version": "1.0",
+  "hooks": {
+    "pre-commit": "npm run typecheck && npm test && npm run lint",
+    "pre-deploy": "npm run verify && npm run catalog:project:check"
+  }
+}
