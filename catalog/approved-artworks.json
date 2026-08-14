@@ -83,7 +83,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 7500,
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -169,8 +169,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 7600,
+    "saleMode": "exclusive",
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -257,7 +257,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 7700,
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -363,8 +363,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 7800,
+    "saleMode": "exclusive",
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -451,7 +451,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 7900,
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -537,8 +537,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 8000,
+    "saleMode": "exclusive",
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -625,7 +625,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 8100,
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -711,8 +711,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 8200,
+    "saleMode": "exclusive",
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -799,7 +799,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 8300,
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -885,8 +885,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 8400,
+    "saleMode": "exclusive",
+    "priceCents": 20000,
     "currency": "USD"
   },
   {
@@ -973,7 +973,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 8500,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1059,8 +1059,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 8600,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1147,7 +1147,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 8700,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1233,8 +1233,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 8800,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1321,7 +1321,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 8900,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1426,8 +1426,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 9000,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1514,7 +1514,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 9100,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1600,8 +1600,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 9200,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1688,7 +1688,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 9300,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1774,8 +1774,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 9400,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1881,7 +1881,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 9500,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -1967,8 +1967,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 9600,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2055,7 +2055,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 9700,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2141,8 +2141,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 9800,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2229,7 +2229,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 9900,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2315,8 +2315,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 10000,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2403,7 +2403,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 10100,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2489,8 +2489,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 10200,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2577,7 +2577,7 @@
       }
     },
     "saleMode": "exclusive",
-    "priceCents": 10300,
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2663,8 +2663,8 @@
         "vector": null
       }
     },
-    "saleMode": "repeatable",
-    "priceCents": 10400,
+    "saleMode": "exclusive",
+    "priceCents": 8000,
     "currency": "USD"
   },
   {
@@ -2750,8 +2750,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 10500,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -2838,7 +2838,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 10600,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -2924,8 +2924,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 10700,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3012,7 +3012,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 10800,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3098,8 +3098,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 10900,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3186,7 +3186,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 11000,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3272,8 +3272,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 11100,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3360,7 +3360,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 11200,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3446,8 +3446,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 11300,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3534,7 +3534,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 11400,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3620,8 +3620,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 11500,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3708,7 +3708,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 11600,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3794,8 +3794,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 11700,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3882,7 +3882,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 11800,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -3968,8 +3968,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 11900,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4056,7 +4056,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 12000,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4161,8 +4161,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 12100,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4269,7 +4269,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 12200,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4355,8 +4355,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 12300,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4443,7 +4443,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 12400,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4529,8 +4529,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 12500,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4617,7 +4617,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 12600,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4703,8 +4703,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 12700,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4792,7 +4792,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 12800,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4878,8 +4878,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 12900,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -4966,7 +4966,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 13000,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -5052,8 +5052,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 13100,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -5160,7 +5160,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 13200,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -5246,8 +5246,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 13300,
+    "saleMode": "repeatable",
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -5334,7 +5334,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 13400,
+    "priceCents": 3500,
     "currency": "USD"
   },
   {
@@ -5420,8 +5420,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 13500,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -5508,7 +5508,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 13600,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -5594,8 +5594,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 13700,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -5682,7 +5682,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 13800,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -5768,8 +5768,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 13900,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -5856,7 +5856,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 14000,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -5927,8 +5927,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 14100,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6000,7 +6000,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 14200,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6071,8 +6071,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 14300,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6144,7 +6144,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 14400,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6215,8 +6215,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 14500,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6288,7 +6288,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 14600,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6359,8 +6359,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 14700,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6432,7 +6432,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 14800,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6503,8 +6503,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 14900,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6576,7 +6576,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 15000,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6647,8 +6647,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 15100,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6720,7 +6720,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 15200,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -6791,8 +6791,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 15300,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -7023,7 +7023,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 15400,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -7247,8 +7247,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 15500,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -7481,7 +7481,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 15600,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -7724,8 +7724,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 15700,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -7934,7 +7934,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 15800,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -8189,8 +8189,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 15900,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -8410,7 +8410,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 16000,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -8645,8 +8645,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 16100,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -8880,7 +8880,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 16200,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -9108,8 +9108,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 16300,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -9329,7 +9329,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 16400,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -9575,8 +9575,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 16500,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -9813,7 +9813,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 16600,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -9918,8 +9918,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 16700,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -10138,7 +10138,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 16800,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -10351,8 +10351,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 16900,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -10582,7 +10582,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 17000,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -10794,8 +10794,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 17100,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -11013,7 +11013,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 17200,
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -11120,8 +11120,8 @@
         "vector": null
       }
     },
-    "saleMode": "exclusive",
-    "priceCents": 17300,
+    "saleMode": "repeatable",
+    "priceCents": 1000,
     "currency": "USD"
   },
   {
@@ -11361,7 +11361,7 @@
       }
     },
     "saleMode": "repeatable",
-    "priceCents": 17400,
+    "priceCents": 1000,
     "currency": "USD"
   }
 ]
