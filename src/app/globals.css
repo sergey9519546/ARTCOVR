@@ -50,7 +50,6 @@ html[data-theme="dark"] {
   --ring: rgb(243 236 217 / 55%);
   --cursor-color: #f3ecd9;
 }
-
 * { box-sizing: border-box; }
 html {
   background: var(--background);

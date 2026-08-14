@@ -68,7 +68,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
   return (
     <div
       id="artcovr-preloader"
-      className="dark:bg-cream text-cream fixed inset-0 z-50 flex items-center justify-center gap-8 bg-black dark:text-black"
+      className="fixed inset-0 z-50 flex items-center justify-center gap-8 bg-black text-white dark:bg-[#f4f0ea] dark:text-black"
       style={{
         clipPath: exited ? "inset(0% 0% 100% 0%)" : "inset(0% 0% 0% 0%)",
         transition: "clip-path 0.7s cubic-bezier(0.19,1,0.22,1)",
@@ -83,6 +83,9 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
         <div className="fixed inset-0 flex items-center justify-center" style={{ contain: "layout paint style" }}>
           {PRELOADER_IMAGES.map((artwork, index) => {
             const visible = index < visibleImages;
+            const imageScale = visible ? 1 : 0.68;
+            const offsetX = index % 2 === 0 ? 0 : 18;
+            const offsetY = index * 5;
             return (
               <img
                 key={artwork.id}
@@ -92,33 +95,34 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 width={520}
                 height={520}
                 decoding="async"
-                className="absolute aspect-square w-[56vw] object-cover sm:w-[36vw] md:w-[22vw] lg:w-[19vw]"
+                className="absolute aspect-square w-[60vw] object-cover sm:w-[38vw] md:w-[24vw] lg:w-[20vw]"
                 style={{
                   color: "transparent",
                   willChange: "transform",
-                  transform: `translate3d(${index % 2 === 0 ? 0 : 12}px, ${index * 4}px, 0) rotate(${ROTATIONS[index]}deg) scale(${visible ? 1 : 0})`,
-                  transition: "transform 0.55s cubic-bezier(0.19,1,0.22,1)",
+                  transform: `translate3d(${offsetX}px, ${offsetY}px, 0) rotate(${ROTATIONS[index]}deg) scale(${imageScale})`,
+                  transition: "transform 0.55s cubic-bezier(0.19,1,0.22,1), opacity 0.55s ease",
                   zIndex: index + 1,
-                  filter: visible ? "saturate(1.04) contrast(1.02)" : "saturate(0.9) contrast(0.95)",
+                  opacity: visible ? 1 : 0.2,
+                  filter: visible ? "saturate(1.04) contrast(1.02)" : "saturate(0.85) contrast(0.95)",
                 }}
-                sizes="(max-width: 768px) 56vw, (max-width: 1024px) 36vw, 19vw"
+                sizes="(max-width: 768px) 60vw, (max-width: 1024px) 38vw, 20vw"
               />
             );
           })}
         </div>
         <div
           aria-hidden="true"
-          className="dark:text-red text-cream relative mx-auto w-[28rem] max-w-[70vw] overflow-visible text-center text-[clamp(3.2rem,8vw,7.5rem)] font-black leading-none tracking-[-0.09em] mix-blend-difference md:max-w-none dark:mix-blend-multiply"
+          className="relative mx-auto w-[28rem] max-w-[70vw] overflow-visible text-center text-[clamp(3.2rem,8vw,7.5rem)] font-black leading-none tracking-[-0.09em] text-white mix-blend-difference dark:text-black md:max-w-none"
           style={{ zIndex: 20 }}
         >
           ARTCOVR
         </div>
         <div className="absolute -top-10 right-0 overflow-hidden text-2xl">
-          <span className="dark:text-red text-cream block text-right">{String(counter).padStart(3, "0")}</span>
+          <span className="block text-right text-white dark:text-black">{String(counter).padStart(3, "0")}</span>
         </div>
       </div>
-      <div className="absolute right-0 bottom-0 left-0 h-[3px] bg-cream/10">
-        <div className="h-full bg-cream transition-all duration-300 ease-out" style={{ width: `${counter}%` }} />
+      <div className="absolute right-0 bottom-0 left-0 h-[3px] bg-white/10 dark:bg-black/10">
+        <div className="h-full bg-white transition-all duration-300 ease-out dark:bg-black" style={{ width: `${counter}%` }} />
       </div>
     </div>
   );
