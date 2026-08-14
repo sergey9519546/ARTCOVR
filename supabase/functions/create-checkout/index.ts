@@ -10,6 +10,11 @@ import {
   retrievePaymentIntent,
 } from "../_shared/stripe.ts";
 
+// `artworks_catalog_id_format` in SQL. Rejecting a malformed identifier here
+// keeps a hostile body from reaching the reservation RPC at all.
+const CATALOG_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{2,95}$/;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 Deno.serve(async (request) => {
   const options = preflight(request);
   if (options) return options;
@@ -26,6 +31,15 @@ Deno.serve(async (request) => {
     }>(request);
     if (!body.artworkId || !body.idempotencyKey) {
       throw new HttpError(400, "invalid_request", "artworkId and idempotencyKey are required.");
+    }
+    if (!CATALOG_ID_PATTERN.test(body.artworkId)) {
+      throw new HttpError(400, "invalid_request", "artworkId is not a valid catalog identifier.");
+    }
+    if (!UUID_PATTERN.test(body.idempotencyKey)) {
+      throw new HttpError(400, "invalid_request", "idempotencyKey must be a UUID.");
+    }
+    if (body.selectedPreviewId && !UUID_PATTERN.test(body.selectedPreviewId)) {
+      throw new HttpError(400, "invalid_request", "selectedPreviewId must be a UUID.");
     }
 
     const reserve = async () => {
@@ -119,6 +133,21 @@ Deno.serve(async (request) => {
         throw new HttpError(409, "idempotency_expired", "This checkout attempt expired. Start checkout again.");
       }
       reservation = await reserve();
+    }
+
+    if (reservation?.outcome === "reservation_rate_limited") {
+      throw new HttpError(
+        429,
+        "reservation_rate_limited",
+        "Too many open or abandoned checkouts on this account. Complete or let an existing checkout expire, then try again.",
+      );
+    }
+    if (reservation?.outcome === "selected_preview_conflict") {
+      throw new HttpError(
+        409,
+        "selected_preview_conflict",
+        "Your active checkout for this artwork uses a different selected preview. Complete or wait for that checkout to expire, then try again.",
+      );
     }
 
     if (!reservation || !reservation.purchase_id || !reservation.reservation_expires_at) {

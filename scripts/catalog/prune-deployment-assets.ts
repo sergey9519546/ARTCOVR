@@ -1,13 +1,27 @@
 import { readdir, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 
-const targetPublicRoot = path.resolve(process.argv[2] ?? "");
-const normalized = targetPublicRoot.replaceAll("\\", "/");
-if (!/^\/tmp\/build_fullstack_[A-Za-z0-9._-]+\/next-service-dist\/public$/.test(normalized)) {
-  throw new Error(`Refusing to prune outside a validated deployment staging directory: ${targetPublicRoot}`);
+const projectRoot = path.resolve(import.meta.dirname, "../..");
+
+// Private staging builds are owner-review surfaces and intentionally keep the
+// 100 review derivatives. Only public production exports are pruned down to
+// the approved projection.
+if (process.env.NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING === "1") {
+  console.log(JSON.stringify({ skipped: "private_staging_build" }));
+  process.exit(0);
 }
 
-const projectRoot = path.resolve(import.meta.dirname, "../..");
+const targetRoot = path.resolve(process.argv[2] ?? path.join(projectRoot, "out"));
+const normalized = targetRoot.replaceAll("\\", "/");
+const exportRoot = path.join(projectRoot, "out").replaceAll("\\", "/");
+const legacyStagingPattern =
+  /^\/tmp\/build_fullstack_[A-Za-z0-9._-]+\/next-service-dist\/public$/;
+if (normalized !== exportRoot && !legacyStagingPattern.test(normalized)) {
+  throw new Error(
+    `Refusing to prune outside the static export or a validated deployment staging directory: ${targetRoot}`,
+  );
+}
+
 const projection = JSON.parse(
   await readFile(path.join(projectRoot, "src", "lib", "artcovr", "curated-public.json"), "utf8"),
 ) as Array<{ image?: unknown }>;
@@ -21,11 +35,22 @@ const allowed = new Set(
     return image.slice("/assets/artworks/".length);
   }),
 );
-const artworkDirectory = path.join(targetPublicRoot, "assets", "artworks");
+const artworkDirectory = path.join(targetRoot, "assets", "artworks");
 let removed = 0;
-for (const entry of await readdir(artworkDirectory, { withFileTypes: true }).catch(() => [])) {
-  if (!entry.isFile() || allowed.has(entry.name)) continue;
-  await rm(path.join(artworkDirectory, entry.name), { force: true });
+const entries = await readdir(artworkDirectory, {
+  withFileTypes: true,
+  recursive: true,
+}).catch(() => []);
+for (const entry of entries) {
+  if (entry.isDirectory()) continue;
+  const entryPath = path.join(entry.parentPath, entry.name);
+  const isTopLevelFile =
+    entry.isFile() && path.resolve(entry.parentPath) === path.resolve(artworkDirectory);
+  // Publish-only-approved: a top-level regular file with an approved name may
+  // stay; every other entry (nested files, symlinks, unexpected types) is
+  // removed so nothing unapproved can ride along in the export.
+  if (isTopLevelFile && allowed.has(entry.name)) continue;
+  await rm(entryPath, { force: true, recursive: true });
   removed += 1;
 }
 

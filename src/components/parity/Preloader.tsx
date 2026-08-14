@@ -57,9 +57,22 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
     timers.push(setTimeout(() => onCompleteRef.current?.(), COMPLETE_TIME));
     timers.push(setTimeout(() => setDismissed(true), DISMISS_TIME));
 
+    // Keyboard users must never be locked out of the page by the intro:
+    // any key press (Tab toward the skip link, Enter, Escape) dismisses the
+    // preloader immediately so the inert main content becomes reachable.
+    const skipIntro = () => {
+      setVisibleImages(PRELOADER_IMAGES.length);
+      setCounter(100);
+      setExited(true);
+      setDismissed(true);
+      onCompleteRef.current?.();
+    };
+    window.addEventListener("keydown", skipIntro, { once: true });
+
     return () => {
       clearTimeout(safetyTimer);
       timers.forEach((timer) => clearTimeout(timer));
+      window.removeEventListener("keydown", skipIntro);
     };
   }, []);
 

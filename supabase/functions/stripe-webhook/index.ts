@@ -32,6 +32,38 @@ async function expirePurchase(purchase: PurchaseSnapshot) {
   if (error) throw new HttpError(502, "purchase_expiry_failed", "Purchase reservation could not be expired.");
 }
 
+// A dispute event names a PaymentIntent, not a purchase. Resolve it through the
+// same identity checks used by refunds: an unknown PaymentIntent belongs to some
+// other integration on this Stripe account (a foreign event) and is terminal for
+// ARTCOVR, while a *matching* row with contradictory amounts is a real conflict.
+async function resolveDisputedPurchase(paymentIntentId: string) {
+  const payment = await retrievePaymentIntent(paymentIntentId);
+  const { data, error } = await admin
+    .from("purchases")
+    .select("id,status,amount_cents,currency,stripe_checkout_session_id")
+    .eq("stripe_payment_intent_id", payment.id)
+    .maybeSingle();
+  if (error) {
+    throw new HttpError(502, "dispute_purchase_lookup_failed", "The disputed purchase could not be verified.");
+  }
+  let purchase = data as PurchaseSnapshot | null;
+  // `stripe_payment_intent_id` is written at settlement, so a purchase disputed
+  // before that column was persisted would look foreign. The PaymentIntent
+  // always carries `metadata.purchase_id` (set via `payment_intent_data` in
+  // _shared/stripe.ts), so resolve by id as the refund path does; the identity
+  // checks below still have to pass before anything is revoked or restored.
+  if (!purchase && payment.metadata?.purchase_id) {
+    purchase = await getPurchaseById(payment.metadata.purchase_id);
+  }
+  if (!purchase) return { payment, purchase: null };
+  if (payment.metadata?.purchase_id !== purchase.id
+    || payment.amount !== purchase.amount_cents
+    || payment.currency.toUpperCase() !== purchase.currency.toUpperCase()) {
+    throw new HttpError(409, "dispute_purchase_mismatch", "Disputed payment does not match a purchase snapshot.");
+  }
+  return { payment, purchase };
+}
+
 Deno.serve(async (request) => {
   let persistedEventId: string | null = null;
   try {
@@ -71,9 +103,10 @@ Deno.serve(async (request) => {
       "checkout.session.expired",
       "charge.refunded",
       "charge.dispute.created",
+      "charge.dispute.closed",
     ]);
     if (!supported.has(event.type)) {
-      await markProcessed(event.id);
+      await markProcessed(event.id, "unsupported_event");
       return json({ received: true, ignored: true });
     }
 
@@ -85,31 +118,71 @@ Deno.serve(async (request) => {
       if (!dispute.id || !dispute.payment_intent) {
         throw new HttpError(400, "dispute_payment_missing", "Stripe dispute is missing its PaymentIntent.");
       }
-      const payment = await retrievePaymentIntent(dispute.payment_intent);
-      const { data: purchaseRow, error: lookupError } = await admin
-        .from("purchases")
-        .select("id,status,amount_cents,currency,stripe_checkout_session_id")
-        .eq("stripe_payment_intent_id", payment.id)
-        .maybeSingle();
-      if (lookupError) {
-        throw new HttpError(502, "dispute_purchase_lookup_failed", "The disputed purchase could not be verified.");
-      }
-      const purchase = purchaseRow as PurchaseSnapshot | null;
-      if (!purchase || payment.metadata?.purchase_id !== purchase.id
-        || payment.amount !== purchase.amount_cents
-        || payment.currency.toUpperCase() !== purchase.currency.toUpperCase()) {
-        throw new HttpError(409, "dispute_purchase_mismatch", "Disputed payment does not match a purchase snapshot.");
+      const { payment, purchase } = await resolveDisputedPurchase(dispute.payment_intent);
+      if (!purchase) {
+        await markProcessed(event.id, "foreign_event");
+        return json({ received: true, ignored: true, reason: "foreign_event" });
       }
       const { data: revoked, error: revokeError } = await admin.rpc("revoke_purchase_access", {
         p_purchase_id: purchase.id,
         p_stripe_payment_intent_id: payment.id,
         p_reason: "payment_dispute",
       });
-      if (revokeError || !["revoked", "already_revoked"].includes(revoked)) {
+      if (revokeError) {
         throw new HttpError(502, "dispute_revocation_failed", "Disputed purchase access could not be revoked.");
       }
-      await markProcessed(event.id);
-      return json({ received: true, accessRevoked: true });
+      if (["revoked", "already_revoked"].includes(revoked)) {
+        await markProcessed(event.id, "revoked");
+        return json({ received: true, accessRevoked: true });
+      }
+      // The purchase was refunded or expired before the dispute arrived, so no
+      // access remains to revoke. Retrying can never change that.
+      if (["not_paid", "unknown"].includes(revoked)) {
+        await markProcessed(event.id, "already_terminal");
+        return json({ received: true, accessRevoked: false, reason: "already_terminal" });
+      }
+      throw new HttpError(502, "dispute_revocation_failed", "Disputed purchase access could not be revoked.");
+    }
+
+    if (event.type === "charge.dispute.closed") {
+      const dispute = event.data.object as {
+        id?: string;
+        status?: string;
+        payment_intent?: string | null;
+      };
+      if (!dispute.id || !dispute.payment_intent) {
+        throw new HttpError(400, "dispute_payment_missing", "Stripe dispute is missing its PaymentIntent.");
+      }
+      const { payment, purchase } = await resolveDisputedPurchase(dispute.payment_intent);
+      if (!purchase) {
+        await markProcessed(event.id, "foreign_event");
+        return json({ received: true, ignored: true, reason: "foreign_event" });
+      }
+      if (dispute.status !== "won") {
+        // `lost`, `warning_closed`, and every other close reason leave the
+        // revocation in force; the funds did not come back.
+        await markProcessed(event.id, "dispute_not_won");
+        return json({ received: true, accessRestored: false, reason: "dispute_not_won" });
+      }
+      const { data: restored, error: restoreError } = await admin.rpc("restore_purchase_access", {
+        p_purchase_id: purchase.id,
+        p_stripe_payment_intent_id: payment.id,
+      });
+      if (restoreError) {
+        throw new HttpError(502, "dispute_restoration_failed", "Won dispute access could not be restored.");
+      }
+      if (restored === "restored") {
+        await markProcessed(event.id, "restored");
+        return json({ received: true, accessRestored: true });
+      }
+      if (restored === "not_revoked") {
+        await markProcessed(event.id, "already_restored");
+        return json({ received: true, accessRestored: false, reason: "already_restored" });
+      }
+      // `mismatch`/`unknown`: the purchase moved to a state this event can no
+      // longer act on. It is terminal, not transient.
+      await markProcessed(event.id, "already_terminal");
+      return json({ received: true, accessRestored: false, reason: "already_terminal" });
     }
 
     if (event.type === "charge.refunded") {
@@ -118,7 +191,10 @@ Deno.serve(async (request) => {
         refunded?: boolean;
       };
       if (!charge.refunded) {
-        await markProcessed(event.id);
+        // Partial refunds are operationally unsupported: entitlement is
+        // all-or-nothing, so no state changes. Record why, then converge.
+        console.error("Partial refund ignored", { eventId: event.id, eventType: event.type });
+        await markProcessed(event.id, "partial_refund_unsupported");
         return json({ received: true, ignored: true, reason: "partial_refund" });
       }
       if (charge.payment_intent) {
@@ -138,7 +214,9 @@ Deno.serve(async (request) => {
           purchase = await getPurchaseById(payment.metadata.purchase_id);
         }
         if (!purchase) {
-          throw new HttpError(409, "refund_purchase_not_found", "Refunded payment has no matching purchase snapshot.");
+          // Another integration on this Stripe account. Terminal for ARTCOVR.
+          await markProcessed(event.id, "foreign_event");
+          return json({ received: true, ignored: true, reason: "foreign_event" });
         }
         if (payment.metadata?.purchase_id !== purchase.id
           || payment.amount !== purchase.amount_cents
@@ -155,7 +233,7 @@ Deno.serve(async (request) => {
       } else {
         throw new HttpError(400, "refund_payment_missing", "Refunded charge is missing its PaymentIntent.");
       }
-      await markProcessed(event.id);
+      await markProcessed(event.id, "refunded");
       return json({ received: true });
     }
 
@@ -207,7 +285,7 @@ Deno.serve(async (request) => {
         if (refundError || !["refunded", "already_refunded", "expired_refunded", "already_expired"].includes(data)) {
           throw new HttpError(502, "refund_update_failed", "Refund reconciliation did not reach a terminal state.");
         }
-        await markProcessed(event.id);
+        await markProcessed(event.id, "payment_refunded");
         return json({ received: true, fulfilled: false, reason: "payment_refunded" });
       }
       const { data, error } = await admin.rpc("settle_purchase_paid", {
@@ -217,7 +295,26 @@ Deno.serve(async (request) => {
         p_amount_cents: canonical.amount_total,
         p_currency: canonical.currency,
       });
-      if (error || !["paid", "already_paid"].includes(data)) {
+      // Only a transport/database failure is retryable. A purchase that another
+      // convergent path already drove to a terminal state is not.
+      if (error) {
+        throw new HttpError(502, "fulfillment_unavailable", "Purchase settlement could not be recorded.");
+      }
+      // `refunded` is true convergence: the money went back, so there is
+      // nothing left to fulfill and no retry can change that.
+      if (data === "refunded") {
+        await markProcessed(event.id, "superseded");
+        return json({ received: true, fulfilled: false, reason: "superseded" });
+      }
+      // `invalid_state` is deliberately NOT converged. It means Stripe captured
+      // the money for a purchase row that is neither reserved/pending nor in a
+      // terminal money-returned state — most likely `expired`, i.e. paid but
+      // undelivered. Marking it processed would close the event out with no
+      // retry and no operator signal: the commerce watchdog only rescans
+      // reserved/pending rows, so nothing else would ever revisit it. Falling
+      // through to the 409 keeps Stripe retrying (the row may still be
+      // reconciled) and leaves the unprocessed `stripe_events` row visible.
+      if (!["paid", "already_paid"].includes(data)) {
         throw new HttpError(409, "fulfillment_conflict", "Purchase settlement did not reach a paid state.");
       }
     } else if (event.type === "checkout.session.async_payment_failed") {
@@ -226,7 +323,7 @@ Deno.serve(async (request) => {
       await expirePurchase(purchase);
     }
 
-    await markProcessed(event.id);
+    await markProcessed(event.id, "processed");
     return json({ received: true });
   } catch (error) {
     // The event row remains unprocessed, so Stripe retries are safe and useful.
@@ -235,10 +332,17 @@ Deno.serve(async (request) => {
   }
 });
 
-async function markProcessed(eventId: string) {
+// Every terminal outcome — including the no-op classifications — is recorded on
+// the event row. An event that ARTCOVR will never act on returns 200 so Stripe
+// stops retrying, and `processed_outcome` keeps that decision observable.
+async function markProcessed(eventId: string, outcome: string) {
   const { error } = await admin
     .from("stripe_events")
-    .update({ processed_at: new Date().toISOString(), processing_error: null })
+    .update({
+      processed_at: new Date().toISOString(),
+      processing_error: null,
+      processed_outcome: outcome.slice(0, 120),
+    })
     .eq("stripe_event_id", eventId);
   if (error) throw new HttpError(502, "event_update_failed", "Stripe event completion could not be recorded.");
 }

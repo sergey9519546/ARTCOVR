@@ -3,6 +3,7 @@ import { HttpError, privateJson, respondError } from "../_shared/errors.ts";
 import { editImage, imageModel } from "../_shared/openai-images.ts";
 import { postgresHttpError } from "../_shared/postgres-errors.ts";
 import { admin, readJson, requireUser } from "../_shared/supabase.ts";
+import { digestsMatch, sha256Hex } from "../_shared/raster.ts";
 import { downloadPrivate, outputKeys, removePrivate, signPrivate, uploadPrivate } from "../_shared/storage.ts";
 import { rasterizePreview } from "../_shared/watermark.ts";
 
@@ -30,6 +31,15 @@ async function runGeneration(generationId: string, userId: string, running: { ar
     uploaded.push(keys.clean);
     const cleanForRenderer = await signPrivate(keys.clean, 60);
     const watermarked = await rasterizePreview(cleanForRenderer, running.purchase_id ? 2048 : 1024);
+    const [cleanDigest, previewDigest] = await Promise.all([
+      sha256Hex(result.bytes),
+      sha256Hex(watermarked),
+    ]);
+    // A renderer that returns its input unchanged would hand the clean original
+    // to every unpaid viewer. Fail before the preview object is ever written.
+    if (digestsMatch(cleanDigest, previewDigest)) {
+      throw new HttpError(502, "watermark_passthrough", "Raster watermark renderer returned the clean image unchanged.");
+    }
     await uploadPrivate(keys.preview, watermarked);
     uploaded.push(keys.preview);
     const { data: completed, error: completeError } = await admin.rpc("complete_generation", {

@@ -66,17 +66,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_ced2841ba6ce88caa0a7",
-    "slug": "nesting-appliance",
-    "title": "Nesting Appliance",
-    "image": "/assets/artworks/nesting-appliance.jpg",
-    "alt": "Nesting Appliance: bird nest, white bird, appliance, organic machine, illustrated collage.",
-    "description": "bird nest, white bird, appliance, organic machine, illustrated collage",
-    "category": "Mixed Media / Collage",
+    "id": "art_a2de27b6021422e09b89",
+    "slug": "clocktower-vespers",
+    "title": "Clocktower Vespers",
+    "image": "/assets/artworks/clocktower-vespers.jpg",
+    "alt": "Clocktower Vespers: crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual.",
+    "description": "crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual",
+    "category": "Painterly / Illustrative",
     "moodTags": [
-      "tender",
-      "unexpected",
-      "textural"
+      "solemn",
+      "monumental",
+      "nocturnal"
     ],
     "editionAvailable": null,
     "editionTotal": null,
@@ -330,17 +330,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_86511f48a4ac2f682692",
-    "slug": "tempest-teacup",
-    "title": "Tempest Teacup",
-    "image": "/assets/artworks/tempest-teacup.jpg",
-    "alt": "Tempest Teacup: teacup, thundercloud, storm, surreal still life, ink wash.",
-    "description": "teacup, thundercloud, storm, surreal still life, ink wash",
-    "category": "Surreal / Hybrid",
+    "id": "art_e114dbcce2588ae7f0b8",
+    "slug": "wheel-of-quiet-relics",
+    "title": "Wheel of Quiet Relics",
+    "image": "/assets/artworks/wheel-of-quiet-relics.jpg",
+    "alt": "Wheel of Quiet Relics: aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel.",
+    "description": "aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel",
+    "category": "Material / Sculptural / Organic",
     "moodTags": [
-      "volatile",
-      "delicate",
-      "poetic"
+      "ritual",
+      "weathered",
+      "arcane"
     ],
     "editionAvailable": null,
     "editionTotal": null,
@@ -440,17 +440,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_11dc661ab7fe1dfbbde3",
-    "slug": "suitcase-forecast",
-    "title": "Suitcase Forecast",
-    "image": "/assets/artworks/suitcase-forecast.jpg",
-    "alt": "Suitcase Forecast: suitcase, rain cloud, travel object, ink illustration, coral accent.",
-    "description": "suitcase, rain cloud, travel object, ink illustration, coral accent",
-    "category": "Graphic / Illustration / Print",
+    "id": "art_9acb2bf21ff1f0f4a954",
+    "slug": "the-stitched-icon",
+    "title": "The Stitched Icon",
+    "image": "/assets/artworks/the-stitched-icon.jpg",
+    "alt": "The Stitched Icon: riveted mask visage, stitched shroud, museum patina, quiet menace.",
+    "description": "riveted mask visage, stitched shroud, museum patina, quiet menace",
+    "category": "Painterly / Illustrative",
     "moodTags": [
-      "portable",
-      "weathered",
-      "wry"
+      "austere",
+      "haunting",
+      "sacred"
     ],
     "editionAvailable": null,
     "editionTotal": null,
@@ -1012,17 +1012,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_dac19e8cc31eb086722a",
-    "slug": "weather-under-the-umbrella",
-    "title": "Weather Under the Umbrella",
-    "image": "/assets/artworks/weather-under-the-umbrella.jpg",
-    "alt": "Weather Under the Umbrella: black umbrella, smoke cloud, storm, graphic print, coral.",
-    "description": "black umbrella, smoke cloud, storm, graphic print, coral",
-    "category": "Graphic / Illustration / Print",
+    "id": "art_944f68ea1dc73a7d1bbe",
+    "slug": "choir-of-falling-light",
+    "title": "Choir of Falling Light",
+    "image": "/assets/artworks/choir-of-falling-light.jpg",
+    "alt": "Choir of Falling Light: pale reef cliff, descending light pillars, night valley, slow procession.",
+    "description": "pale reef cliff, descending light pillars, night valley, slow procession",
+    "category": "Surreal / Hybrid",
     "moodTags": [
-      "volatile",
-      "graphic",
-      "brooding"
+      "luminous",
+      "vast",
+      "elegiac"
     ],
     "editionAvailable": null,
     "editionTotal": null,
@@ -1034,17 +1034,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_0b001dd20786fa1c45c7",
-    "slug": "ramen-orbit",
-    "title": "Ramen Orbit",
-    "image": "/assets/artworks/ramen-orbit.jpg",
-    "alt": "Ramen Orbit: ramen, vinyl record, chopsticks, food surrealism, retro print.",
-    "description": "ramen, vinyl record, chopsticks, food surrealism, retro print",
-    "category": "Graphic / Illustration / Print",
+    "id": "art_d8689878945e344a2a6e",
+    "slug": "pilgrim-of-the-prism-dawn",
+    "title": "Pilgrim of the Prism Dawn",
+    "image": "/assets/artworks/pilgrim-of-the-prism-dawn.jpg",
+    "alt": "Pilgrim of the Prism Dawn: seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern.",
+    "description": "seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern",
+    "category": "Painterly / Illustrative",
     "moodTags": [
-      "retro",
-      "playful",
-      "cosmic"
+      "meditative",
+      "radiant",
+      "devotional"
     ],
     "editionAvailable": null,
     "editionTotal": null,
@@ -1254,17 +1254,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_b753562340b438444f0b",
-    "slug": "city-reflection-bowl",
-    "title": "City Reflection Bowl",
-    "image": "/assets/artworks/city-reflection-bowl.jpg",
-    "alt": "City Reflection Bowl: bowl, city skyline, water reflection, miniature landscape, graphic print.",
-    "description": "bowl, city skyline, water reflection, miniature landscape, graphic print",
-    "category": "Graphic / Illustration / Print",
+    "id": "art_6abeb3afbb63aeb37067",
+    "slug": "the-dune-observatory",
+    "title": "The Dune Observatory",
+    "image": "/assets/artworks/the-dune-observatory.jpg",
+    "alt": "The Dune Observatory: cracked dome observatory, orange dune sea, winding causeway, twin moons.",
+    "description": "cracked dome observatory, orange dune sea, winding causeway, twin moons",
+    "category": "Surreal / Hybrid",
     "moodTags": [
-      "urban",
-      "reflective",
-      "contained"
+      "serene",
+      "monumental",
+      "wandering"
     ],
     "editionAvailable": null,
     "editionTotal": null,
@@ -2024,17 +2024,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_2639e3e382376b774f26",
-    "slug": "luminous-ethereal-pastel",
-    "title": "Luminous Ethereal Pastel",
-    "image": "/assets/artworks/luminous-ethereal-pastel.jpg",
-    "alt": "A soft glowing pastel cloudscape with gentle sunbeams breaking through pearlescent pink and cream clouds",
-    "description": "A soft glowing pastel cloudscape with gentle sunbeams breaking through pearlescent pink and cream clouds",
+    "id": "art_a50373a194fc24e48d32",
+    "slug": "cloud-chamber-communion",
+    "title": "Cloud Chamber Communion",
+    "image": "/assets/artworks/cloud-chamber-communion.jpg",
+    "alt": "Cloud Chamber Communion: three lantern-lit figures, blue cloud pool, observatory chamber, shared thread.",
+    "description": "three lantern-lit figures, blue cloud pool, observatory chamber, shared thread",
     "category": "Painterly / Illustrative",
     "moodTags": [
       "luminous",
-      "ethereal",
-      "pastel"
+      "gentle",
+      "otherworldly"
     ],
     "editionAvailable": null,
     "editionTotal": null,
@@ -2156,17 +2156,17 @@
     "accentColor": "#0b0b0b"
   },
   {
-    "id": "art_0f88c04060c95403bbcb",
-    "slug": "luminous-ethereal-haze",
-    "title": "Luminous Ethereal Haze",
-    "image": "/assets/artworks/luminous-ethereal-haze.jpg",
-    "alt": "Gentle morning mist rolling over soft rolling green hills with golden sunbeams creating luminous rim lighting",
-    "description": "Gentle morning mist rolling over soft rolling green hills with golden sunbeams creating luminous rim lighting",
+    "id": "art_a75e86bdbba9d20ba692",
+    "slug": "herald-of-the-orbit-bloom",
+    "title": "Herald of the Orbit Bloom",
+    "image": "/assets/artworks/herald-of-the-orbit-bloom.jpg",
+    "alt": "Herald of the Orbit Bloom: coral-robed herald, orbiting bloom mask, released doves, alpine meadow.",
+    "description": "coral-robed herald, orbiting bloom mask, released doves, alpine meadow",
     "category": "Surreal / Hybrid",
     "moodTags": [
-      "luminous",
-      "ethereal",
-      "hazy"
+      "playful",
+      "folkloric",
+      "vivid"
     ],
     "editionAvailable": null,
     "editionTotal": null,

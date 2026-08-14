@@ -252,77 +252,97 @@
     }
   },
   {
-    "id": "art_ced2841ba6ce88caa0a7",
+    "id": "art_a2de27b6021422e09b89",
     "position": 4,
-    "slug": "nesting-appliance",
-    "title": "Nesting Appliance",
-    "description": "bird nest, white bird, appliance, organic machine, illustrated collage",
-    "alt": "Nesting Appliance: bird nest, white bird, appliance, organic machine, illustrated collage.",
-    "category": "Mixed Media / Collage",
-    "mood": "tender, unexpected, textural",
+    "slug": "clocktower-vespers",
+    "title": "Clocktower Vespers",
+    "description": "crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual",
+    "alt": "Clocktower Vespers: crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual.",
+    "category": "Painterly / Illustrative",
+    "mood": "solemn, monumental, nocturnal",
     "moodTags": [
-      "tender",
-      "unexpected",
-      "textural"
+      "solemn",
+      "monumental",
+      "nocturnal"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2882799,
-    "sha256": "ced2841ba6ce88caa0a70951a45642696f222217d4602e8d84412dc880837eec",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2485094,
+    "sha256": "a2de27b6021422e09b8999fe305db3ca2d81b4b85a106d0c726104641fb67db8",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_ced2841ba6ce88caa0a7/base",
-    "displayPath": "/assets/artworks/nesting-appliance.jpg",
+    "privateBasePath": "artworks/art_a2de27b6021422e09b89/base",
+    "displayPath": "/assets/artworks/clocktower-vespers.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Mixed Media / Collage",
+      "styleFamily": "Painterly / Illustrative",
       "keywords": [
-        "bird nest",
-        "white bird",
-        "appliance",
-        "organic machine",
-        "illustrated collage"
+        "crimson clocktower",
+        "robed sentinels",
+        "gothic city",
+        "pale moon dial",
+        "evening ritual",
+        "subject:architectural_form",
+        "motif:procession",
+        "motif:moon_or_orb",
+        "category:gothic_surrealism",
+        "category:architectural_surrealism",
+        "mood:solemn",
+        "mood:foreboding",
+        "palette:black_red",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "composition:centered_iconic",
+        "composition:stacked_vertical",
+        "era_aesthetic:gothic_revival"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "oxblood",
+        "crimson",
+        "umber",
+        "charcoal",
+        "ember orange"
+      ],
+      "lighting": "low-key dusk ambience; ember glow at the base gate; pale luminance held in the moon dial",
+      "lineworkAndEdges": "soft painterly contours; massed dark silhouettes; atmospheric edge falloff into fog",
+      "mediumAndTexture": "oil-like layered surface, aged varnish haze, fine abrasion and analog grain",
+      "compositionAndMotion": "centered monumental tower; twin robed sentinels flanking the base; vertical stack rising to a pale dial",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Nesting Appliance | bird nest, white bird, appliance, organic machine, illustrated collage | Mixed Media / Collage | tender | unexpected | textural | bird nest | white bird | appliance | organic machine | illustrated collage",
+      "searchText": "Clocktower Vespers | crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual | Painterly / Illustrative | solemn | monumental | nocturnal | crimson clocktower | robed sentinels | gothic city | pale moon dial | evening ritual | subject:architectural_form | motif:procession | motif:moon_or_orb | category:gothic_surrealism | category:architectural_surrealism | mood:solemn | mood:foreboding | palette:black_red | lighting:low_key | medium_texture:oil_like | composition:centered_iconic | composition:stacked_vertical | era_aesthetic:gothic_revival | oxblood | crimson | umber | charcoal | ember orange | low-key dusk ambience; ember glow at the base gate; pale luminance held in the moon dial | oil-like layered surface, aged varnish haze, fine abrasion and analog grain",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -1260,77 +1280,96 @@
     }
   },
   {
-    "id": "art_86511f48a4ac2f682692",
+    "id": "art_e114dbcce2588ae7f0b8",
     "position": 16,
-    "slug": "tempest-teacup",
-    "title": "Tempest Teacup",
-    "description": "teacup, thundercloud, storm, surreal still life, ink wash",
-    "alt": "Tempest Teacup: teacup, thundercloud, storm, surreal still life, ink wash.",
-    "category": "Surreal / Hybrid",
-    "mood": "volatile, delicate, poetic",
+    "slug": "wheel-of-quiet-relics",
+    "title": "Wheel of Quiet Relics",
+    "description": "aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel",
+    "alt": "Wheel of Quiet Relics: aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel.",
+    "category": "Material / Sculptural / Organic",
+    "mood": "ritual, weathered, arcane",
     "moodTags": [
-      "volatile",
-      "delicate",
-      "poetic"
+      "ritual",
+      "weathered",
+      "arcane"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2684129,
-    "sha256": "86511f48a4ac2f6826924079b98564ffff3630d4e55ccbe65678c41bfa75b3c3",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2676712,
+    "sha256": "e114dbcce2588ae7f0b896096c5932e0b44c37819a03869214dda28b74bb46fc",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_86511f48a4ac2f682692/base",
-    "displayPath": "/assets/artworks/tempest-teacup.jpg",
+    "privateBasePath": "artworks/art_e114dbcce2588ae7f0b8/base",
+    "displayPath": "/assets/artworks/wheel-of-quiet-relics.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Surreal / Hybrid",
+      "styleFamily": "Material / Sculptural / Organic",
       "keywords": [
-        "teacup",
-        "thundercloud",
-        "storm",
-        "surreal still life",
-        "ink wash"
+        "aged votive wheel",
+        "carved bone figures",
+        "teal jewel core",
+        "cracked lacquer panel",
+        "subject:abstract_form",
+        "motif:skull_or_bone",
+        "motif:geometric_symbol",
+        "motif:repetition",
+        "category:gothic_surrealism",
+        "mood:austere",
+        "mood:enigmatic",
+        "palette:earth_tones",
+        "lighting:spotlight",
+        "lighting:low_key",
+        "medium_texture:distressed_surface",
+        "composition:centered_iconic",
+        "composition:circular_frame",
+        "era_aesthetic:symbolist"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "deep umber",
+        "bone ivory",
+        "verdigris teal",
+        "lamp black"
+      ],
+      "lighting": "single quiet spotlight over a dark field; low-key falloff to near black at the corners",
+      "lineworkAndEdges": "incised radial spokes; small carved figures with worn, softened edges",
+      "mediumAndTexture": "distressed lacquered panel, hairline cracking, waxed patina over carved relief",
+      "compositionAndMotion": "centered circular relic on a square dark field; eight-fold radial repetition around a single teal core",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Tempest Teacup | teacup, thundercloud, storm, surreal still life, ink wash | Surreal / Hybrid | volatile | delicate | poetic | teacup | thundercloud | storm | surreal still life | ink wash",
+      "searchText": "Wheel of Quiet Relics | aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel | Material / Sculptural / Organic | ritual | weathered | arcane | aged votive wheel | carved bone figures | teal jewel core | cracked lacquer panel | subject:abstract_form | motif:skull_or_bone | motif:geometric_symbol | motif:repetition | category:gothic_surrealism | mood:austere | mood:enigmatic | palette:earth_tones | lighting:spotlight | lighting:low_key | medium_texture:distressed_surface | composition:centered_iconic | composition:circular_frame | era_aesthetic:symbolist | deep umber | bone ivory | verdigris teal | lamp black | single quiet spotlight over a dark field; low-key falloff to near black at the corners | distressed lacquered panel, hairline cracking, waxed patina over carved relief",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -1680,77 +1719,96 @@
     }
   },
   {
-    "id": "art_11dc661ab7fe1dfbbde3",
+    "id": "art_9acb2bf21ff1f0f4a954",
     "position": 21,
-    "slug": "suitcase-forecast",
-    "title": "Suitcase Forecast",
-    "description": "suitcase, rain cloud, travel object, ink illustration, coral accent",
-    "alt": "Suitcase Forecast: suitcase, rain cloud, travel object, ink illustration, coral accent.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "portable, weathered, wry",
+    "slug": "the-stitched-icon",
+    "title": "The Stitched Icon",
+    "description": "riveted mask visage, stitched shroud, museum patina, quiet menace",
+    "alt": "The Stitched Icon: riveted mask visage, stitched shroud, museum patina, quiet menace.",
+    "category": "Painterly / Illustrative",
+    "mood": "austere, haunting, sacred",
     "moodTags": [
-      "portable",
-      "weathered",
-      "wry"
+      "austere",
+      "haunting",
+      "sacred"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 3117317,
-    "sha256": "11dc661ab7fe1dfbbde39e42ba53953389e93e093c6ade0d704a4ba86fd00de5",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2549488,
+    "sha256": "9acb2bf21ff1f0f4a95432e299f0296262745020e3513076493862e11259fde2",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_11dc661ab7fe1dfbbde3/base",
-    "displayPath": "/assets/artworks/suitcase-forecast.jpg",
+    "privateBasePath": "artworks/art_9acb2bf21ff1f0f4a954/base",
+    "displayPath": "/assets/artworks/the-stitched-icon.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Painterly / Illustrative",
       "keywords": [
-        "suitcase",
-        "rain cloud",
-        "travel object",
-        "ink illustration",
-        "coral accent"
+        "riveted mask visage",
+        "stitched shroud",
+        "museum patina",
+        "quiet menace",
+        "subject:masked_figure",
+        "motif:mask",
+        "category:gothic_surrealism",
+        "category:figurative_surrealism",
+        "mood:austere",
+        "mood:haunting",
+        "palette:muted_neutrals",
+        "lighting:chiaroscuro",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "medium_texture:distressed_surface",
+        "composition:close_portrait",
+        "composition:single_focal",
+        "era_aesthetic:dark_romantic"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "ash grey",
+        "tarnished silver",
+        "bone",
+        "iron black"
+      ],
+      "lighting": "chiaroscuro side light over metal; deep shadow pooling in the seam lines",
+      "lineworkAndEdges": "hard riveted seams against frayed textile edges; crisp central mask, soft dark ground",
+      "mediumAndTexture": "oil-like rendering of hammered metal and coarse stitched cloth; conservation-grade patina",
+      "compositionAndMotion": "close frontal portrait; sealed oval mask as the single focal point; motionless, held stillness",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Suitcase Forecast | suitcase, rain cloud, travel object, ink illustration, coral accent | Graphic / Illustration / Print | portable | weathered | wry | suitcase | rain cloud | travel object | ink illustration | coral accent",
+      "searchText": "The Stitched Icon | riveted mask visage, stitched shroud, museum patina, quiet menace | Painterly / Illustrative | austere | haunting | sacred | riveted mask visage | stitched shroud | museum patina | quiet menace | subject:masked_figure | motif:mask | category:gothic_surrealism | category:figurative_surrealism | mood:austere | mood:haunting | palette:muted_neutrals | lighting:chiaroscuro | lighting:low_key | medium_texture:oil_like | medium_texture:distressed_surface | composition:close_portrait | composition:single_focal | era_aesthetic:dark_romantic | ash grey | tarnished silver | bone | iron black | chiaroscuro side light over metal; deep shadow pooling in the seam lines | oil-like rendering of hammered metal and coarse stitched cloth; conservation-grade patina",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -3864,77 +3922,96 @@
     }
   },
   {
-    "id": "art_dac19e8cc31eb086722a",
+    "id": "art_944f68ea1dc73a7d1bbe",
     "position": 47,
-    "slug": "weather-under-the-umbrella",
-    "title": "Weather Under the Umbrella",
-    "description": "black umbrella, smoke cloud, storm, graphic print, coral",
-    "alt": "Weather Under the Umbrella: black umbrella, smoke cloud, storm, graphic print, coral.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "volatile, graphic, brooding",
+    "slug": "choir-of-falling-light",
+    "title": "Choir of Falling Light",
+    "description": "pale reef cliff, descending light pillars, night valley, slow procession",
+    "alt": "Choir of Falling Light: pale reef cliff, descending light pillars, night valley, slow procession.",
+    "category": "Surreal / Hybrid",
+    "mood": "luminous, vast, elegiac",
     "moodTags": [
-      "volatile",
-      "graphic",
-      "brooding"
+      "luminous",
+      "vast",
+      "elegiac"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2810195,
-    "sha256": "dac19e8cc31eb086722ae26f73fa5f4d26dbc76ccbf63f1351817c21c6310436",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2557951,
+    "sha256": "944f68ea1dc73a7d1bbee7ee2257489b5911ca457f5c4bb1982bcde62b803701",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_dac19e8cc31eb086722a/base",
-    "displayPath": "/assets/artworks/weather-under-the-umbrella.jpg",
+    "privateBasePath": "artworks/art_944f68ea1dc73a7d1bbe/base",
+    "displayPath": "/assets/artworks/choir-of-falling-light.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Surreal / Hybrid",
       "keywords": [
-        "black umbrella",
-        "smoke cloud",
-        "storm",
-        "graphic print",
-        "coral"
+        "pale reef cliff",
+        "descending light pillars",
+        "night valley",
+        "slow procession",
+        "subject:landscape",
+        "motif:vast_scale",
+        "motif:procession",
+        "category:gothic_surrealism",
+        "category:cosmic_surrealism",
+        "mood:transcendent",
+        "mood:melancholic",
+        "palette:blue_black",
+        "lighting:volumetric_beam",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "composition:monumental_scale",
+        "composition:tiny_figure_vast_space",
+        "era_aesthetic:dark_romantic"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "midnight blue",
+        "pale bone",
+        "cold cyan",
+        "ember specks"
+      ],
+      "lighting": "thin volumetric beams falling from the ridge; small warm ground fires against a low-key night",
+      "lineworkAndEdges": "feathered organic cliff contours; hairline vertical beams; dissolving horizon edges",
+      "mediumAndTexture": "oil-like painterly atmosphere, granular mist, soft mineral texture in the cliff mass",
+      "compositionAndMotion": "monumental pale cliff over a dark valley; slow vertical descent of light toward scattered small fires",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "neo_gekiga",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Weather Under the Umbrella | black umbrella, smoke cloud, storm, graphic print, coral | Graphic / Illustration / Print | volatile | graphic | brooding | black umbrella | smoke cloud | storm | graphic print | coral",
+      "searchText": "Choir of Falling Light | pale reef cliff, descending light pillars, night valley, slow procession | Surreal / Hybrid | luminous | vast | elegiac | pale reef cliff | descending light pillars | night valley | slow procession | subject:landscape | motif:vast_scale | motif:procession | category:gothic_surrealism | category:cosmic_surrealism | mood:transcendent | mood:melancholic | palette:blue_black | lighting:volumetric_beam | lighting:low_key | medium_texture:oil_like | composition:monumental_scale | composition:tiny_figure_vast_space | era_aesthetic:dark_romantic | midnight blue | pale bone | cold cyan | ember specks | thin volumetric beams falling from the ridge; small warm ground fires against a low-key night | oil-like painterly atmosphere, granular mist, soft mineral texture in the cliff mass",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -3948,77 +4025,97 @@
     }
   },
   {
-    "id": "art_0b001dd20786fa1c45c7",
+    "id": "art_d8689878945e344a2a6e",
     "position": 48,
-    "slug": "ramen-orbit",
-    "title": "Ramen Orbit",
-    "description": "ramen, vinyl record, chopsticks, food surrealism, retro print",
-    "alt": "Ramen Orbit: ramen, vinyl record, chopsticks, food surrealism, retro print.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "retro, playful, cosmic",
+    "slug": "pilgrim-of-the-prism-dawn",
+    "title": "Pilgrim of the Prism Dawn",
+    "description": "seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern",
+    "alt": "Pilgrim of the Prism Dawn: seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern.",
+    "category": "Painterly / Illustrative",
+    "mood": "meditative, radiant, devotional",
     "moodTags": [
-      "retro",
-      "playful",
-      "cosmic"
+      "meditative",
+      "radiant",
+      "devotional"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2884730,
-    "sha256": "0b001dd20786fa1c45c7411eb9454b3e5fdf19d7302ecb2a4cdad5b46f0e4f25",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2705319,
+    "sha256": "d8689878945e344a2a6e0d7ac79eb574180a0ed7faac311ce82cc301656cbf98",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_0b001dd20786fa1c45c7/base",
-    "displayPath": "/assets/artworks/ramen-orbit.jpg",
+    "privateBasePath": "artworks/art_d8689878945e344a2a6e/base",
+    "displayPath": "/assets/artworks/pilgrim-of-the-prism-dawn.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Painterly / Illustrative",
       "keywords": [
-        "ramen",
-        "vinyl record",
-        "chopsticks",
-        "food surrealism",
-        "retro print"
+        "seated pilgrim",
+        "woven gold halo",
+        "prismatic sash",
+        "desert dusk",
+        "small lantern",
+        "subject:veiled_figure",
+        "subject:solitary_figure",
+        "motif:aureole",
+        "category:figurative_surrealism",
+        "mood:contemplative",
+        "mood:transcendent",
+        "palette:black_gold",
+        "palette:warm_cool_split",
+        "lighting:luminous_aura",
+        "medium_texture:painterly",
+        "composition:centered_iconic",
+        "composition:symmetrical",
+        "era_aesthetic:symbolist"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "black robe",
+        "woven gold",
+        "rose dawn",
+        "prismatic ribbon",
+        "desert ochre"
+      ],
+      "lighting": "self-carried luminous aura; concentric gold halo against a rose-to-amber dusk gradient",
+      "lineworkAndEdges": "calm rounded robe contours; precise concentric halo rings; delicate desert scrub detail",
+      "mediumAndTexture": "painterly matte surface with fine speckled grain and soft cloth folds",
+      "compositionAndMotion": "centered seated figure in near symmetry; radial calm around a single prismatic diagonal sash",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "neo_gekiga",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Ramen Orbit | ramen, vinyl record, chopsticks, food surrealism, retro print | Graphic / Illustration / Print | retro | playful | cosmic | ramen | vinyl record | chopsticks | food surrealism | retro print",
+      "searchText": "Pilgrim of the Prism Dawn | seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern | Painterly / Illustrative | meditative | radiant | devotional | seated pilgrim | woven gold halo | prismatic sash | desert dusk | small lantern | subject:veiled_figure | subject:solitary_figure | motif:aureole | category:figurative_surrealism | mood:contemplative | mood:transcendent | palette:black_gold | palette:warm_cool_split | lighting:luminous_aura | medium_texture:painterly | composition:centered_iconic | composition:symmetrical | era_aesthetic:symbolist | black robe | woven gold | rose dawn | prismatic ribbon | desert ochre | self-carried luminous aura; concentric gold halo against a rose-to-amber dusk gradient | painterly matte surface with fine speckled grain and soft cloth folds",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -4789,77 +4886,97 @@
     }
   },
   {
-    "id": "art_b753562340b438444f0b",
+    "id": "art_6abeb3afbb63aeb37067",
     "position": 58,
-    "slug": "city-reflection-bowl",
-    "title": "City Reflection Bowl",
-    "description": "bowl, city skyline, water reflection, miniature landscape, graphic print",
-    "alt": "City Reflection Bowl: bowl, city skyline, water reflection, miniature landscape, graphic print.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "urban, reflective, contained",
+    "slug": "the-dune-observatory",
+    "title": "The Dune Observatory",
+    "description": "cracked dome observatory, orange dune sea, winding causeway, twin moons",
+    "alt": "The Dune Observatory: cracked dome observatory, orange dune sea, winding causeway, twin moons.",
+    "category": "Surreal / Hybrid",
+    "mood": "serene, monumental, wandering",
     "moodTags": [
-      "urban",
-      "reflective",
-      "contained"
+      "serene",
+      "monumental",
+      "wandering"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2792511,
-    "sha256": "b753562340b438444f0bf4f889f6407d745d11c367207d3230cd68d5574605c2",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2506854,
+    "sha256": "6abeb3afbb63aeb3706728d3332a501201904847245f89b315be2028530f7e82",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_b753562340b438444f0b/base",
-    "displayPath": "/assets/artworks/city-reflection-bowl.jpg",
+    "privateBasePath": "artworks/art_6abeb3afbb63aeb37067/base",
+    "displayPath": "/assets/artworks/the-dune-observatory.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Surreal / Hybrid",
       "keywords": [
-        "bowl",
-        "city skyline",
-        "water reflection",
-        "miniature landscape",
-        "graphic print"
+        "cracked dome observatory",
+        "orange dune sea",
+        "winding causeway",
+        "twin moons",
+        "subject:architectural_form",
+        "subject:landscape",
+        "motif:moon_or_orb",
+        "motif:vast_scale",
+        "category:architectural_surrealism",
+        "category:speculative_surrealism",
+        "mood:dreamlike",
+        "mood:contemplative",
+        "palette:sepia_ochre",
+        "lighting:high_key",
+        "medium_texture:smooth_render",
+        "composition:tiny_figure_vast_space",
+        "composition:deep_perspective",
+        "era_aesthetic:midcentury_surreal"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "dune ochre",
+        "weathered white",
+        "rust dial",
+        "hazy teal sea",
+        "pale sky"
+      ],
+      "lighting": "even high-key desert daylight; soft shadow modelling on the dome's cracked shell",
+      "lineworkAndEdges": "clean arched causeway rhythm; rounded dome silhouette; soft dune ridgelines",
+      "mediumAndTexture": "smooth matte rendering with subtle grain; chalky weathered masonry and drifting sand",
+      "compositionAndMotion": "deep perspective causeway winding to a monumental dome; two tiny walkers set the scale beneath twin moons",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "City Reflection Bowl | bowl, city skyline, water reflection, miniature landscape, graphic print | Graphic / Illustration / Print | urban | reflective | contained | bowl | city skyline | water reflection | miniature landscape | graphic print",
+      "searchText": "The Dune Observatory | cracked dome observatory, orange dune sea, winding causeway, twin moons | Surreal / Hybrid | serene | monumental | wandering | cracked dome observatory | orange dune sea | winding causeway | twin moons | subject:architectural_form | subject:landscape | motif:moon_or_orb | motif:vast_scale | category:architectural_surrealism | category:speculative_surrealism | mood:dreamlike | mood:contemplative | palette:sepia_ochre | lighting:high_key | medium_texture:smooth_render | composition:tiny_figure_vast_space | composition:deep_perspective | era_aesthetic:midcentury_surreal | dune ochre | weathered white | rust dial | hazy teal sea | pale sky | even high-key desert daylight; soft shadow modelling on the dome's cracked shell | smooth matte rendering with subtle grain; chalky weathered masonry and drifting sand",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -9424,225 +9541,96 @@
     }
   },
   {
-    "id": "art_2639e3e382376b774f26",
+    "id": "art_a50373a194fc24e48d32",
     "position": 93,
-    "slug": "luminous-ethereal-pastel",
-    "title": "Luminous Ethereal Pastel",
-    "description": "A soft glowing pastel cloudscape with gentle sunbeams breaking through pearlescent pink and cream clouds",
-    "alt": "A soft glowing pastel cloudscape with gentle sunbeams breaking through pearlescent pink and cream clouds",
+    "slug": "cloud-chamber-communion",
+    "title": "Cloud Chamber Communion",
+    "description": "three lantern-lit figures, blue cloud pool, observatory chamber, shared thread",
+    "alt": "Cloud Chamber Communion: three lantern-lit figures, blue cloud pool, observatory chamber, shared thread.",
     "category": "Painterly / Illustrative",
-    "mood": "luminous, ethereal, pastel",
+    "mood": "luminous, gentle, otherworldly",
     "moodTags": [
       "luminous",
-      "ethereal",
-      "pastel"
+      "gentle",
+      "otherworldly"
     ],
-    "reviewFlags": [],
+    "reviewFlags": [
+      "regenerated_original_reference_led",
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
     "width": 1254,
     "height": 1254,
-    "bytes": 1917014,
-    "sha256": "2639e3e382376b774f262c66bb04d095b5a6cae40d6ad94d779a1576709f28bc",
-    "sourcePool": "generated_images",
-    "sourceOrdinal": 74,
+    "bytes": 2149981,
+    "sha256": "a50373a194fc24e48d32690cc13c65ba4952d628966b61f8a119e7d0440b3d55",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
     "sourceMimeType": "image/png",
-    "sourcePrompt": "A soft glowing pastel cloudscape with gentle sunbeams breaking through pearlescent pink and cream clouds. Luminous Ethereal Pastel. Radiant pastel abstraction or dream imagery built from soft translucent layers, glowing edges, and weightless color transitions. Palette: pearl, blush, lavender, pale cyan, mint, peach. Lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. Composition and motion: floating forms; gradient horizon; spacious composition; slow visual rhythm. Positive style cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere.",
-    "privateBasePath": "artworks/art_2639e3e382376b774f26/base",
-    "displayPath": "/assets/artworks/luminous-ethereal-pastel.jpg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a50373a194fc24e48d32/base",
+    "displayPath": "/assets/artworks/cloud-chamber-communion.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
-      "styleId": "luminous-ethereal-pastel",
+      "styleId": null,
       "styleFamily": "Painterly / Illustrative",
       "keywords": [
-        "luminous pastel",
-        "ethereal glow",
-        "translucent layers",
-        "soft-focus bloom",
-        "iridescent gradient",
-        "dreamlike abstraction",
-        "delicate color field",
-        "weightless form",
-        "serene atmosphere"
+        "three lantern-lit figures",
+        "blue cloud pool",
+        "observatory chamber",
+        "shared thread",
+        "subject:figure_group",
+        "motif:moon_or_orb",
+        "motif:levitation",
+        "category:figurative_surrealism",
+        "category:cosmic_surrealism",
+        "mood:dreamlike",
+        "mood:otherworldly",
+        "palette:high_chroma",
+        "palette:blue_black",
+        "lighting:self_luminous",
+        "lighting:luminous_aura",
+        "medium_texture:painterly",
+        "composition:tableau",
+        "era_aesthetic:psychedelic_graphic"
       ],
-      "avoids": [
-        "hard black outlines",
-        "muddy earth color",
-        "dense texture",
-        "gritty documentary grain",
-        "aggressive contrast",
-        "busy narrative scene"
-      ],
+      "avoids": [],
       "palette": [
-        "pearl",
-        "blush",
-        "lavender",
-        "pale cyan",
-        "mint",
-        "peach"
+        "electric ultramarine",
+        "iridescent rose",
+        "pale mint",
+        "deep violet shadow"
       ],
-      "lighting": "internal glow, soft backlight, diffuse bloom, gentle overexposure",
-      "lineworkAndEdges": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
-      "mediumAndTexture": "translucent glass, airbrush softness, frosted layers, fine grain",
-      "compositionAndMotion": "floating forms; gradient horizon; spacious composition; slow visual rhythm",
-      "promptTemplates": {
-        "subject_neutral": "{subject}. Luminous Ethereal Pastel visual treatment. palette: pearl, blush, lavender, pale cyan, mint, peach. lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. composition and motion: floating forms; spacious composition; slow visual rhythm. visual cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere.",
-        "concept_preserving": "{subject}. Luminous Ethereal Pastel. Radiant pastel abstraction or dream imagery built from soft translucent layers, glowing edges, and weightless color transitions. Palette: pearl, blush, lavender, pale cyan, mint, peach. Lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. Composition and motion: floating forms; gradient horizon; spacious composition; slow visual rhythm. Positive style cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere.",
-        "compact_style_suffix": "Luminous Ethereal Pastel visual treatment. palette: pearl, blush, lavender, pale cyan, mint, peach. lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. composition and motion: floating forms; spacious composition; slow visual rhythm. visual cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere."
-      },
-      "qualityFlags": [
-        "contains_content_or_motif_bias",
-        "semantic_overlap_cluster_reviewed"
-      ],
-      "styleProfile": {
-        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
-        "schema_version": "3.0.0",
-        "record_type": "art_style_profile",
-        "identity": {
-          "ordinal": 74,
-          "style_id": "luminous-ethereal-pastel",
-          "name": "Luminous Ethereal Pastel",
-          "classification": "Composite visual style label",
-          "primary_family": "Painterly / Illustrative",
-          "is_canonical_historical_style": false
-        },
-        "taste_profile": {
-          "description": "This aesthetic centers on radiant pastel abstraction or dream imagery built from soft translucent layers, glowing edges, and weightless color transitions. It favors a controlled palette of pearl, blush, lavender, pale cyan, mint, peach, shaped by internal glow, soft backlight, diffuse bloom, gentle overexposure. Its surface language combines translucent glass, airbrush softness, frosted layers, fine grain, with brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Compositions are organized through floating forms; gradient horizon; spacious composition; slow visual rhythm. The visual identity is reinforced by luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient.",
-          "source_kind": "catalog_synthesis",
-          "is_verbatim_user_supplied": false,
-          "source_profile_ids": [],
-          "variants": []
-        },
-        "visual_language": {
-          "palette": [
-            "pearl",
-            "blush",
-            "lavender",
-            "pale cyan",
-            "mint",
-            "peach"
-          ],
-          "lighting": "internal glow, soft backlight, diffuse bloom, gentle overexposure",
-          "linework_and_edges": {
-            "value": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
-            "basis": "explicit_or_medium_derived"
-          },
-          "medium_and_texture": "translucent glass, airbrush softness, frosted layers, fine grain",
-          "composition_and_motion": "floating forms; gradient horizon; spacious composition; slow visual rhythm"
-        },
-        "generation": {
-          "keywords": [
-            "luminous pastel",
-            "ethereal glow",
-            "translucent layers",
-            "soft-focus bloom",
-            "iridescent gradient",
-            "dreamlike abstraction",
-            "delicate color field",
-            "weightless form",
-            "serene atmosphere"
-          ],
-          "avoids": [
-            "hard black outlines",
-            "muddy earth color",
-            "dense texture",
-            "gritty documentary grain",
-            "aggressive contrast",
-            "busy narrative scene"
-          ],
-          "prompt_templates": {
-            "subject_neutral": "{subject}. Luminous Ethereal Pastel visual treatment. palette: pearl, blush, lavender, pale cyan, mint, peach. lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. composition and motion: floating forms; spacious composition; slow visual rhythm. visual cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere.",
-            "concept_preserving": "{subject}. Luminous Ethereal Pastel. Radiant pastel abstraction or dream imagery built from soft translucent layers, glowing edges, and weightless color transitions. Palette: pearl, blush, lavender, pale cyan, mint, peach. Lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. Composition and motion: floating forms; gradient horizon; spacious composition; slow visual rhythm. Positive style cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere.",
-            "compact_style_suffix": "Luminous Ethereal Pastel visual treatment. palette: pearl, blush, lavender, pale cyan, mint, peach. lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. composition and motion: floating forms; spacious composition; slow visual rhythm. visual cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere."
-          },
-          "krea_2": {
-            "recommended_controls": {
-              "recommended_model_variant": "medium",
-              "endpoint": "/generate/image/krea/krea-2/medium",
-              "creativity": "medium",
-              "intensity": 5,
-              "complexity": 0,
-              "movement": -20,
-              "recommended_aspect_ratios": [
-                "16:9",
-                "2.35:1",
-                "3:2"
-              ],
-              "resolution": "1K",
-              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
-            },
-            "request_template": {
-              "prompt": "{subject}. Luminous Ethereal Pastel visual treatment. palette: pearl, blush, lavender, pale cyan, mint, peach. lighting: internal glow, soft backlight, diffuse bloom, gentle overexposure. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: translucent glass, airbrush softness, frosted layers, fine grain. composition and motion: floating forms; spacious composition; slow visual rhythm. visual cues: luminous pastel, ethereal glow, translucent layers, soft-focus bloom, iridescent gradient, dreamlike abstraction, delicate color field, weightless form, serene atmosphere.",
-              "aspect_ratio": "16:9",
-              "resolution": "1K",
-              "creativity": "medium",
-              "intensity": 5,
-              "complexity": 0,
-              "movement": -20
-            },
-            "moodboard_attachment": {
-              "id": null,
-              "strength": 0.35,
-              "requires_saved_krea_moodboard": true,
-              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
-            }
-          }
-        },
-        "krea_source_alignment": {
-          "exact_title_match": false,
-          "related_moodboards": [
-            {
-              "profile_id": "krea-surrealist-b2-08-ethereal-pastel-surrealism",
-              "name": "Ethereal Pastel Surrealism",
-              "relationship": "semantic_reference",
-              "mapping_basis": "tfidf_semantic_similarity",
-              "similarity_score": 0.1145,
-              "verification_status": "not_independently_located_in_public_search"
-            }
-          ]
-        },
-        "quality": {
-          "content_bias_terms": [
-            "horizon"
-          ],
-          "quality_flags": [
-            "contains_content_or_motif_bias",
-            "semantic_overlap_cluster_reviewed"
-          ],
-          "overlap_cluster_ids": [
-            "ethereal-pastel-worlds"
-          ]
-        },
-        "provenance": {
-          "label_source": "user_requested_132_style_list",
-          "content_basis": [
-            "user_supplied_composite_label",
-            "user_provided_seed_catalogs",
-            "official_Krea_style_dimension_guidance",
-            "semantic_comparison_to_user_transcribed_krea_profiles"
-          ],
-          "one_to_one_seed_mapping_available": false,
-          "user_supplied_krea_taste_profiles_used": true,
-          "source_profile_ids": [
-            "krea-surrealist-b2-08-ethereal-pastel-surrealism"
-          ],
-          "notes": [
-            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
-            "Semantic references are research alignments, not claims that two moodboards are identical.",
-            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
-          ]
-        }
-      },
+      "lighting": "self-luminous robes and a raised orb lamp lighting the chamber from within the figures",
+      "lineworkAndEdges": "glowing figure contours; looping shared thread line; dissolving cloud edges",
+      "mediumAndTexture": "painterly luminous glazing; billowing soft cloud masses against dark ironwork",
+      "compositionAndMotion": "three-figure tableau around a sunken cloud pool; gentle upward pull toward the raised orb",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
       "provenance": {
-        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
-        "sourceManifest": "generated_images/style_library_manifest.json",
-        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/074_luminous-ethereal-pastel.json",
-        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
+          "prompt": "unavailable",
+          "rights": "unverified"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
+        },
+        "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Luminous Ethereal Pastel | A soft glowing pastel cloudscape with gentle sunbeams breaking through pearlescent pink and cream clouds | Painterly / Illustrative | luminous | ethereal | pastel | luminous pastel | ethereal glow | translucent layers | soft-focus bloom | iridescent gradient | dreamlike abstraction | delicate color field | weightless form | serene atmosphere | pearl | blush | lavender | pale cyan | mint | peach | internal glow, soft backlight, diffuse bloom, gentle overexposure | translucent glass, airbrush softness, frosted layers, fine grain",
+      "searchText": "Cloud Chamber Communion | three lantern-lit figures, blue cloud pool, observatory chamber, shared thread | Painterly / Illustrative | luminous | gentle | otherworldly | three lantern-lit figures | blue cloud pool | observatory chamber | shared thread | subject:figure_group | motif:moon_or_orb | motif:levitation | category:figurative_surrealism | category:cosmic_surrealism | mood:dreamlike | mood:otherworldly | palette:high_chroma | palette:blue_black | lighting:self_luminous | lighting:luminous_aura | medium_texture:painterly | composition:tableau | era_aesthetic:psychedelic_graphic | electric ultramarine | iridescent rose | pale mint | deep violet shadow | self-luminous robes and a raised orb lamp lighting the chamber from within the figures | painterly luminous glazing; billowing soft cloud masses against dark ironwork",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -10735,214 +10723,98 @@
     }
   },
   {
-    "id": "art_0f88c04060c95403bbcb",
+    "id": "art_a75e86bdbba9d20ba692",
     "position": 99,
-    "slug": "luminous-ethereal-haze",
-    "title": "Luminous Ethereal Haze",
-    "description": "Gentle morning mist rolling over soft rolling green hills with golden sunbeams creating luminous rim lighting",
-    "alt": "Gentle morning mist rolling over soft rolling green hills with golden sunbeams creating luminous rim lighting",
+    "slug": "herald-of-the-orbit-bloom",
+    "title": "Herald of the Orbit Bloom",
+    "description": "coral-robed herald, orbiting bloom mask, released doves, alpine meadow",
+    "alt": "Herald of the Orbit Bloom: coral-robed herald, orbiting bloom mask, released doves, alpine meadow.",
     "category": "Surreal / Hybrid",
-    "mood": "luminous, ethereal, hazy",
+    "mood": "playful, folkloric, vivid",
     "moodTags": [
-      "luminous",
-      "ethereal",
-      "hazy"
+      "playful",
+      "folkloric",
+      "vivid"
     ],
-    "reviewFlags": [],
+    "reviewFlags": [
+      "regenerated_original_reference_led",
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
     "width": 1254,
     "height": 1254,
-    "bytes": 1537313,
-    "sha256": "0f88c04060c95403bbcbdcdee513f52558ecd5154cc3660ecb1fae681ea7efa6",
-    "sourcePool": "generated_images",
-    "sourceOrdinal": 121,
+    "bytes": 2432665,
+    "sha256": "a75e86bdbba9d20ba692f79e0b511b3d83c25c3dc0f9127783bccc42693d7abd",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
     "sourceMimeType": "image/png",
-    "sourcePrompt": "Gentle morning mist rolling over soft rolling green hills with golden sunbeams creating luminous rim lighting. Luminous Ethereal Haze. Light itself becomes the subject through radiant fog, soft gradients, translucent silhouettes, and overexposed atmospheric depth. Palette: pearl white, pale cyan, lavender, silver, soft gold. Lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. Linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. Medium and texture: mist, frosted glass, fine grain, translucent layers. Composition and motion: obscured figure or form; low-contrast depth; open composition; dissolving edges. Positive style cues: luminous haze, ethereal glow, atmospheric diffusion, translucent silhouette, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction.",
-    "privateBasePath": "artworks/art_0f88c04060c95403bbcb/base",
-    "displayPath": "/assets/artworks/luminous-ethereal-haze.jpg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a75e86bdbba9d20ba692/base",
+    "displayPath": "/assets/artworks/herald-of-the-orbit-bloom.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": false,
     "published": false,
     "metadata": {
-      "styleId": "luminous-ethereal-haze",
+      "styleId": null,
       "styleFamily": "Surreal / Hybrid",
       "keywords": [
-        "luminous haze",
-        "ethereal glow",
-        "atmospheric diffusion",
-        "translucent silhouette",
-        "soft bloom",
-        "pale gradient",
-        "dreamlike light",
-        "fog layers",
-        "serene abstraction"
+        "coral-robed herald",
+        "orbiting bloom mask",
+        "released doves",
+        "alpine meadow",
+        "subject:masked_figure",
+        "subject:solitary_figure",
+        "motif:mask",
+        "motif:repetition",
+        "category:figurative_surrealism",
+        "category:biomorphic_surrealism",
+        "mood:dreamlike",
+        "mood:uncanny",
+        "palette:high_chroma",
+        "palette:cyan_orange",
+        "lighting:high_key",
+        "medium_texture:oil_like",
+        "composition:centered_iconic",
+        "composition:full_figure",
+        "era_aesthetic:midcentury_surreal"
       ],
-      "avoids": [
-        "crisp commercial sharpness",
-        "hard black contour",
-        "saturated primary colors",
-        "dense surface texture",
-        "flat lighting",
-        "detailed narrative scene"
-      ],
+      "avoids": [],
       "palette": [
-        "pearl white",
-        "pale cyan",
-        "lavender",
-        "silver",
-        "soft gold"
+        "coral red",
+        "cobalt mask",
+        "meadow green",
+        "cloud white",
+        "sky cyan"
       ],
-      "lighting": "glowing fog, diffused backlight, broad bloom, gentle overexposure",
-      "lineworkAndEdges": "selective hard focal contours dissolving into soft atmospheric or dreamlike edges",
-      "mediumAndTexture": "mist, frosted glass, fine grain, translucent layers",
-      "compositionAndMotion": "obscured figure or form; low-contrast depth; open composition; dissolving edges",
-      "promptTemplates": {
-        "subject_neutral": "{subject}. Luminous Ethereal Haze visual treatment. palette: pearl white, pale cyan, lavender, silver, soft gold. lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. medium and texture: mist, frosted glass, fine grain, translucent layers. composition and motion: low-contrast depth; open composition; dissolving edges. visual cues: luminous haze, ethereal glow, atmospheric diffusion, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction.",
-        "concept_preserving": "{subject}. Luminous Ethereal Haze. Light itself becomes the subject through radiant fog, soft gradients, translucent silhouettes, and overexposed atmospheric depth. Palette: pearl white, pale cyan, lavender, silver, soft gold. Lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. Linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. Medium and texture: mist, frosted glass, fine grain, translucent layers. Composition and motion: obscured figure or form; low-contrast depth; open composition; dissolving edges. Positive style cues: luminous haze, ethereal glow, atmospheric diffusion, translucent silhouette, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction.",
-        "compact_style_suffix": "Luminous Ethereal Haze visual treatment. palette: pearl white, pale cyan, lavender, silver, soft gold. lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. medium and texture: mist, frosted glass, fine grain, translucent layers. composition and motion: low-contrast depth; open composition; dissolving edges. visual cues: luminous haze, ethereal glow, atmospheric diffusion, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction."
-      },
-      "qualityFlags": [
-        "contains_content_or_motif_bias",
-        "linework_uses_family_default",
-        "semantic_overlap_cluster_reviewed"
-      ],
-      "styleProfile": {
-        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
-        "schema_version": "3.0.0",
-        "record_type": "art_style_profile",
-        "identity": {
-          "ordinal": 121,
-          "style_id": "luminous-ethereal-haze",
-          "name": "Luminous Ethereal Haze",
-          "classification": "Composite visual style label",
-          "primary_family": "Surreal / Hybrid",
-          "is_canonical_historical_style": false
-        },
-        "taste_profile": {
-          "description": "This aesthetic centers on light itself becomes the subject through radiant fog, soft gradients, translucent silhouettes, and overexposed atmospheric depth. It favors a controlled palette of pearl white, pale cyan, lavender, silver, soft gold, shaped by glowing fog, diffused backlight, broad bloom, gentle overexposure. Its surface language combines mist, frosted glass, fine grain, translucent layers, with selective hard focal contours dissolving into soft atmospheric or dreamlike edges. Compositions are organized through obscured figure or form; low-contrast depth; open composition; dissolving edges. The visual identity is reinforced by luminous haze, ethereal glow, atmospheric diffusion, translucent silhouette, soft bloom.",
-          "source_kind": "catalog_synthesis",
-          "is_verbatim_user_supplied": false,
-          "source_profile_ids": [],
-          "variants": []
-        },
-        "visual_language": {
-          "palette": [
-            "pearl white",
-            "pale cyan",
-            "lavender",
-            "silver",
-            "soft gold"
-          ],
-          "lighting": "glowing fog, diffused backlight, broad bloom, gentle overexposure",
-          "linework_and_edges": {
-            "value": "selective hard focal contours dissolving into soft atmospheric or dreamlike edges",
-            "basis": "primary_family_default"
-          },
-          "medium_and_texture": "mist, frosted glass, fine grain, translucent layers",
-          "composition_and_motion": "obscured figure or form; low-contrast depth; open composition; dissolving edges"
-        },
-        "generation": {
-          "keywords": [
-            "luminous haze",
-            "ethereal glow",
-            "atmospheric diffusion",
-            "translucent silhouette",
-            "soft bloom",
-            "pale gradient",
-            "dreamlike light",
-            "fog layers",
-            "serene abstraction"
-          ],
-          "avoids": [
-            "crisp commercial sharpness",
-            "hard black contour",
-            "saturated primary colors",
-            "dense surface texture",
-            "flat lighting",
-            "detailed narrative scene"
-          ],
-          "prompt_templates": {
-            "subject_neutral": "{subject}. Luminous Ethereal Haze visual treatment. palette: pearl white, pale cyan, lavender, silver, soft gold. lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. medium and texture: mist, frosted glass, fine grain, translucent layers. composition and motion: low-contrast depth; open composition; dissolving edges. visual cues: luminous haze, ethereal glow, atmospheric diffusion, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction.",
-            "concept_preserving": "{subject}. Luminous Ethereal Haze. Light itself becomes the subject through radiant fog, soft gradients, translucent silhouettes, and overexposed atmospheric depth. Palette: pearl white, pale cyan, lavender, silver, soft gold. Lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. Linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. Medium and texture: mist, frosted glass, fine grain, translucent layers. Composition and motion: obscured figure or form; low-contrast depth; open composition; dissolving edges. Positive style cues: luminous haze, ethereal glow, atmospheric diffusion, translucent silhouette, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction.",
-            "compact_style_suffix": "Luminous Ethereal Haze visual treatment. palette: pearl white, pale cyan, lavender, silver, soft gold. lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. medium and texture: mist, frosted glass, fine grain, translucent layers. composition and motion: low-contrast depth; open composition; dissolving edges. visual cues: luminous haze, ethereal glow, atmospheric diffusion, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction."
-          },
-          "krea_2": {
-            "recommended_controls": {
-              "recommended_model_variant": "medium",
-              "endpoint": "/generate/image/krea/krea-2/medium",
-              "creativity": "medium",
-              "intensity": 5,
-              "complexity": 0,
-              "movement": -20,
-              "recommended_aspect_ratios": [
-                "1:1",
-                "4:5",
-                "16:9"
-              ],
-              "resolution": "1K",
-              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
-            },
-            "request_template": {
-              "prompt": "{subject}. Luminous Ethereal Haze visual treatment. palette: pearl white, pale cyan, lavender, silver, soft gold. lighting: glowing fog, diffused backlight, broad bloom, gentle overexposure. linework and edges: selective hard focal contours dissolving into soft atmospheric or dreamlike edges. medium and texture: mist, frosted glass, fine grain, translucent layers. composition and motion: low-contrast depth; open composition; dissolving edges. visual cues: luminous haze, ethereal glow, atmospheric diffusion, soft bloom, pale gradient, dreamlike light, fog layers, serene abstraction.",
-              "aspect_ratio": "1:1",
-              "resolution": "1K",
-              "creativity": "medium",
-              "intensity": 5,
-              "complexity": 0,
-              "movement": -20
-            },
-            "moodboard_attachment": {
-              "id": null,
-              "strength": 0.35,
-              "requires_saved_krea_moodboard": true,
-              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
-            }
-          }
-        },
-        "krea_source_alignment": {
-          "exact_title_match": false,
-          "related_moodboards": []
-        },
-        "quality": {
-          "content_bias_terms": [
-            "figure",
-            "silhouette"
-          ],
-          "quality_flags": [
-            "contains_content_or_motif_bias",
-            "linework_uses_family_default",
-            "semantic_overlap_cluster_reviewed"
-          ],
-          "overlap_cluster_ids": [
-            "spectral-ethereal-haze"
-          ]
-        },
-        "provenance": {
-          "label_source": "user_requested_132_style_list",
-          "content_basis": [
-            "user_supplied_composite_label",
-            "user_provided_seed_catalogs",
-            "official_Krea_style_dimension_guidance"
-          ],
-          "one_to_one_seed_mapping_available": false,
-          "user_supplied_krea_taste_profiles_used": false,
-          "source_profile_ids": [],
-          "notes": [
-            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
-            "Semantic references are research alignments, not claims that two moodboards are identical.",
-            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
-          ]
-        }
-      },
+      "lighting": "bright high-key alpine daylight with crisp cumulus backlight",
+      "lineworkAndEdges": "bold simplified figure outline; orbiting bloom spheres on thin stalks; sharp dove silhouettes",
+      "mediumAndTexture": "oil-like folk-painting surface; fine fabric pleats and dotted floral detail",
+      "compositionAndMotion": "centered full-figure herald on a rising meadow; radial bloom orbit around the head; doves ascending right",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
       "provenance": {
-        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
-        "sourceManifest": "generated_images/style_library_manifest.json",
-        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/121_luminous-ethereal-haze.json",
-        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
+          "prompt": "unavailable",
+          "rights": "unverified"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
+        },
+        "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Luminous Ethereal Haze | Gentle morning mist rolling over soft rolling green hills with golden sunbeams creating luminous rim lighting | Surreal / Hybrid | luminous | ethereal | hazy | luminous haze | ethereal glow | atmospheric diffusion | translucent silhouette | soft bloom | pale gradient | dreamlike light | fog layers | serene abstraction | pearl white | pale cyan | lavender | silver | soft gold | glowing fog, diffused backlight, broad bloom, gentle overexposure | mist, frosted glass, fine grain, translucent layers",
+      "searchText": "Herald of the Orbit Bloom | coral-robed herald, orbiting bloom mask, released doves, alpine meadow | Surreal / Hybrid | playful | folkloric | vivid | coral-robed herald | orbiting bloom mask | released doves | alpine meadow | subject:masked_figure | subject:solitary_figure | motif:mask | motif:repetition | category:figurative_surrealism | category:biomorphic_surrealism | mood:dreamlike | mood:uncanny | palette:high_chroma | palette:cyan_orange | lighting:high_key | medium_texture:oil_like | composition:centered_iconic | composition:full_figure | era_aesthetic:midcentury_surreal | coral red | cobalt mask | meadow green | cloud white | sky cyan | bright high-key alpine daylight with crisp cumulus backlight | oil-like folk-painting surface; fine fabric pleats and dotted floral detail",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"

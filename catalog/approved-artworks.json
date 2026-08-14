@@ -261,77 +261,97 @@
     "currency": "USD"
   },
   {
-    "id": "art_ced2841ba6ce88caa0a7",
+    "id": "art_a2de27b6021422e09b89",
     "position": 4,
-    "slug": "nesting-appliance",
-    "title": "Nesting Appliance",
-    "description": "bird nest, white bird, appliance, organic machine, illustrated collage",
-    "alt": "Nesting Appliance: bird nest, white bird, appliance, organic machine, illustrated collage.",
-    "category": "Mixed Media / Collage",
-    "mood": "tender, unexpected, textural",
+    "slug": "clocktower-vespers",
+    "title": "Clocktower Vespers",
+    "description": "crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual",
+    "alt": "Clocktower Vespers: crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual.",
+    "category": "Painterly / Illustrative",
+    "mood": "solemn, monumental, nocturnal",
     "moodTags": [
-      "tender",
-      "unexpected",
-      "textural"
+      "solemn",
+      "monumental",
+      "nocturnal"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2882799,
-    "sha256": "ced2841ba6ce88caa0a70951a45642696f222217d4602e8d84412dc880837eec",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2485094,
+    "sha256": "a2de27b6021422e09b8999fe305db3ca2d81b4b85a106d0c726104641fb67db8",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_ced2841ba6ce88caa0a7/base",
-    "displayPath": "/assets/artworks/nesting-appliance.jpg",
+    "privateBasePath": "artworks/art_a2de27b6021422e09b89/base",
+    "displayPath": "/assets/artworks/clocktower-vespers.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": true,
     "published": true,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Mixed Media / Collage",
+      "styleFamily": "Painterly / Illustrative",
       "keywords": [
-        "bird nest",
-        "white bird",
-        "appliance",
-        "organic machine",
-        "illustrated collage"
+        "crimson clocktower",
+        "robed sentinels",
+        "gothic city",
+        "pale moon dial",
+        "evening ritual",
+        "subject:architectural_form",
+        "motif:procession",
+        "motif:moon_or_orb",
+        "category:gothic_surrealism",
+        "category:architectural_surrealism",
+        "mood:solemn",
+        "mood:foreboding",
+        "palette:black_red",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "composition:centered_iconic",
+        "composition:stacked_vertical",
+        "era_aesthetic:gothic_revival"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "oxblood",
+        "crimson",
+        "umber",
+        "charcoal",
+        "ember orange"
+      ],
+      "lighting": "low-key dusk ambience; ember glow at the base gate; pale luminance held in the moon dial",
+      "lineworkAndEdges": "soft painterly contours; massed dark silhouettes; atmospheric edge falloff into fog",
+      "mediumAndTexture": "oil-like layered surface, aged varnish haze, fine abrasion and analog grain",
+      "compositionAndMotion": "centered monumental tower; twin robed sentinels flanking the base; vertical stack rising to a pale dial",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Nesting Appliance | bird nest, white bird, appliance, organic machine, illustrated collage | Mixed Media / Collage | tender | unexpected | textural | bird nest | white bird | appliance | organic machine | illustrated collage",
+      "searchText": "Clocktower Vespers | crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual | Painterly / Illustrative | solemn | monumental | nocturnal | crimson clocktower | robed sentinels | gothic city | pale moon dial | evening ritual | subject:architectural_form | motif:procession | motif:moon_or_orb | category:gothic_surrealism | category:architectural_surrealism | mood:solemn | mood:foreboding | palette:black_red | lighting:low_key | medium_texture:oil_like | composition:centered_iconic | composition:stacked_vertical | era_aesthetic:gothic_revival | oxblood | crimson | umber | charcoal | ember orange | low-key dusk ambience; ember glow at the base gate; pale luminance held in the moon dial | oil-like layered surface, aged varnish haze, fine abrasion and analog grain",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -1305,77 +1325,96 @@
     "currency": "USD"
   },
   {
-    "id": "art_86511f48a4ac2f682692",
+    "id": "art_e114dbcce2588ae7f0b8",
     "position": 16,
-    "slug": "tempest-teacup",
-    "title": "Tempest Teacup",
-    "description": "teacup, thundercloud, storm, surreal still life, ink wash",
-    "alt": "Tempest Teacup: teacup, thundercloud, storm, surreal still life, ink wash.",
-    "category": "Surreal / Hybrid",
-    "mood": "volatile, delicate, poetic",
+    "slug": "wheel-of-quiet-relics",
+    "title": "Wheel of Quiet Relics",
+    "description": "aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel",
+    "alt": "Wheel of Quiet Relics: aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel.",
+    "category": "Material / Sculptural / Organic",
+    "mood": "ritual, weathered, arcane",
     "moodTags": [
-      "volatile",
-      "delicate",
-      "poetic"
+      "ritual",
+      "weathered",
+      "arcane"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2684129,
-    "sha256": "86511f48a4ac2f6826924079b98564ffff3630d4e55ccbe65678c41bfa75b3c3",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2676712,
+    "sha256": "e114dbcce2588ae7f0b896096c5932e0b44c37819a03869214dda28b74bb46fc",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_86511f48a4ac2f682692/base",
-    "displayPath": "/assets/artworks/tempest-teacup.jpg",
+    "privateBasePath": "artworks/art_e114dbcce2588ae7f0b8/base",
+    "displayPath": "/assets/artworks/wheel-of-quiet-relics.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": true,
     "published": true,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Surreal / Hybrid",
+      "styleFamily": "Material / Sculptural / Organic",
       "keywords": [
-        "teacup",
-        "thundercloud",
-        "storm",
-        "surreal still life",
-        "ink wash"
+        "aged votive wheel",
+        "carved bone figures",
+        "teal jewel core",
+        "cracked lacquer panel",
+        "subject:abstract_form",
+        "motif:skull_or_bone",
+        "motif:geometric_symbol",
+        "motif:repetition",
+        "category:gothic_surrealism",
+        "mood:austere",
+        "mood:enigmatic",
+        "palette:earth_tones",
+        "lighting:spotlight",
+        "lighting:low_key",
+        "medium_texture:distressed_surface",
+        "composition:centered_iconic",
+        "composition:circular_frame",
+        "era_aesthetic:symbolist"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "deep umber",
+        "bone ivory",
+        "verdigris teal",
+        "lamp black"
+      ],
+      "lighting": "single quiet spotlight over a dark field; low-key falloff to near black at the corners",
+      "lineworkAndEdges": "incised radial spokes; small carved figures with worn, softened edges",
+      "mediumAndTexture": "distressed lacquered panel, hairline cracking, waxed patina over carved relief",
+      "compositionAndMotion": "centered circular relic on a square dark field; eight-fold radial repetition around a single teal core",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Tempest Teacup | teacup, thundercloud, storm, surreal still life, ink wash | Surreal / Hybrid | volatile | delicate | poetic | teacup | thundercloud | storm | surreal still life | ink wash",
+      "searchText": "Wheel of Quiet Relics | aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel | Material / Sculptural / Organic | ritual | weathered | arcane | aged votive wheel | carved bone figures | teal jewel core | cracked lacquer panel | subject:abstract_form | motif:skull_or_bone | motif:geometric_symbol | motif:repetition | category:gothic_surrealism | mood:austere | mood:enigmatic | palette:earth_tones | lighting:spotlight | lighting:low_key | medium_texture:distressed_surface | composition:centered_iconic | composition:circular_frame | era_aesthetic:symbolist | deep umber | bone ivory | verdigris teal | lamp black | single quiet spotlight over a dark field; low-key falloff to near black at the corners | distressed lacquered panel, hairline cracking, waxed patina over carved relief",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -1740,77 +1779,96 @@
     "currency": "USD"
   },
   {
-    "id": "art_11dc661ab7fe1dfbbde3",
+    "id": "art_9acb2bf21ff1f0f4a954",
     "position": 21,
-    "slug": "suitcase-forecast",
-    "title": "Suitcase Forecast",
-    "description": "suitcase, rain cloud, travel object, ink illustration, coral accent",
-    "alt": "Suitcase Forecast: suitcase, rain cloud, travel object, ink illustration, coral accent.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "portable, weathered, wry",
+    "slug": "the-stitched-icon",
+    "title": "The Stitched Icon",
+    "description": "riveted mask visage, stitched shroud, museum patina, quiet menace",
+    "alt": "The Stitched Icon: riveted mask visage, stitched shroud, museum patina, quiet menace.",
+    "category": "Painterly / Illustrative",
+    "mood": "austere, haunting, sacred",
     "moodTags": [
-      "portable",
-      "weathered",
-      "wry"
+      "austere",
+      "haunting",
+      "sacred"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 3117317,
-    "sha256": "11dc661ab7fe1dfbbde39e42ba53953389e93e093c6ade0d704a4ba86fd00de5",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2549488,
+    "sha256": "9acb2bf21ff1f0f4a95432e299f0296262745020e3513076493862e11259fde2",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_11dc661ab7fe1dfbbde3/base",
-    "displayPath": "/assets/artworks/suitcase-forecast.jpg",
+    "privateBasePath": "artworks/art_9acb2bf21ff1f0f4a954/base",
+    "displayPath": "/assets/artworks/the-stitched-icon.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": true,
     "published": true,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Painterly / Illustrative",
       "keywords": [
-        "suitcase",
-        "rain cloud",
-        "travel object",
-        "ink illustration",
-        "coral accent"
+        "riveted mask visage",
+        "stitched shroud",
+        "museum patina",
+        "quiet menace",
+        "subject:masked_figure",
+        "motif:mask",
+        "category:gothic_surrealism",
+        "category:figurative_surrealism",
+        "mood:austere",
+        "mood:haunting",
+        "palette:muted_neutrals",
+        "lighting:chiaroscuro",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "medium_texture:distressed_surface",
+        "composition:close_portrait",
+        "composition:single_focal",
+        "era_aesthetic:dark_romantic"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "ash grey",
+        "tarnished silver",
+        "bone",
+        "iron black"
+      ],
+      "lighting": "chiaroscuro side light over metal; deep shadow pooling in the seam lines",
+      "lineworkAndEdges": "hard riveted seams against frayed textile edges; crisp central mask, soft dark ground",
+      "mediumAndTexture": "oil-like rendering of hammered metal and coarse stitched cloth; conservation-grade patina",
+      "compositionAndMotion": "close frontal portrait; sealed oval mask as the single focal point; motionless, held stillness",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Suitcase Forecast | suitcase, rain cloud, travel object, ink illustration, coral accent | Graphic / Illustration / Print | portable | weathered | wry | suitcase | rain cloud | travel object | ink illustration | coral accent",
+      "searchText": "The Stitched Icon | riveted mask visage, stitched shroud, museum patina, quiet menace | Painterly / Illustrative | austere | haunting | sacred | riveted mask visage | stitched shroud | museum patina | quiet menace | subject:masked_figure | motif:mask | category:gothic_surrealism | category:figurative_surrealism | mood:austere | mood:haunting | palette:muted_neutrals | lighting:chiaroscuro | lighting:low_key | medium_texture:oil_like | medium_texture:distressed_surface | composition:close_portrait | composition:single_focal | era_aesthetic:dark_romantic | ash grey | tarnished silver | bone | iron black | chiaroscuro side light over metal; deep shadow pooling in the seam lines | oil-like rendering of hammered metal and coarse stitched cloth; conservation-grade patina",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -4002,77 +4060,96 @@
     "currency": "USD"
   },
   {
-    "id": "art_dac19e8cc31eb086722a",
+    "id": "art_944f68ea1dc73a7d1bbe",
     "position": 47,
-    "slug": "weather-under-the-umbrella",
-    "title": "Weather Under the Umbrella",
-    "description": "black umbrella, smoke cloud, storm, graphic print, coral",
-    "alt": "Weather Under the Umbrella: black umbrella, smoke cloud, storm, graphic print, coral.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "volatile, graphic, brooding",
+    "slug": "choir-of-falling-light",
+    "title": "Choir of Falling Light",
+    "description": "pale reef cliff, descending light pillars, night valley, slow procession",
+    "alt": "Choir of Falling Light: pale reef cliff, descending light pillars, night valley, slow procession.",
+    "category": "Surreal / Hybrid",
+    "mood": "luminous, vast, elegiac",
     "moodTags": [
-      "volatile",
-      "graphic",
-      "brooding"
+      "luminous",
+      "vast",
+      "elegiac"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2810195,
-    "sha256": "dac19e8cc31eb086722ae26f73fa5f4d26dbc76ccbf63f1351817c21c6310436",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2557951,
+    "sha256": "944f68ea1dc73a7d1bbee7ee2257489b5911ca457f5c4bb1982bcde62b803701",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_dac19e8cc31eb086722a/base",
-    "displayPath": "/assets/artworks/weather-under-the-umbrella.jpg",
+    "privateBasePath": "artworks/art_944f68ea1dc73a7d1bbe/base",
+    "displayPath": "/assets/artworks/choir-of-falling-light.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": true,
     "published": true,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Surreal / Hybrid",
       "keywords": [
-        "black umbrella",
-        "smoke cloud",
-        "storm",
-        "graphic print",
-        "coral"
+        "pale reef cliff",
+        "descending light pillars",
+        "night valley",
+        "slow procession",
+        "subject:landscape",
+        "motif:vast_scale",
+        "motif:procession",
+        "category:gothic_surrealism",
+        "category:cosmic_surrealism",
+        "mood:transcendent",
+        "mood:melancholic",
+        "palette:blue_black",
+        "lighting:volumetric_beam",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "composition:monumental_scale",
+        "composition:tiny_figure_vast_space",
+        "era_aesthetic:dark_romantic"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "midnight blue",
+        "pale bone",
+        "cold cyan",
+        "ember specks"
+      ],
+      "lighting": "thin volumetric beams falling from the ridge; small warm ground fires against a low-key night",
+      "lineworkAndEdges": "feathered organic cliff contours; hairline vertical beams; dissolving horizon edges",
+      "mediumAndTexture": "oil-like painterly atmosphere, granular mist, soft mineral texture in the cliff mass",
+      "compositionAndMotion": "monumental pale cliff over a dark valley; slow vertical descent of light toward scattered small fires",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "neo_gekiga",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "gothic_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Weather Under the Umbrella | black umbrella, smoke cloud, storm, graphic print, coral | Graphic / Illustration / Print | volatile | graphic | brooding | black umbrella | smoke cloud | storm | graphic print | coral",
+      "searchText": "Choir of Falling Light | pale reef cliff, descending light pillars, night valley, slow procession | Surreal / Hybrid | luminous | vast | elegiac | pale reef cliff | descending light pillars | night valley | slow procession | subject:landscape | motif:vast_scale | motif:procession | category:gothic_surrealism | category:cosmic_surrealism | mood:transcendent | mood:melancholic | palette:blue_black | lighting:volumetric_beam | lighting:low_key | medium_texture:oil_like | composition:monumental_scale | composition:tiny_figure_vast_space | era_aesthetic:dark_romantic | midnight blue | pale bone | cold cyan | ember specks | thin volumetric beams falling from the ridge; small warm ground fires against a low-key night | oil-like painterly atmosphere, granular mist, soft mineral texture in the cliff mass",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -4089,77 +4166,97 @@
     "currency": "USD"
   },
   {
-    "id": "art_0b001dd20786fa1c45c7",
+    "id": "art_d8689878945e344a2a6e",
     "position": 48,
-    "slug": "ramen-orbit",
-    "title": "Ramen Orbit",
-    "description": "ramen, vinyl record, chopsticks, food surrealism, retro print",
-    "alt": "Ramen Orbit: ramen, vinyl record, chopsticks, food surrealism, retro print.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "retro, playful, cosmic",
+    "slug": "pilgrim-of-the-prism-dawn",
+    "title": "Pilgrim of the Prism Dawn",
+    "description": "seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern",
+    "alt": "Pilgrim of the Prism Dawn: seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern.",
+    "category": "Painterly / Illustrative",
+    "mood": "meditative, radiant, devotional",
     "moodTags": [
-      "retro",
-      "playful",
-      "cosmic"
+      "meditative",
+      "radiant",
+      "devotional"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2884730,
-    "sha256": "0b001dd20786fa1c45c7411eb9454b3e5fdf19d7302ecb2a4cdad5b46f0e4f25",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2705319,
+    "sha256": "d8689878945e344a2a6e0d7ac79eb574180a0ed7faac311ce82cc301656cbf98",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_0b001dd20786fa1c45c7/base",
-    "displayPath": "/assets/artworks/ramen-orbit.jpg",
+    "privateBasePath": "artworks/art_d8689878945e344a2a6e/base",
+    "displayPath": "/assets/artworks/pilgrim-of-the-prism-dawn.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": true,
     "published": true,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Painterly / Illustrative",
       "keywords": [
-        "ramen",
-        "vinyl record",
-        "chopsticks",
-        "food surrealism",
-        "retro print"
+        "seated pilgrim",
+        "woven gold halo",
+        "prismatic sash",
+        "desert dusk",
+        "small lantern",
+        "subject:veiled_figure",
+        "subject:solitary_figure",
+        "motif:aureole",
+        "category:figurative_surrealism",
+        "mood:contemplative",
+        "mood:transcendent",
+        "palette:black_gold",
+        "palette:warm_cool_split",
+        "lighting:luminous_aura",
+        "medium_texture:painterly",
+        "composition:centered_iconic",
+        "composition:symmetrical",
+        "era_aesthetic:symbolist"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "black robe",
+        "woven gold",
+        "rose dawn",
+        "prismatic ribbon",
+        "desert ochre"
+      ],
+      "lighting": "self-carried luminous aura; concentric gold halo against a rose-to-amber dusk gradient",
+      "lineworkAndEdges": "calm rounded robe contours; precise concentric halo rings; delicate desert scrub detail",
+      "mediumAndTexture": "painterly matte surface with fine speckled grain and soft cloth folds",
+      "compositionAndMotion": "centered seated figure in near symmetry; radial calm around a single prismatic diagonal sash",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "neo_gekiga",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "Ramen Orbit | ramen, vinyl record, chopsticks, food surrealism, retro print | Graphic / Illustration / Print | retro | playful | cosmic | ramen | vinyl record | chopsticks | food surrealism | retro print",
+      "searchText": "Pilgrim of the Prism Dawn | seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern | Painterly / Illustrative | meditative | radiant | devotional | seated pilgrim | woven gold halo | prismatic sash | desert dusk | small lantern | subject:veiled_figure | subject:solitary_figure | motif:aureole | category:figurative_surrealism | mood:contemplative | mood:transcendent | palette:black_gold | palette:warm_cool_split | lighting:luminous_aura | medium_texture:painterly | composition:centered_iconic | composition:symmetrical | era_aesthetic:symbolist | black robe | woven gold | rose dawn | prismatic ribbon | desert ochre | self-carried luminous aura; concentric gold halo against a rose-to-amber dusk gradient | painterly matte surface with fine speckled grain and soft cloth folds",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -4960,77 +5057,97 @@
     "currency": "USD"
   },
   {
-    "id": "art_b753562340b438444f0b",
+    "id": "art_6abeb3afbb63aeb37067",
     "position": 58,
-    "slug": "city-reflection-bowl",
-    "title": "City Reflection Bowl",
-    "description": "bowl, city skyline, water reflection, miniature landscape, graphic print",
-    "alt": "City Reflection Bowl: bowl, city skyline, water reflection, miniature landscape, graphic print.",
-    "category": "Graphic / Illustration / Print",
-    "mood": "urban, reflective, contained",
+    "slug": "the-dune-observatory",
+    "title": "The Dune Observatory",
+    "description": "cracked dome observatory, orange dune sea, winding causeway, twin moons",
+    "alt": "The Dune Observatory: cracked dome observatory, orange dune sea, winding causeway, twin moons.",
+    "category": "Surreal / Hybrid",
+    "mood": "serene, monumental, wandering",
     "moodTags": [
-      "urban",
-      "reflective",
-      "contained"
+      "serene",
+      "monumental",
+      "wandering"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
+      "regenerated_original_reference_led",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
-    "width": 1280,
-    "height": 1280,
-    "bytes": 2792511,
-    "sha256": "b753562340b438444f0bf4f889f6407d745d11c367207d3230cd68d5574605c2",
-    "sourcePool": "concept_reference_art",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2506854,
+    "sha256": "6abeb3afbb63aeb3706728d3332a501201904847245f89b315be2028530f7e82",
+    "sourcePool": "regenerated_originals",
     "sourceOrdinal": null,
     "sourceMimeType": "image/png",
     "sourcePrompt": null,
-    "privateBasePath": "artworks/art_b753562340b438444f0b/base",
-    "displayPath": "/assets/artworks/city-reflection-bowl.jpg",
+    "privateBasePath": "artworks/art_6abeb3afbb63aeb37067/base",
+    "displayPath": "/assets/artworks/the-dune-observatory.jpg",
     "validationStatus": "technical-pass",
     "validationIssues": [],
     "rightsApproved": true,
     "published": true,
     "metadata": {
       "styleId": null,
-      "styleFamily": "Graphic / Illustration / Print",
+      "styleFamily": "Surreal / Hybrid",
       "keywords": [
-        "bowl",
-        "city skyline",
-        "water reflection",
-        "miniature landscape",
-        "graphic print"
+        "cracked dome observatory",
+        "orange dune sea",
+        "winding causeway",
+        "twin moons",
+        "subject:architectural_form",
+        "subject:landscape",
+        "motif:moon_or_orb",
+        "motif:vast_scale",
+        "category:architectural_surrealism",
+        "category:speculative_surrealism",
+        "mood:dreamlike",
+        "mood:contemplative",
+        "palette:sepia_ochre",
+        "lighting:high_key",
+        "medium_texture:smooth_render",
+        "composition:tiny_figure_vast_space",
+        "composition:deep_perspective",
+        "era_aesthetic:midcentury_surreal"
       ],
       "avoids": [],
-      "palette": [],
-      "lighting": "",
-      "lineworkAndEdges": "",
-      "mediumAndTexture": "",
-      "compositionAndMotion": "",
+      "palette": [
+        "dune ochre",
+        "weathered white",
+        "rust dial",
+        "hazy teal sea",
+        "pale sky"
+      ],
+      "lighting": "even high-key desert daylight; soft shadow modelling on the dome's cracked shell",
+      "lineworkAndEdges": "clean arched causeway rhythm; rounded dome silhouette; soft dune ridgelines",
+      "mediumAndTexture": "smooth matte rendering with subtle grain; chalky weathered masonry and drifting sand",
+      "compositionAndMotion": "deep perspective causeway winding to a monumental dome; two tiny walkers set the scale beneath twin moons",
       "promptTemplates": {},
       "qualityFlags": [],
       "styleProfile": null,
       "provenance": {
         "confidence": {
           "identity_dimensions_hash": "high",
-          "title_keywords": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
           "prompt": "unavailable",
           "rights": "unverified"
         },
         "linkage": {
-          "join": "exact audit index, path, and SHA-256",
-          "source": "meta_ai_m4",
-          "classification": "other",
-          "title_source": "curator visual review",
-          "keyword_source": "curator visual review of the exact SHA-locked image",
-          "prompt_source": "unavailable; not reconstructed"
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
         },
         "promptStatus": "unavailable; not reconstructed",
         "provider": null,
         "model": null
       },
-      "searchText": "City Reflection Bowl | bowl, city skyline, water reflection, miniature landscape, graphic print | Graphic / Illustration / Print | urban | reflective | contained | bowl | city skyline | water reflection | miniature landscape | graphic print",
+      "searchText": "The Dune Observatory | cracked dome observatory, orange dune sea, winding causeway, twin moons | Surreal / Hybrid | serene | monumental | wandering | cracked dome observatory | orange dune sea | winding causeway | twin moons | subject:architectural_form | subject:landscape | motif:moon_or_orb | motif:vast_scale | category:architectural_surrealism | category:speculative_surrealism | mood:dreamlike | mood:contemplative | palette:sepia_ochre | lighting:high_key | medium_texture:smooth_render | composition:tiny_figure_vast_space | composition:deep_perspective | era_aesthetic:midcentury_surreal | dune ochre | weathered white | rust dial | hazy teal sea | pale sky | even high-key desert daylight; soft shadow modelling on the dome's cracked shell | smooth matte rendering with subtle grain; chalky weathered masonry and drifting sand",
       "searchVector": {
         "status": "derived_on_database_import",
         "type": "postgres_tsvector"
@@ -9213,6 +9330,2038 @@
     },
     "saleMode": "repeatable",
     "priceCents": 16400,
+    "currency": "USD"
+  },
+  {
+    "id": "art_6a20a4c76dbc108c8ea4",
+    "position": 91,
+    "slug": "textured-geometric-minimalism",
+    "title": "Textured Geometric Minimalism",
+    "description": "Minimalist abstract canvas featuring textured beige plaster, raw canvas grain, and bold dark geometric shapes",
+    "alt": "Minimalist abstract canvas featuring textured beige plaster, raw canvas grain, and bold dark geometric shapes",
+    "category": "Minimal / Abstract",
+    "mood": "textured, geometric, minimal",
+    "moodTags": [
+      "textured",
+      "geometric",
+      "minimal"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 3396610,
+    "sha256": "6a20a4c76dbc108c8ea416a502c84b13cacf7415390e6a1af8a094c941b9f9d1",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 68,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": "Minimalist abstract canvas featuring textured beige plaster, raw canvas grain, and bold dark geometric shapes. Textured Geometric Minimalism. Reduced geometric forms made visually rich through paper grain, plaster, fabric, relief, and restrained tonal contrast. Palette: off-white, charcoal, terracotta, muted blue, sand, sage. Lighting: soft raking light, long clean shadow, diffuse studio fill. Linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. Medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. Composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. Positive style cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture.",
+    "privateBasePath": "artworks/art_6a20a4c76dbc108c8ea4/base",
+    "displayPath": "/assets/artworks/textured-geometric-minimalism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "textured-geometric-minimalism",
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "geometric minimalism",
+        "tactile surface",
+        "paper relief",
+        "restrained palette",
+        "clean negative space",
+        "soft directional shadow",
+        "material study",
+        "abstract composition",
+        "subtle texture"
+      ],
+      "avoids": [
+        "glossy glassmorphism",
+        "rainbow gradients",
+        "detailed figurative scene",
+        "chaotic collage",
+        "hard neon",
+        "ornate pattern"
+      ],
+      "palette": [
+        "off-white",
+        "charcoal",
+        "terracotta",
+        "muted blue",
+        "sand",
+        "sage"
+      ],
+      "lighting": "soft raking light, long clean shadow, diffuse studio fill",
+      "lineworkAndEdges": "clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields",
+      "mediumAndTexture": "handmade paper, plaster, linen, embossed relief, subtle grain",
+      "compositionAndMotion": "grid or isolated shapes; measured spacing; simple overlap; calm asymmetry",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Textured Geometric Minimalism visual treatment. palette: off-white, charcoal, terracotta, muted blue, sand, sage. lighting: soft raking light, long clean shadow, diffuse studio fill. linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. visual cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture.",
+        "concept_preserving": "{subject}. Textured Geometric Minimalism. Reduced geometric forms made visually rich through paper grain, plaster, fabric, relief, and restrained tonal contrast. Palette: off-white, charcoal, terracotta, muted blue, sand, sage. Lighting: soft raking light, long clean shadow, diffuse studio fill. Linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. Medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. Composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. Positive style cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture.",
+        "compact_style_suffix": "Textured Geometric Minimalism visual treatment. palette: off-white, charcoal, terracotta, muted blue, sand, sage. lighting: soft raking light, long clean shadow, diffuse studio fill. linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. visual cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture."
+      },
+      "qualityFlags": [
+        "linework_uses_family_default"
+      ],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 68,
+          "style_id": "textured-geometric-minimalism",
+          "name": "Textured Geometric Minimalism",
+          "classification": "Composite visual style label",
+          "primary_family": "Minimal / Abstract",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on reduced geometric forms made visually rich through paper grain, plaster, fabric, relief, and restrained tonal contrast. It favors a controlled palette of off-white, charcoal, terracotta, muted blue, sand, sage, shaped by soft raking light, long clean shadow, diffuse studio fill. Its surface language combines handmade paper, plaster, linen, embossed relief, subtle grain, with clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. Compositions are organized through grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. The visual identity is reinforced by geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "off-white",
+            "charcoal",
+            "terracotta",
+            "muted blue",
+            "sand",
+            "sage"
+          ],
+          "lighting": "soft raking light, long clean shadow, diffuse studio fill",
+          "linework_and_edges": {
+            "value": "clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields",
+            "basis": "primary_family_default"
+          },
+          "medium_and_texture": "handmade paper, plaster, linen, embossed relief, subtle grain",
+          "composition_and_motion": "grid or isolated shapes; measured spacing; simple overlap; calm asymmetry"
+        },
+        "generation": {
+          "keywords": [
+            "geometric minimalism",
+            "tactile surface",
+            "paper relief",
+            "restrained palette",
+            "clean negative space",
+            "soft directional shadow",
+            "material study",
+            "abstract composition",
+            "subtle texture"
+          ],
+          "avoids": [
+            "glossy glassmorphism",
+            "rainbow gradients",
+            "detailed figurative scene",
+            "chaotic collage",
+            "hard neon",
+            "ornate pattern"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Textured Geometric Minimalism visual treatment. palette: off-white, charcoal, terracotta, muted blue, sand, sage. lighting: soft raking light, long clean shadow, diffuse studio fill. linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. visual cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture.",
+            "concept_preserving": "{subject}. Textured Geometric Minimalism. Reduced geometric forms made visually rich through paper grain, plaster, fabric, relief, and restrained tonal contrast. Palette: off-white, charcoal, terracotta, muted blue, sand, sage. Lighting: soft raking light, long clean shadow, diffuse studio fill. Linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. Medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. Composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. Positive style cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture.",
+            "compact_style_suffix": "Textured Geometric Minimalism visual treatment. palette: off-white, charcoal, terracotta, muted blue, sand, sage. lighting: soft raking light, long clean shadow, diffuse studio fill. linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. visual cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "low",
+              "intensity": 5,
+              "complexity": -55,
+              "movement": -20,
+              "recommended_aspect_ratios": [
+                "1:1",
+                "4:5",
+                "16:9"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Textured Geometric Minimalism visual treatment. palette: off-white, charcoal, terracotta, muted blue, sand, sage. lighting: soft raking light, long clean shadow, diffuse studio fill. linework and edges: clean restrained contours with deliberate soft-edge diffusion and large uninterrupted fields. medium and texture: handmade paper, plaster, linen, embossed relief, subtle grain. composition and motion: grid or isolated shapes; measured spacing; simple overlap; calm asymmetry. visual cues: geometric minimalism, tactile surface, paper relief, restrained palette, clean negative space, soft directional shadow, material study, abstract composition, subtle texture.",
+              "aspect_ratio": "1:1",
+              "resolution": "1K",
+              "creativity": "low",
+              "intensity": 5,
+              "complexity": -55,
+              "movement": -20
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": [
+            {
+              "profile_id": "krea-surrealist-b1-01-oneiric-geometric-surrealism",
+              "name": "Oneiric Geometric Surrealism",
+              "relationship": "semantic_reference",
+              "mapping_basis": "curated_semantic_mapping",
+              "similarity_score": 0.0456,
+              "verification_status": "not_independently_located_in_public_search"
+            },
+            {
+              "profile_id": "krea-surrealist-b2-02-surreal-liminal-minimalism",
+              "name": "Surreal Liminal Minimalism",
+              "relationship": "semantic_reference",
+              "mapping_basis": "curated_semantic_mapping",
+              "similarity_score": 0.0231,
+              "verification_status": "not_independently_located_in_public_search"
+            },
+            {
+              "profile_id": "krea-surrealist-b2-15-minimalist-surrealist-geometry",
+              "name": "Minimalist Surrealist Geometry",
+              "relationship": "semantic_reference",
+              "mapping_basis": "curated_semantic_mapping",
+              "similarity_score": 0.0761,
+              "verification_status": "not_independently_located_in_public_search"
+            }
+          ]
+        },
+        "quality": {
+          "content_bias_terms": [],
+          "quality_flags": [
+            "linework_uses_family_default"
+          ],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance",
+            "semantic_comparison_to_user_transcribed_krea_profiles"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": true,
+          "source_profile_ids": [
+            "krea-surrealist-b1-01-oneiric-geometric-surrealism",
+            "krea-surrealist-b2-02-surreal-liminal-minimalism",
+            "krea-surrealist-b2-15-minimalist-surrealist-geometry"
+          ],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/068_textured-geometric-minimalism.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Textured Geometric Minimalism | Minimalist abstract canvas featuring textured beige plaster, raw canvas grain, and bold dark geometric shapes | Minimal / Abstract | textured | geometric | minimal | geometric minimalism | tactile surface | paper relief | restrained palette | clean negative space | soft directional shadow | material study | abstract composition | subtle texture | off-white | charcoal | terracotta | muted blue | sand | sage | soft raking light, long clean shadow, diffuse studio fill | handmade paper, plaster, linen, embossed relief, subtle grain",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "exclusive",
+    "priceCents": 16500,
+    "currency": "USD"
+  },
+  {
+    "id": "art_18fee4bf2eaa9f2ce1a5",
+    "position": 92,
+    "slug": "luminous-cosmic-folklore",
+    "title": "Luminous Cosmic Folklore",
+    "description": "Luminous folklore illustration of a magical glowing spirit stag surrounded by starry celestial constellations",
+    "alt": "Luminous folklore illustration of a magical glowing spirit stag surrounded by starry celestial constellations",
+    "category": "Painterly / Illustrative",
+    "mood": "luminous, cosmic, folkloric",
+    "moodTags": [
+      "luminous",
+      "cosmic",
+      "folkloric"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 967486,
+    "sha256": "18fee4bf2eaa9f2ce1a5859de020efa46ece71f59c516b6f6a74307ad11bca22",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 72,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": "Luminous folklore illustration of a magical glowing spirit stag surrounded by starry celestial constellations. Luminous Cosmic Folklore. Mythic folk figures, animals, and symbols placed within radiant celestial landscapes and painted with handcrafted narrative texture. Palette: midnight blue, gold, crimson, turquoise, parchment, silver. Lighting: moon and star glow, haloed firelight, luminous horizon. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. Composition and motion: icon-like central figure; decorative constellations; layered folk landscape; symbolic scale. Positive style cues: cosmic folklore, luminous mythology, folk-art symbolism, celestial animals, painted night sky, handcrafted texture, radiant halo, storybook mysticism, decorative constellation.",
+    "privateBasePath": "artworks/art_18fee4bf2eaa9f2ce1a5/base",
+    "displayPath": "/assets/artworks/luminous-cosmic-folklore.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "luminous-cosmic-folklore",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "cosmic folklore",
+        "luminous mythology",
+        "folk-art symbolism",
+        "celestial animals",
+        "painted night sky",
+        "handcrafted texture",
+        "radiant halo",
+        "storybook mysticism",
+        "decorative constellation"
+      ],
+      "avoids": [
+        "hard sci-fi realism",
+        "sterile space suit",
+        "glossy 3D nebula",
+        "modern corporate vector",
+        "generic fantasy concept art",
+        "photographic astronomy"
+      ],
+      "palette": [
+        "midnight blue",
+        "gold",
+        "crimson",
+        "turquoise",
+        "parchment",
+        "silver"
+      ],
+      "lighting": "moon and star glow, haloed firelight, luminous horizon",
+      "lineworkAndEdges": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
+      "mediumAndTexture": "gouache, tempera, gold-leaf-like flecks, textured paper, painted grain",
+      "compositionAndMotion": "icon-like central figure; decorative constellations; layered folk landscape; symbolic scale",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Luminous Cosmic Folklore visual treatment. palette: midnight blue, gold, crimson, turquoise, parchment, silver. lighting: moon and star glow, haloed firelight, luminous horizon. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. composition and motion: decorative constellations; symbolic scale. visual cues: luminous mythology, folk-art symbolism, handcrafted texture, radiant halo, decorative constellation.",
+        "concept_preserving": "{subject}. Luminous Cosmic Folklore. Mythic folk figures, animals, and symbols placed within radiant celestial landscapes and painted with handcrafted narrative texture. Palette: midnight blue, gold, crimson, turquoise, parchment, silver. Lighting: moon and star glow, haloed firelight, luminous horizon. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. Composition and motion: icon-like central figure; decorative constellations; layered folk landscape; symbolic scale. Positive style cues: cosmic folklore, luminous mythology, folk-art symbolism, celestial animals, painted night sky, handcrafted texture, radiant halo, storybook mysticism, decorative constellation.",
+        "compact_style_suffix": "Luminous Cosmic Folklore visual treatment. palette: midnight blue, gold, crimson, turquoise, parchment, silver. lighting: moon and star glow, haloed firelight, luminous horizon. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. composition and motion: decorative constellations; symbolic scale. visual cues: luminous mythology, folk-art symbolism, handcrafted texture, radiant halo, decorative constellation."
+      },
+      "qualityFlags": [
+        "contains_content_or_motif_bias"
+      ],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 72,
+          "style_id": "luminous-cosmic-folklore",
+          "name": "Luminous Cosmic Folklore",
+          "classification": "Composite visual style label",
+          "primary_family": "Painterly / Illustrative",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on mythic folk figures, animals, and symbols placed within radiant celestial landscapes and painted with handcrafted narrative texture. It favors a controlled palette of midnight blue, gold, crimson, turquoise, parchment, silver, shaped by moon and star glow, haloed firelight, luminous horizon. Its surface language combines gouache, tempera, gold-leaf-like flecks, textured paper, painted grain, with brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Compositions are organized through icon-like central figure; decorative constellations; layered folk landscape; symbolic scale. The visual identity is reinforced by cosmic folklore, luminous mythology, folk-art symbolism, celestial animals, painted night sky.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "midnight blue",
+            "gold",
+            "crimson",
+            "turquoise",
+            "parchment",
+            "silver"
+          ],
+          "lighting": "moon and star glow, haloed firelight, luminous horizon",
+          "linework_and_edges": {
+            "value": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
+            "basis": "explicit_or_medium_derived"
+          },
+          "medium_and_texture": "gouache, tempera, gold-leaf-like flecks, textured paper, painted grain",
+          "composition_and_motion": "icon-like central figure; decorative constellations; layered folk landscape; symbolic scale"
+        },
+        "generation": {
+          "keywords": [
+            "cosmic folklore",
+            "luminous mythology",
+            "folk-art symbolism",
+            "celestial animals",
+            "painted night sky",
+            "handcrafted texture",
+            "radiant halo",
+            "storybook mysticism",
+            "decorative constellation"
+          ],
+          "avoids": [
+            "hard sci-fi realism",
+            "sterile space suit",
+            "glossy 3D nebula",
+            "modern corporate vector",
+            "generic fantasy concept art",
+            "photographic astronomy"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Luminous Cosmic Folklore visual treatment. palette: midnight blue, gold, crimson, turquoise, parchment, silver. lighting: moon and star glow, haloed firelight, luminous horizon. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. composition and motion: decorative constellations; symbolic scale. visual cues: luminous mythology, folk-art symbolism, handcrafted texture, radiant halo, decorative constellation.",
+            "concept_preserving": "{subject}. Luminous Cosmic Folklore. Mythic folk figures, animals, and symbols placed within radiant celestial landscapes and painted with handcrafted narrative texture. Palette: midnight blue, gold, crimson, turquoise, parchment, silver. Lighting: moon and star glow, haloed firelight, luminous horizon. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. Composition and motion: icon-like central figure; decorative constellations; layered folk landscape; symbolic scale. Positive style cues: cosmic folklore, luminous mythology, folk-art symbolism, celestial animals, painted night sky, handcrafted texture, radiant halo, storybook mysticism, decorative constellation.",
+            "compact_style_suffix": "Luminous Cosmic Folklore visual treatment. palette: midnight blue, gold, crimson, turquoise, parchment, silver. lighting: moon and star glow, haloed firelight, luminous horizon. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. composition and motion: decorative constellations; symbolic scale. visual cues: luminous mythology, folk-art symbolism, handcrafted texture, radiant halo, decorative constellation."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "high",
+              "intensity": 20,
+              "complexity": 35,
+              "movement": 0,
+              "recommended_aspect_ratios": [
+                "16:9",
+                "2.35:1",
+                "3:2"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Luminous Cosmic Folklore visual treatment. palette: midnight blue, gold, crimson, turquoise, parchment, silver. lighting: moon and star glow, haloed firelight, luminous horizon. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: gouache, tempera, gold-leaf-like flecks, textured paper, painted grain. composition and motion: decorative constellations; symbolic scale. visual cues: luminous mythology, folk-art symbolism, handcrafted texture, radiant halo, decorative constellation.",
+              "aspect_ratio": "16:9",
+              "resolution": "1K",
+              "creativity": "high",
+              "intensity": 20,
+              "complexity": 35,
+              "movement": 0
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": [
+            {
+              "profile_id": "krea-surrealist-b1-08-narrative-surrealist-synthesis",
+              "name": "Narrative Surrealist Synthesis",
+              "relationship": "semantic_reference",
+              "mapping_basis": "curated_semantic_mapping",
+              "similarity_score": 0.0097,
+              "verification_status": "not_independently_located_in_public_search"
+            }
+          ]
+        },
+        "quality": {
+          "content_bias_terms": [
+            "animal",
+            "figure",
+            "folklore",
+            "landscape",
+            "myth",
+            "sky",
+            "storybook"
+          ],
+          "quality_flags": [
+            "contains_content_or_motif_bias"
+          ],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance",
+            "semantic_comparison_to_user_transcribed_krea_profiles"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": true,
+          "source_profile_ids": [
+            "krea-surrealist-b1-08-narrative-surrealist-synthesis"
+          ],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/072_luminous-cosmic-folklore.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Luminous Cosmic Folklore | Luminous folklore illustration of a magical glowing spirit stag surrounded by starry celestial constellations | Painterly / Illustrative | luminous | cosmic | folkloric | cosmic folklore | luminous mythology | folk-art symbolism | celestial animals | painted night sky | handcrafted texture | radiant halo | storybook mysticism | decorative constellation | midnight blue | gold | crimson | turquoise | parchment | silver | moon and star glow, haloed firelight, luminous horizon | gouache, tempera, gold-leaf-like flecks, textured paper, painted grain",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 16600,
+    "currency": "USD"
+  },
+  {
+    "id": "art_a50373a194fc24e48d32",
+    "position": 93,
+    "slug": "cloud-chamber-communion",
+    "title": "Cloud Chamber Communion",
+    "description": "three lantern-lit figures, blue cloud pool, observatory chamber, shared thread",
+    "alt": "Cloud Chamber Communion: three lantern-lit figures, blue cloud pool, observatory chamber, shared thread.",
+    "category": "Painterly / Illustrative",
+    "mood": "luminous, gentle, otherworldly",
+    "moodTags": [
+      "luminous",
+      "gentle",
+      "otherworldly"
+    ],
+    "reviewFlags": [
+      "regenerated_original_reference_led",
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2149981,
+    "sha256": "a50373a194fc24e48d32690cc13c65ba4952d628966b61f8a119e7d0440b3d55",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a50373a194fc24e48d32/base",
+    "displayPath": "/assets/artworks/cloud-chamber-communion.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "three lantern-lit figures",
+        "blue cloud pool",
+        "observatory chamber",
+        "shared thread",
+        "subject:figure_group",
+        "motif:moon_or_orb",
+        "motif:levitation",
+        "category:figurative_surrealism",
+        "category:cosmic_surrealism",
+        "mood:dreamlike",
+        "mood:otherworldly",
+        "palette:high_chroma",
+        "palette:blue_black",
+        "lighting:self_luminous",
+        "lighting:luminous_aura",
+        "medium_texture:painterly",
+        "composition:tableau",
+        "era_aesthetic:psychedelic_graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "electric ultramarine",
+        "iridescent rose",
+        "pale mint",
+        "deep violet shadow"
+      ],
+      "lighting": "self-luminous robes and a raised orb lamp lighting the chamber from within the figures",
+      "lineworkAndEdges": "glowing figure contours; looping shared thread line; dissolving cloud edges",
+      "mediumAndTexture": "painterly luminous glazing; billowing soft cloud masses against dark ironwork",
+      "compositionAndMotion": "three-figure tableau around a sunken cloud pool; gentle upward pull toward the raised orb",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
+          "prompt": "unavailable",
+          "rights": "unverified"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Cloud Chamber Communion | three lantern-lit figures, blue cloud pool, observatory chamber, shared thread | Painterly / Illustrative | luminous | gentle | otherworldly | three lantern-lit figures | blue cloud pool | observatory chamber | shared thread | subject:figure_group | motif:moon_or_orb | motif:levitation | category:figurative_surrealism | category:cosmic_surrealism | mood:dreamlike | mood:otherworldly | palette:high_chroma | palette:blue_black | lighting:self_luminous | lighting:luminous_aura | medium_texture:painterly | composition:tableau | era_aesthetic:psychedelic_graphic | electric ultramarine | iridescent rose | pale mint | deep violet shadow | self-luminous robes and a raised orb lamp lighting the chamber from within the figures | painterly luminous glazing; billowing soft cloud masses against dark ironwork",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "exclusive",
+    "priceCents": 16700,
+    "currency": "USD"
+  },
+  {
+    "id": "art_4d603e11105c86408382",
+    "position": 94,
+    "slug": "ethereal-painterly-botanica",
+    "title": "Ethereal Painterly Botanica",
+    "description": "Soft impressionistic oil painting of lush white peonies and eucalyptus leaves in gentle morning light",
+    "alt": "Soft impressionistic oil painting of lush white peonies and eucalyptus leaves in gentle morning light",
+    "category": "Painterly / Illustrative",
+    "mood": "ethereal, painterly, botanical",
+    "moodTags": [
+      "ethereal",
+      "painterly",
+      "botanical"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 612716,
+    "sha256": "4d603e11105c8640838274ed6aeb883fe80adf1b778e5a4b644f04303a4f0e2f",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 78,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": "Soft impressionistic oil painting of lush white peonies and eucalyptus leaves in gentle morning light. Ethereal Painterly Botanica. Luminous botanical imagery painted with soft visible brushwork, translucent petals, atmospheric depth, and quiet dreamlike scale. Palette: sage, pale emerald, blush, cream, lavender, sky blue. Lighting: dappled light, soft backlight, misty bloom, translucent petal glow. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. Composition and motion: close botanical cluster or lone oversized bloom; shallow depth; floating leaves; gentle asymmetry. Positive style cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, botanical dreamscape, luminous nature.",
+    "privateBasePath": "artworks/art_4d603e11105c86408382/base",
+    "displayPath": "/assets/artworks/ethereal-painterly-botanica.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "ethereal-painterly-botanica",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "ethereal botanica",
+        "painterly flowers",
+        "translucent petals",
+        "soft-focus atmosphere",
+        "dappled light",
+        "muted pastel palette",
+        "visible brushwork",
+        "botanical dreamscape",
+        "luminous nature"
+      ],
+      "avoids": [
+        "clinical botanical diagram",
+        "hard vector outlines",
+        "saturated jungle clutter",
+        "glossy plastic flowers",
+        "dark horror",
+        "flat overhead light"
+      ],
+      "palette": [
+        "sage",
+        "pale emerald",
+        "blush",
+        "cream",
+        "lavender",
+        "sky blue"
+      ],
+      "lighting": "dappled light, soft backlight, misty bloom, translucent petal glow",
+      "lineworkAndEdges": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
+      "mediumAndTexture": "watercolor, gouache, soft oil brushwork, fine canvas or paper grain",
+      "compositionAndMotion": "close botanical cluster or lone oversized bloom; shallow depth; floating leaves; gentle asymmetry",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Ethereal Painterly Botanica visual treatment. palette: sage, pale emerald, blush, cream, lavender, sky blue. lighting: dappled light, soft backlight, misty bloom, translucent petal glow. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. composition and motion: shallow depth; floating leaves; gentle asymmetry. visual cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, luminous nature.",
+        "concept_preserving": "{subject}. Ethereal Painterly Botanica. Luminous botanical imagery painted with soft visible brushwork, translucent petals, atmospheric depth, and quiet dreamlike scale. Palette: sage, pale emerald, blush, cream, lavender, sky blue. Lighting: dappled light, soft backlight, misty bloom, translucent petal glow. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. Composition and motion: close botanical cluster or lone oversized bloom; shallow depth; floating leaves; gentle asymmetry. Positive style cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, botanical dreamscape, luminous nature.",
+        "compact_style_suffix": "Ethereal Painterly Botanica visual treatment. palette: sage, pale emerald, blush, cream, lavender, sky blue. lighting: dappled light, soft backlight, misty bloom, translucent petal glow. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. composition and motion: shallow depth; floating leaves; gentle asymmetry. visual cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, luminous nature."
+      },
+      "qualityFlags": [
+        "contains_content_or_motif_bias"
+      ],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 78,
+          "style_id": "ethereal-painterly-botanica",
+          "name": "Ethereal Painterly Botanica",
+          "classification": "Composite visual style label",
+          "primary_family": "Painterly / Illustrative",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on luminous botanical imagery painted with soft visible brushwork, translucent petals, atmospheric depth, and quiet dreamlike scale. It favors a controlled palette of sage, pale emerald, blush, cream, lavender, sky blue, shaped by dappled light, soft backlight, misty bloom, translucent petal glow. Its surface language combines watercolor, gouache, soft oil brushwork, fine canvas or paper grain, with brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Compositions are organized through close botanical cluster or lone oversized bloom; shallow depth; floating leaves; gentle asymmetry. The visual identity is reinforced by ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "sage",
+            "pale emerald",
+            "blush",
+            "cream",
+            "lavender",
+            "sky blue"
+          ],
+          "lighting": "dappled light, soft backlight, misty bloom, translucent petal glow",
+          "linework_and_edges": {
+            "value": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
+            "basis": "explicit_or_medium_derived"
+          },
+          "medium_and_texture": "watercolor, gouache, soft oil brushwork, fine canvas or paper grain",
+          "composition_and_motion": "close botanical cluster or lone oversized bloom; shallow depth; floating leaves; gentle asymmetry"
+        },
+        "generation": {
+          "keywords": [
+            "ethereal botanica",
+            "painterly flowers",
+            "translucent petals",
+            "soft-focus atmosphere",
+            "dappled light",
+            "muted pastel palette",
+            "visible brushwork",
+            "botanical dreamscape",
+            "luminous nature"
+          ],
+          "avoids": [
+            "clinical botanical diagram",
+            "hard vector outlines",
+            "saturated jungle clutter",
+            "glossy plastic flowers",
+            "dark horror",
+            "flat overhead light"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Ethereal Painterly Botanica visual treatment. palette: sage, pale emerald, blush, cream, lavender, sky blue. lighting: dappled light, soft backlight, misty bloom, translucent petal glow. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. composition and motion: shallow depth; floating leaves; gentle asymmetry. visual cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, luminous nature.",
+            "concept_preserving": "{subject}. Ethereal Painterly Botanica. Luminous botanical imagery painted with soft visible brushwork, translucent petals, atmospheric depth, and quiet dreamlike scale. Palette: sage, pale emerald, blush, cream, lavender, sky blue. Lighting: dappled light, soft backlight, misty bloom, translucent petal glow. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. Composition and motion: close botanical cluster or lone oversized bloom; shallow depth; floating leaves; gentle asymmetry. Positive style cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, botanical dreamscape, luminous nature.",
+            "compact_style_suffix": "Ethereal Painterly Botanica visual treatment. palette: sage, pale emerald, blush, cream, lavender, sky blue. lighting: dappled light, soft backlight, misty bloom, translucent petal glow. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. composition and motion: shallow depth; floating leaves; gentle asymmetry. visual cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, luminous nature."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "high",
+              "intensity": 30,
+              "complexity": 50,
+              "movement": -20,
+              "recommended_aspect_ratios": [
+                "16:9",
+                "2.35:1",
+                "3:2"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Ethereal Painterly Botanica visual treatment. palette: sage, pale emerald, blush, cream, lavender, sky blue. lighting: dappled light, soft backlight, misty bloom, translucent petal glow. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: watercolor, gouache, soft oil brushwork, fine canvas or paper grain. composition and motion: shallow depth; floating leaves; gentle asymmetry. visual cues: ethereal botanica, painterly flowers, translucent petals, soft-focus atmosphere, dappled light, muted pastel palette, visible brushwork, luminous nature.",
+              "aspect_ratio": "16:9",
+              "resolution": "1K",
+              "creativity": "high",
+              "intensity": 30,
+              "complexity": 50,
+              "movement": -20
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": []
+        },
+        "quality": {
+          "content_bias_terms": [
+            "botanical"
+          ],
+          "quality_flags": [
+            "contains_content_or_motif_bias"
+          ],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": false,
+          "source_profile_ids": [],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/078_ethereal-painterly-botanica.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Ethereal Painterly Botanica | Soft impressionistic oil painting of lush white peonies and eucalyptus leaves in gentle morning light | Painterly / Illustrative | ethereal | painterly | botanical | ethereal botanica | painterly flowers | translucent petals | soft-focus atmosphere | dappled light | muted pastel palette | visible brushwork | botanical dreamscape | luminous nature | sage | pale emerald | blush | cream | lavender | sky blue | dappled light, soft backlight, misty bloom, translucent petal glow | watercolor, gouache, soft oil brushwork, fine canvas or paper grain",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 16800,
+    "currency": "USD"
+  },
+  {
+    "id": "art_0f9bd0b056f799756e83",
+    "position": 95,
+    "slug": "monochrome-gothic-printmaking",
+    "title": "Monochrome Gothic Printmaking",
+    "description": "Detailed linocut print of a gothic cathedral cathedral facade with dramatic black ink shading and linework",
+    "alt": "Detailed linocut print of a gothic cathedral cathedral facade with dramatic black ink shading and linework",
+    "category": "Graphic / Illustration / Print",
+    "mood": "monochrome, gothic, print",
+    "moodTags": [
+      "monochrome",
+      "gothic",
+      "print"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1093290,
+    "sha256": "0f9bd0b056f799756e83be85788b224e1070179af17c9b6969613952f3051977",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 91,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": "Detailed linocut print of a gothic cathedral cathedral facade with dramatic black ink shading and linework. Monochrome Gothic Printmaking. Gothic figures, ruins, forests, and symbols rendered through black-and-white relief printing, cross-hatching, and carved shadow. Palette: black, ivory, graphite. Lighting: graphic white cuts against dense black; candle-like highlight zones. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. Composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. Positive style cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, haunted forest, carved linework, antique paper.",
+    "privateBasePath": "artworks/art_0f9bd0b056f799756e83/base",
+    "displayPath": "/assets/artworks/monochrome-gothic-printmaking.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "monochrome-gothic-printmaking",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "gothic printmaking",
+        "monochrome woodcut",
+        "linocut texture",
+        "cross-hatching",
+        "medieval darkness",
+        "stark chiaroscuro",
+        "haunted forest",
+        "carved linework",
+        "antique paper"
+      ],
+      "avoids": [
+        "smooth digital painting",
+        "full color",
+        "soft pastel",
+        "clean vector curves",
+        "glossy photography",
+        "modern minimalist architecture"
+      ],
+      "palette": [
+        "black",
+        "ivory",
+        "graphite"
+      ],
+      "lighting": "graphic white cuts against dense black; candle-like highlight zones",
+      "lineworkAndEdges": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+      "mediumAndTexture": "woodcut, linocut, engraving, cross-hatch, rough paper",
+      "compositionAndMotion": "vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Monochrome Gothic Printmaking visual treatment. palette: black, ivory, graphite. lighting: graphic white cuts against dense black; candle-like highlight zones. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. visual cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, carved linework, antique paper.",
+        "concept_preserving": "{subject}. Monochrome Gothic Printmaking. Gothic figures, ruins, forests, and symbols rendered through black-and-white relief printing, cross-hatching, and carved shadow. Palette: black, ivory, graphite. Lighting: graphic white cuts against dense black; candle-like highlight zones. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. Composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. Positive style cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, haunted forest, carved linework, antique paper.",
+        "compact_style_suffix": "Monochrome Gothic Printmaking visual treatment. palette: black, ivory, graphite. lighting: graphic white cuts against dense black; candle-like highlight zones. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. visual cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, carved linework, antique paper."
+      },
+      "qualityFlags": [
+        "contains_content_or_motif_bias"
+      ],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 91,
+          "style_id": "monochrome-gothic-printmaking",
+          "name": "Monochrome Gothic Printmaking",
+          "classification": "Composite visual style label",
+          "primary_family": "Graphic / Illustration / Print",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on gothic figures, ruins, forests, and symbols rendered through black-and-white relief printing, cross-hatching, and carved shadow. It favors a controlled palette of black, ivory, graphite, shaped by graphic white cuts against dense black; candle-like highlight zones. Its surface language combines woodcut, linocut, engraving, cross-hatch, rough paper, with print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Compositions are organized through vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. The visual identity is reinforced by gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "black",
+            "ivory",
+            "graphite"
+          ],
+          "lighting": "graphic white cuts against dense black; candle-like highlight zones",
+          "linework_and_edges": {
+            "value": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+            "basis": "explicit_or_medium_derived"
+          },
+          "medium_and_texture": "woodcut, linocut, engraving, cross-hatch, rough paper",
+          "composition_and_motion": "vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses"
+        },
+        "generation": {
+          "keywords": [
+            "gothic printmaking",
+            "monochrome woodcut",
+            "linocut texture",
+            "cross-hatching",
+            "medieval darkness",
+            "stark chiaroscuro",
+            "haunted forest",
+            "carved linework",
+            "antique paper"
+          ],
+          "avoids": [
+            "smooth digital painting",
+            "full color",
+            "soft pastel",
+            "clean vector curves",
+            "glossy photography",
+            "modern minimalist architecture"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Monochrome Gothic Printmaking visual treatment. palette: black, ivory, graphite. lighting: graphic white cuts against dense black; candle-like highlight zones. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. visual cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, carved linework, antique paper.",
+            "concept_preserving": "{subject}. Monochrome Gothic Printmaking. Gothic figures, ruins, forests, and symbols rendered through black-and-white relief printing, cross-hatching, and carved shadow. Palette: black, ivory, graphite. Lighting: graphic white cuts against dense black; candle-like highlight zones. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. Composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. Positive style cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, haunted forest, carved linework, antique paper.",
+            "compact_style_suffix": "Monochrome Gothic Printmaking visual treatment. palette: black, ivory, graphite. lighting: graphic white cuts against dense black; candle-like highlight zones. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. visual cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, carved linework, antique paper."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "medium",
+              "intensity": 35,
+              "complexity": 0,
+              "movement": 0,
+              "recommended_aspect_ratios": [
+                "1:1",
+                "4:5",
+                "16:9"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Monochrome Gothic Printmaking visual treatment. palette: black, ivory, graphite. lighting: graphic white cuts against dense black; candle-like highlight zones. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: woodcut, linocut, engraving, cross-hatch, rough paper. composition and motion: vertical cathedral forms; central apparition; decorative border or vignette; dense shadow masses. visual cues: gothic printmaking, monochrome woodcut, linocut texture, cross-hatching, medieval darkness, stark chiaroscuro, carved linework, antique paper.",
+              "aspect_ratio": "1:1",
+              "resolution": "1K",
+              "creativity": "medium",
+              "intensity": 35,
+              "complexity": 0,
+              "movement": 0
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": []
+        },
+        "quality": {
+          "content_bias_terms": [
+            "figure",
+            "forest"
+          ],
+          "quality_flags": [
+            "contains_content_or_motif_bias"
+          ],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": false,
+          "source_profile_ids": [],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/091_monochrome-gothic-printmaking.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Monochrome Gothic Printmaking | Detailed linocut print of a gothic cathedral cathedral facade with dramatic black ink shading and linework | Graphic / Illustration / Print | monochrome | gothic | print | gothic printmaking | monochrome woodcut | linocut texture | cross-hatching | medieval darkness | stark chiaroscuro | haunted forest | carved linework | antique paper | black | ivory | graphite | graphic white cuts against dense black; candle-like highlight zones | woodcut, linocut, engraving, cross-hatch, rough paper",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "exclusive",
+    "priceCents": 16900,
+    "currency": "USD"
+  },
+  {
+    "id": "art_8b65ec9172e4f0395168",
+    "position": 96,
+    "slug": "bold-graphic-neon-surrealism",
+    "title": "Bold Graphic Neon Surrealism",
+    "description": "Stark graphic artwork of a neon pink flamingo standing in an abstract geometric room with electric blue shadows",
+    "alt": "Stark graphic artwork of a neon pink flamingo standing in an abstract geometric room with electric blue shadows",
+    "category": "Graphic / Illustration / Print",
+    "mood": "bold, graphic, neon",
+    "moodTags": [
+      "bold",
+      "graphic",
+      "neon"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 640057,
+    "sha256": "8b65ec9172e4f03951689d579493bbfc6215a8c500bbe38b5ee966c39b2ebbb3",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 103,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": "Stark graphic artwork of a neon pink flamingo standing in an abstract geometric room with electric blue shadows. Bold Graphic Neon Surrealism. Surreal ideas rendered as assertive poster graphics with fluorescent color, hard silhouettes, and simplified impossible forms. Palette: neon pink, cyan, acid yellow, electric blue, black. Lighting: flat neon glow, hard graphic shadow, selective bloom. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. Composition and motion: oversized symbolic object; diagonal layout; cutout figures; strong negative space. Positive style cues: bold neon surrealism, graphic poster, fluorescent color blocking, stark silhouette, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition.",
+    "privateBasePath": "artworks/art_8b65ec9172e4f0395168/base",
+    "displayPath": "/assets/artworks/bold-graphic-neon-surrealism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "bold-graphic-neon-surrealism",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "bold neon surrealism",
+        "graphic poster",
+        "fluorescent color blocking",
+        "stark silhouette",
+        "impossible scale",
+        "screenprint grain",
+        "high contrast",
+        "contemporary pop surrealism",
+        "clean composition"
+      ],
+      "avoids": [
+        "muddy painterly realism",
+        "pastel softness",
+        "detailed photographic environment",
+        "subtle low-contrast color",
+        "decorative clutter",
+        "glossy 3D chrome overload"
+      ],
+      "palette": [
+        "neon pink",
+        "cyan",
+        "acid yellow",
+        "electric blue",
+        "black"
+      ],
+      "lighting": "flat neon glow, hard graphic shadow, selective bloom",
+      "lineworkAndEdges": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+      "mediumAndTexture": "screenprint, vector-like color fields, halftone, airbrush gradient",
+      "compositionAndMotion": "oversized symbolic object; diagonal layout; cutout figures; strong negative space",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Bold Graphic Neon Surrealism visual treatment. palette: neon pink, cyan, acid yellow, electric blue, black. lighting: flat neon glow, hard graphic shadow, selective bloom. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. composition and motion: oversized symbolic object; diagonal layout; strong negative space. visual cues: bold neon surrealism, graphic poster, fluorescent color blocking, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition.",
+        "concept_preserving": "{subject}. Bold Graphic Neon Surrealism. Surreal ideas rendered as assertive poster graphics with fluorescent color, hard silhouettes, and simplified impossible forms. Palette: neon pink, cyan, acid yellow, electric blue, black. Lighting: flat neon glow, hard graphic shadow, selective bloom. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. Composition and motion: oversized symbolic object; diagonal layout; cutout figures; strong negative space. Positive style cues: bold neon surrealism, graphic poster, fluorescent color blocking, stark silhouette, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition.",
+        "compact_style_suffix": "Bold Graphic Neon Surrealism visual treatment. palette: neon pink, cyan, acid yellow, electric blue, black. lighting: flat neon glow, hard graphic shadow, selective bloom. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. composition and motion: oversized symbolic object; diagonal layout; strong negative space. visual cues: bold neon surrealism, graphic poster, fluorescent color blocking, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition."
+      },
+      "qualityFlags": [
+        "contains_content_or_motif_bias"
+      ],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 103,
+          "style_id": "bold-graphic-neon-surrealism",
+          "name": "Bold Graphic Neon Surrealism",
+          "classification": "Composite visual style label",
+          "primary_family": "Graphic / Illustration / Print",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on surreal ideas rendered as assertive poster graphics with fluorescent color, hard silhouettes, and simplified impossible forms. It favors a controlled palette of neon pink, cyan, acid yellow, electric blue, black, shaped by flat neon glow, hard graphic shadow, selective bloom. Its surface language combines screenprint, vector-like color fields, halftone, airbrush gradient, with print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Compositions are organized through oversized symbolic object; diagonal layout; cutout figures; strong negative space. The visual identity is reinforced by bold neon surrealism, graphic poster, fluorescent color blocking, stark silhouette, impossible scale.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "neon pink",
+            "cyan",
+            "acid yellow",
+            "electric blue",
+            "black"
+          ],
+          "lighting": "flat neon glow, hard graphic shadow, selective bloom",
+          "linework_and_edges": {
+            "value": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+            "basis": "explicit_or_medium_derived"
+          },
+          "medium_and_texture": "screenprint, vector-like color fields, halftone, airbrush gradient",
+          "composition_and_motion": "oversized symbolic object; diagonal layout; cutout figures; strong negative space"
+        },
+        "generation": {
+          "keywords": [
+            "bold neon surrealism",
+            "graphic poster",
+            "fluorescent color blocking",
+            "stark silhouette",
+            "impossible scale",
+            "screenprint grain",
+            "high contrast",
+            "contemporary pop surrealism",
+            "clean composition"
+          ],
+          "avoids": [
+            "muddy painterly realism",
+            "pastel softness",
+            "detailed photographic environment",
+            "subtle low-contrast color",
+            "decorative clutter",
+            "glossy 3D chrome overload"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Bold Graphic Neon Surrealism visual treatment. palette: neon pink, cyan, acid yellow, electric blue, black. lighting: flat neon glow, hard graphic shadow, selective bloom. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. composition and motion: oversized symbolic object; diagonal layout; strong negative space. visual cues: bold neon surrealism, graphic poster, fluorescent color blocking, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition.",
+            "concept_preserving": "{subject}. Bold Graphic Neon Surrealism. Surreal ideas rendered as assertive poster graphics with fluorescent color, hard silhouettes, and simplified impossible forms. Palette: neon pink, cyan, acid yellow, electric blue, black. Lighting: flat neon glow, hard graphic shadow, selective bloom. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. Composition and motion: oversized symbolic object; diagonal layout; cutout figures; strong negative space. Positive style cues: bold neon surrealism, graphic poster, fluorescent color blocking, stark silhouette, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition.",
+            "compact_style_suffix": "Bold Graphic Neon Surrealism visual treatment. palette: neon pink, cyan, acid yellow, electric blue, black. lighting: flat neon glow, hard graphic shadow, selective bloom. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. composition and motion: oversized symbolic object; diagonal layout; strong negative space. visual cues: bold neon surrealism, graphic poster, fluorescent color blocking, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "high",
+              "intensity": 85,
+              "complexity": 15,
+              "movement": 0,
+              "recommended_aspect_ratios": [
+                "1:1",
+                "4:5",
+                "16:9"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Bold Graphic Neon Surrealism visual treatment. palette: neon pink, cyan, acid yellow, electric blue, black. lighting: flat neon glow, hard graphic shadow, selective bloom. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: screenprint, vector-like color fields, halftone, airbrush gradient. composition and motion: oversized symbolic object; diagonal layout; strong negative space. visual cues: bold neon surrealism, graphic poster, fluorescent color blocking, impossible scale, screenprint grain, high contrast, contemporary pop surrealism, clean composition.",
+              "aspect_ratio": "1:1",
+              "resolution": "1K",
+              "creativity": "high",
+              "intensity": 85,
+              "complexity": 15,
+              "movement": 0
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": [
+            {
+              "profile_id": "krea-surrealist-b2-17-hyper-vibrant-surreal-dreamscapes",
+              "name": "Hyper-Vibrant Surreal Dreamscapes",
+              "relationship": "semantic_reference",
+              "mapping_basis": "curated_semantic_mapping",
+              "similarity_score": 0.0898,
+              "verification_status": "not_independently_located_in_public_search"
+            }
+          ]
+        },
+        "quality": {
+          "content_bias_terms": [
+            "figure",
+            "silhouette"
+          ],
+          "quality_flags": [
+            "contains_content_or_motif_bias"
+          ],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance",
+            "semantic_comparison_to_user_transcribed_krea_profiles"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": true,
+          "source_profile_ids": [
+            "krea-surrealist-b2-17-hyper-vibrant-surreal-dreamscapes"
+          ],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/103_bold-graphic-neon-surrealism.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Bold Graphic Neon Surrealism | Stark graphic artwork of a neon pink flamingo standing in an abstract geometric room with electric blue shadows | Graphic / Illustration / Print | bold | graphic | neon | bold neon surrealism | graphic poster | fluorescent color blocking | stark silhouette | impossible scale | screenprint grain | high contrast | contemporary pop surrealism | clean composition | neon pink | cyan | acid yellow | electric blue | black | flat neon glow, hard graphic shadow, selective bloom | screenprint, vector-like color fields, halftone, airbrush gradient",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 17000,
+    "currency": "USD"
+  },
+  {
+    "id": "art_7883ab1e65e974742396",
+    "position": 97,
+    "slug": "tactile-organic-opulence",
+    "title": "Tactile Organic Opulence",
+    "description": "Rich opulent velvet fabrics, gilded antique gold ornaments, and lush dark botanical florals with deep tactile texture",
+    "alt": "Rich opulent velvet fabrics, gilded antique gold ornaments, and lush dark botanical florals with deep tactile texture",
+    "category": "Material / Sculptural / Organic",
+    "mood": "tactile, organic, opulent",
+    "moodTags": [
+      "tactile",
+      "organic",
+      "opulent"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 599860,
+    "sha256": "7883ab1e65e974742396371da391e9667e63122279d46119ae84d02892b7ad84",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 38,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": "Rich opulent velvet fabrics, gilded antique gold ornaments, and lush dark botanical florals with deep tactile texture. Tactile Organic Opulence. Sumptuous organic forms, fabrics, florals, shells, and biomorphic surfaces presented with rich material detail and jewel-toned depth. Palette: emerald, burgundy, gold, plum, pearl, deep teal. Lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. Composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. Positive style cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail.",
+    "privateBasePath": "artworks/art_7883ab1e65e974742396/base",
+    "displayPath": "/assets/artworks/tactile-organic-opulence.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "tactile-organic-opulence",
+      "styleFamily": "Material / Sculptural / Organic",
+      "keywords": [
+        "tactile opulence",
+        "biomorphic sculpture",
+        "velvet texture",
+        "jewel-toned palette",
+        "organic luxury",
+        "sculptural still life",
+        "rich material contrast",
+        "baroque abundance",
+        "luminous surface detail"
+      ],
+      "avoids": [
+        "cheap plastic",
+        "flat vector design",
+        "sterile white minimalism",
+        "muddy low-contrast light",
+        "random clutter",
+        "cartoon simplicity"
+      ],
+      "palette": [
+        "emerald",
+        "burgundy",
+        "gold",
+        "plum",
+        "pearl",
+        "deep teal"
+      ],
+      "lighting": "dramatic side light, warm highlights, deep velvet shadow, controlled gloss",
+      "lineworkAndEdges": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
+      "mediumAndTexture": "velvet, silk, resin, petals, lacquer, shell, impasto",
+      "compositionAndMotion": "lush close-up or sculptural still life; layered curves; dense but controlled framing",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Tactile Organic Opulence visual treatment. palette: emerald, burgundy, gold, plum, pearl, deep teal. lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. visual cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail.",
+        "concept_preserving": "{subject}. Tactile Organic Opulence. Sumptuous organic forms, fabrics, florals, shells, and biomorphic surfaces presented with rich material detail and jewel-toned depth. Palette: emerald, burgundy, gold, plum, pearl, deep teal. Lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. Composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. Positive style cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail.",
+        "compact_style_suffix": "Tactile Organic Opulence visual treatment. palette: emerald, burgundy, gold, plum, pearl, deep teal. lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. visual cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail."
+      },
+      "qualityFlags": [],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 38,
+          "style_id": "tactile-organic-opulence",
+          "name": "Tactile Organic Opulence",
+          "classification": "Composite visual style label",
+          "primary_family": "Material / Sculptural / Organic",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on sumptuous organic forms, fabrics, florals, shells, and biomorphic surfaces presented with rich material detail and jewel-toned depth. It favors a controlled palette of emerald, burgundy, gold, plum, pearl, deep teal, shaped by dramatic side light, warm highlights, deep velvet shadow, controlled gloss. Its surface language combines velvet, silk, resin, petals, lacquer, shell, impasto, with brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Compositions are organized through lush close-up or sculptural still life; layered curves; dense but controlled framing. The visual identity is reinforced by tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "emerald",
+            "burgundy",
+            "gold",
+            "plum",
+            "pearl",
+            "deep teal"
+          ],
+          "lighting": "dramatic side light, warm highlights, deep velvet shadow, controlled gloss",
+          "linework_and_edges": {
+            "value": "brush-defined lost-and-found edges with selective hard accents and soft painterly transitions",
+            "basis": "explicit_or_medium_derived"
+          },
+          "medium_and_texture": "velvet, silk, resin, petals, lacquer, shell, impasto",
+          "composition_and_motion": "lush close-up or sculptural still life; layered curves; dense but controlled framing"
+        },
+        "generation": {
+          "keywords": [
+            "tactile opulence",
+            "biomorphic sculpture",
+            "velvet texture",
+            "jewel-toned palette",
+            "organic luxury",
+            "sculptural still life",
+            "rich material contrast",
+            "baroque abundance",
+            "luminous surface detail"
+          ],
+          "avoids": [
+            "cheap plastic",
+            "flat vector design",
+            "sterile white minimalism",
+            "muddy low-contrast light",
+            "random clutter",
+            "cartoon simplicity"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Tactile Organic Opulence visual treatment. palette: emerald, burgundy, gold, plum, pearl, deep teal. lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. visual cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail.",
+            "concept_preserving": "{subject}. Tactile Organic Opulence. Sumptuous organic forms, fabrics, florals, shells, and biomorphic surfaces presented with rich material detail and jewel-toned depth. Palette: emerald, burgundy, gold, plum, pearl, deep teal. Lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. Linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. Medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. Composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. Positive style cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail.",
+            "compact_style_suffix": "Tactile Organic Opulence visual treatment. palette: emerald, burgundy, gold, plum, pearl, deep teal. lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. visual cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "medium",
+              "intensity": 20,
+              "complexity": 35,
+              "movement": 0,
+              "recommended_aspect_ratios": [
+                "1:1",
+                "4:5",
+                "16:9"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Tactile Organic Opulence visual treatment. palette: emerald, burgundy, gold, plum, pearl, deep teal. lighting: dramatic side light, warm highlights, deep velvet shadow, controlled gloss. linework and edges: brush-defined lost-and-found edges with selective hard accents and soft painterly transitions. medium and texture: velvet, silk, resin, petals, lacquer, shell, impasto. composition and motion: lush close-up or sculptural still life; layered curves; dense but controlled framing. visual cues: tactile opulence, biomorphic sculpture, velvet texture, jewel-toned palette, organic luxury, sculptural still life, rich material contrast, baroque abundance, luminous surface detail.",
+              "aspect_ratio": "1:1",
+              "resolution": "1K",
+              "creativity": "medium",
+              "intensity": 20,
+              "complexity": 35,
+              "movement": 0
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": []
+        },
+        "quality": {
+          "content_bias_terms": [],
+          "quality_flags": [],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": false,
+          "source_profile_ids": [],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/038_tactile-organic-opulence.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Tactile Organic Opulence | Rich opulent velvet fabrics, gilded antique gold ornaments, and lush dark botanical florals with deep tactile texture | Material / Sculptural / Organic | tactile | organic | opulent | tactile opulence | biomorphic sculpture | velvet texture | jewel-toned palette | organic luxury | sculptural still life | rich material contrast | baroque abundance | luminous surface detail | emerald | burgundy | gold | plum | pearl | deep teal | dramatic side light, warm highlights, deep velvet shadow, controlled gloss | velvet, silk, resin, petals, lacquer, shell, impasto",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "exclusive",
+    "priceCents": 17100,
+    "currency": "USD"
+  },
+  {
+    "id": "art_c427d53e477404b3a91b",
+    "position": 98,
+    "slug": "gritty-graphic-macabre",
+    "title": "Gritty Graphic Macabre",
+    "description": "Dark gothic woodcut engraving of a mysterious raven perched on a skull under a crescent moon",
+    "alt": "Dark gothic woodcut engraving of a mysterious raven perched on a skull under a crescent moon",
+    "category": "Graphic / Illustration / Print",
+    "mood": "gritty, graphic, macabre",
+    "moodTags": [
+      "gritty",
+      "graphic",
+      "macabre"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 805388,
+    "sha256": "c427d53e477404b3a91b42fb8f389ba81ed01b3033ddffffc66376d1d4cb6dc9",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 46,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": "Dark gothic woodcut engraving of a mysterious raven perched on a skull under a crescent moon. Gritty Graphic Macabre. Macabre figures and death imagery translated into distressed black ink, halftone, woodcut pressure, and confrontational graphic silhouettes. Palette: black, bone white, dried blood red, graphite, sickly green accent. Lighting: hard spotlight, blown white, deep cutout shadow. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. Composition and motion: poster-like central figure; cropped anatomy; jagged diagonals; dense black masses. Positive style cues: gritty macabre illustration, gothic woodcut, distressed ink, skeletal silhouette, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking.",
+    "privateBasePath": "artworks/art_c427d53e477404b3a91b/base",
+    "displayPath": "/assets/artworks/gritty-graphic-macabre.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "gritty-graphic-macabre",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "gritty macabre illustration",
+        "gothic woodcut",
+        "distressed ink",
+        "skeletal silhouette",
+        "halftone texture",
+        "high-contrast graphic horror",
+        "xerox grain",
+        "crimson accent",
+        "raw printmaking"
+      ],
+      "avoids": [
+        "glossy gore effects",
+        "cute Halloween cartoon",
+        "pastel palette",
+        "smooth vector polish",
+        "ornate romantic fantasy",
+        "evenly lit scene"
+      ],
+      "palette": [
+        "black",
+        "bone white",
+        "dried blood red",
+        "graphite",
+        "sickly green accent"
+      ],
+      "lighting": "hard spotlight, blown white, deep cutout shadow",
+      "lineworkAndEdges": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+      "mediumAndTexture": "xerox grain, linocut gouge, halftone dots, dry brush, torn paper",
+      "compositionAndMotion": "poster-like central figure; cropped anatomy; jagged diagonals; dense black masses",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Gritty Graphic Macabre visual treatment. palette: black, bone white, dried blood red, graphite, sickly green accent. lighting: hard spotlight, blown white, deep cutout shadow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. composition and motion: cropped anatomy; jagged diagonals; dense black masses. visual cues: gritty macabre illustration, gothic woodcut, distressed ink, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking.",
+        "concept_preserving": "{subject}. Gritty Graphic Macabre. Macabre figures and death imagery translated into distressed black ink, halftone, woodcut pressure, and confrontational graphic silhouettes. Palette: black, bone white, dried blood red, graphite, sickly green accent. Lighting: hard spotlight, blown white, deep cutout shadow. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. Composition and motion: poster-like central figure; cropped anatomy; jagged diagonals; dense black masses. Positive style cues: gritty macabre illustration, gothic woodcut, distressed ink, skeletal silhouette, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking.",
+        "compact_style_suffix": "Gritty Graphic Macabre visual treatment. palette: black, bone white, dried blood red, graphite, sickly green accent. lighting: hard spotlight, blown white, deep cutout shadow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. composition and motion: cropped anatomy; jagged diagonals; dense black masses. visual cues: gritty macabre illustration, gothic woodcut, distressed ink, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking."
+      },
+      "qualityFlags": [
+        "contains_content_or_motif_bias"
+      ],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 46,
+          "style_id": "gritty-graphic-macabre",
+          "name": "Gritty Graphic Macabre",
+          "classification": "Composite visual style label",
+          "primary_family": "Graphic / Illustration / Print",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on macabre figures and death imagery translated into distressed black ink, halftone, woodcut pressure, and confrontational graphic silhouettes. It favors a controlled palette of black, bone white, dried blood red, graphite, sickly green accent, shaped by hard spotlight, blown white, deep cutout shadow. Its surface language combines xerox grain, linocut gouge, halftone dots, dry brush, torn paper, with print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Compositions are organized through poster-like central figure; cropped anatomy; jagged diagonals; dense black masses. The visual identity is reinforced by gritty macabre illustration, gothic woodcut, distressed ink, skeletal silhouette, halftone texture.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "black",
+            "bone white",
+            "dried blood red",
+            "graphite",
+            "sickly green accent"
+          ],
+          "lighting": "hard spotlight, blown white, deep cutout shadow",
+          "linework_and_edges": {
+            "value": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+            "basis": "explicit_or_medium_derived"
+          },
+          "medium_and_texture": "xerox grain, linocut gouge, halftone dots, dry brush, torn paper",
+          "composition_and_motion": "poster-like central figure; cropped anatomy; jagged diagonals; dense black masses"
+        },
+        "generation": {
+          "keywords": [
+            "gritty macabre illustration",
+            "gothic woodcut",
+            "distressed ink",
+            "skeletal silhouette",
+            "halftone texture",
+            "high-contrast graphic horror",
+            "xerox grain",
+            "crimson accent",
+            "raw printmaking"
+          ],
+          "avoids": [
+            "glossy gore effects",
+            "cute Halloween cartoon",
+            "pastel palette",
+            "smooth vector polish",
+            "ornate romantic fantasy",
+            "evenly lit scene"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Gritty Graphic Macabre visual treatment. palette: black, bone white, dried blood red, graphite, sickly green accent. lighting: hard spotlight, blown white, deep cutout shadow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. composition and motion: cropped anatomy; jagged diagonals; dense black masses. visual cues: gritty macabre illustration, gothic woodcut, distressed ink, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking.",
+            "concept_preserving": "{subject}. Gritty Graphic Macabre. Macabre figures and death imagery translated into distressed black ink, halftone, woodcut pressure, and confrontational graphic silhouettes. Palette: black, bone white, dried blood red, graphite, sickly green accent. Lighting: hard spotlight, blown white, deep cutout shadow. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. Composition and motion: poster-like central figure; cropped anatomy; jagged diagonals; dense black masses. Positive style cues: gritty macabre illustration, gothic woodcut, distressed ink, skeletal silhouette, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking.",
+            "compact_style_suffix": "Gritty Graphic Macabre visual treatment. palette: black, bone white, dried blood red, graphite, sickly green accent. lighting: hard spotlight, blown white, deep cutout shadow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. composition and motion: cropped anatomy; jagged diagonals; dense black masses. visual cues: gritty macabre illustration, gothic woodcut, distressed ink, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "medium",
+              "intensity": 95,
+              "complexity": 0,
+              "movement": 0,
+              "recommended_aspect_ratios": [
+                "1:1",
+                "4:5",
+                "16:9"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Gritty Graphic Macabre visual treatment. palette: black, bone white, dried blood red, graphite, sickly green accent. lighting: hard spotlight, blown white, deep cutout shadow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: xerox grain, linocut gouge, halftone dots, dry brush, torn paper. composition and motion: cropped anatomy; jagged diagonals; dense black masses. visual cues: gritty macabre illustration, gothic woodcut, distressed ink, halftone texture, high-contrast graphic horror, xerox grain, crimson accent, raw printmaking.",
+              "aspect_ratio": "1:1",
+              "resolution": "1K",
+              "creativity": "medium",
+              "intensity": 95,
+              "complexity": 0,
+              "movement": 0
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": []
+        },
+        "quality": {
+          "content_bias_terms": [
+            "figure",
+            "silhouette"
+          ],
+          "quality_flags": [
+            "contains_content_or_motif_bias"
+          ],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": false,
+          "source_profile_ids": [],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/046_gritty-graphic-macabre.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Gritty Graphic Macabre | Dark gothic woodcut engraving of a mysterious raven perched on a skull under a crescent moon | Graphic / Illustration / Print | gritty | graphic | macabre | gritty macabre illustration | gothic woodcut | distressed ink | skeletal silhouette | halftone texture | high-contrast graphic horror | xerox grain | crimson accent | raw printmaking | black | bone white | dried blood red | graphite | sickly green accent | hard spotlight, blown white, deep cutout shadow | xerox grain, linocut gouge, halftone dots, dry brush, torn paper",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 17200,
+    "currency": "USD"
+  },
+  {
+    "id": "art_a75e86bdbba9d20ba692",
+    "position": 99,
+    "slug": "herald-of-the-orbit-bloom",
+    "title": "Herald of the Orbit Bloom",
+    "description": "coral-robed herald, orbiting bloom mask, released doves, alpine meadow",
+    "alt": "Herald of the Orbit Bloom: coral-robed herald, orbiting bloom mask, released doves, alpine meadow.",
+    "category": "Surreal / Hybrid",
+    "mood": "playful, folkloric, vivid",
+    "moodTags": [
+      "playful",
+      "folkloric",
+      "vivid"
+    ],
+    "reviewFlags": [
+      "regenerated_original_reference_led",
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2432665,
+    "sha256": "a75e86bdbba9d20ba692f79e0b511b3d83c25c3dc0f9127783bccc42693d7abd",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a75e86bdbba9d20ba692/base",
+    "displayPath": "/assets/artworks/herald-of-the-orbit-bloom.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "coral-robed herald",
+        "orbiting bloom mask",
+        "released doves",
+        "alpine meadow",
+        "subject:masked_figure",
+        "subject:solitary_figure",
+        "motif:mask",
+        "motif:repetition",
+        "category:figurative_surrealism",
+        "category:biomorphic_surrealism",
+        "mood:dreamlike",
+        "mood:uncanny",
+        "palette:high_chroma",
+        "palette:cyan_orange",
+        "lighting:high_key",
+        "medium_texture:oil_like",
+        "composition:centered_iconic",
+        "composition:full_figure",
+        "era_aesthetic:midcentury_surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "coral red",
+        "cobalt mask",
+        "meadow green",
+        "cloud white",
+        "sky cyan"
+      ],
+      "lighting": "bright high-key alpine daylight with crisp cumulus backlight",
+      "lineworkAndEdges": "bold simplified figure outline; orbiting bloom spheres on thin stalks; sharp dove silhouettes",
+      "mediumAndTexture": "oil-like folk-painting surface; fine fabric pleats and dotted floral detail",
+      "compositionAndMotion": "centered full-figure herald on a rising meadow; radial bloom orbit around the head; doves ascending right",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "medium: owner-authored labels from the regeneration brief; no source-metadata join",
+          "prompt": "unavailable",
+          "rights": "unverified"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the delivered regeneration output",
+          "source": "regenerated_originals",
+          "classification": "regenerated_original",
+          "reference_series": "modern_surrealism",
+          "title_source": "owner regeneration brief",
+          "keyword_source": "curator visual review of the exact SHA-locked image + artcovr.cover-taxonomy.v1 controlled terms (visual confidence only, never rights confidence)",
+          "prompt_source": "unavailable; original brief held outside this repository and not ledger-linked",
+          "taxonomy_version": "artcovr.cover-taxonomy.v1"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Herald of the Orbit Bloom | coral-robed herald, orbiting bloom mask, released doves, alpine meadow | Surreal / Hybrid | playful | folkloric | vivid | coral-robed herald | orbiting bloom mask | released doves | alpine meadow | subject:masked_figure | subject:solitary_figure | motif:mask | motif:repetition | category:figurative_surrealism | category:biomorphic_surrealism | mood:dreamlike | mood:uncanny | palette:high_chroma | palette:cyan_orange | lighting:high_key | medium_texture:oil_like | composition:centered_iconic | composition:full_figure | era_aesthetic:midcentury_surreal | coral red | cobalt mask | meadow green | cloud white | sky cyan | bright high-key alpine daylight with crisp cumulus backlight | oil-like folk-painting surface; fine fabric pleats and dotted floral detail",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "exclusive",
+    "priceCents": 17300,
+    "currency": "USD"
+  },
+  {
+    "id": "art_bc8268a8e110d051c958",
+    "position": 100,
+    "slug": "graphic-surreal-pop",
+    "title": "Graphic Surreal Pop",
+    "description": "Graphic pop art illustration featuring a surreal floating eyeball inside a melting ice cream cone against a bold striped background",
+    "alt": "Graphic pop art illustration featuring a surreal floating eyeball inside a melting ice cream cone against a bold striped background",
+    "category": "Graphic / Illustration / Print",
+    "mood": "bold, pop, surreal",
+    "moodTags": [
+      "bold",
+      "pop",
+      "surreal"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 509496,
+    "sha256": "bc8268a8e110d051c958a75b7dcb74765e1d9901bf0da902864ea57df8fe5cb4",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 98,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": "Graphic pop art illustration featuring a surreal floating eyeball inside a melting ice cream cone against a bold striped background. Graphic Surreal Pop. Clean, bold, flat-color illustration where everyday objects and figures are recombined through playful surreal logic. Palette: primary red, cobalt, yellow, black, cream, pink accent. Lighting: flat graphic light, crisp hard shadow, occasional gradient glow. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: vector-like shapes, screenprint grain, smooth matte color. Composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. Positive style cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration.",
+    "privateBasePath": "artworks/art_bc8268a8e110d051c958/base",
+    "displayPath": "/assets/artworks/graphic-surreal-pop.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "graphic-surreal-pop",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "graphic surreal pop",
+        "flat vector illustration",
+        "bold color blocking",
+        "playful absurdism",
+        "clean hard-edged shapes",
+        "conceptual composition",
+        "pop-art palette",
+        "minimalist dream logic",
+        "editorial illustration"
+      ],
+      "avoids": [
+        "photorealistic clutter",
+        "dark gritty texture",
+        "subtle beige minimalism",
+        "ornate painterly detail",
+        "atmospheric fog",
+        "weak focal point"
+      ],
+      "palette": [
+        "primary red",
+        "cobalt",
+        "yellow",
+        "black",
+        "cream",
+        "pink accent"
+      ],
+      "lighting": "flat graphic light, crisp hard shadow, occasional gradient glow",
+      "lineworkAndEdges": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+      "mediumAndTexture": "vector-like shapes, screenprint grain, smooth matte color",
+      "compositionAndMotion": "centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy",
+      "promptTemplates": {
+        "subject_neutral": "{subject}. Graphic Surreal Pop visual treatment. palette: primary red, cobalt, yellow, black, cream, pink accent. lighting: flat graphic light, crisp hard shadow, occasional gradient glow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: vector-like shapes, screenprint grain, smooth matte color. composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. visual cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration.",
+        "concept_preserving": "{subject}. Graphic Surreal Pop. Clean, bold, flat-color illustration where everyday objects and figures are recombined through playful surreal logic. Palette: primary red, cobalt, yellow, black, cream, pink accent. Lighting: flat graphic light, crisp hard shadow, occasional gradient glow. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: vector-like shapes, screenprint grain, smooth matte color. Composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. Positive style cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration.",
+        "compact_style_suffix": "Graphic Surreal Pop visual treatment. palette: primary red, cobalt, yellow, black, cream, pink accent. lighting: flat graphic light, crisp hard shadow, occasional gradient glow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: vector-like shapes, screenprint grain, smooth matte color. composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. visual cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration."
+      },
+      "qualityFlags": [
+        "contains_content_or_motif_bias"
+      ],
+      "styleProfile": {
+        "$schema": "urn:artcovr:schemas:art-style-profile:3.0.0",
+        "schema_version": "3.0.0",
+        "record_type": "art_style_profile",
+        "identity": {
+          "ordinal": 98,
+          "style_id": "graphic-surreal-pop",
+          "name": "Graphic Surreal Pop",
+          "classification": "Composite visual style label",
+          "primary_family": "Graphic / Illustration / Print",
+          "is_canonical_historical_style": false
+        },
+        "taste_profile": {
+          "description": "This aesthetic centers on clean, bold, flat-color illustration where everyday objects and figures are recombined through playful surreal logic. It favors a controlled palette of primary red, cobalt, yellow, black, cream, pink accent, shaped by flat graphic light, crisp hard shadow, occasional gradient glow. Its surface language combines vector-like shapes, screenprint grain, smooth matte color, with print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Compositions are organized through centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. The visual identity is reinforced by graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes.",
+          "source_kind": "catalog_synthesis",
+          "is_verbatim_user_supplied": false,
+          "source_profile_ids": [],
+          "variants": []
+        },
+        "visual_language": {
+          "palette": [
+            "primary red",
+            "cobalt",
+            "yellow",
+            "black",
+            "cream",
+            "pink accent"
+          ],
+          "lighting": "flat graphic light, crisp hard shadow, occasional gradient glow",
+          "linework_and_edges": {
+            "value": "print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity",
+            "basis": "explicit_or_medium_derived"
+          },
+          "medium_and_texture": "vector-like shapes, screenprint grain, smooth matte color",
+          "composition_and_motion": "centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy"
+        },
+        "generation": {
+          "keywords": [
+            "graphic surreal pop",
+            "flat vector illustration",
+            "bold color blocking",
+            "playful absurdism",
+            "clean hard-edged shapes",
+            "conceptual composition",
+            "pop-art palette",
+            "minimalist dream logic",
+            "editorial illustration"
+          ],
+          "avoids": [
+            "photorealistic clutter",
+            "dark gritty texture",
+            "subtle beige minimalism",
+            "ornate painterly detail",
+            "atmospheric fog",
+            "weak focal point"
+          ],
+          "prompt_templates": {
+            "subject_neutral": "{subject}. Graphic Surreal Pop visual treatment. palette: primary red, cobalt, yellow, black, cream, pink accent. lighting: flat graphic light, crisp hard shadow, occasional gradient glow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: vector-like shapes, screenprint grain, smooth matte color. composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. visual cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration.",
+            "concept_preserving": "{subject}. Graphic Surreal Pop. Clean, bold, flat-color illustration where everyday objects and figures are recombined through playful surreal logic. Palette: primary red, cobalt, yellow, black, cream, pink accent. Lighting: flat graphic light, crisp hard shadow, occasional gradient glow. Linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. Medium and texture: vector-like shapes, screenprint grain, smooth matte color. Composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. Positive style cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration.",
+            "compact_style_suffix": "Graphic Surreal Pop visual treatment. palette: primary red, cobalt, yellow, black, cream, pink accent. lighting: flat graphic light, crisp hard shadow, occasional gradient glow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: vector-like shapes, screenprint grain, smooth matte color. composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. visual cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration."
+          },
+          "krea_2": {
+            "recommended_controls": {
+              "recommended_model_variant": "medium",
+              "endpoint": "/generate/image/krea/krea-2/medium",
+              "creativity": "medium",
+              "intensity": 5,
+              "complexity": -55,
+              "movement": -20,
+              "recommended_aspect_ratios": [
+                "1:1",
+                "4:5",
+                "16:9"
+              ],
+              "resolution": "1K",
+              "derivation": "heuristic recommendation from style name, definition, and visual language; not an extracted Krea preset value"
+            },
+            "request_template": {
+              "prompt": "{subject}. Graphic Surreal Pop visual treatment. palette: primary red, cobalt, yellow, black, cream, pink accent. lighting: flat graphic light, crisp hard shadow, occasional gradient glow. linework and edges: print-defined contours with visible ink breakup, carved or stippled shading, and tactile edge irregularity. medium and texture: vector-like shapes, screenprint grain, smooth matte color. composition and motion: centered conceptual object; oversized prop; cutaway or impossible transformation; clear hierarchy. visual cues: graphic surreal pop, flat vector illustration, bold color blocking, playful absurdism, clean hard-edged shapes, conceptual composition, pop-art palette, minimalist dream logic, editorial illustration.",
+              "aspect_ratio": "1:1",
+              "resolution": "1K",
+              "creativity": "medium",
+              "intensity": 5,
+              "complexity": -55,
+              "movement": -20
+            },
+            "moodboard_attachment": {
+              "id": null,
+              "strength": 0.35,
+              "requires_saved_krea_moodboard": true,
+              "note": "Create or save the moodboard in Krea first, then place its UUID here. The descriptive JSON itself is not a native Krea moodboard import payload."
+            }
+          }
+        },
+        "krea_source_alignment": {
+          "exact_title_match": false,
+          "related_moodboards": [
+            {
+              "profile_id": "krea-surrealist-b2-06-surrealist-retro-whimsy",
+              "name": "Surrealist Retro Whimsy",
+              "relationship": "semantic_reference",
+              "mapping_basis": "curated_semantic_mapping",
+              "similarity_score": 0.0888,
+              "verification_status": "not_independently_located_in_public_search"
+            },
+            {
+              "profile_id": "krea-surrealist-b2-17-hyper-vibrant-surreal-dreamscapes",
+              "name": "Hyper-Vibrant Surreal Dreamscapes",
+              "relationship": "semantic_reference",
+              "mapping_basis": "curated_semantic_mapping",
+              "similarity_score": 0.0226,
+              "verification_status": "not_independently_located_in_public_search"
+            }
+          ]
+        },
+        "quality": {
+          "content_bias_terms": [
+            "figure"
+          ],
+          "quality_flags": [
+            "contains_content_or_motif_bias"
+          ],
+          "overlap_cluster_ids": []
+        },
+        "provenance": {
+          "label_source": "user_requested_132_style_list",
+          "content_basis": [
+            "user_supplied_composite_label",
+            "user_provided_seed_catalogs",
+            "official_Krea_style_dimension_guidance",
+            "semantic_comparison_to_user_transcribed_krea_profiles"
+          ],
+          "one_to_one_seed_mapping_available": false,
+          "user_supplied_krea_taste_profiles_used": true,
+          "source_profile_ids": [
+            "krea-surrealist-b2-06-surrealist-retro-whimsy",
+            "krea-surrealist-b2-17-hyper-vibrant-surreal-dreamscapes"
+          ],
+          "notes": [
+            "Exact-title Krea source text is preserved verbatim only when an exact supplied title match exists.",
+            "Semantic references are research alignments, not claims that two moodboards are identical.",
+            "Generation avoids are catalog recommendations unless a source profile explicitly supplies avoids; the user-provided profiles did not include Krea avoids."
+          ]
+        }
+      },
+      "provenance": {
+        "confidence": "high: exact ordinal, style id, title, family, and source manifest join",
+        "sourceManifest": "generated_images/style_library_manifest.json",
+        "sourceProfile": "132_art_styles/132_art_style_json_library_v3/styles/098_graphic-surreal-pop.json",
+        "promptStatus": "source supplied by the exact style-profile and manifest join",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Graphic Surreal Pop | Graphic pop art illustration featuring a surreal floating eyeball inside a melting ice cream cone against a bold striped background | Graphic / Illustration / Print | bold | pop | surreal | graphic surreal pop | flat vector illustration | bold color blocking | playful absurdism | clean hard-edged shapes | conceptual composition | pop-art palette | minimalist dream logic | editorial illustration | primary red | cobalt | yellow | black | cream | pink accent | flat graphic light, crisp hard shadow, occasional gradient glow | vector-like shapes, screenprint grain, smooth matte color",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 17400,
     "currency": "USD"
   }
 ]

@@ -1,7 +1,7 @@
 {
   "workbookPath": "C:\\Users\\serge\\Desktop\\ARTCOVR\\outputs\\catalog\\ARTCOVR_Catalog_Approval.xlsx",
   "candidates": 100,
-  "candidateIdentitySha256": "5e053fcfba42a0e3f17f5c9097daac3f40b496118a81051ccda04b8db079857c",
+  "candidateIdentitySha256": "6401609303aef693a9b8327081253c30ae15ac340f86b42522d1ca4aa96f96ca",
   "approved": 0,
   "rejectedOrPending": 100,
   "issues": [],
@@ -9,5 +9,6 @@
   "committed": false,
   "blockers": [
     "EMPTY_APPROVAL_SET"
-  ]
+  ],
+  "source": "owner-directed swap 2026-08-14 (catalog/swaps/2026-08-14-style-diversity-swap.json); these counts describe the last workbook import run, not the current catalog/approved-artworks.json artifact; formal workbook re-import pending"
 }

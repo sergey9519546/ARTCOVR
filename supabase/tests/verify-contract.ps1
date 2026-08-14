@@ -56,7 +56,16 @@ $requiredSql = @(
   'alter table public.artworks enable row level security',
   'insert into storage.buckets',
   "'art-assets', 'art-assets', false",
-  'is not distinct from'
+  'is not distinct from',
+  'add column processed_outcome text',
+  'add column reconciliation_attempts integer',
+  'add column next_reconcile_at timestamptz',
+  'add column reconciliation_blocked_at timestamptz',
+  'drop function if exists public.refund_purchase(uuid)',
+  'function public.restore_purchase_access',
+  'reservation_rate_limited',
+  "interval '45 minutes'",
+  "interval '180 seconds'"
 )
 foreach ($needle in $requiredSql) {
   if (-not $sql.ToLowerInvariant().Contains($needle)) {
@@ -100,6 +109,10 @@ $functionNeedles = @(
   'artworks!purchases_artwork_id_fkey(slug)',
   'artworks!generations_artwork_id_fkey(catalog_id)',
   'charge.dispute.created',
+  'charge.dispute.closed',
+  'restore_purchase_access',
+  'watermark_passthrough',
+  'reconciliation_attempts',
   'revoke_purchase_access',
   'payment_method_types[0]',
   'stripe_checkout_expires_at',

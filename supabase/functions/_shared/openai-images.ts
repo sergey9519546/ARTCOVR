@@ -9,9 +9,15 @@ type EditResult = { bytes: Uint8Array; requestId: string | null; usage: Record<s
 
 const maximumOutputBytes = 20 * 1024 * 1024;
 
+// The generation watchdog reaps queued/running rows after 180 seconds. The
+// provider budget must stay strictly below that cutoff once the 15-second
+// watermark render and a 30-second finalization margin are added, otherwise the
+// reaper releases the allowance of a job its own worker is still running.
+export const maximumImageTimeoutMs = 130_000;
+
 function timeoutMilliseconds() {
   const configured = Number(Deno.env.get("OPENAI_IMAGE_TIMEOUT_MS") ?? "115000");
-  return Number.isFinite(configured) && configured >= 30_000 && configured <= 135_000
+  return Number.isFinite(configured) && configured >= 30_000 && configured <= maximumImageTimeoutMs
     ? Math.trunc(configured)
     : 115_000;
 }

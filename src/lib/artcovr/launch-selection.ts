@@ -1,9 +1,29 @@
+/**
+ * Owner-approved source pools.
+ *
+ * The first five are direct-use pools: an existing file is selected, hashed,
+ * and reviewed as-is. `regenerated_originals` is different in kind — it holds
+ * NEW works produced from an original, owner-directed regeneration brief that
+ * was informed by a blocked, regeneration-only reference pool. No reference
+ * file, reference hash, or reference-derived metadata enters the catalog; only
+ * the freshly generated, re-hashed, visually reviewed output does.
+ */
 export type DirectSourcePool =
   | "generated_images"
   | "new_meta_images"
   | "meta_updated_images"
   | "concept_reference_art"
-  | "new_download_root";
+  | "new_download_root"
+  | "regenerated_originals";
+
+export const LAUNCH_SOURCE_POOLS: readonly DirectSourcePool[] = [
+  "generated_images",
+  "new_meta_images",
+  "meta_updated_images",
+  "concept_reference_art",
+  "new_download_root",
+  "regenerated_originals",
+];
 
 export type LaunchSelection = {
   sourcePool: DirectSourcePool;
@@ -12,6 +32,12 @@ export type LaunchSelection = {
   category: string;
   moodTags: readonly string[];
   reviewFlags: readonly string[];
+  /**
+   * Regeneration-brief series for `regenerated_originals` rows only. It names
+   * the owner's original brief family; it is never a claim about a reference
+   * file's authorship or metadata.
+   */
+  referenceSeries?: "gothic_surrealism" | "modern_surrealism";
 };
 
 type ReviewedSelectionRecord = {
@@ -26,7 +52,6 @@ const reviewedConceptSelection: readonly ReviewedSelectionRecord[] = [
   { sha256: "6da3a7473dbfdf826e6c2b9f6267881bf3280642a84e0b1a98494b3a7b122b1a", category: "Surreal / Hybrid", moodTags: ["temporal", "graphic", "uncanny"] },
   { sha256: "8a1b6f2d3f74c098f243cadcb319fccfc949130d33e24ae04cef8bf2fc9ce903", category: "Surreal / Hybrid", moodTags: ["verdant", "quiet", "inventive"] },
   { sha256: "b3f4491ac7965631b3b1a5ffc1481bd435238dc21c41c22b90a5060ba3362e8c", category: "Graphic / Illustration / Print", moodTags: ["wry", "minimal", "sunlit"] },
-  { sha256: "ced2841ba6ce88caa0a70951a45642696f222217d4602e8d84412dc880837eec", category: "Mixed Media / Collage", moodTags: ["tender", "unexpected", "textural"] },
   { sha256: "c73360b8f81c50b57ad0237aed8747925ad2d40e982fb528fca2422166e8e552", category: "Surreal / Hybrid", moodTags: ["stormy", "poetic", "spare"] },
   { sha256: "dfead6e9a75acb469725cc3c2ee174b2dc34adfc9c1c4c4f1a9f15dea7c0c4ad", category: "Graphic / Illustration / Print", moodTags: ["sharp", "minimal", "enigmatic"] },
   { sha256: "f2835117b4c4ae98b6e20bb13297363112b37b146113fa20fb8463aca82d944a", category: "Mixed Media / Collage", moodTags: ["architectural", "balanced", "quiet"] },
@@ -38,12 +63,10 @@ const reviewedConceptSelection: readonly ReviewedSelectionRecord[] = [
   { sha256: "a22e035c417e6e774d51180bc8517cb33094c32982728b44e535c8ff7b72d373", category: "Graphic / Illustration / Print", moodTags: ["deadpan", "surreal", "graphic"] },
   { sha256: "0e872f93a29287069ecd0b034eb0b39f194b0fdb79b6580a2faa24f187d5927f", category: "Mixed Media / Collage", moodTags: ["weightless", "mechanical", "graphic"] },
   { sha256: "6baed7162ea6572b24345aeb40da9be0d737df2fe201f360d68b5f84696a77c5", category: "Material / Sculptural / Organic", moodTags: ["compressed", "tactile", "strange"] },
-  { sha256: "86511f48a4ac2f6826924079b98564ffff3630d4e55ccbe65678c41bfa75b3c3", category: "Surreal / Hybrid", moodTags: ["volatile", "delicate", "poetic"] },
   { sha256: "f271bff03a4a8bf3660cd120cbee569e37284a34c8248436a4b282418d9e0496", category: "Graphic / Illustration / Print", moodTags: ["liminal", "architectural", "stark"] },
   { sha256: "c70963dfd83c1b3cd4dc760c71e0058b50aa1be1eb4debd584806d2e00cee366", category: "Graphic / Illustration / Print", moodTags: ["analog", "rooted", "electric"] },
   { sha256: "8d7e7164e829ecdb2c960883d749a4b31194f21a5aa43b20f0677a15d7b117fc", category: "Graphic / Illustration / Print", moodTags: ["watchful", "melancholic", "graphic"] },
   { sha256: "c757341870883fc1c55dff085cfa74c7b072524341062edda29a39d29ece106d", category: "Surreal / Hybrid", moodTags: ["contained", "mysterious", "playful"] },
-  { sha256: "11dc661ab7fe1dfbbde39e42ba53953389e93e093c6ade0d704a4ba86fd00de5", category: "Graphic / Illustration / Print", moodTags: ["portable", "weathered", "wry"] },
   { sha256: "78dbbe3b64a54b0969a96cdff76f4b4a05c5d3d125f0ab1cab24e2f7a88fd55d", category: "Graphic / Illustration / Print", moodTags: ["urban", "organic", "precise"] },
   { sha256: "af133895ec864914fc6249774edbc4ff684d1d07aafe4935ff95ecd7eead42b0", category: "Surreal / Hybrid", moodTags: ["tidal", "contained", "dreamlike"] },
   { sha256: "fd6312bbd6441c9e025a2cb534c11c863bf72fa3a5f4b18aa5b66bb0d96124e2", category: "Minimal / Abstract", moodTags: ["luminous", "fragile", "quiet"] },
@@ -69,8 +92,6 @@ const reviewedConceptSelection: readonly ReviewedSelectionRecord[] = [
   { sha256: "2da8f2c43d592abc4820ef2627fe02743a54d8e58499331a560737ada672c816", category: "Graphic / Illustration / Print", moodTags: ["mechanical", "tender", "precise"] },
   { sha256: "833e2718e7baccc724754dbea0b9968625cecb49e813416a3a3ab5775ada93bf", category: "Graphic / Illustration / Print", moodTags: ["urban", "absurd", "playful"] },
   { sha256: "0a89082cf7ea6fdc8053405363a009b783578e9e191db0a72983a9ea7a727a03", category: "Mixed Media / Collage", moodTags: ["lunar", "distressed", "enigmatic"] },
-  { sha256: "dac19e8cc31eb086722ae26f73fa5f4d26dbc76ccbf63f1351817c21c6310436", category: "Graphic / Illustration / Print", moodTags: ["volatile", "graphic", "brooding"] },
-  { sha256: "0b001dd20786fa1c45c7411eb9454b3e5fdf19d7302ecb2a4cdad5b46f0e4f25", category: "Graphic / Illustration / Print", moodTags: ["retro", "playful", "cosmic"] },
   { sha256: "81ef9c04560ca0aeda35e3937affa90620d5dc3006a6c877132cb9539dcd22ec", category: "Graphic / Illustration / Print", moodTags: ["avian", "bold", "graphic"] },
   { sha256: "fa434ce71985f9d2d728f4d804075f2df8d75bedce39b9b5f7c9c686feea217f", category: "Graphic / Illustration / Print", moodTags: ["symbolic", "architectural", "precise"] },
   { sha256: "3f42d6c658f7d1f939c8985dbbd92cd2d6332c5a4d1f4f37c17b5c4e65b6c012", category: "Mixed Media / Collage", moodTags: ["mechanical", "botanical", "intricate"] },
@@ -80,7 +101,6 @@ const reviewedConceptSelection: readonly ReviewedSelectionRecord[] = [
   { sha256: "97d06554f98ac4a01acb9ed28071a83a2752253ba04d96956e76ffe570978b2c", category: "Surreal / Hybrid", moodTags: ["melted", "mechanical", "expressive"] },
   { sha256: "8a962fbd0ab5e17817b6da957396935c6edd4af7bb7d167fc2b6c84db0555c26", category: "Graphic / Illustration / Print", moodTags: ["functional", "precise", "wry"] },
   { sha256: "2ba4375af85a094747a99474c07882b1c767a490eaea57087d57f871cbaeef4d", category: "Surreal / Hybrid", moodTags: ["domestic", "cool", "uncanny"] },
-  { sha256: "b753562340b438444f0bf4f889f6407d745d11c367207d3230cd68d5574605c2", category: "Graphic / Illustration / Print", moodTags: ["urban", "reflective", "contained"] },
   { sha256: "71ce1a2a8a217f9a28c20b4f6b693ffae2882d702de85867004edc59df5a1198", category: "Mixed Media / Collage", moodTags: ["fragmented", "tactile", "expressive"] },
   { sha256: "1f4f5cd44cd269966214f8a0a22b435898e750b091093d6070a4aa223aea0431", category: "Surreal / Hybrid", moodTags: ["layered", "architectural", "absurd"] },
   { sha256: "e6912b15c7cd4d65cec89588a9fff9cabadf5dcd55f7b965b85b34fdfaaac161", category: "Graphic / Illustration / Print", moodTags: ["domestic", "miniature", "wry"] },
@@ -131,7 +151,6 @@ const retainedGeneratedSelection: readonly LaunchSelection[] = [
   { sourcePool: "generated_images", sourceOrdinal: 65, category: "Graphic / Illustration / Print", moodTags: ["graphic", "kinetic", "surreal"], reviewFlags: [] },
   { sourcePool: "generated_images", sourceOrdinal: 68, category: "Minimal / Abstract", moodTags: ["textured", "geometric", "minimal"], reviewFlags: [] },
   { sourcePool: "generated_images", sourceOrdinal: 72, category: "Painterly / Illustrative", moodTags: ["luminous", "cosmic", "folkloric"], reviewFlags: [] },
-  { sourcePool: "generated_images", sourceOrdinal: 74, category: "Painterly / Illustrative", moodTags: ["luminous", "ethereal", "pastel"], reviewFlags: [] },
   { sourcePool: "generated_images", sourceOrdinal: 78, category: "Painterly / Illustrative", moodTags: ["ethereal", "painterly", "botanical"], reviewFlags: [] },
   { sourcePool: "generated_images", sourceOrdinal: 91, category: "Graphic / Illustration / Print", moodTags: ["monochrome", "gothic", "print"], reviewFlags: [] },
   { sourcePool: "generated_images", sourceOrdinal: 103, category: "Graphic / Illustration / Print", moodTags: ["bold", "graphic", "neon"], reviewFlags: [] },
@@ -266,15 +285,69 @@ const legacyRetainedGeneratedSelection = previousLaunchSelection.filter(
 );
 */
 
-export const launchSelection: readonly LaunchSelection[] = [
+// The 92 launch slots that survived the 2026-08-14 owner review, in their
+// original relative order. The eight thinned near-duplicate identities are
+// gone from source entirely and live only in git history and the
+// catalog/excluded-candidates.json audit record.
+const retainedLaunchSelection: readonly LaunchSelection[] = [
   ...conceptLaunchSelection,
   ...retainedMetaSelection,
   ...retainedGeneratedSelection,
   { sourcePool: "generated_images", sourceOrdinal: 38, category: "Material / Sculptural / Organic", moodTags: ["tactile", "organic", "opulent"], reviewFlags: [] },
   { sourcePool: "generated_images", sourceOrdinal: 46, category: "Graphic / Illustration / Print", moodTags: ["gritty", "graphic", "macabre"], reviewFlags: [] },
-  { sourcePool: "generated_images", sourceOrdinal: 121, category: "Surreal / Hybrid", moodTags: ["luminous", "ethereal", "hazy"], reviewFlags: [] },
   { sourcePool: "generated_images", sourceOrdinal: 98, category: "Graphic / Illustration / Print", moodTags: ["bold", "pop", "surreal"], reviewFlags: [] },
 ];
+
+export const REGENERATED_ORIGINAL_REVIEW_FLAGS: readonly string[] = [
+  "regenerated_original_reference_led",
+  "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review",
+];
+
+/**
+ * Owner-directed style-cluster thinning, 2026-08-14: near-duplicate style
+ * clusters were capped at 2–3 works and the excess was replaced by these
+ * reference-led regenerated originals. `position` is the 1-based launch slot
+ * of the work each one replaces, so the approved price ladder and the 50/50
+ * exclusive/repeatable split are preserved exactly.
+ */
+export const regeneratedOriginalReplacements: readonly {
+  position: number;
+  selection: LaunchSelection;
+}[] = [
+  { position: 4, selection: { sourcePool: "regenerated_originals", sourceSha256: "a2de27b6021422e09b8999fe305db3ca2d81b4b85a106d0c726104641fb67db8", category: "Painterly / Illustrative", moodTags: ["solemn", "monumental", "nocturnal"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "gothic_surrealism" } },
+  { position: 16, selection: { sourcePool: "regenerated_originals", sourceSha256: "e114dbcce2588ae7f0b896096c5932e0b44c37819a03869214dda28b74bb46fc", category: "Material / Sculptural / Organic", moodTags: ["ritual", "weathered", "arcane"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "gothic_surrealism" } },
+  { position: 21, selection: { sourcePool: "regenerated_originals", sourceSha256: "9acb2bf21ff1f0f4a95432e299f0296262745020e3513076493862e11259fde2", category: "Painterly / Illustrative", moodTags: ["austere", "haunting", "sacred"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "gothic_surrealism" } },
+  { position: 47, selection: { sourcePool: "regenerated_originals", sourceSha256: "944f68ea1dc73a7d1bbee7ee2257489b5911ca457f5c4bb1982bcde62b803701", category: "Surreal / Hybrid", moodTags: ["luminous", "vast", "elegiac"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "gothic_surrealism" } },
+  { position: 48, selection: { sourcePool: "regenerated_originals", sourceSha256: "d8689878945e344a2a6e0d7ac79eb574180a0ed7faac311ce82cc301656cbf98", category: "Painterly / Illustrative", moodTags: ["meditative", "radiant", "devotional"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "modern_surrealism" } },
+  { position: 58, selection: { sourcePool: "regenerated_originals", sourceSha256: "6abeb3afbb63aeb3706728d3332a501201904847245f89b315be2028530f7e82", category: "Surreal / Hybrid", moodTags: ["serene", "monumental", "wandering"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "modern_surrealism" } },
+  { position: 93, selection: { sourcePool: "regenerated_originals", sourceSha256: "a50373a194fc24e48d32690cc13c65ba4952d628966b61f8a119e7d0440b3d55", category: "Painterly / Illustrative", moodTags: ["luminous", "gentle", "otherworldly"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "modern_surrealism" } },
+  { position: 99, selection: { sourcePool: "regenerated_originals", sourceSha256: "a75e86bdbba9d20ba692f79e0b511b3d83c25c3dc0f9127783bccc42693d7abd", category: "Surreal / Hybrid", moodTags: ["playful", "folkloric", "vivid"], reviewFlags: REGENERATED_ORIGINAL_REVIEW_FLAGS, referenceSeries: "modern_surrealism" } },
+];
+
+/**
+ * Restores replaced works to the exact launch slots they inherited. Ascending
+ * insertion into the retained order reproduces every original position, so no
+ * surviving work is renumbered by a swap.
+ */
+function withReplacements(
+  retained: readonly LaunchSelection[],
+  replacements: readonly { position: number; selection: LaunchSelection }[],
+): readonly LaunchSelection[] {
+  const composed = [...retained];
+  const ordered = [...replacements].sort((left, right) => left.position - right.position);
+  for (const { position, selection } of ordered) {
+    if (!Number.isSafeInteger(position) || position < 1 || position > composed.length + 1) {
+      throw new Error(`Replacement position ${position} is outside the launch selection.`);
+    }
+    composed.splice(position - 1, 0, selection);
+  }
+  return composed;
+}
+
+export const launchSelection: readonly LaunchSelection[] = withReplacements(
+  retainedLaunchSelection,
+  regeneratedOriginalReplacements,
+);
 
 // Keep rejected source labels out of the repository as readable copy too.
 const bannedBrandPattern = new RegExp(

@@ -26,6 +26,27 @@ test("publication requires technical provenance and unique source content", asyn
   assert.match(sql, /revoke all on public\.catalog_artworks from public, anon, authenticated/);
 });
 
+test("no public-schema helper function is executable by PUBLIC", async () => {
+  const sql = await read("supabase/migrations/202608130005_artwork_metadata.sql");
+  assert.match(sql, /create function public\.immutable_text_array_join\(p_values text\[\]\)/);
+  assert.match(
+    sql,
+    /revoke all on function public\.immutable_text_array_join\(text\[\]\)\s*\n?\s*from public, anon, authenticated;/,
+  );
+  // 202608110004's blanket `grant execute on all functions ... to service_role`
+  // already ran, so revoking PUBLIC leaves service_role with nothing — and the
+  // artworks.search_vector generated column is evaluated as the writer.
+  assert.match(
+    sql,
+    /grant execute on function public\.immutable_text_array_join\(text\[\]\) to service_role;/,
+  );
+  const created = sql.indexOf("create function public.immutable_text_array_join");
+  const revoked = sql.indexOf("revoke all on function public.immutable_text_array_join");
+  const granted = sql.indexOf("grant execute on function public.immutable_text_array_join");
+  assert.ok(created > 0 && revoked > created, "the revoke must follow the function definition");
+  assert.ok(granted > revoked, "the service_role grant must follow the revoke");
+});
+
 test("idempotency keys cannot be replayed across artworks", async () => {
   const sql = await read("supabase/migrations/202608130007_security_contracts.sql");
   const checkout = await read("supabase/functions/create-checkout/index.ts");
@@ -86,6 +107,95 @@ test("account functions emit public catalog IDs and revoke refunded purchased pr
   assert.match(account, /previewAllowed = generation\.purchase_id === null \|\| activePurchases\.has/);
   assert.match(status, /!generation\.purchase_id \|\| purchasedAccess/);
   assert.match(sql, /returns table\(asset_kind text, artwork_id text/);
+});
+
+test("the unverified refund RPC is dropped and its removal is a launch gate", async () => {
+  const migration = await read("supabase/migrations/202608140009_convergence_hardening.sql");
+  const invariants = await read("supabase/tests/contract_invariants.sql");
+  assert.match(migration, /drop function if exists public\.refund_purchase\(uuid\);/);
+  assert.match(invariants, /to_regprocedure\('public\.refund_purchase\(uuid\)'\) is null/);
+  assert.match(invariants, /raise exception 'unverified refund_purchase RPC must not exist'/);
+  // A non-unique partial index on paid purchases is expected; only a unique one
+  // would globally serialize fulfillment.
+  assert.match(invariants, /indexdef ilike 'create unique index%'[\s\S]*no_global_paid_purchase_constraint/);
+  assert.match(invariants, /raise exception 'a unique paid-purchase index would globally serialize fulfillment'/);
+  assert.match(invariants, /raise exception 'reconciliation backoff columns are missing'/);
+  assert.match(invariants, /raise exception 'stripe event outcome classification column is missing'/);
+});
+
+test("the base download is bound to the purchased source bytes", async () => {
+  const migration = await read("supabase/migrations/202608140009_convergence_hardening.sql");
+  const account = await read("supabase/functions/my-images/index.ts");
+  assert.match(migration, /create or replace function public\.account_assets/);
+  // The base row is withheld on a real mismatch only. A null snapshot is
+  // unverifiable legacy data, and `null = anything` is never true, so joining
+  // on equality alone would silently swallow a paid buyer's clean download.
+  assert.match(
+    migration,
+    /select 'base'::text[\s\S]*join public\.artworks a\s*\n\s*on a\.id = p\.artwork_id\s*\n[\s\S]*?and \(p\.base_source_sha256_snapshot is null\s*\n\s*or a\.source_sha256 = p\.base_source_sha256_snapshot\)/,
+  );
+  // Resolvable null snapshots are filled in before the function starts reading
+  // the column, and no NOT NULL is added (it would abort on a digest-less work).
+  const backfill = migration.indexOf("set base_source_sha256_snapshot = a.source_sha256");
+  const replacement = migration.indexOf("create or replace function public.account_assets");
+  assert.ok(backfill > 0 && replacement > backfill, "the snapshot backfill must precede account_assets");
+  assert.match(
+    migration,
+    /update public\.purchases p\s*\n\s*set base_source_sha256_snapshot = a\.source_sha256\s*\n\s*from public\.artworks a\s*\n\s*where a\.id = p\.artwork_id\s*\n\s*and p\.base_source_sha256_snapshot is null\s*\n\s*and a\.source_sha256 is not null;/,
+  );
+  assert.doesNotMatch(migration, /alter column base_source_sha256_snapshot set not null/);
+  // A missing base row must degrade gracefully: downloads are mapped, never indexed.
+  assert.match(account, /\(assetResult\.data \?\? \[\]\)\.map/);
+  assert.match(account, /downloads = signedDownloads\.filter/);
+  assert.match(account, /remainingGenerations: activePurchases\.has\(purchase\.id\)/);
+  assert.match(account, /const entitledPreview = selectedPreviews\.has\(generation\.id\)/);
+  assert.match(account, /\(active \|\| entitledPreview\) && previewAllowed/);
+});
+
+test("generation-status hides artworks the public catalog view hides", async () => {
+  const status = await read("supabase/functions/generation-status/index.ts");
+  const view = await read("supabase/migrations/202608130007_security_contracts.sql");
+  assert.match(view, /create view public\.catalog_artworks[\s\S]*source_mime_type in \('image\/jpeg', 'image\/png'\)/);
+  assert.match(status, /function isPubliclyVisible/);
+  assert.match(status, /artwork\.source_width >= 1024/);
+  assert.match(status, /artwork\.source_height === artwork\.source_width/);
+  assert.match(status, /Number\(artwork\.source_bytes\) > 0/);
+  assert.match(status, /artwork\.source_mime_type === "image\/jpeg" \|\| artwork\.source_mime_type === "image\/png"/);
+  assert.match(status, /\/\^\[0-9a-f\]\{64\}\$\/\.test\(artwork\.source_sha256\)/);
+  assert.match(status, /!isPubliclyVisible\(catalogArtwork\)[\s\S]*artwork_not_found/);
+  // Response shape is unchanged.
+  assert.match(status, /privateJson\(\{ artworkId, catalogUrl: await signPrivate\(/);
+});
+
+test("postgres error classification reads SQLSTATE and message tokens only", async () => {
+  const errors = await read("supabase/functions/_shared/postgres-errors.ts");
+  assert.match(errors, /sqlstate: "22023"/);
+  assert.match(errors, /sqlstate: "42501"/);
+  assert.match(errors, /sqlstate: "P0001"/);
+  assert.match(errors, /const sqlstate = typeof error\.code === "string"/);
+  assert.match(errors, /const message = typeof error\.message === "string"/);
+  assert.match(errors, /sqlstate === "" \|\| sqlstate === entry\.sqlstate/);
+  assert.match(errors, /\(\^\|\[\^a-z0-9_\]\)\$\{token\}\(\[\^a-z0-9_\]\|\$\)/);
+  // `details` and `hint` are data-influenced free text and must not classify.
+  assert.doesNotMatch(errors, /error\.details \?\? ""/);
+  assert.doesNotMatch(errors, /\$\{error\.hint/);
+  // The token to HTTP mapping is preserved.
+  assert.match(errors, /token: "generation_daily_limit"[^\n]*status: 429/);
+  assert.match(errors, /token: "purchase_not_entitled"[^\n]*status: 403/);
+  assert.match(errors, /token: "artwork_not_generation_ready"[^\n]*status: 409/);
+  assert.match(errors, /token: "invalid_prompt"[^\n]*status: 400/);
+});
+
+test("contact submissions are bounded per authenticated account", async () => {
+  const inquiry = await read("supabase/functions/submit-inquiry/index.ts");
+  assert.match(inquiry, /\{ count: "exact", head: true \}/);
+  assert.match(inquiry, /\.eq\("user_id", user\.id\)/);
+  assert.match(inquiry, /\(count \?\? 0\) >= 5/);
+  assert.match(inquiry, /429, "inquiry_rate_limited"/);
+  // The limit is checked before the insert, not after.
+  const limit = inquiry.indexOf('429, "inquiry_rate_limited"');
+  const insert = inquiry.indexOf('.insert({ user_id: user.id, email: user.email');
+  assert.ok(limit > 0 && insert > limit, "the rate limit must precede the insert");
 });
 
 test("legacy open-port websocket demo is absent", async () => {

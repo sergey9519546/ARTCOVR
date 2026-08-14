@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { PromptStudio } from "@/components/artcovr/PromptStudio";
 import { SiteFooter } from "@/components/artcovr/SiteFooter";
 import { SiteHeader } from "@/components/artcovr/SiteHeader";
-import { displayArtworks, getArtworkBySlug, getCheckoutTotal, isCheckoutReady } from "@/lib/artcovr/artworks";
+import { getArtworkBySlug, getCheckoutTotal, getStaticCatalogParams, isCheckoutReady } from "@/lib/artcovr/artworks";
 import {
   buildArtworkStructuredData,
   createPageMetadata,
@@ -13,7 +13,7 @@ import {
 } from "@/lib/artcovr/seo";
 
 export function generateStaticParams() {
-  return displayArtworks.map((artwork) => ({ slug: artwork.slug }));
+  return getStaticCatalogParams();
 }
 
 type Props = { params: Promise<{ slug: string }> };

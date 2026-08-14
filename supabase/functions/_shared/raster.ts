@@ -111,6 +111,31 @@ export function inspectWebp(bytes: Uint8Array): RasterInfo {
   return { format: "webp", width: dimensions.width, height: dimensions.height, bytes: bytes.byteLength };
 }
 
+// A watermark renderer that silently proxies its input would publish the clean
+// original as the "preview". Comparing content digests catches that regardless
+// of how the renderer is implemented or which transport it used.
+export async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  // WebCrypto rejects a view backed by a SharedArrayBuffer. Every caller here
+  // owns a plain ArrayBuffer, so the common path hashes in place and only an
+  // exotic input pays for a copy.
+  const source = bytes.buffer instanceof ArrayBuffer
+    ? bytes as Uint8Array<ArrayBuffer>
+    : Uint8Array.from(bytes);
+  const digest = await crypto.subtle.digest("SHA-256", source);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export function digestsMatch(left: string, right: string): boolean {
+  if (left.length !== right.length) return false;
+  let difference = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  }
+  return difference === 0;
+}
+
 export function validateSquareWebp(
   bytes: Uint8Array,
   expectedSize: 1024 | 2048,

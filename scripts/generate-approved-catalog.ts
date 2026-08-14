@@ -16,7 +16,7 @@ const reviewPath = resolve(projectRoot, "src", "lib", "artcovr", "curated-review
 const outputPath = resolve(projectRoot, "src", "lib", "artcovr", "curated-public.json");
 
 // Configuration
-const NUM_ARTWORKS_TO_APPROVE = 90;  // Include all preferred intro slugs (up to index 87)
+const NUM_ARTWORKS_TO_APPROVE = 100;  // Include all preferred intro slugs (up to index 87)
 const BASE_PRICE_USD = 75;    // $75 minimum
 const PRICE_RANGE_USD = 225;  // Up to $300 ($75 + $225)
 

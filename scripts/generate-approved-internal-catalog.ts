@@ -18,7 +18,7 @@ const publicPath = resolve(projectRoot, "src", "lib", "artcovr", "curated-public
 const outputPath = resolve(projectRoot, "catalog", "approved-artworks.json");
 
 // Configuration - must match the public catalog script
-const NUM_ARTWORKS_TO_APPROVE = 90;
+const NUM_ARTWORKS_TO_APPROVE = 100;
 const BASE_PRICE_USD = 75;
 const PRICE_RANGE_USD = 225;
 

@@ -943,5 +943,77 @@
     "title": "Monochromatic Verdant Surrealism",
     "sha256": "0b9c4f8a5cc2a7fd422a1d2748f607d5945818eb1846542fba570e4365b8f58c",
     "reason": "not_selected_for_launch_review"
+  },
+  {
+    "id": "art_ced2841ba6ce88caa0a7",
+    "sourcePool": "concept_reference_art",
+    "ordinal": null,
+    "slug": "nesting-appliance",
+    "title": "Nesting Appliance",
+    "sha256": "ced2841ba6ce88caa0a70951a45642696f222217d4602e8d84412dc880837eec",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
+  },
+  {
+    "id": "art_86511f48a4ac2f682692",
+    "sourcePool": "concept_reference_art",
+    "ordinal": null,
+    "slug": "tempest-teacup",
+    "title": "Tempest Teacup",
+    "sha256": "86511f48a4ac2f6826924079b98564ffff3630d4e55ccbe65678c41bfa75b3c3",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
+  },
+  {
+    "id": "art_11dc661ab7fe1dfbbde3",
+    "sourcePool": "concept_reference_art",
+    "ordinal": null,
+    "slug": "suitcase-forecast",
+    "title": "Suitcase Forecast",
+    "sha256": "11dc661ab7fe1dfbbde39e42ba53953389e93e093c6ade0d704a4ba86fd00de5",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
+  },
+  {
+    "id": "art_dac19e8cc31eb086722a",
+    "sourcePool": "concept_reference_art",
+    "ordinal": null,
+    "slug": "weather-under-the-umbrella",
+    "title": "Weather Under the Umbrella",
+    "sha256": "dac19e8cc31eb086722ae26f73fa5f4d26dbc76ccbf63f1351817c21c6310436",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
+  },
+  {
+    "id": "art_0b001dd20786fa1c45c7",
+    "sourcePool": "concept_reference_art",
+    "ordinal": null,
+    "slug": "ramen-orbit",
+    "title": "Ramen Orbit",
+    "sha256": "0b001dd20786fa1c45c7411eb9454b3e5fdf19d7302ecb2a4cdad5b46f0e4f25",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
+  },
+  {
+    "id": "art_b753562340b438444f0b",
+    "sourcePool": "concept_reference_art",
+    "ordinal": null,
+    "slug": "city-reflection-bowl",
+    "title": "City Reflection Bowl",
+    "sha256": "b753562340b438444f0bf4f889f6407d745d11c367207d3230cd68d5574605c2",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
+  },
+  {
+    "id": "art_2639e3e382376b774f26",
+    "sourcePool": "generated_images",
+    "ordinal": 74,
+    "slug": "luminous-ethereal-pastel",
+    "title": "Luminous Ethereal Pastel",
+    "sha256": "2639e3e382376b774f262c66bb04d095b5a6cae40d6ad94d779a1576709f28bc",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
+  },
+  {
+    "id": "art_0f88c04060c95403bbcb",
+    "sourcePool": "generated_images",
+    "ordinal": 121,
+    "slug": "luminous-ethereal-haze",
+    "title": "Luminous Ethereal Haze",
+    "sha256": "0f88c04060c95403bbcbdcdee513f52558ecd5154cc3660ecb1fae681ea7efa6",
+    "reason": "style_cluster_thinning_owner_directive_2026-08-14"
   }
 ]

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("home and archive do not create horizontal page overflow", async ({ page }) => {
   for (const route of ["/", "/archive"]) {
-    await page.goto(route);
+    await page.goto(route, { waitUntil: "networkidle" });
     if (route === "/") {
       await expect(page.locator("main")).not.toHaveAttribute("inert", "");
     }

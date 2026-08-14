@@ -22,6 +22,9 @@ export default defineConfig({
   use: {
     baseURL,
     ...(browserChannel ? { channel: browserChannel } : {}),
+    ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH
+      ? { launchOptions: { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } }
+      : {}),
     colorScheme: "light",
     reducedMotion: "reduce",
     screenshot: "only-on-failure",

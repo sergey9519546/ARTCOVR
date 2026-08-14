@@ -14,7 +14,14 @@ select exists (select 1 from information_schema.columns where table_schema = 'pu
 select exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'purchases' and column_name = 'entitlement_expires_at') as entitlement_expiry_exists;
 select exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'generations' and column_name = 'expires_at') as generation_expiry_exists;
 select exists (select 1 from pg_indexes where schemaname = 'public' and indexname = 'purchases_one_active_exclusive_reservation') as exclusive_reservation_index_exists;
-select not exists (select 1 from pg_indexes where schemaname = 'public' and tablename = 'purchases' and indexdef ilike '%where%status = ''paid''%') as no_global_paid_purchase_constraint;
+-- Only a *unique* partial index over paid purchases would globally serialize
+-- fulfillment. Ordinary partial indexes on `status = 'paid'` are expected.
+select not exists (
+  select 1 from pg_indexes
+  where schemaname = 'public' and tablename = 'purchases'
+    and indexdef ilike 'create unique index%'
+    and indexdef ilike '%where%status = ''paid''%'
+) as no_global_paid_purchase_constraint;
 select exists (select 1 from pg_proc where proname = 'reserve_artwork') as reserve_artwork_exists;
 select exists (select 1 from pg_proc where proname = 'request_generation') as request_generation_exists;
 select exists (select 1 from pg_proc where proname = 'reap_stale_generations') as reap_stale_generations_exists;
@@ -44,12 +51,117 @@ select reloptions @> array['security_invoker=true']
 from pg_class where oid = 'public.catalog_artworks'::regclass;
 select not has_table_privilege('anon', 'public.catalog_artworks', 'SELECT') as anon_catalog_view_revoked;
 select not has_table_privilege('authenticated', 'public.catalog_artworks', 'SELECT') as authenticated_catalog_view_revoked;
+select to_regprocedure('public.refund_purchase(uuid)') is null as unverified_refund_rpc_dropped;
+select to_regprocedure('public.restore_purchase_access(uuid,text)') is not null as dispute_restoration_rpc_exists;
 
--- Fail the script when a hardened contract is absent. The result-only checks
--- above remain useful in CI logs; this block makes the file executable as a
--- launch gate rather than relying on a human to notice a `false` row.
+-- Fail the script when a hardened contract is absent. The scalar selects above
+-- print to CI logs; every one of them is re-asserted here so a regression
+-- raises instead of relying on a human to notice a `false` row.
 do $contract$
 begin
+  if to_regclass('public.inquiries') is null
+    or to_regclass('public.analytics_events') is null then
+    raise exception 'required ARTCOVR tables are missing';
+  end if;
+  if not exists (select 1 from pg_type where typname = 'sale_mode')
+    or not exists (select 1 from pg_type where typname = 'generation_status')
+    or not exists (select 1 from pg_type where typname = 'purchase_status')
+    or not exists (select 1 from pg_type where typname = 'generation_phase') then
+    raise exception 'required ARTCOVR enum types are missing';
+  end if;
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'purchases'
+      and column_name in ('selected_preview_generation_id', 'entitlement_expires_at')
+    having count(*) = 2
+  ) then
+    raise exception 'purchase entitlement snapshot columns are missing';
+  end if;
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'generations' and column_name = 'expires_at'
+  ) then
+    raise exception 'generation expiry column is missing';
+  end if;
+  if not exists (
+    select 1 from pg_indexes
+    where schemaname = 'public' and indexname = 'purchases_one_active_exclusive_reservation'
+  ) then
+    raise exception 'exclusive reservation index is missing';
+  end if;
+  if exists (
+    select 1 from pg_indexes
+    where schemaname = 'public' and tablename = 'purchases'
+      and indexdef ilike 'create unique index%'
+      and indexdef ilike '%where%status = ''paid''%'
+  ) then
+    raise exception 'a unique paid-purchase index would globally serialize fulfillment';
+  end if;
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'artworks'
+      and column_name = 'catalog_id' and is_nullable = 'NO'
+  ) then
+    raise exception 'stable catalog identifier is missing';
+  end if;
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'purchases'
+      and column_name in ('artwork_catalog_id', 'artwork_title') and is_nullable = 'NO'
+    having count(*) = 2
+  ) then
+    raise exception 'purchase catalog/title snapshots are missing';
+  end if;
+  if not exists (
+    select 1 from pg_indexes
+    where schemaname = 'public' and indexname = 'artworks_source_sha256_unique_idx'
+  ) then
+    raise exception 'unique artwork source hash index is missing';
+  end if;
+  if not exists (
+    select 1 from pg_constraint where conname = 'artworks_publication_integrity'
+  ) then
+    raise exception 'publication integrity constraint is missing';
+  end if;
+  if to_regprocedure('public.reserve_artwork(text,uuid,uuid,uuid)') is null
+    or to_regprocedure('public.request_generation(text,uuid,uuid,uuid,text,text,boolean)') is null
+    or to_regprocedure('public.settle_purchase_paid(uuid,text,text,integer,text)') is null
+    or to_regprocedure('public.reconcile_full_refund(uuid,text)') is null
+    or to_regprocedure('public.reap_stale_generations(timestamptz)') is null then
+    raise exception 'a required ARTCOVR RPC entrypoint is missing';
+  end if;
+  -- The pre-hardening refund path skipped PaymentIntent identity verification.
+  if to_regprocedure('public.refund_purchase(uuid)') is not null then
+    raise exception 'unverified refund_purchase RPC must not exist';
+  end if;
+  if to_regprocedure('public.restore_purchase_access(uuid,text)') is null then
+    raise exception 'dispute restoration RPC is missing';
+  end if;
+  if not (
+    select reloptions @> array['security_invoker=true']
+    from pg_class where oid = 'public.catalog_artworks'::regclass
+  ) then
+    raise exception 'catalog_artworks must remain a security-invoker view';
+  end if;
+  if has_table_privilege('anon', 'public.catalog_artworks', 'SELECT')
+    or has_table_privilege('authenticated', 'public.catalog_artworks', 'SELECT') then
+    raise exception 'browser roles must not read catalog_artworks directly';
+  end if;
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'purchases'
+      and column_name in ('reconciliation_attempts', 'next_reconcile_at', 'reconciliation_blocked_at')
+    having count(*) = 3
+  ) then
+    raise exception 'reconciliation backoff columns are missing';
+  end if;
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'stripe_events'
+      and column_name = 'processed_outcome'
+  ) then
+    raise exception 'stripe event outcome classification column is missing';
+  end if;
   if to_regclass('public.artworks') is null
     or to_regclass('public.generations') is null
     or to_regclass('public.purchases') is null

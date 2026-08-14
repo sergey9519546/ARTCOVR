@@ -11,7 +11,30 @@ type ExpiredPurchase = {
   amount_cents: number;
   currency: string;
   stripe_checkout_session_id: string | null;
+  reconciliation_attempts: number | null;
 };
+
+// A reservation that cannot be reconciled must not hold one of the five batch
+// slots on every run. Each non-terminal attempt is deferred with exponential
+// backoff, and a row that has burned through every attempt is quarantined for
+// manual review instead of starving newer reservations forever.
+const MAXIMUM_BACKOFF_MINUTES = 60;
+const QUARANTINE_ATTEMPTS = 20;
+const TERMINAL_OUTCOMES = new Set(["expired", "refunded", "paid"]);
+
+function backoffAt(attempts: number) {
+  const minutes = Math.min(2 ** Math.min(attempts, 30), MAXIMUM_BACKOFF_MINUTES);
+  return new Date(Date.now() + minutes * 60_000).toISOString();
+}
+
+async function recordAttempt(purchaseId: string, patch: Record<string, unknown>) {
+  const { error } = await admin.from("purchases").update(patch).eq("id", purchaseId);
+  if (error) {
+    // Losing a backoff write only costs one redundant attempt next minute; it
+    // must never mask the reconciliation outcome already computed above.
+    console.error("Reconciliation bookkeeping failed", { purchaseId, message: error.message });
+  }
+}
 
 async function expirePurchase(purchase: ExpiredPurchase) {
   const { error } = await admin.rpc("expire_purchase", {
@@ -94,28 +117,55 @@ Deno.serve(async (request) => {
     if (!secret || request.headers.get("x-cron-secret") !== secret) {
       throw new HttpError(401, "unauthorized", "Scheduler authentication failed.");
     }
+    const nowIso = new Date().toISOString();
     const { data, error } = await admin
       .from("purchases")
-      .select("id,amount_cents,currency,stripe_checkout_session_id")
+      .select("id,amount_cents,currency,stripe_checkout_session_id,reconciliation_attempts")
       .in("status", ["reserved", "pending"])
-      .lte("reservation_expires_at", new Date().toISOString())
+      .lte("reservation_expires_at", nowIso)
+      .is("reconciliation_blocked_at", null)
+      .or(`next_reconcile_at.is.null,next_reconcile_at.lte.${nowIso}`)
       .order("reservation_expires_at", { ascending: true })
       .limit(5);
     if (error) throw new HttpError(502, "reservation_scan_failed", "Expired reservations could not be scanned.");
 
     const results = await Promise.all(((data ?? []) as ExpiredPurchase[]).map(async (row) => {
+      const attempts = row.reconciliation_attempts ?? 0;
+      if (attempts >= QUARANTINE_ATTEMPTS) {
+        console.error("Expired reservation quarantined", { purchaseId: row.id, attempts });
+        await recordAttempt(row.id, { reconciliation_blocked_at: new Date().toISOString() });
+        return { purchaseId: row.id, outcome: "quarantined", failed: false, blocked: true };
+      }
       try {
-        return { purchaseId: row.id, outcome: await reconcile(row), failed: false };
+        const outcome = await reconcile(row);
+        if (TERMINAL_OUTCOMES.has(outcome)) {
+          await recordAttempt(row.id, { reconciliation_attempts: 0, next_reconcile_at: null });
+          return { purchaseId: row.id, outcome, failed: false, blocked: false };
+        }
+        await recordAttempt(row.id, {
+          reconciliation_attempts: attempts + 1,
+          next_reconcile_at: backoffAt(attempts),
+        });
+        return { purchaseId: row.id, outcome, failed: false, blocked: false };
       } catch (error) {
         const code = error instanceof HttpError ? error.code : "internal_error";
-        console.error("Expired reservation reconciliation failed", { purchaseId: row.id, code });
-        return { purchaseId: row.id, outcome: code, failed: true };
+        console.error("Expired reservation reconciliation failed", { purchaseId: row.id, code, attempts });
+        await recordAttempt(row.id, {
+          reconciliation_attempts: attempts + 1,
+          next_reconcile_at: backoffAt(attempts),
+        });
+        return { purchaseId: row.id, outcome: code, failed: true, blocked: false };
       }
     }));
-    if (results.some((result) => result.failed)) {
-      throw new HttpError(502, "reservation_reconciliation_failed", "One or more expired reservations require another reconciliation attempt.");
-    }
-    return json({ reconciled: results.map(({ purchaseId, outcome }) => ({ purchaseId, outcome })) });
+
+    // A partial failure is already durable in `reconciliation_attempts`, so the
+    // scheduler run itself succeeds. Returning 502 here only hid which rows
+    // failed behind an opaque retry of the whole batch.
+    return json({
+      reconciled: results.map(({ purchaseId, outcome }) => ({ purchaseId, outcome })),
+      failed: results.filter((result) => result.failed).length,
+      blocked: results.filter((result) => result.blocked).length,
+    });
   } catch (error) {
     return respondError(error);
   }

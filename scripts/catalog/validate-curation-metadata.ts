@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 type CuratedRecord = {
   title: string;
@@ -22,7 +23,7 @@ type CuratedRecord = {
   };
 };
 
-const projectRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname.slice(1)), "../..");
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const records = JSON.parse(
   await readFile(path.join(projectRoot, "catalog", "curated-artworks.json"), "utf8"),
 ) as CuratedRecord[];

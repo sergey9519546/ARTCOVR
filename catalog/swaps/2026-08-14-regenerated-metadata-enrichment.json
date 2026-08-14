@@ -1,0 +1,80 @@
+{
+  "artifact": "ARTCOVR regenerated-originals metadata enrichment",
+  "date": "2026-08-14",
+  "taxonomy": "artcovr.cover-taxonomy.v1",
+  "provenanceNote": "All values are curator visual review of the exact SHA-locked delivered image, expressed in artcovr.cover-taxonomy.v1 controlled terms where applicable. Visual confidence only, never rights confidence.",
+  "enrichments": [
+    {
+      "slug": "clocktower-vespers",
+      "keywords": ["crimson clocktower", "robed sentinels", "gothic city", "pale moon dial", "evening ritual", "subject:architectural_form", "motif:procession", "motif:moon_or_orb", "category:gothic_surrealism", "category:architectural_surrealism", "mood:solemn", "mood:foreboding", "palette:black_red", "lighting:low_key", "medium_texture:oil_like", "composition:centered_iconic", "composition:stacked_vertical", "era_aesthetic:gothic_revival"],
+      "palette": ["oxblood", "crimson", "umber", "charcoal", "ember orange"],
+      "lighting": "low-key dusk ambience; ember glow at the base gate; pale luminance held in the moon dial",
+      "mediumAndTexture": "oil-like layered surface, aged varnish haze, fine abrasion and analog grain",
+      "lineworkAndEdges": "soft painterly contours; massed dark silhouettes; atmospheric edge falloff into fog",
+      "compositionAndMotion": "centered monumental tower; twin robed sentinels flanking the base; vertical stack rising to a pale dial"
+    },
+    {
+      "slug": "wheel-of-quiet-relics",
+      "keywords": ["aged votive wheel", "carved bone figures", "teal jewel core", "cracked lacquer panel", "subject:abstract_form", "motif:skull_or_bone", "motif:geometric_symbol", "motif:repetition", "category:gothic_surrealism", "mood:austere", "mood:enigmatic", "palette:earth_tones", "lighting:spotlight", "lighting:low_key", "medium_texture:distressed_surface", "composition:centered_iconic", "composition:circular_frame", "era_aesthetic:symbolist"],
+      "palette": ["deep umber", "bone ivory", "verdigris teal", "lamp black"],
+      "lighting": "single quiet spotlight over a dark field; low-key falloff to near black at the corners",
+      "mediumAndTexture": "distressed lacquered panel, hairline cracking, waxed patina over carved relief",
+      "lineworkAndEdges": "incised radial spokes; small carved figures with worn, softened edges",
+      "compositionAndMotion": "centered circular relic on a square dark field; eight-fold radial repetition around a single teal core"
+    },
+    {
+      "slug": "the-stitched-icon",
+      "keywords": ["riveted mask visage", "stitched shroud", "museum patina", "quiet menace", "subject:masked_figure", "motif:mask", "category:gothic_surrealism", "category:figurative_surrealism", "mood:austere", "mood:haunting", "palette:muted_neutrals", "lighting:chiaroscuro", "lighting:low_key", "medium_texture:oil_like", "medium_texture:distressed_surface", "composition:close_portrait", "composition:single_focal", "era_aesthetic:dark_romantic"],
+      "palette": ["ash grey", "tarnished silver", "bone", "iron black"],
+      "lighting": "chiaroscuro side light over metal; deep shadow pooling in the seam lines",
+      "mediumAndTexture": "oil-like rendering of hammered metal and coarse stitched cloth; conservation-grade patina",
+      "lineworkAndEdges": "hard riveted seams against frayed textile edges; crisp central mask, soft dark ground",
+      "compositionAndMotion": "close frontal portrait; sealed oval mask as the single focal point; motionless, held stillness"
+    },
+    {
+      "slug": "choir-of-falling-light",
+      "keywords": ["pale reef cliff", "descending light pillars", "night valley", "slow procession", "subject:landscape", "motif:vast_scale", "motif:procession", "category:gothic_surrealism", "category:cosmic_surrealism", "mood:transcendent", "mood:melancholic", "palette:blue_black", "lighting:volumetric_beam", "lighting:low_key", "medium_texture:oil_like", "composition:monumental_scale", "composition:tiny_figure_vast_space", "era_aesthetic:dark_romantic"],
+      "palette": ["midnight blue", "pale bone", "cold cyan", "ember specks"],
+      "lighting": "thin volumetric beams falling from the ridge; small warm ground fires against a low-key night",
+      "mediumAndTexture": "oil-like painterly atmosphere, granular mist, soft mineral texture in the cliff mass",
+      "lineworkAndEdges": "feathered organic cliff contours; hairline vertical beams; dissolving horizon edges",
+      "compositionAndMotion": "monumental pale cliff over a dark valley; slow vertical descent of light toward scattered small fires"
+    },
+    {
+      "slug": "pilgrim-of-the-prism-dawn",
+      "keywords": ["seated pilgrim", "woven gold halo", "prismatic sash", "desert dusk", "small lantern", "subject:veiled_figure", "subject:solitary_figure", "motif:aureole", "category:figurative_surrealism", "mood:contemplative", "mood:transcendent", "palette:black_gold", "palette:warm_cool_split", "lighting:luminous_aura", "medium_texture:painterly", "composition:centered_iconic", "composition:symmetrical", "era_aesthetic:symbolist"],
+      "palette": ["black robe", "woven gold", "rose dawn", "prismatic ribbon", "desert ochre"],
+      "lighting": "self-carried luminous aura; concentric gold halo against a rose-to-amber dusk gradient",
+      "mediumAndTexture": "painterly matte surface with fine speckled grain and soft cloth folds",
+      "lineworkAndEdges": "calm rounded robe contours; precise concentric halo rings; delicate desert scrub detail",
+      "compositionAndMotion": "centered seated figure in near symmetry; radial calm around a single prismatic diagonal sash"
+    },
+    {
+      "slug": "the-dune-observatory",
+      "keywords": ["cracked dome observatory", "orange dune sea", "winding causeway", "twin moons", "subject:architectural_form", "subject:landscape", "motif:moon_or_orb", "motif:vast_scale", "category:architectural_surrealism", "category:speculative_surrealism", "mood:dreamlike", "mood:contemplative", "palette:sepia_ochre", "lighting:high_key", "medium_texture:smooth_render", "composition:tiny_figure_vast_space", "composition:deep_perspective", "era_aesthetic:midcentury_surreal"],
+      "palette": ["dune ochre", "weathered white", "rust dial", "hazy teal sea", "pale sky"],
+      "lighting": "even high-key desert daylight; soft shadow modelling on the dome's cracked shell",
+      "mediumAndTexture": "smooth matte rendering with subtle grain; chalky weathered masonry and drifting sand",
+      "lineworkAndEdges": "clean arched causeway rhythm; rounded dome silhouette; soft dune ridgelines",
+      "compositionAndMotion": "deep perspective causeway winding to a monumental dome; two tiny walkers set the scale beneath twin moons"
+    },
+    {
+      "slug": "cloud-chamber-communion",
+      "keywords": ["three lantern-lit figures", "blue cloud pool", "observatory chamber", "shared thread", "subject:figure_group", "motif:moon_or_orb", "motif:levitation", "category:figurative_surrealism", "category:cosmic_surrealism", "mood:dreamlike", "mood:otherworldly", "palette:high_chroma", "palette:blue_black", "lighting:self_luminous", "lighting:luminous_aura", "medium_texture:painterly", "composition:tableau", "era_aesthetic:psychedelic_graphic"],
+      "palette": ["electric ultramarine", "iridescent rose", "pale mint", "deep violet shadow"],
+      "lighting": "self-luminous robes and a raised orb lamp lighting the chamber from within the figures",
+      "mediumAndTexture": "painterly luminous glazing; billowing soft cloud masses against dark ironwork",
+      "lineworkAndEdges": "glowing figure contours; looping shared thread line; dissolving cloud edges",
+      "compositionAndMotion": "three-figure tableau around a sunken cloud pool; gentle upward pull toward the raised orb"
+    },
+    {
+      "slug": "herald-of-the-orbit-bloom",
+      "keywords": ["coral-robed herald", "orbiting bloom mask", "released doves", "alpine meadow", "subject:masked_figure", "subject:solitary_figure", "motif:mask", "motif:repetition", "category:figurative_surrealism", "category:biomorphic_surrealism", "mood:dreamlike", "mood:uncanny", "palette:high_chroma", "palette:cyan_orange", "lighting:high_key", "medium_texture:oil_like", "composition:centered_iconic", "composition:full_figure", "era_aesthetic:midcentury_surreal"],
+      "palette": ["coral red", "cobalt mask", "meadow green", "cloud white", "sky cyan"],
+      "lighting": "bright high-key alpine daylight with crisp cumulus backlight",
+      "mediumAndTexture": "oil-like folk-painting surface; fine fabric pleats and dotted floral detail",
+      "lineworkAndEdges": "bold simplified figure outline; orbiting bloom spheres on thin stalks; sharp dove silhouettes",
+      "compositionAndMotion": "centered full-figure herald on a rising meadow; radial bloom orbit around the head; doves ascending right"
+    }
+  ]
+}

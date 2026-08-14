@@ -357,6 +357,15 @@ for (const [position, selection] of launchSelection.entries()) {
     const record = conceptByHash.get(selection.sourceSha256 ?? "");
     if (!record) throw new Error(`Missing concept shortlist hash ${selection.sourceSha256}.`);
     source = normalizeReviewed("concept_reference_art", record);
+  } else if (selection.sourcePool === "regenerated_originals") {
+    // Regenerated originals are not resolvable from the direct-use pools: they
+    // are new works delivered against an owner regeneration brief, and their
+    // catalog rows are produced by scripts/catalog/swap-launch-works.ts from
+    // the delivered file itself. Re-deriving them here would require inventing
+    // source metadata, so this curation path refuses instead.
+    throw new Error(
+      `Selection ${selection.sourceSha256} uses the regenerated_originals pool; run scripts/catalog/swap-launch-works.ts with its swap spec instead of re-curating it from the direct-use pools.`,
+    );
   } else {
     const record = downloadByHash.get(selection.sourceSha256 ?? "");
     if (!record) throw new Error(`Missing download shortlist hash ${selection.sourceSha256}.`);

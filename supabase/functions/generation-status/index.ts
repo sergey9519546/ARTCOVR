@@ -3,6 +3,42 @@ import { HttpError, privateJson, respondError } from "../_shared/errors.ts";
 import { admin, readJson, requireUser } from "../_shared/supabase.ts";
 import { signPrivate } from "../_shared/storage.ts";
 
+type CatalogArtworkRow = {
+  catalog_object_key: string | null;
+  is_listed: boolean | null;
+  published_at: string | null;
+  rights_approved_at: string | null;
+  publication_approved_at: string | null;
+  sold_at: string | null;
+  source_sha256: string | null;
+  source_width: number | null;
+  source_height: number | null;
+  source_bytes: number | string | null;
+  source_mime_type: string | null;
+};
+
+// The exact predicate set of the `catalog_artworks` view. That view is revoked
+// from every browser role, so this endpoint re-states it rather than reading it,
+// and an artwork missing technical provenance stays invisible here too.
+function isPubliclyVisible(artwork: CatalogArtworkRow | null): boolean {
+  if (!artwork) return false;
+  return artwork.is_listed === true
+    && typeof artwork.published_at === "string"
+    && new Date(artwork.published_at).getTime() <= Date.now()
+    && Boolean(artwork.rights_approved_at)
+    && Boolean(artwork.publication_approved_at)
+    && !artwork.sold_at
+    && typeof artwork.source_sha256 === "string"
+    && /^[0-9a-f]{64}$/.test(artwork.source_sha256)
+    && typeof artwork.source_width === "number"
+    && artwork.source_width >= 1024
+    && artwork.source_height === artwork.source_width
+    && Number(artwork.source_bytes) > 0
+    && (artwork.source_mime_type === "image/jpeg" || artwork.source_mime_type === "image/png")
+    && typeof artwork.catalog_object_key === "string"
+    && artwork.catalog_object_key.trim().length > 0;
+}
+
 Deno.serve(async (request) => {
   const options = preflight(request); if (options) return options;
   try {
@@ -15,13 +51,13 @@ Deno.serve(async (request) => {
     const artworkId = request.method === "GET" ? query.get("artworkId") : body?.artworkId;
     if (!generationId && artworkId) {
       const { data: artwork } = await admin.from("artworks")
-        .select("catalog_object_key,is_listed,published_at,rights_approved_at,publication_approved_at,sold_at")
+        .select("catalog_object_key,is_listed,published_at,rights_approved_at,publication_approved_at,sold_at,source_sha256,source_width,source_height,source_bytes,source_mime_type")
         .eq("catalog_id", artworkId).single();
-      if (!artwork || !artwork.is_listed || !artwork.published_at || new Date(artwork.published_at) > new Date()
-        || !artwork.rights_approved_at || !artwork.publication_approved_at || artwork.sold_at) {
+      const catalogArtwork = artwork as CatalogArtworkRow | null;
+      if (!isPubliclyVisible(catalogArtwork)) {
         throw new HttpError(404, "artwork_not_found", "Artwork was not found.");
       }
-      return privateJson({ artworkId, catalogUrl: await signPrivate(artwork.catalog_object_key, 300) });
+      return privateJson({ artworkId, catalogUrl: await signPrivate(catalogArtwork!.catalog_object_key!, 300) });
     }
     const user = await requireUser(request);
     if (!generationId) throw new HttpError(400, "invalid_request", "generationId is required.");

@@ -7,7 +7,10 @@ Deno.serve(async (request) => {
     if (request.method !== "POST") throw new HttpError(405, "method_not_allowed", "Use POST.");
     const secret = Deno.env.get("CRON_SECRET");
     if (!secret || request.headers.get("x-cron-secret") !== secret) throw new HttpError(401, "unauthorized", "Scheduler authentication failed.");
-    const cutoff = new Date(Date.now() - 135_000).toISOString();
+    // Must exceed the worst-case worker budget: the 130s provider ceiling plus
+    // a 15s watermark render plus a 30s finalization margin. A shorter cutoff
+    // reaped live jobs and released allowance a running worker still owned.
+    const cutoff = new Date(Date.now() - 180_000).toISOString();
     const { data, error } = await admin.rpc("reap_stale_generations", { p_before: cutoff });
     if (error) throw new HttpError(502, "watchdog_failed", "Timed-out generation cleanup failed.");
     const timedOut = (data ?? []) as Array<{ generation_id: string; artwork_id: string }>;

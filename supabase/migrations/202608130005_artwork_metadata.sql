@@ -1,3 +1,25 @@
+-- array_to_string(anyarray, text) is only STABLE, which Postgres rejects inside
+-- a generated column expression. This strict immutable text[] join is safe:
+-- text output does not depend on session state.
+create function public.immutable_text_array_join(p_values text[])
+returns text
+immutable
+strict
+parallel safe
+language sql
+as $$ select array_to_string(p_values, ' ') $$;
+
+-- Repo convention: no public-schema function is executable by PUBLIC. This one
+-- is pure text formatting, but the ACL must not be the single exception.
+revoke all on function public.immutable_text_array_join(text[])
+  from public, anon, authenticated;
+-- 202608110004's `grant execute on all functions in schema public to
+-- service_role` already ran, so this function is not covered by it. The
+-- artworks.search_vector generated column is evaluated with the *writer's*
+-- privileges, so without this grant every service_role insert or update on
+-- artworks fails with "permission denied for function".
+grant execute on function public.immutable_text_array_join(text[]) to service_role;
+
 alter table public.artworks
   add column style_id citext,
   add column category text,
@@ -22,8 +44,8 @@ alter table public.artworks
     setweight(to_tsvector('english', coalesce(title, '')), 'A')
     || setweight(to_tsvector('english', coalesce(description, '')), 'A')
     || setweight(to_tsvector('english', coalesce(category, '')), 'B')
-    || setweight(to_tsvector('english', array_to_string(mood_tags, ' ')), 'B')
-    || setweight(to_tsvector('english', array_to_string(keywords, ' ')), 'B')
+    || setweight(to_tsvector('english', public.immutable_text_array_join(mood_tags)), 'B')
+    || setweight(to_tsvector('english', public.immutable_text_array_join(keywords)), 'B')
     || setweight(to_tsvector('english', coalesce(search_document, '')), 'C')
   ) stored,
   add constraint artworks_source_square check (

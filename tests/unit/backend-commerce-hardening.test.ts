@@ -3,7 +3,9 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   RasterValidationError,
+  digestsMatch,
   inspectWebp,
+  sha256Hex,
   validateSquareWebp,
 } from "../../supabase/functions/_shared/raster.ts";
 
@@ -144,6 +146,194 @@ test("refund and dispute paths revoke future clean access durably", async () => 
   assert.doesNotMatch(webhook, /payload: event/);
   assert.match(migration, /access_revoked_at = now\(\)/);
   assert.match(status, /!purchase\.access_revoked_at/);
+});
+
+test("content digests distinguish a watermarked preview from its clean original", async () => {
+  const clean = structuralWebp(1024);
+  const watermarked = clean.slice();
+  watermarked[watermarked.length - 1] ^= 0x01;
+
+  const cleanDigest = await sha256Hex(clean);
+  const passthroughDigest = await sha256Hex(clean.slice());
+  const watermarkedDigest = await sha256Hex(watermarked);
+
+  assert.match(cleanDigest, /^[0-9a-f]{64}$/);
+  assert.equal(await sha256Hex(Uint8Array.of()), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+  // A renderer that proxies its input produces byte-identical output.
+  assert.ok(digestsMatch(cleanDigest, passthroughDigest));
+  assert.ok(!digestsMatch(cleanDigest, watermarkedDigest));
+  assert.ok(!digestsMatch(cleanDigest, cleanDigest.slice(0, 63)));
+  assert.ok(digestsMatch("", ""));
+});
+
+test("the worker refuses a watermark renderer that returns the clean image", async () => {
+  const worker = await read("supabase/functions/generate-image/index.ts");
+  const raster = await read("supabase/functions/_shared/raster.ts");
+  assert.match(raster, /export async function sha256Hex/);
+  assert.match(raster, /export function digestsMatch/);
+  assert.match(worker, /sha256Hex\(result\.bytes\)/);
+  assert.match(worker, /sha256Hex\(watermarked\)/);
+  assert.match(worker, /digestsMatch\(cleanDigest, previewDigest\)/);
+  assert.match(worker, /"watermark_passthrough"/);
+  // The passthrough check must precede the preview upload so a clean original
+  // is never stored under the watermarked preview key.
+  const check = worker.indexOf("digestsMatch(cleanDigest, previewDigest)");
+  const previewUpload = worker.indexOf("uploadPrivate(keys.preview", check);
+  assert.ok(check > 0 && previewUpload > check, "passthrough must be detected before the preview upload");
+});
+
+test("the generation watchdog cutoff exceeds the worst-case worker budget", async () => {
+  const watchdog = await read("supabase/functions/generation-watchdog/index.ts");
+  const openai = await read("supabase/functions/_shared/openai-images.ts");
+  const migration = await read("supabase/migrations/202608140009_convergence_hardening.sql");
+  assert.match(watchdog, /Date\.now\(\) - 180_000/);
+  assert.doesNotMatch(watchdog, /Date\.now\(\) - 135_000/);
+  assert.match(openai, /maximumImageTimeoutMs = 130_000/);
+  assert.match(openai, /configured <= maximumImageTimeoutMs/);
+  assert.match(migration, /interval '180 seconds'/);
+  // 130s provider ceiling + 15s watermark render + 30s margin < 180s cutoff.
+  assert.ok(130_000 + 15_000 + 30_000 < 180_000);
+});
+
+test("stripe-webhook converges terminal no-op outcomes on 200 and records why", async () => {
+  const webhook = await read("supabase/functions/stripe-webhook/index.ts");
+  const migration = await read("supabase/migrations/202608140009_convergence_hardening.sql");
+  assert.match(migration, /add column processed_outcome text/);
+  assert.match(webhook, /async function markProcessed\(eventId: string, outcome: string\)/);
+  assert.match(webhook, /processed_outcome: outcome\.slice\(0, 120\)/);
+  // A refund or dispute on a PaymentIntent this project does not own is
+  // terminal, not a retryable conflict.
+  assert.match(webhook, /markProcessed\(event\.id, "foreign_event"\)/);
+  assert.doesNotMatch(webhook, /refund_purchase_not_found/);
+  assert.match(webhook, /markProcessed\(event\.id, "already_terminal"\)/);
+  assert.match(webhook, /\["not_paid", "unknown"\]\.includes\(revoked\)/);
+  // Only a refunded settlement is convergent. `invalid_state` means Stripe took
+  // money for a row that cannot be settled (typically `expired`), which no
+  // watchdog rescans, so it must stay unprocessed and keep Stripe retrying.
+  assert.match(webhook, /if \(data === "refunded"\) \{\s*\n\s*await markProcessed\(event\.id, "superseded"\)/);
+  assert.doesNotMatch(webhook, /\["refunded", "invalid_state"\]\.includes\(data\)/);
+  // `invalid_state` reaches no markProcessed call at all; it falls through.
+  assert.doesNotMatch(webhook, /invalid_state"\][^\n]*\)\s*\{\s*\n\s*await markProcessed/);
+  assert.match(webhook, /if \(!\["paid", "already_paid"\]\.includes\(data\)\) \{\s*\n\s*throw new HttpError\(409, "fulfillment_conflict"/);
+  assert.match(webhook, /markProcessed\(event\.id, "partial_refund_unsupported"\)/);
+  assert.match(webhook, /markProcessed\(event\.id, "unsupported_event"\)/);
+  // Identity verification still precedes every state change.
+  assert.match(webhook, /payment\.metadata\?\.purchase_id !== purchase\.id[\s\S]*dispute_purchase_mismatch/);
+});
+
+test("dispute resolution falls back to PaymentIntent metadata like the refund path", async () => {
+  const webhook = await read("supabase/functions/stripe-webhook/index.ts");
+  const stripe = await read("supabase/functions/_shared/stripe.ts");
+  // `stripe_payment_intent_id` is only written at settlement, so resolving a
+  // dispute by that column alone can miss and permanently misclassify a real
+  // ARTCOVR purchase as `foreign_event`.
+  assert.match(stripe, /payment_intent_data\[metadata\]\[purchase_id\]/);
+  const resolveStart = webhook.indexOf("async function resolveDisputedPurchase");
+  const resolveEnd = webhook.indexOf("Deno.serve", resolveStart);
+  assert.ok(resolveStart > 0 && resolveEnd > resolveStart, "resolveDisputedPurchase must exist");
+  const resolve = webhook.slice(resolveStart, resolveEnd);
+  assert.match(resolve, /\.eq\("stripe_payment_intent_id", payment\.id\)/);
+  assert.match(
+    resolve,
+    /if \(!purchase && payment\.metadata\?\.purchase_id\) \{\s*\n\s*purchase = await getPurchaseById\(payment\.metadata\.purchase_id\);/,
+  );
+  // The fallback lookup is by id, so identity must still be proven afterwards.
+  const fallback = resolve.indexOf("getPurchaseById(payment.metadata.purchase_id)");
+  const verification = resolve.indexOf("payment.metadata?.purchase_id !== purchase.id", fallback);
+  assert.ok(verification > fallback, "the metadata fallback must still be identity-verified");
+});
+
+test("a won dispute restores exactly what charge.dispute.created revoked", async () => {
+  const webhook = await read("supabase/functions/stripe-webhook/index.ts");
+  const migration = await read("supabase/migrations/202608140009_convergence_hardening.sql");
+  assert.match(webhook, /"charge\.dispute\.closed",/);
+  assert.match(webhook, /dispute\.status !== "won"/);
+  assert.match(webhook, /admin\.rpc\("restore_purchase_access"/);
+  assert.match(webhook, /restored === "not_revoked"/);
+  assert.match(webhook, /markProcessed\(event\.id, "dispute_not_won"\)/);
+  assert.match(migration, /create or replace function public\.restore_purchase_access/);
+  assert.match(migration, /access_revocation_reason is distinct from 'payment_dispute'[\s\S]*return 'mismatch'/);
+  assert.match(migration, /v_purchase\.status <> 'paid' then return 'mismatch'/);
+  assert.match(migration, /access_revoked_at is null then return 'not_revoked'/);
+  assert.match(migration, /set access_revoked_at = null,\s*access_revocation_reason = null/);
+  assert.match(migration, /grant execute on function public\.restore_purchase_access\(uuid, text\) to service_role/);
+});
+
+test("commerce watchdog defers unreconcilable rows instead of starving the batch", async () => {
+  const watchdog = await read("supabase/functions/commerce-watchdog/index.ts");
+  const migration = await read("supabase/migrations/202608140009_convergence_hardening.sql");
+  assert.match(migration, /add column reconciliation_attempts integer not null default 0/);
+  assert.match(migration, /add column next_reconcile_at timestamptz/);
+  assert.match(migration, /add column reconciliation_blocked_at timestamptz/);
+  assert.match(watchdog, /next_reconcile_at\.is\.null,next_reconcile_at\.lte\./);
+  assert.match(watchdog, /\.is\("reconciliation_blocked_at", null\)/);
+  assert.match(watchdog, /\.limit\(5\)/);
+  assert.match(watchdog, /order\("reservation_expires_at", \{ ascending: true \}\)/);
+  assert.match(watchdog, /MAXIMUM_BACKOFF_MINUTES = 60/);
+  assert.match(watchdog, /QUARANTINE_ATTEMPTS = 20/);
+  assert.match(watchdog, /Math\.min\(2 \*\* Math\.min\(attempts, 30\), MAXIMUM_BACKOFF_MINUTES\)/);
+  assert.match(watchdog, /reconciliation_attempts: attempts \+ 1/);
+  assert.match(watchdog, /reconciliation_attempts: 0, next_reconcile_at: null/);
+  assert.match(watchdog, /reconciliation_blocked_at: new Date\(\)\.toISOString\(\)/);
+  // A partial failure is durable in the row; the run itself still succeeds.
+  assert.doesNotMatch(watchdog, /reservation_reconciliation_failed/);
+  assert.match(watchdog, /failed: results\.filter/);
+  assert.match(watchdog, /blocked: results\.filter/);
+  assert.match(watchdog, /"unauthorized", "Scheduler authentication failed\."/);
+});
+
+test("reserve_artwork returns exactly one row and rate-limits reservation floods", async () => {
+  const migration = await read("supabase/migrations/202608140009_convergence_hardening.sql");
+  const start = migration.indexOf("create or replace function public.reserve_artwork");
+  const end = migration.indexOf("create or replace function public.restore_purchase_access");
+  assert.ok(start > 0 && end > start, "the new migration must redefine reserve_artwork");
+  const reserve = migration.slice(start, end);
+
+  const branches = reserve.match(/return query select[^;]*;/g) ?? [];
+  assert.ok(branches.length >= 12, `expected every conflict branch, found ${branches.length}`);
+  let cursor = 0;
+  for (const branch of branches) {
+    const at = reserve.indexOf(branch, cursor);
+    assert.match(
+      reserve.slice(at + branch.length),
+      /^\s*return;/,
+      `conflict branch must return exactly one row: ${branch}`,
+    );
+    cursor = at + branch.length;
+  }
+
+  assert.match(reserve, /interval '45 minutes'/);
+  assert.doesNotMatch(reserve, /interval '31 minutes'/);
+  assert.match(reserve, /'reservation_rate_limited'/);
+  // Flood control is an abuse ceiling, not a usage budget: a multi-cover buyer
+  // and a shopper who abandons a few checkouts must both stay under it, since
+  // there is no cancel path and a reservation holds for 45 minutes.
+  assert.match(reserve, /abandoned\.status = 'expired'[\s\S]*abandoned\.stripe_payment_intent_id is null[\s\S]*interval '24 hours'[\s\S]*>= 20/);
+  assert.match(reserve, /live\.status in \('reserved', 'pending'\)[\s\S]*live\.reservation_expires_at > now\(\)[\s\S]*>= 8/);
+  assert.doesNotMatch(reserve, /interval '24 hours'\s*\n?\s*\) >= 5/);
+  assert.doesNotMatch(reserve, /live\.reservation_expires_at > now\(\)\s*\n?\s*\) >= 3/);
+  // Flood control must never reject an idempotent retry of an existing row.
+  const idempotent = reserve.indexOf("'existing'");
+  const floodControl = reserve.indexOf("'reservation_rate_limited'");
+  assert.ok(idempotent > 0 && floodControl > idempotent, "flood control must run only for a new reservation");
+});
+
+test("create-checkout validates request shape and distinguishes reservation refusals", async () => {
+  const checkout = await read("supabase/functions/create-checkout/index.ts");
+  assert.match(checkout, /const UUID_PATTERN = /);
+  assert.match(checkout, /const CATALOG_ID_PATTERN = \/\^\[a-z0-9\]\[a-z0-9_-\]\{2,95\}\$\//);
+  assert.match(checkout, /!UUID_PATTERN\.test\(body\.idempotencyKey\)[\s\S]*idempotencyKey must be a UUID/);
+  assert.match(checkout, /!UUID_PATTERN\.test\(body\.selectedPreviewId\)/);
+  assert.match(checkout, /!CATALOG_ID_PATTERN\.test\(body\.artworkId\)/);
+  assert.match(checkout, /429,\s*"reservation_rate_limited"/);
+  assert.match(
+    checkout,
+    /409,\s*"selected_preview_conflict",\s*"Your active checkout for this artwork uses a different selected preview\. Complete or wait for that checkout to expire, then try again\."/,
+  );
+  // Shape validation must precede the reservation RPC.
+  const validation = checkout.indexOf("CATALOG_ID_PATTERN.test(body.artworkId)");
+  const reserve = checkout.indexOf('admin.rpc("reserve_artwork"');
+  assert.ok(validation > 0 && reserve > validation, "request shape must be validated before reserving");
 });
 
 test("watchdog has executable Vault-backed scheduler provisioning", async () => {

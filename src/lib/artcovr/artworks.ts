@@ -1,5 +1,6 @@
 import curatedPublic from "./curated-public.json" with { type: "json" };
-import curatedReview from "./curated-review.json" with { type: "json" };
+import curatedReview from "#staging-catalog" with { type: "json" };
+import stagingIntroJson from "#staging-intro" with { type: "json" };
 import { selectPublicCatalog } from "./catalog-visibility.ts";
 
 export type Artwork = {
@@ -26,13 +27,40 @@ export type Artwork = {
  * Public production routes must use `artworks`, which includes only rows that
  * passed both rights and publication approval.
  */
-const curatedPublicTyped = curatedPublic as Artwork[];
-const curatedReviewTyped = curatedReview as Artwork[];
-export const stagingArtworks = curatedReviewTyped;
-const approvedPublicArtworks = selectPublicCatalog(curatedPublicTyped);
-export const artworks = approvedPublicArtworks.length > 0 ? approvedPublicArtworks : stagingArtworks;
 export const isPrivateStaging =
   process.env.NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING === "1";
+
+/**
+ * The unapproved review catalog may exist ONLY inside explicit private-staging
+ * builds. The conditional below is statically resolvable (NEXT_PUBLIC_* env is
+ * inlined at build time), so production bundles tree-shake the entire
+ * curated-review.json module: no unapproved slug, title, or image URL may ship
+ * in any public asset. scripts/catalog/verify-export-isolation.ts enforces
+ * this against the built export on every production build.
+ */
+/*
+ * The catalog JSON is validated at generation time (catalog-projection.ts /
+ * catalog-import.ts enforce sale modes, prices, and approval gates before a
+ * row can be projected), so the cast below is backed by a real pipeline gate.
+ * `satisfies` cannot be used here: TypeScript widens JSON string fields like
+ * saleMode to `string`, which fails against the literal union the moment the
+ * catalog is populated — the exact launch state.
+ */
+export const stagingArtworks: Artwork[] = isPrivateStaging
+  ? (curatedReview as Artwork[])
+  : [];
+const approvedPublicArtworks: Artwork[] = selectPublicCatalog(
+  curatedPublic as Artwork[],
+);
+/**
+ * Production catalog: strictly the rights- and publication-approved projection.
+ * There is deliberately NO fallback to the staging review catalog — an empty
+ * approved catalog must render an empty public storefront, never leak
+ * unapproved review works into public pages, the sitemap, or search indexing.
+ * The staging catalog is reachable only through the explicit
+ * NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING=1 owner-review flag.
+ */
+export const artworks = approvedPublicArtworks;
 
 export function balanceDisplayOrder<T extends { category: string }>(items: readonly T[]) {
   if (items.length < 2) return [...items];
@@ -93,17 +121,21 @@ export function searchArtworks(query: string, items: readonly Artwork[] = displa
   });
 }
 
-export function pickIntroArtworks(items: readonly Artwork[] = displayArtworks, count = 6) {
-  if (items.length <= count) return [...items];
+/**
+ * Intro preference slugs reference staging works, so the defaults may only
+ * exist in private-staging builds; production folds this to an empty list and
+ * relies on the category-priority fallback.
+ */
+export const stagingIntroSlugs: readonly string[] = isPrivateStaging
+  ? (stagingIntroJson as string[])
+  : [];
 
-  const preferredIntroSlugs = [
-    "cart-of-hours",
-    "last-sock-on-the-line",
-    "nesting-appliance",
-    "transit-diagram",
-    "corrupted-digital-dreamscape",
-    "velvet-moss-surrealism",
-  ];
+export function pickIntroArtworks(
+  items: readonly Artwork[] = displayArtworks,
+  count = 6,
+  preferredIntroSlugs: readonly string[] = stagingIntroSlugs,
+) {
+  if (items.length <= count) return [...items];
 
   const bySlug = new Map(items.map((item) => [item.slug, item]));
   const selected: Artwork[] = [];
@@ -151,6 +183,17 @@ export function pickIntroArtworks(items: readonly Artwork[] = displayArtworks, c
 
 export function getArtworkBySlug(slug: string) {
   return displayArtworks.find((artwork) => artwork.slug === slug);
+}
+
+/**
+ * Static export requires every dynamic route to emit at least one path.
+ * With an empty public catalog we emit a single sentinel slug whose page
+ * resolves to notFound(), keeping the export valid without publishing any
+ * unapproved artwork URL.
+ */
+export function getStaticCatalogParams(): { slug: string }[] {
+  if (displayArtworks.length === 0) return [{ slug: "catalog-pending" }];
+  return displayArtworks.map((artwork) => ({ slug: artwork.slug }));
 }
 
 export function getCheckoutTotal(priceCents: number | null) {

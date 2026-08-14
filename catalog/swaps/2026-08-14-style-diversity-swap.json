@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "swapId": "2026-08-14-style-diversity",
+  "date": "2026-08-14",
+  "directive": "Owner-directed style-cluster thinning: near-duplicate style clusters are capped at 2-3 works and the excess is replaced by reference-led regenerated originals. Each replacement inherits the removed work's launch position, priceCents, and saleMode, so the approved price ladder and the 50/50 exclusive/repeatable split are unchanged.",
+  "removalReason": "style_cluster_thinning_owner_directive_2026-08-14",
+  "sourcePool": "regenerated_originals",
+  "sourceDirectory": "/mnt/user-data/uploads/ARTCOVR/outputs/catalog/regen-picks",
+  "sourceMimeType": "image/png",
+  "reviewFlags": [
+    "regenerated_original_reference_led",
+    "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+  ],
+  "provenanceNote": "owner-directed swap 2026-08-14 (catalog/swaps/2026-08-14-style-diversity-swap.json); these counts describe the last workbook import run, not the current catalog/approved-artworks.json artifact; formal workbook re-import pending",
+  "works": [
+    {
+      "replaces": "nesting-appliance",
+      "sourceFile": "a2de27b6021422e0.png",
+      "sha256": "a2de27b6021422e09b8999fe305db3ca2d81b4b85a106d0c726104641fb67db8",
+      "slug": "clocktower-vespers",
+      "title": "Clocktower Vespers",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "solemn",
+        "monumental",
+        "nocturnal"
+      ],
+      "description": "crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual",
+      "series": "gothic_surrealism"
+    },
+    {
+      "replaces": "tempest-teacup",
+      "sourceFile": "e114dbcce2588ae7.png",
+      "sha256": "e114dbcce2588ae7f0b896096c5932e0b44c37819a03869214dda28b74bb46fc",
+      "slug": "wheel-of-quiet-relics",
+      "title": "Wheel of Quiet Relics",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "ritual",
+        "weathered",
+        "arcane"
+      ],
+      "description": "aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel",
+      "series": "gothic_surrealism"
+    },
+    {
+      "replaces": "suitcase-forecast",
+      "sourceFile": "9acb2bf21ff1f0f4.png",
+      "sha256": "9acb2bf21ff1f0f4a95432e299f0296262745020e3513076493862e11259fde2",
+      "slug": "the-stitched-icon",
+      "title": "The Stitched Icon",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "austere",
+        "haunting",
+        "sacred"
+      ],
+      "description": "riveted mask visage, stitched shroud, museum patina, quiet menace",
+      "series": "gothic_surrealism"
+    },
+    {
+      "replaces": "weather-under-the-umbrella",
+      "sourceFile": "944f68ea1dc73a7d.png",
+      "sha256": "944f68ea1dc73a7d1bbee7ee2257489b5911ca457f5c4bb1982bcde62b803701",
+      "slug": "choir-of-falling-light",
+      "title": "Choir of Falling Light",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "luminous",
+        "vast",
+        "elegiac"
+      ],
+      "description": "pale reef cliff, descending light pillars, night valley, slow procession",
+      "series": "gothic_surrealism"
+    },
+    {
+      "replaces": "ramen-orbit",
+      "sourceFile": "d8689878945e344a.png",
+      "sha256": "d8689878945e344a2a6e0d7ac79eb574180a0ed7faac311ce82cc301656cbf98",
+      "slug": "pilgrim-of-the-prism-dawn",
+      "title": "Pilgrim of the Prism Dawn",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "meditative",
+        "radiant",
+        "devotional"
+      ],
+      "description": "seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern",
+      "series": "modern_surrealism"
+    },
+    {
+      "replaces": "city-reflection-bowl",
+      "sourceFile": "6abeb3afbb63aeb3.png",
+      "sha256": "6abeb3afbb63aeb3706728d3332a501201904847245f89b315be2028530f7e82",
+      "slug": "the-dune-observatory",
+      "title": "The Dune Observatory",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "serene",
+        "monumental",
+        "wandering"
+      ],
+      "description": "cracked dome observatory, orange dune sea, winding causeway, twin moons",
+      "series": "modern_surrealism"
+    },
+    {
+      "replaces": "luminous-ethereal-pastel",
+      "sourceFile": "a50373a194fc24e4.png",
+      "sha256": "a50373a194fc24e48d32690cc13c65ba4952d628966b61f8a119e7d0440b3d55",
+      "slug": "cloud-chamber-communion",
+      "title": "Cloud Chamber Communion",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "luminous",
+        "gentle",
+        "otherworldly"
+      ],
+      "description": "three lantern-lit figures, blue cloud pool, observatory chamber, shared thread",
+      "series": "modern_surrealism"
+    },
+    {
+      "replaces": "luminous-ethereal-haze",
+      "sourceFile": "a75e86bdbba9d20b.png",
+      "sha256": "a75e86bdbba9d20ba692f79e0b511b3d83c25c3dc0f9127783bccc42693d7abd",
+      "slug": "herald-of-the-orbit-bloom",
+      "title": "Herald of the Orbit Bloom",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "playful",
+        "folkloric",
+        "vivid"
+      ],
+      "description": "coral-robed herald, orbiting bloom mask, released doves, alpine meadow",
+      "series": "modern_surrealism"
+    }
+  ]
+}

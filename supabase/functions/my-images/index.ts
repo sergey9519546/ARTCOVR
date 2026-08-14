@@ -104,7 +104,12 @@ Deno.serve(async (request) => {
         expiresAt: generation.expires_at,
       };
       const previewAllowed = generation.purchase_id === null || activePurchases.has(generation.purchase_id);
-      if (generation.status === "succeeded" && active && previewAllowed && generation.preview_object_key) {
+      // `account_assets` releases a selected preview for the full purchase
+      // entitlement, independent of the 7-day preview generation expiry. The
+      // watermarked preview follows the same rule so the account page never
+      // offers a clean download for a row it refuses to render.
+      const entitledPreview = selectedPreviews.has(generation.id);
+      if (generation.status === "succeeded" && (active || entitledPreview) && previewAllowed && generation.preview_object_key) {
         result.previewUrl = await optionalSignedUrl(generation.preview_object_key, `generation-preview:${generation.id}`);
       }
       const cleanAllowed =
@@ -135,7 +140,9 @@ Deno.serve(async (request) => {
         resetSource: "original" as const,
         accessRevokedAt: purchase.access_revoked_at,
         accessRevocationReason: purchase.access_revocation_reason,
-        remainingGenerations: purchase.status === "paid" && !purchase.access_revoked_at
+        // An elapsed entitlement leaves no generation allowance: `request_generation`
+        // rejects it, so the account page must not advertise remaining attempts.
+        remainingGenerations: activePurchases.has(purchase.id)
           ? Math.max(0, 4 - successfulPurchased)
           : 0,
       };

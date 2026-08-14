@@ -2,10 +2,10 @@ import { notFound } from "next/navigation";
 import { CheckoutReview } from "@/components/artcovr/CheckoutReview";
 import { SiteFooter } from "@/components/artcovr/SiteFooter";
 import { SiteHeader } from "@/components/artcovr/SiteHeader";
-import { displayArtworks, getArtworkBySlug } from "@/lib/artcovr/artworks";
+import { getArtworkBySlug, getStaticCatalogParams } from "@/lib/artcovr/artworks";
 
 export function generateStaticParams() {
-  return displayArtworks.map((artwork) => ({ slug: artwork.slug }));
+  return getStaticCatalogParams();
 }
 
 export default async function CheckoutPage({

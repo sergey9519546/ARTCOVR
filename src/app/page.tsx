@@ -20,6 +20,7 @@ import { SpiralScroll } from "@/components/parity/SpiralScroll";
 import { ThemeSwitcher } from "@/components/parity/ThemeSwitcher";
 import { TiltedCarousel } from "@/components/parity/TiltedCarousel";
 import { useLenis } from "@/hooks/artcovr/useLenis";
+import { displayArtworks } from "@/lib/artcovr/artworks";
 
 const STATIC_MEDIA_QUERY =
   "(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)";
@@ -146,6 +147,26 @@ export default function Home() {
         <ErrorBoundary label="hero">
           <Hero />
         </ErrorBoundary>
+        {displayArtworks.length === 0 ? (
+          <section
+            aria-label="Catalog status"
+            className="px-4 pb-24 lg:px-6"
+          >
+            <div className="border-y-2 border-current py-16">
+              <p className="text-[11px] font-bold uppercase tracking-[.1em]">
+                Launch in progress
+              </p>
+              <h2 className="mt-5 max-w-[16ch] text-4xl font-extrabold leading-[.9] tracking-tighter md:text-6xl">
+                The first approved collection is being prepared.
+              </h2>
+              <p className="mt-6 max-w-[52ch] text-sm leading-6">
+                Every ARTCOVR cover goes through explicit rights and publication
+                approval before it can appear here. The launch archive opens as
+                soon as the first works clear that review.
+              </p>
+            </div>
+          </section>
+        ) : null}
         <ErrorBoundary label="artwork-grid">
           <ProductGrid />
         </ErrorBoundary>

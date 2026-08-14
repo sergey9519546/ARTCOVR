@@ -10,6 +10,7 @@ const items = [
   { label: "Contact", href: "/contact" },
   { label: "FAQ", href: "/faq" },
   { label: "License", href: "/license" },
+  { label: "Sign in", href: "/sign-in" },
 ];
 
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
