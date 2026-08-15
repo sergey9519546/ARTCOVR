@@ -98,6 +98,16 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     let active = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
+    const fail = (error: unknown) => {
+      if (!active) return;
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Generation requires a signed-in, configured account.",
+      );
+      setPhase("error");
+    };
+
     const run = async () => {
       try {
         if (!jobId.current) {
@@ -141,19 +151,16 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             return;
           }
 
-          timer = setTimeout(poll, 2000);
+          // Only the first poll is awaited by the try below. Every re-entry is
+          // a fresh promise chain, so it has to route its own rejection into
+          // the same error path or a dropped network/expired token would strand
+          // `phase` on "generating" forever.
+          timer = setTimeout(() => void poll().catch(fail), 2000);
         };
 
         await poll();
       } catch (error) {
-        if (active) {
-          setMessage(
-            error instanceof Error
-              ? error.message
-              : "Generation requires a signed-in, configured account.",
-          );
-          setPhase("error");
-        }
+        fail(error);
       }
     };
 

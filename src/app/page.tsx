@@ -104,6 +104,37 @@ export default function Home() {
     if (destination) router.push(destination);
   }, [router]);
 
+  // Stable identities: MobileMenu's modal effect keys off its `onClose`, and an
+  // inline arrow recreated on every Home render would tear that effect down and
+  // rebuild it — restoring focus to the hamburger and re-capturing the inert
+  // baseline — every time an unrelated state change (a matchMedia update on
+  // rotate, say) re-renders this page.
+  const openPreloaderGate = useCallback(() => setPreloaderDone(true), []);
+  const toggleMenu = useCallback(() => setMenuOpen((open) => !open), []);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  // The intro and the page transition may block the page, but never
+  // indefinitely. Both only unblock it through a callback fired by a child, and
+  // every child here sits inside an <ErrorBoundary> that renders null on error
+  // — so a Preloader that throws after mount would leave the page permanently
+  // inert and aria-hidden, with `html.loaded` never applied (which keeps
+  // #header and #theme-switcher at opacity 0). These ceilings sit well past the
+  // children's own completion timings and are cleared the moment the normal
+  // callback lands, so the intro is untouched when nothing goes wrong.
+  useEffect(() => {
+    if (preloaderDone) return;
+    // Preloader calls onComplete at 3500ms.
+    const failsafe = window.setTimeout(openPreloaderGate, 6000);
+    return () => window.clearTimeout(failsafe);
+  }, [openPreloaderGate, preloaderDone]);
+
+  useEffect(() => {
+    if (!transitionActive) return;
+    // PageTransition calls onComplete at 1500ms.
+    const failsafe = window.setTimeout(finishTransition, 3000);
+    return () => window.clearTimeout(failsafe);
+  }, [finishTransition, transitionActive]);
+
   const pageBlocked = hydrated && (!preloaderDone || transitionActive);
 
   return (
@@ -118,20 +149,17 @@ export default function Home() {
         <CustomCursor />
       </ErrorBoundary>
       <ErrorBoundary label="preloader">
-        <Preloader onComplete={() => setPreloaderDone(true)} />
+        <Preloader onComplete={openPreloaderGate} />
       </ErrorBoundary>
       <div id="page-shell" aria-hidden={pageBlocked} inert={pageBlocked ? true : undefined}>
         <ErrorBoundary label="header">
-          <Header
-            onMenuToggle={() => setMenuOpen((open) => !open)}
-            menuOpen={menuOpen}
-          />
+          <Header onMenuToggle={toggleMenu} menuOpen={menuOpen} />
         </ErrorBoundary>
         <ErrorBoundary label="theme">
           <ThemeSwitcher />
         </ErrorBoundary>
         <ErrorBoundary label="mobile-menu">
-          <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+          <MobileMenu open={menuOpen} onClose={closeMenu} />
         </ErrorBoundary>
       </div>
       <ErrorBoundary label="page-layer">
