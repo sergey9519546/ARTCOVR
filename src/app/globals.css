@@ -140,18 +140,25 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
  * rasterises visibly lighter than the same face at 300px, so the header mark
  * reads thinner than the hero even though the geometry is identical.
  *
- * A hairline stroke in `em` restores the apparent weight proportionally, and
- * `paint-order` keeps it outside the glyph so counters stay open. The stroke
- * closes the gaps between letters, so tracking is opened slightly to land on the
- * hero's apparent rhythm rather than its literal value.
+ * A stroke in `em` restores the apparent weight proportionally, and
+ * `paint-order` keeps it outside the glyph so counters stay open.
+ *
+ * Tracking is reset to 0 rather than inheriting -.095em. That value is a
+ * DISPLAY setting: measured by rasterising the wordmark and counting clear
+ * vertical columns between glyphs, -.095em leaves zero separation at 20-24px —
+ * the letters fuse into one shape. Tracking in `em` scales proportionally, which
+ * is precisely wrong optically, since small type needs more air, not the same
+ * ratio. At 0 tracking the small marks recover 4-5 of 6 letter gaps while
+ * measuring 0.20 ink density against the hero's 0.211, i.e. the same apparent
+ * weight without the fusing.
  *
  * Delete this rule the moment a Black/Heavy face is added and set the real
  * weight instead — this is a workaround for a missing font file, not a design.
  */
 .artcovr-wordmark-optical {
-  -webkit-text-stroke: .019em currentColor;
+  -webkit-text-stroke: .026em currentColor;
   paint-order: stroke fill;
-  letter-spacing: -.082em;
+  letter-spacing: 0;
 }
 
 .artcovr-button {
