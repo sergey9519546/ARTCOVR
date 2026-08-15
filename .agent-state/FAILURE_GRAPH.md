@@ -33,7 +33,7 @@
    - *Mitigation*: Stripe webhook for `charge.dispute.created` immediately revokes access via `revoke_purchase_access` RPC, nullifying all future clean download signatures.
 3. **Infinite AI Generation Abuse**:
    - *Risk*: Bot or malicious user exhausts GPU generation quota.
-   - *Mitigation*: Dual-tier rate limiting enforced directly at the Edge Function / DB level: 4/min globally, 6/10min per user, 24/24hr per user.
+   - *Mitigation*: Dual-lane rate limiting at DB level (migration `202608140010`): 4/min free lane + 4/min purchased lane (independent advisory keys, up to 8/min combined), 6/10min per user, 24/24hr per user. Both lanes count only `('queued','running','succeeded')` rows.
 4. **Stale Lock / Multi-Process Conflicts in Dev**:
    - *Risk*: Lingering `next dev` processes lock `.next/dev/lock` causing E2E tests to fail startup.
    - *Mitigation*: Graceful lock clean-up and process cleanup before launching background dev test server.
