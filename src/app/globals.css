@@ -118,6 +118,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   outline-offset: 4px;
 }
 
+/*
+ * One wordmark lockup. Every ARTCOVR wordmark — header, hero, footer, page
+ * transition, intro — carries identical weight, tracking, and leading, and
+ * differs only in font-size. These had drifted to four different tracking
+ * values with leading set on the hero alone, so the small marks read as a
+ * different logo from the large one.
+ */
+.artcovr-wordmark {
+  font-weight: 900;
+  line-height: .8;
+  letter-spacing: -.095em;
+}
+
 .artcovr-button {
   background: var(--foreground);
   color: var(--background);

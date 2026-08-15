@@ -77,3 +77,10 @@ server.log
 # Build-session scratch: screen recordings and pasted uploads are never runtime data
 /upload/
 *.mp4
+
+# Skills installed via npx skills
+.agents/skills/
+agent/
+skills-lock.json
+
+

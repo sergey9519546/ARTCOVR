@@ -14,14 +14,23 @@ export function Header({
   const archiveSelected = pathname === "/archive" || pathname.startsWith("/product/");
   const accountSelected = pathname === "/my-images";
 
+  /*
+   * The nav previously rendered cream under mix-blend-difference. Over the
+   * cream ground that resolves to black, but it composites in its own blend
+   * layer, so the small wordmark rasterised differently from the plain-black
+   * hero lockup, and inverted to arbitrary colours over artwork scrolling
+   * beneath the fixed bar. The wordmark has to read as the hero mark at a
+   * smaller size, and a child cannot opt out of an ancestor's blend group, so
+   * the nav paints the theme colour directly instead.
+   */
   return (
     <nav
       id="header"
       aria-label="Primary navigation"
-      className="fixed top-0 left-0 z-[3] flex w-full items-center justify-between text-white mix-blend-difference"
+      className="fixed top-0 left-0 z-[3] flex w-full items-center justify-between text-[var(--foreground)]"
     >
       <div className="mx-auto flex w-full items-center justify-between px-4 py-8 lg:px-6">
-        <Link className="mr-2 text-xl font-[900] tracking-[-0.06em] lg:mr-6" href="/" aria-label="ARTCOVR home">
+        <Link className="artcovr-wordmark mr-2 text-xl lg:mr-6" href="/" aria-label="ARTCOVR home">
           ARTCOVR
         </Link>
         <div className="flex items-center gap-3 md:gap-16">

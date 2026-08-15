@@ -131,7 +131,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
         </div>
         <div
           aria-hidden="true"
-          className="text-cream relative mx-auto w-[28rem] max-w-[70vw] overflow-visible text-center text-[clamp(3.2rem,8vw,7.5rem)] font-black leading-none tracking-[-0.09em] mix-blend-difference md:max-w-none"
+          className="artcovr-wordmark text-cream relative mx-auto w-[28rem] max-w-[70vw] overflow-visible text-center text-[clamp(3.2rem,8vw,7.5rem)] mix-blend-difference md:max-w-none"
           style={{ zIndex: 20 }}
         >
           ARTCOVR

@@ -33,7 +33,7 @@ export function Footer() {
       <div className="grid grid-cols-16 gap-x-6 gap-y-20 font-bold md:gap-6">
         <div className="order-last col-span-16 md:order-first md:col-span-4">
           <div className="flex flex-col">
-            <span className="mb-2 text-2xl font-[900] tracking-[-0.06em]">ARTCOVR</span>
+            <span className="artcovr-wordmark mb-2 text-2xl">ARTCOVR</span>
             <span>All rights reserved © 2026</span>
           </div>
         </div>
