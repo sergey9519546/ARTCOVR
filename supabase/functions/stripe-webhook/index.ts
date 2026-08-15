@@ -132,6 +132,13 @@ Deno.serve(async (request) => {
         throw new HttpError(502, "dispute_revocation_failed", "Disputed purchase access could not be revoked.");
       }
       if (["revoked", "already_revoked"].includes(revoked)) {
+        // Anchor the dispute-clock pause now, so a later dispute win can credit
+        // the elapsed window back. Best-effort: revocation already succeeded,
+        // and a missing anchor simply means a later win credits no extension.
+        await admin.rpc("record_entitlement_pause", {
+          p_purchase_id: purchase.id,
+          p_stripe_payment_intent_id: payment.id,
+        });
         await markProcessed(event.id, "revoked");
         return json({ received: true, accessRevoked: true });
       }
@@ -172,10 +179,26 @@ Deno.serve(async (request) => {
         throw new HttpError(502, "dispute_restoration_failed", "Won dispute access could not be restored.");
       }
       if (restored === "restored") {
+        // Credit the paused dispute window back onto the entitlement so the
+        // buyer does not lose access time to the dispute itself. Best-effort:
+        // restore already succeeded, and a missing credit only shortens the
+        // restored window rather than withholding access.
+        await admin.rpc("apply_dispute_pause_credit", {
+          p_purchase_id: purchase.id,
+          p_stripe_payment_intent_id: payment.id,
+        });
         await markProcessed(event.id, "restored");
         return json({ received: true, accessRestored: true });
       }
       if (restored === "not_revoked") {
+        // Redelivery after a partial crash (restore committed, credit didn't):
+        // restore now reports already-restored, but entitlement_paused_at may
+        // still be set. The credit RPC is idempotent (no-ops once paused_at is
+        // null), so calling it here closes the gap without double-crediting.
+        await admin.rpc("apply_dispute_pause_credit", {
+          p_purchase_id: purchase.id,
+          p_stripe_payment_intent_id: payment.id,
+        });
         await markProcessed(event.id, "already_restored");
         return json({ received: true, accessRestored: false, reason: "already_restored" });
       }
