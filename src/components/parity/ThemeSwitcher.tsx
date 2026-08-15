@@ -1,9 +1,17 @@
 "use client";
 import { useTheme, type Theme } from "@/hooks/artcovr/useTheme";
+/*
+ * Each swatch keeps the colour that identifies its theme, but the hairline that
+ * bounds it is drawn in the current theme's foreground rather than a fixed
+ * colour. The red swatch's #122519 ring was invisible against the dark theme's
+ * #000 ground (1.30:1) — as was the black swatch's black ring — so the control
+ * for entering a theme disappeared exactly where it was needed.
+ */
+const SWATCH_RING = "shadow-[inset_0_0_0_0.05em_var(--foreground)]";
 const THEMES: { id: Theme; label: string; bg: string; shadow: string }[] = [
-  { id: "dark", label: "Switch to dark theme", bg: "bg-black", shadow: "shadow-[inset_0_0_0_0.05em_black]" },
-  { id: "light", label: "Switch to light theme", bg: "bg-cream", shadow: "shadow-[inset_0_0_0_0.05em_black]" },
-  { id: "red", label: "Switch to red theme", bg: "bg-red", shadow: "shadow-[inset_0_0_0_0.05em_#122519]" },
+  { id: "dark", label: "Switch to dark theme", bg: "bg-black", shadow: SWATCH_RING },
+  { id: "light", label: "Switch to light theme", bg: "bg-cream", shadow: SWATCH_RING },
+  { id: "red", label: "Switch to red theme", bg: "bg-red", shadow: SWATCH_RING },
 ];
 export function ThemeSwitcher() {
   const { theme, setTheme, mounted } = useTheme();

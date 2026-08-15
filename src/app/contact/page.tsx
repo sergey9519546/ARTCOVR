@@ -52,7 +52,7 @@ export default function ContactPage() {
             {sending ? "Sending…" : "Send inquiry"}
           </button>
           {error && (
-            <div role="alert" className="border-l-2 border-red-700 pl-4 text-sm">
+            <div role="alert" className="border-l-2 border-[#a11212] pl-4 text-sm dark:border-[#ff6b6b]">
               <p>{error}</p>
               {needsSignIn && <Link href="/sign-in" className="link-hover mt-2 inline-block font-bold">Sign in with email</Link>}
             </div>

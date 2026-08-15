@@ -104,7 +104,7 @@ export default function MyImagesPage() {
           </Link>
         </section>
       )}
-      {state === "error" && <p role="alert" className="border-l-2 border-red-700 pl-4">{message}</p>}
+      {state === "error" && <p role="alert" className="border-l-2 border-[#a11212] pl-4 dark:border-[#ff6b6b]">{message}</p>}
       {state === "ready" && data.purchases.length === 0 && data.generations.length === 0 && (
         <p className="border-y border-current/20 py-10 text-xl font-bold">No purchases or generated images yet.</p>
       )}

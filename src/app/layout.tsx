@@ -82,12 +82,20 @@ export default function RootLayout({
   const organization = buildOrganizationStructuredData(siteUrl);
 
   return (
-    <html lang="en" className={display.className} data-theme="dark" suppressHydrationWarning>
+    <html lang="en" className={display.className} data-theme="light" suppressHydrationWarning>
       <body>
+        {/*
+          Pre-paint theme bootstrap. This must agree with useTheme: light is the
+          primary theme and `red` is a real selectable theme, so both the stored
+          value allowlist and the fallback have to include it. Previously this
+          accepted only light|dark and defaulted to dark, so a first visit
+          painted dark against the light default, and a stored `red` flashed
+          dark first.
+        */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:'dark'}catch(e){document.documentElement.dataset.theme='dark'}",
+              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'||t==='red'?t:'light'}catch(e){document.documentElement.dataset.theme='light'}",
           }}
         />
         <script
