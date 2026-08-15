@@ -26,14 +26,15 @@
     }
   },
   "sessions": {
-    "ses_002460b9fffeY0U3d2bFnaR8FN": {
+    "ses_ffc2d5c1effewlC1QIr3N1LjlW": {
       "worktreeId": null,
-      "createdAt": "2026-08-14T00:44:10.238Z"
+      "createdAt": "2026-08-15T05:08:51.312Z"
     }
   },
   "tabOrder": {
     "local": [
-      "ses_002460b9fffeY0U3d2bFnaR8FN"
+      "ses_ffc2d5c1effewlC1QIr3N1LjlW",
+      "pending:c8b9ebd1-0960-46b8-8a13-056d16f81d82"
     ]
   },
   "worktreeOrder": [
