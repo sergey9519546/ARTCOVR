@@ -47,10 +47,20 @@ import { buildSearchText, launchSelection } from "../../src/lib/artcovr/launch-s
 import { candidateIdentityFingerprint } from "./approval-workbook-schema.mjs";
 
 const execFileAsync = promisify(execFile);
+// Windows installs the launcher as `python`; POSIX ships `python3`.
+const pythonBin = process.platform === "win32" ? "python" : "python3";
 
 type SwapWork = {
   replaces: string;
   sourceFile: string;
+  /**
+   * Schema v2. A single swap may draw from more than one owner-approved pool
+   * and more than one container format. When present these override the
+   * spec-level defaults; when absent the spec-level values apply, so every
+   * v1 spec keeps its exact previous meaning.
+   */
+  sourcePool?: string;
+  sourceMimeType?: "image/png" | "image/jpeg";
   sha256: string;
   slug: string;
   title: string;
@@ -103,7 +113,16 @@ const readJson = async <T,>(filePath: string): Promise<T> =>
   JSON.parse(await readFile(filePath, "utf8")) as T;
 
 const spec = await readJson<SwapSpec>(specPath);
-if (spec.schemaVersion !== 1) throw new Error(`Unsupported swap spec version: ${spec.schemaVersion}.`);
+if (spec.schemaVersion !== 1 && spec.schemaVersion !== 2) {
+  throw new Error(`Unsupported swap spec version: ${spec.schemaVersion}.`);
+}
+if (spec.schemaVersion === 1 && spec.works.some((work) => work.sourcePool ?? work.sourceMimeType)) {
+  throw new Error("Per-work sourcePool/sourceMimeType requires schemaVersion 2.");
+}
+
+/** Per-work provenance, falling back to the spec-level default. */
+const poolOf = (work: SwapWork): string => work.sourcePool ?? spec.sourcePool;
+const mimeOf = (work: SwapWork): "image/png" | "image/jpeg" => work.sourceMimeType ?? spec.sourceMimeType;
 
 const curated = await readJson<JsonRecord[]>(curatedPath);
 const review = await readJson<JsonRecord[]>(reviewPath);
@@ -146,9 +165,10 @@ async function measureSource(work: SwapWork): Promise<MeasuredSource> {
   if (header.width !== header.height || header.width < 1024) {
     throw new Error(`${work.sourceFile}: failed the square >=1024px technical gate.`);
   }
-  const expectedFormat = spec.sourceMimeType === "image/png" ? "png" : "jpeg";
+  const declaredMime = mimeOf(work);
+  const expectedFormat = declaredMime === "image/png" ? "png" : "jpeg";
   if (header.format !== expectedFormat) {
-    throw new Error(`${work.sourceFile}: byte-detected ${header.format} contradicts ${spec.sourceMimeType}.`);
+    throw new Error(`${work.sourceFile}: byte-detected ${header.format} contradicts ${declaredMime}.`);
   }
   return { sha256, bytes: contents.byteLength, width: header.width, height: header.height, format: header.format, absolutePath };
 }
@@ -227,9 +247,9 @@ function curatedRecordFor(entry: (typeof swapped)[number]): JsonRecord {
     height: source.height,
     bytes: source.bytes,
     sha256: source.sha256,
-    sourcePool: spec.sourcePool,
+    sourcePool: poolOf(work),
     sourceOrdinal: null,
-    sourceMimeType: spec.sourceMimeType,
+    sourceMimeType: mimeOf(work),
     // No ledger-linked generation prompt exists for these works.
     sourcePrompt: null,
     privateBasePath: `artworks/${catalogId}/base`,
@@ -262,7 +282,7 @@ function curatedRecordFor(entry: (typeof swapped)[number]): JsonRecord {
         },
         linkage: {
           join: "recomputed SHA-256 of the delivered regeneration output",
-          source: spec.sourcePool,
+          source: poolOf(work),
           classification: "regenerated_original",
           reference_series: work.series,
           title_source: "owner regeneration brief",
@@ -385,9 +405,19 @@ const positionsMatch = nextCurated.every(
   (record, index) => record.position === index + 1 && nextApproved[index]?.slug === record.slug,
 );
 if (!positionsMatch) failures.push("curated and approved rows lost position parity");
-const priceLadder = nextApproved.map((record) => Number(record.priceCents));
-if (priceLadder.some((price, index) => index > 0 && price <= Number(priceLadder[index - 1] ?? 0))) {
-  failures.push("the approved price ladder is no longer strictly ascending");
+// A swap must never move a price. Each replacement inherits the removed work's
+// priceCents, so the correct invariant is that the ladder is byte-for-byte the
+// same before and after -- which also holds for a no-op swap. (The previous
+// "strictly ascending" test did not describe this catalog: the committed ladder
+// descends from 20000 to 1000 with ties, so it rejected every swap, including
+// one that changed nothing.)
+const priceLadderBefore = approved.map((record) => Number(record.priceCents));
+const priceLadderAfter = nextApproved.map((record) => Number(record.priceCents));
+if (
+  priceLadderBefore.length !== priceLadderAfter.length ||
+  priceLadderAfter.some((price, index) => price !== priceLadderBefore[index])
+) {
+  failures.push("the approved price ladder changed");
 }
 const saleModes = nextApproved.filter((record) => record.saleMode === "exclusive").length;
 if (saleModes !== approved.filter((record) => record.saleMode === "exclusive").length) {
@@ -438,7 +468,7 @@ if (apply) {
     );
     await rm(removedDisplay, { force: true });
     const target = path.join(displayDirectory, `${entry.work.slug}.jpg`);
-    await execFileAsync("python3", [
+    await execFileAsync(pythonBin, [
       "-c",
       encodeDisplayDerivative,
       entry.source.absolutePath,

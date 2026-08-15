@@ -1,0 +1,350 @@
+{
+  "schemaVersion": 1,
+  "swapId": "2026-08-14-collection-rescore-new_meta_images-png",
+  "date": "2026-08-14",
+  "directive": "Owner-directed rescore swap: every launch position from 18 to 100 is replaced by a higher-scoring work selected from a full 294,036-image sweep of E:\\ART_COLLECTION. Positions 1-17 are untouched. Each replacement inherits the removed work's launch position, priceCents and saleMode, so the price ladder and the exclusive/repeatable split are unchanged. Split by source pool and MIME type because the spec schema carries a single sourcePool and sourceMimeType.",
+  "removalReason": "collection_rescore_owner_directive_2026-08-14",
+  "sourcePool": "new_meta_images",
+  "sourceDirectory": "C:/Users/serge/Desktop/ARTCOVR/outputs/catalog/regen-picks-2026-08-14",
+  "sourceMimeType": "image/png",
+  "reviewFlags": [
+    "owner_direct_use_pool_source",
+    "machine_scored_style_and_rarity_rank_2026-08-14",
+    "independent_visual_gate_passed_no_visible_text_logo_watermark_likeness_child_nudity_or_protected_character",
+    "commercial_rights_unconfirmed",
+    "owner_approval_required"
+  ],
+  "provenanceNote": "Selection evidence in E:\\ART_COLLECTION\\.artcovr-scoring (features.jsonl, ranked.jsonl, model.json, final83.json, swap-evidence.json, verify_*.jpg, before_after_*.jpg). Source bytes are unmodified originals copied from the owner-approved direct-use pools; each file is named by its own SHA-256 prefix.",
+  "works": [
+    {
+      "replaces": "ocean-in-the-bath",
+      "sourceFile": "e05a5161ec301941.png",
+      "sha256": "e05a5161ec3019411ae5b576ee8c562fcb9212545fbc1012ffdaa63d8b5d45fb",
+      "slug": "line-discontinued",
+      "title": "Line Discontinued",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "obsolete",
+        "solitary",
+        "civic"
+      ],
+      "description": "payphone booth, worn enamel, ink hatching, cream field, red drip",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "birthday-spark",
+      "sourceFile": "6300243b12de93e8.png",
+      "sha256": "6300243b12de93e8b5684405c36c5b5110ea264ded278981a59377fce57f9019",
+      "slug": "wrapped-waltz",
+      "title": "Wrapped Waltz",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "absurd",
+        "kinetic",
+        "bandaged"
+      ],
+      "description": "bandaged figures, dancing pair, red ground, sculptural folds, dry brush",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "sleeping-cart",
+      "sourceFile": "a020be38cec45840.png",
+      "sha256": "a020be38cec4584030b2960296e21e4c727fa617a9865f53b8a09966a30a776b",
+      "slug": "endgame-afloat",
+      "title": "Endgame Afloat",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "strategic",
+        "weightless",
+        "still"
+      ],
+      "description": "chess pieces, floating board, mirrored water, violet haze, quiet standoff",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "storm-in-a-fishbowl",
+      "sourceFile": "f0e906ca4b916603.png",
+      "sha256": "f0e906ca4b91660395567a37175b7b3b6a690c3544e3c599c5472f4fe6f7416f",
+      "slug": "slow-collapse",
+      "title": "Slow Collapse",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "monumental",
+        "eroding",
+        "serene"
+      ],
+      "description": "stone head, cracked plaster, sagging features, teal ground, sculptural relief",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "second-sunrise",
+      "sourceFile": "c6e300c6a2e0c640.png",
+      "sha256": "c6e300c6a2e0c6401a8c46dfb3e4775d726f35a6db6f2b48c7acce26a2250156",
+      "slug": "three-roars",
+      "title": "Three Roars",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "heraldic",
+        "engraved",
+        "fierce"
+      ],
+      "description": "lion heads, engraved line, repeating profile, cream paper, ink density",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "barcode-moon",
+      "sourceFile": "ba2cd9f09a59d253.png",
+      "sha256": "ba2cd9f09a59d253547e3ced5a9cda3df430a1b31d1f1fbfda2a59c95ecdc198",
+      "slug": "seed-ledger",
+      "title": "Seed Ledger",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "tactile",
+        "repetitive",
+        "mineral"
+      ],
+      "description": "pale seed forms, cracked surface, red checker, scattered grid, dry texture",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "choir-of-falling-light",
+      "sourceFile": "20930825caf52d47.png",
+      "sha256": "20930825caf52d4710d2cbe77d59a53c7bed5afef0a90e4a17d61c51599d0a95",
+      "slug": "introductions",
+      "title": "Introductions",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "strange",
+        "gentle",
+        "dreamlike"
+      ],
+      "description": "blue giraffe, flame-headed figure, meeting pair, pale ground, quiet encounter",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "pilgrim-of-the-prism-dawn",
+      "sourceFile": "91a5d4cd22e57f92.png",
+      "sha256": "91a5d4cd22e57f92e0fee8fd93e88b1937e09a974d93072dc7519073a2f957d1",
+      "slug": "four-barks",
+      "title": "Four Barks",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "feral",
+        "sequential",
+        "engraved"
+      ],
+      "description": "wolf heads, open jaws, sequential study, pencil line, cream sheet",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "honest-machine",
+      "sourceFile": "09d72870073a5e14.png",
+      "sha256": "09d72870073a5e143883038bd34f356089ea7f8489f780cbcd771d2bd4320985",
+      "slug": "the-machine-that-prints-us",
+      "title": "The Machine That Prints Us",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "industrial",
+        "precise",
+        "archival"
+      ],
+      "description": "printing press, mechanical detail, technical drawing, cream ground, coral sun",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "the-dune-observatory",
+      "sourceFile": "3043bea88c26bc21.png",
+      "sha256": "3043bea88c26bc21a16b279286125d187199d224bb60148a54ba3d7765adecf1",
+      "slug": "vessel-dressed",
+      "title": "Vessel, Dressed",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "absurd",
+        "fragile",
+        "tactile"
+      ],
+      "description": "cracked urn, torn shirt, canvas texture, cream ground, sculptural still life",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "courtroom-cake",
+      "sourceFile": "15b7d2a7ae45440e.png",
+      "sha256": "15b7d2a7ae45440e348b5f140b83be9d4ed16a2efbc9f6e0aab58be588b7e5d3",
+      "slug": "the-long-walk-home",
+      "title": "The Long Walk Home",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "ominous",
+        "marching",
+        "absurd"
+      ],
+      "description": "walking machine, umbrella crowd, spindly legs, muted palette, procession",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "unsaid-things",
+      "sourceFile": "9b62281d378605ce.png",
+      "sha256": "9b62281d378605ceb1c018cb55941f3d08561f6f0ca5b4454fbb3d3ec7503252",
+      "slug": "recital-overgrown",
+      "title": "Recital, Overgrown",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "ornate",
+        "overgrown",
+        "gilded"
+      ],
+      "description": "grand piano, golden tree, gilded hall, ornate carving, slow growth",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "copper-veil",
+      "sourceFile": "919e3c872c65f8fe.png",
+      "sha256": "919e3c872c65f8fe83ea90bccd37a1da7d6b378b480e263d8230c8b26533cbac",
+      "slug": "sitter-absent",
+      "title": "Sitter, Absent",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "draped",
+        "empty",
+        "sculptural"
+      ],
+      "description": "draped cloth, wooden stool, desert light, absent figure, folded form",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "azure-threshold",
+      "sourceFile": "fa87fbdcf07d99ff.png",
+      "sha256": "fa87fbdcf07d99ff422a93031da7cf3ac31ee6e78f456c4c081d654bde53f340",
+      "slug": "the-ledger-keeper",
+      "title": "The Ledger Keeper",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "scholarly",
+        "folkloric",
+        "ornate"
+      ],
+      "description": "owl-headed scribe, flying birds, ornate study, gold ground, quill work",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "ice-procession",
+      "sourceFile": "dafe4ac7dc602bcd.png",
+      "sha256": "dafe4ac7dc602bcd49ea43378087458f86efb74f6fcf92672e4be17dac7244da",
+      "slug": "spire-field",
+      "title": "Spire Field",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "alien",
+        "vast",
+        "mineral"
+      ],
+      "description": "rock spires, ochre desert, green stone, wide horizon, dry light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "cosmic-pilgrim",
+      "sourceFile": "605ba4ee3d2ee2ab.png",
+      "sha256": "605ba4ee3d2ee2ab8dd5e31c23e94e46677f0dbb2663f86e5f9f15cf98988577",
+      "slug": "gilt-reflections",
+      "title": "Gilt Reflections",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "opulent",
+        "layered",
+        "ancient"
+      ],
+      "description": "gold-leaf towers, mirrored canal, teal water, cracked gilding, dense skyline",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "the-owl-librarian",
+      "sourceFile": "71b2d785a8821939.png",
+      "sha256": "71b2d785a8821939d7bad8f869c7f6b74c6df227a16bab658e9931728ddfa00f",
+      "slug": "procession-of-swans",
+      "title": "Procession of Swans",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "receding",
+        "serene",
+        "uncanny"
+      ],
+      "description": "swan line, flat horizon, pale sand, receding scale, soft light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "kinetic-ghost-minimalism",
+      "sourceFile": "47e67393b1e125a0.png",
+      "sha256": "47e67393b1e125a045789c5b3e5dcb9815bdc241824cabc13ad54cf6ff471274",
+      "slug": "yellow-slump",
+      "title": "Yellow Slump",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "melting",
+        "comic",
+        "arid"
+      ],
+      "description": "yellow face, melting profile, dry plain, blue sky, soft collapse",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "bold-graphic-neon-surrealism",
+      "sourceFile": "6016a8ebb5d3f5a9.png",
+      "sha256": "6016a8ebb5d3f5a9f23d22294dc7fd62924c4a2169ab2ec38263441eeb2446e9",
+      "slug": "overhead-memento",
+      "title": "Overhead Memento",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "mortal",
+        "looming",
+        "nocturnal"
+      ],
+      "description": "giant skull, small city, violet sky, ruin field, cold light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "tactile-organic-opulence",
+      "sourceFile": "a35f10c78389d416.png",
+      "sha256": "a35f10c78389d4167866b910f2b4a5153e4a643ef1647007738ff2f244153b67",
+      "slug": "one-tower-one-shadow",
+      "title": "One Tower, One Shadow",
+      "category": "Minimal / Abstract",
+      "moodTags": [
+        "minimal",
+        "solitary",
+        "arid"
+      ],
+      "description": "brick tower, long shadow, ochre sand, teal sky, flat plane",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "herald-of-the-orbit-bloom",
+      "sourceFile": "726bae853a07de16.png",
+      "sha256": "726bae853a07de16600bf9fb7201e42e67fb0d525c4ba43c361475a7c2437518",
+      "slug": "signal-head",
+      "title": "Signal Head",
+      "category": "Mixed Media / Collage",
+      "moodTags": [
+        "fragmented",
+        "guiding",
+        "layered"
+      ],
+      "description": "profile head, small lighthouse, falling squares, gold ground, collage edge",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "graphic-surreal-pop",
+      "sourceFile": "c121d6e4e87e15a1.png",
+      "sha256": "c121d6e4e87e15a1a0aaa2a4f759243e81daf19d54ec864042e9386203cbc770",
+      "slug": "black-prism-peak",
+      "title": "Black Prism Peak",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "severe",
+        "mineral",
+        "monumental"
+      ],
+      "description": "crystalline peak, jagged facets, grey sky, mineral edge, cold light",
+      "series": "collection_rescore_2026-08-14"
+    }
+  ]
+}

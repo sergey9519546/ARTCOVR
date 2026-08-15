@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "swapId": "2026-08-14-collection-rescore-generated_images-jpg",
+  "date": "2026-08-14",
+  "directive": "Owner-directed rescore swap: every launch position from 18 to 100 is replaced by a higher-scoring work selected from a full 294,036-image sweep of E:\\ART_COLLECTION. Positions 1-17 are untouched. Each replacement inherits the removed work's launch position, priceCents and saleMode, so the price ladder and the exclusive/repeatable split are unchanged. Split by source pool and MIME type because the spec schema carries a single sourcePool and sourceMimeType.",
+  "removalReason": "collection_rescore_owner_directive_2026-08-14",
+  "sourcePool": "generated_images",
+  "sourceDirectory": "C:/Users/serge/Desktop/ARTCOVR/outputs/catalog/regen-picks-2026-08-14",
+  "sourceMimeType": "image/jpeg",
+  "reviewFlags": [
+    "owner_direct_use_pool_source",
+    "machine_scored_style_and_rarity_rank_2026-08-14",
+    "independent_visual_gate_passed_no_visible_text_logo_watermark_likeness_child_nudity_or_protected_character",
+    "commercial_rights_unconfirmed",
+    "owner_approval_required"
+  ],
+  "provenanceNote": "Selection evidence in E:\\ART_COLLECTION\\.artcovr-scoring (features.jsonl, ranked.jsonl, model.json, final83.json, swap-evidence.json, verify_*.jpg, before_after_*.jpg). Source bytes are unmodified originals copied from the owner-approved direct-use pools; each file is named by its own SHA-256 prefix.",
+  "works": [
+    {
+      "replaces": "camera-tears",
+      "sourceFile": "b7ad04aca058a52a.jpg",
+      "sha256": "b7ad04aca058a52a96449feaec1bdde02bdeb31906eb79cbded547028241fcf8",
+      "slug": "abyssal-circuitry",
+      "title": "Abyssal Circuitry",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "cold",
+        "alien",
+        "luminous"
+      ],
+      "description": "deep-sea form, bioluminescent seams, coiled machine, black water, blue glow",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mattress-island",
+      "sourceFile": "35220b4c6a606732.jpg",
+      "sha256": "35220b4c6a606732d89a81e278f66981472c460450081064e29c41ce2305a9ee",
+      "slug": "fern-almanac",
+      "title": "Fern Almanac",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "botanical",
+        "lunar",
+        "archival"
+      ],
+      "description": "cyanotype ferns, full moon, blueprint blue, pressed specimen, paper grain",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "buried-clocks",
+      "sourceFile": "b8d6828fc870825b.jpg",
+      "sha256": "b8d6828fc870825b296f76b7d55a08eb715b04be929a5d249a71765a839ad5e2",
+      "slug": "shatter-count",
+      "title": "Shatter Count",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "fractured",
+        "ominous",
+        "reflective"
+      ],
+      "description": "broken mirror, dark shards, hidden silhouettes, red glints, black field",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "clockwork-orchard",
+      "sourceFile": "4f6f200626824872.jpg",
+      "sha256": "4f6f200626824872378e1af753de9092e1c7252bb4488a44a06b572599d986dc",
+      "slug": "night-passage",
+      "title": "Night Passage",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "romantic",
+        "nocturnal",
+        "adrift"
+      ],
+      "description": "tall ship, full moon, star field, blue ink, silver water",
+      "series": "collection_rescore_2026-08-14"
+    }
+  ]
+}

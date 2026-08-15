@@ -1,4 +1,5 @@
 import curatedPublic from "./curated-public.json" with { type: "json" };
+import ownerPicksJson from "./owner-picks.json" with { type: "json" };
 import curatedReview from "#staging-catalog" with { type: "json" };
 import stagingIntroJson from "#staging-intro" with { type: "json" };
 import { selectPublicCatalog } from "./catalog-visibility.ts";
@@ -97,19 +98,42 @@ export function balanceDisplayOrder<T extends { category: string }>(items: reado
 }
 
 /**
- * Display order: the palette-spread traversal from visual-index.json, which
- * keeps the colour cast a viewer actually reads from repeating in neighbouring
- * grid cells while still using the image-vector diversity rank to order works
- * within a palette. Falls back to the raw vector traversal, then to the
- * category round-robin: the private staging catalog is not in the index, and a
- * partially indexed catalog would produce a half-sorted grid.
+ * Owner-selected covers, hand-picked from the approved catalog. These lead the
+ * grid; everything else follows. This is a presentation preference only — it
+ * confers no rights or publication state, and a slug listed here that is not in
+ * the approved catalog is simply ignored rather than promoted into view.
  */
-export function orderForDisplay(items: readonly Artwork[]) {
+export const ownerPickSlugs: readonly string[] = ownerPicksJson as string[];
+
+/**
+ * Palette-spread traversal from visual-index.json, which keeps the colour cast
+ * a viewer actually reads from repeating in neighbouring grid cells while still
+ * using the image-vector diversity rank to order works within a palette. Falls
+ * back to the raw vector traversal, then to the category round-robin: the
+ * private staging catalog is not in the index, and a partially indexed catalog
+ * would produce a half-sorted grid.
+ */
+function spreadForDisplay(items: readonly Artwork[]) {
+  if (items.length === 0) return [];
   return (
     spreadByVisualCluster(items) ??
     orderByDiversityRank(items) ??
     balanceDisplayOrder(items)
   );
+}
+
+/**
+ * Display order: owner picks first, then the rest of the catalog. Both blocks
+ * are palette-spread independently, so the picks do not open on a run of one
+ * colour and the tail still reads as varied rather than as the leftovers.
+ */
+export function orderForDisplay(items: readonly Artwork[]) {
+  const picked = new Set(ownerPickSlugs);
+  const leading = items.filter((artwork) => picked.has(artwork.slug));
+  if (leading.length === 0) return spreadForDisplay(items);
+
+  const trailing = items.filter((artwork) => !picked.has(artwork.slug));
+  return [...spreadForDisplay(leading), ...spreadForDisplay(trailing)];
 }
 
 export const displayArtworks = orderForDisplay(

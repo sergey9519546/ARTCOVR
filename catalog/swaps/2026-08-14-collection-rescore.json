@@ -1,0 +1,1431 @@
+{
+  "schemaVersion": 2,
+  "swapId": "2026-08-14-collection-rescore",
+  "date": "2026-08-14",
+  "directive": "Owner-directed rescore swap: every launch position from 18 to 100 is replaced by a higher-scoring work selected from a full 294,036-image sweep of E:\\ART_COLLECTION. Positions 1-17 are untouched. Each replacement inherits the removed work's launch position, priceCents and saleMode, so the price ladder and the exclusive/repeatable split are unchanged. The 83 works are drawn from three owner-approved direct-use pools, so each row carries its own sourcePool and sourceMimeType (schemaVersion 2).",
+  "removalReason": "collection_rescore_owner_directive_2026-08-14",
+  "sourcePool": "concept_reference_art",
+  "sourceDirectory": "C:/Users/serge/Desktop/ARTCOVR/outputs/catalog/regen-picks-2026-08-14",
+  "sourceMimeType": "image/png",
+  "reviewFlags": [
+    "owner_direct_use_pool_source",
+    "machine_scored_style_and_rarity_rank_2026-08-14",
+    "independent_visual_gate_passed_no_visible_text_logo_watermark_likeness_child_nudity_or_protected_character",
+    "commercial_rights_unconfirmed",
+    "owner_approval_required"
+  ],
+  "provenanceNote": "Selection evidence in E:\\ART_COLLECTION\\.artcovr-scoring (features.jsonl, ranked.jsonl, model.json, final83.json, swap-evidence.json, verify_*.jpg, before_after_*.jpg). Source bytes are unmodified originals copied from the owner-approved direct-use pools; each file is named by its own SHA-256 prefix.",
+  "works": [
+    {
+      "replaces": "cassette-veins",
+      "sourceFile": "a4aef1c3b58cb44a.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "a4aef1c3b58cb44a8a8d77463f406c3e6f4bf29df17286ad9c9c2be9f0bb1c10",
+      "slug": "pressed-into-smoke",
+      "title": "Pressed Into Smoke",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "wry",
+        "domestic",
+        "uncanny"
+      ],
+      "description": "ironing board, rising smoke, silhouette figure, teal field, coral accent",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "camera-tears",
+      "sourceFile": "b7ad04aca058a52a.jpg",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "b7ad04aca058a52a96449feaec1bdde02bdeb31906eb79cbded547028241fcf8",
+      "slug": "abyssal-circuitry",
+      "title": "Abyssal Circuitry",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "cold",
+        "alien",
+        "luminous"
+      ],
+      "description": "deep-sea form, bioluminescent seams, coiled machine, black water, blue glow",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "door-on-a-plate",
+      "sourceFile": "0825f876a115e55a.jpg",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "0825f876a115e55a582174c7bfb2958fc16acc678b048bb00c90661fc9038787",
+      "slug": "kept-heart",
+      "title": "Kept Heart",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "tender",
+        "captive",
+        "anatomical"
+      ],
+      "description": "anatomical heart, wire birdcage, ink drawing, cream ground, teal wash",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "the-stitched-icon",
+      "sourceFile": "4861b9c5a2db0f6d.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "4861b9c5a2db0f6d6e854ce7c7b0a6470d7f19247f4122efc9cbcccc09b41fad",
+      "slug": "ballast",
+      "title": "Ballast",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "inert",
+        "weathered",
+        "industrial"
+      ],
+      "description": "rusted block, teal pipe, rubble field, print texture, coral flecks",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "parking-meter-garden",
+      "sourceFile": "51b607c7d741f457.jpg",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "51b607c7d741f457970dd8cc05b6f93d79106bb79b8220e482ce1c94d4e3f8b9",
+      "slug": "second-helping",
+      "title": "Second Helping",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "domestic",
+        "abundant",
+        "graphic"
+      ],
+      "description": "ceramic bowl, spilling noodles, teal glaze, cream ground, coral speckle",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "ocean-in-the-bath",
+      "sourceFile": "e05a5161ec301941.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "e05a5161ec3019411ae5b576ee8c562fcb9212545fbc1012ffdaa63d8b5d45fb",
+      "slug": "line-discontinued",
+      "title": "Line Discontinued",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "obsolete",
+        "solitary",
+        "civic"
+      ],
+      "description": "payphone booth, worn enamel, ink hatching, cream field, red drip",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "birthday-spark",
+      "sourceFile": "6300243b12de93e8.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "6300243b12de93e8b5684405c36c5b5110ea264ded278981a59377fce57f9019",
+      "slug": "wrapped-waltz",
+      "title": "Wrapped Waltz",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "absurd",
+        "kinetic",
+        "bandaged"
+      ],
+      "description": "bandaged figures, dancing pair, red ground, sculptural folds, dry brush",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "family-circuit",
+      "sourceFile": "406f22ed1f6d27ae.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "406f22ed1f6d27ae50bb7996c86f9ff9063a20db316e8dd5b78a8629d71b726a",
+      "slug": "estate-of-paper",
+      "title": "Estate of Paper",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "mordant",
+        "bureaucratic",
+        "skeletal"
+      ],
+      "description": "seated skeleton, briefcase papers, filing ritual, ink line, coral marks",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "celestial-paper-bag",
+      "sourceFile": "01ecba3251649629.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "01ecba3251649629ae801e5d513256cddc0e32595d48cda9e642807c57e91efe",
+      "slug": "open-all-night",
+      "title": "Open All Night",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "nocturnal",
+        "lonely",
+        "urban"
+      ],
+      "description": "corner shop, night glass, wet street, warm interior, blue dark",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mattress-island",
+      "sourceFile": "35220b4c6a606732.jpg",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "35220b4c6a606732d89a81e278f66981472c460450081064e29c41ce2305a9ee",
+      "slug": "fern-almanac",
+      "title": "Fern Almanac",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "botanical",
+        "lunar",
+        "archival"
+      ],
+      "description": "cyanotype ferns, full moon, blueprint blue, pressed specimen, paper grain",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "microwave-bloom",
+      "sourceFile": "af21048ff5d55442.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "af21048ff5d55442f7ffc3936a6f28e109aae5c614f86ea1bc83ca1fd59125af",
+      "slug": "the-waiting-row",
+      "title": "The Waiting Row",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "patient",
+        "communal",
+        "wry"
+      ],
+      "description": "seated figures, long bench, teal ground, coral sun, print texture",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "sleeping-cart",
+      "sourceFile": "a020be38cec45840.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "a020be38cec4584030b2960296e21e4c727fa617a9865f53b8a09966a30a776b",
+      "slug": "endgame-afloat",
+      "title": "Endgame Afloat",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "strategic",
+        "weightless",
+        "still"
+      ],
+      "description": "chess pieces, floating board, mirrored water, violet haze, quiet standoff",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "storm-in-a-fishbowl",
+      "sourceFile": "f0e906ca4b916603.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "f0e906ca4b91660395567a37175b7b3b6a690c3544e3c599c5472f4fe6f7416f",
+      "slug": "slow-collapse",
+      "title": "Slow Collapse",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "monumental",
+        "eroding",
+        "serene"
+      ],
+      "description": "stone head, cracked plaster, sagging features, teal ground, sculptural relief",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "buried-clocks",
+      "sourceFile": "b8d6828fc870825b.jpg",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "b8d6828fc870825b296f76b7d55a08eb715b04be929a5d249a71765a839ad5e2",
+      "slug": "shatter-count",
+      "title": "Shatter Count",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "fractured",
+        "ominous",
+        "reflective"
+      ],
+      "description": "broken mirror, dark shards, hidden silhouettes, red glints, black field",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "reverse-rain",
+      "sourceFile": "11dc661ab7fe1dfb.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "11dc661ab7fe1dfbbde39e42ba53953389e93e093c6ade0d704a4ba86fd00de5",
+      "slug": "baggage-grin",
+      "title": "Baggage Grin",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "sinister",
+        "playful",
+        "worn"
+      ],
+      "description": "old suitcase, red drip, grin shape, ink hatch, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "burned-prophecy",
+      "sourceFile": "5de0f64e80aa1a64.png",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/png",
+      "sha256": "5de0f64e80aa1a6494261e5e8895b7573c34ad0583496c8a331e7c341a634bc0",
+      "slug": "one-knot",
+      "title": "One Knot",
+      "category": "Minimal / Abstract",
+      "moodTags": [
+        "minimal",
+        "taut",
+        "singular"
+      ],
+      "description": "red cord, single knot, black field, thin line, empty space",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "paper-moon",
+      "sourceFile": "b1d61ea31744a13d.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "b1d61ea31744a13d9404677368baba1c9e48956640eb3f96abdc3f37d2a1f1cc",
+      "slug": "undertow-drain",
+      "title": "Undertow Drain",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "swallowing",
+        "dark",
+        "fluid"
+      ],
+      "description": "swirling water, black drain, spiral pull, ink wash, cold light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "red-thread",
+      "sourceFile": "f1a070c99db2dffc.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "f1a070c99db2dffcc5494bd4c2a1322ed0dbf4d672b806d9990258344490d430",
+      "slug": "distant-weather",
+      "title": "Distant Weather",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "isolated",
+        "vast",
+        "wistful"
+      ],
+      "description": "small astronaut, smoke column, pale horizon, coral sun, cream sky",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mirror-box",
+      "sourceFile": "74eef8018780eb6b.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "74eef8018780eb6b18654ed035e53a746869ba94ecb7f057a2e59acf72be32ae",
+      "slug": "chair-noon",
+      "title": "Chair, Noon",
+      "category": "Minimal / Abstract",
+      "moodTags": [
+        "austere",
+        "still",
+        "geometric"
+      ],
+      "description": "single chair, long shadow, flat ground, teal field, coral edge",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "unopened-staircase",
+      "sourceFile": "e68a1e2dd34ef50c.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "e68a1e2dd34ef50c458b2db83d5b9f2f6ee1b776b14de230f97af5e572d5f327",
+      "slug": "care-instructions",
+      "title": "Care Instructions",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "tender",
+        "domestic",
+        "hopeful"
+      ],
+      "description": "crouched figure, watering can, small plant, teal wash, coral splash",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "clockwork-orchard",
+      "sourceFile": "4f6f200626824872.jpg",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "4f6f200626824872378e1af753de9092e1c7252bb4488a44a06b572599d986dc",
+      "slug": "night-passage",
+      "title": "Night Passage",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "romantic",
+        "nocturnal",
+        "adrift"
+      ],
+      "description": "tall ship, full moon, star field, blue ink, silver water",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "end-of-takeout",
+      "sourceFile": "0b9c4f8a5cc2a7fd.png",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/png",
+      "sha256": "0b9c4f8a5cc2a7fd422a1d2748f607d5945818eb1846542fba570e4365b8f58c",
+      "slug": "green-vortex",
+      "title": "Green Vortex",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "churning",
+        "verdant",
+        "alien"
+      ],
+      "description": "green orb, swirling mass, dark field, organic bloom, deep glow",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "staircase-soup",
+      "sourceFile": "fe75472de82aeac1.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "fe75472de82aeac16c0c675cc45a3323c3f67e851f8888c02a4b489b3863a954",
+      "slug": "spin-cycle",
+      "title": "Spin Cycle",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "mundane",
+        "kinetic",
+        "halftone"
+      ],
+      "description": "laundromat row, halftone dots, red splash, teal tile, print grain",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "pinned-cloud",
+      "sourceFile": "1fd1ce08f5150d00.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "1fd1ce08f5150d003168d0c22a360d54d7537a2eb60dcbb1c0ee5ede1ba4570b",
+      "slug": "meter-reading",
+      "title": "Meter Reading",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "civic",
+        "worn",
+        "mechanical"
+      ],
+      "description": "gauge post, teal enamel, red splatter, ink outline, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "days-almost-here",
+      "sourceFile": "dc444329bb5913c4.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "dc444329bb5913c4bac3b838492226b456eaeee4589a5d14bddf6a4bac49bd2a",
+      "slug": "bad-news-slowly",
+      "title": "Bad News, Slowly",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "brooding",
+        "private",
+        "smoky"
+      ],
+      "description": "seated silhouette, opened letter, cigarette smoke, warm lamp, dark room",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "second-sunrise",
+      "sourceFile": "c6e300c6a2e0c640.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "c6e300c6a2e0c6401a8c46dfb3e4775d726f35a6db6f2b48c7acce26a2250156",
+      "slug": "three-roars",
+      "title": "Three Roars",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "heraldic",
+        "engraved",
+        "fierce"
+      ],
+      "description": "lion heads, engraved line, repeating profile, cream paper, ink density",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mechanical-bird-nest",
+      "sourceFile": "a41243db6eaf5197.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "a41243db6eaf5197167ed076e0e313b01edab263c3088dfbce476fde6fcba603",
+      "slug": "spire-density",
+      "title": "Spire Density",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "monumental",
+        "layered",
+        "civic"
+      ],
+      "description": "gothic spires, stacked city, blue shadow, orange light, dense masonry",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "city-in-the-broth",
+      "sourceFile": "e7116b59106aae25.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "e7116b59106aae251776a131d36c86bcbc90764a1410b03062c047adf2d880ae",
+      "slug": "board-of-roots",
+      "title": "Board of Roots",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "corporate",
+        "entangled",
+        "absurd"
+      ],
+      "description": "suited figures, root network, tangled cords, cream ground, coral dots",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "barcode-moon",
+      "sourceFile": "ba2cd9f09a59d253.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "ba2cd9f09a59d253547e3ced5a9cda3df430a1b31d1f1fbfda2a59c95ecdc198",
+      "slug": "seed-ledger",
+      "title": "Seed Ledger",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "tactile",
+        "repetitive",
+        "mineral"
+      ],
+      "description": "pale seed forms, cracked surface, red checker, scattered grid, dry texture",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "choir-of-falling-light",
+      "sourceFile": "20930825caf52d47.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "20930825caf52d4710d2cbe77d59a53c7bed5afef0a90e4a17d61c51599d0a95",
+      "slug": "introductions",
+      "title": "Introductions",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "strange",
+        "gentle",
+        "dreamlike"
+      ],
+      "description": "blue giraffe, flame-headed figure, meeting pair, pale ground, quiet encounter",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "pilgrim-of-the-prism-dawn",
+      "sourceFile": "91a5d4cd22e57f92.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "91a5d4cd22e57f92e0fee8fd93e88b1937e09a974d93072dc7519073a2f957d1",
+      "slug": "four-barks",
+      "title": "Four Barks",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "feral",
+        "sequential",
+        "engraved"
+      ],
+      "description": "wolf heads, open jaws, sequential study, pencil line, cream sheet",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "coral-beak",
+      "sourceFile": "74d7b42e21a5adcf.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "74d7b42e21a5adcfa3fe4d2171fb4309e8b9a70d6900f7684a9588c24b5f8e1e",
+      "slug": "ward-bloom",
+      "title": "Ward Bloom",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "clinical",
+        "violent",
+        "quiet"
+      ],
+      "description": "hospital bed, orange bloom, empty room, teal wall, print grain",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "key-to-the-threshold",
+      "sourceFile": "69ab5ff47b2ce5ad.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "69ab5ff47b2ce5ad2e413b716836f945889f8204a866f278d377bd28b47a78bc",
+      "slug": "sit-with-it",
+      "title": "Sit With It",
+      "category": "Minimal / Abstract",
+      "moodTags": [
+        "minimal",
+        "patient",
+        "geometric"
+      ],
+      "description": "wooden chair, colour block, teal field, tan ground, hard shadow",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mechanical-hand-bloom",
+      "sourceFile": "9d83e6126140cec0.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "9d83e6126140cec03d992e892b956b3b4f602dfd312c7bb577ffe382c5780ab9",
+      "slug": "watched-bleeding",
+      "title": "Watched, Bleeding",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "surveilled",
+        "wry",
+        "dripping"
+      ],
+      "description": "security camera, orange drip, mounted arm, cream ground, ink line",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "tempest-in-porcelain",
+      "sourceFile": "2a7e8de1e8c119df.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "2a7e8de1e8c119df4b25d0b72a6405e7296e0c0e5bfb2416b8778eef741efe41",
+      "slug": "backlog",
+      "title": "Backlog",
+      "category": "Mixed Media / Collage",
+      "moodTags": [
+        "bureaucratic",
+        "layered",
+        "chaotic"
+      ],
+      "description": "stacked papers, ink splatter, teal wash, collage edge, drift",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "island-plate",
+      "sourceFile": "73a2d38d35a1b927.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "73a2d38d35a1b927ab636449d898922b127a2f44ab3b4fa867bdf2a9482c1023",
+      "slug": "small-red-light",
+      "title": "Small Red Light",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "insomniac",
+        "dread",
+        "still"
+      ],
+      "description": "figure in bed, smoke detector, red glow, dark ceiling, held breath",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mechanical-saint",
+      "sourceFile": "dac19e8cc31eb086.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "dac19e8cc31eb086722ae26f73fa5f4d26dbc76ccbf63f1351817c21c6310436",
+      "slug": "forecast-fire",
+      "title": "Forecast: Fire",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "violent",
+        "absurd",
+        "graphic"
+      ],
+      "description": "black umbrella, erupting smoke, red field, ink burst, flat ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "melted-signal",
+      "sourceFile": "88e601ebbc317807.jpg",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "88e601ebbc3178070dcfa40721e00f0876750d4ef7417a60c6bccc8e726570ef",
+      "slug": "domestic-combustion",
+      "title": "Domestic Combustion",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "wry",
+        "burning",
+        "domestic"
+      ],
+      "description": "ironing figure, rising flames, silhouette, ember light, dark interior",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "honest-machine",
+      "sourceFile": "09d72870073a5e14.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "09d72870073a5e143883038bd34f356089ea7f8489f780cbcd771d2bd4320985",
+      "slug": "the-machine-that-prints-us",
+      "title": "The Machine That Prints Us",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "industrial",
+        "precise",
+        "archival"
+      ],
+      "description": "printing press, mechanical detail, technical drawing, cream ground, coral sun",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "cold-cabinet",
+      "sourceFile": "1aecac512099c480.png",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/png",
+      "sha256": "1aecac512099c480b7d54f402873a719d0f677cc453317c7d8f8be8bbdb889b7",
+      "slug": "branch-offering",
+      "title": "Branch Offering",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "serene",
+        "ceremonial",
+        "pale"
+      ],
+      "description": "robed figure, flowering branch, misty ground, pale palette, soft light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "the-dune-observatory",
+      "sourceFile": "3043bea88c26bc21.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "3043bea88c26bc21a16b279286125d187199d224bb60148a54ba3d7765adecf1",
+      "slug": "vessel-dressed",
+      "title": "Vessel, Dressed",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "absurd",
+        "fragile",
+        "tactile"
+      ],
+      "description": "cracked urn, torn shirt, canvas texture, cream ground, sculptural still life",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "fragile-emotions",
+      "sourceFile": "337bbcbb9041f5d5.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "337bbcbb9041f5d5a2f175aa03904e008555b2edbf9b854ba2e8fb43c79be840",
+      "slug": "cold-storage",
+      "title": "Cold Storage",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "domestic",
+        "alarming",
+        "clinical"
+      ],
+      "description": "open refrigerator, red spill, teal interior, print outline, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "courtroom-cake",
+      "sourceFile": "15b7d2a7ae45440e.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "15b7d2a7ae45440e348b5f140b83be9d4ed16a2efbc9f6e0aab58be588b7e5d3",
+      "slug": "the-long-walk-home",
+      "title": "The Long Walk Home",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "ominous",
+        "marching",
+        "absurd"
+      ],
+      "description": "walking machine, umbrella crowd, spindly legs, muted palette, procession",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "cereal-archive",
+      "sourceFile": "0b001dd20786fa1c.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "0b001dd20786fa1c45c7411eb9454b3e5fdf19d7302ecb2a4cdad5b46f0e4f25",
+      "slug": "broth-pop",
+      "title": "Broth Pop",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "appetite",
+        "bold",
+        "graphic"
+      ],
+      "description": "ramen bowl, coral discs, teal noodles, cream ground, flat colour",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mailbox-garden",
+      "sourceFile": "13e294842fc075b5.png",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/png",
+      "sha256": "13e294842fc075b565344e9228e61c316a5df6bbeeaa43a8a2a6c4fe804933c4",
+      "slug": "doorway-cumulus",
+      "title": "Doorway, Cumulus",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "numinous",
+        "aerial",
+        "inviting"
+      ],
+      "description": "cloud door, night sky, white vapour, dark blue, open threshold",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "black-coffee-fountain",
+      "sourceFile": "38907590d65d1804.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "38907590d65d180488fc8ac75bbc8a7cfdf87c018e712a774d3f92f2695865d1",
+      "slug": "service-for-none",
+      "title": "Service for None",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "uncanny",
+        "ceremonial",
+        "culinary"
+      ],
+      "description": "faceless chef, stacked bowls, coral disc, cream ground, ink line",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "unsaid-things",
+      "sourceFile": "9b62281d378605ce.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "9b62281d378605ceb1c018cb55941f3d08561f6f0ca5b4454fbb3d3ec7503252",
+      "slug": "recital-overgrown",
+      "title": "Recital, Overgrown",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "ornate",
+        "overgrown",
+        "gilded"
+      ],
+      "description": "grand piano, golden tree, gilded hall, ornate carving, slow growth",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "payphone-for-forgiveness",
+      "sourceFile": "86511f48a4ac2f68.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "86511f48a4ac2f6826924079b98564ffff3630d4e55ccbe65678c41bfa75b3c3",
+      "slug": "storm-steeped",
+      "title": "Storm, Steeped",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "domestic",
+        "tempestuous",
+        "wry"
+      ],
+      "description": "teacup saucer, storm cloud, engraved line, cream ground, rising weather",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "tower-of-smoke",
+      "sourceFile": "45891424ab079d2e.png",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/png",
+      "sha256": "45891424ab079d2ec6fc310f90c02b1d01b8e98b049958f616f1a8c123bb9f17",
+      "slug": "threshold-above",
+      "title": "Threshold Above",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "aspirational",
+        "absurd",
+        "spare"
+      ],
+      "description": "tall ladder, floating door, pale dune, small figure, blue sky",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "copper-veil",
+      "sourceFile": "919e3c872c65f8fe.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "919e3c872c65f8fe83ea90bccd37a1da7d6b378b480e263d8230c8b26533cbac",
+      "slug": "sitter-absent",
+      "title": "Sitter, Absent",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "draped",
+        "empty",
+        "sculptural"
+      ],
+      "description": "draped cloth, wooden stool, desert light, absent figure, folded form",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "azure-threshold",
+      "sourceFile": "fa87fbdcf07d99ff.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "fa87fbdcf07d99ff422a93031da7cf3ac31ee6e78f456c4c081d654bde53f340",
+      "slug": "the-ledger-keeper",
+      "title": "The Ledger Keeper",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "scholarly",
+        "folkloric",
+        "ornate"
+      ],
+      "description": "owl-headed scribe, flying birds, ornate study, gold ground, quill work",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "astral-ferry",
+      "sourceFile": "3c217685ac14a49c.jpg",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/jpeg",
+      "sha256": "3c217685ac14a49cbe536a80bc61e7f1c68e2f2647947951fcf5810428a34d31",
+      "slug": "coats-without-us",
+      "title": "Coats Without Us",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "absent",
+        "uniform",
+        "muted"
+      ],
+      "description": "hanging coats, empty sleeves, colour split, grey wash, coral flash",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "ochre-orbits",
+      "sourceFile": "ed84f897f89acc36.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "ed84f897f89acc36e1cfb2de1043f857b67e7d009225641b9f6bc04bdec1fccd",
+      "slug": "tide-under-the-door",
+      "title": "Tide Under the Door",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "surging",
+        "ominous",
+        "aquatic"
+      ],
+      "description": "red door, crashing water, flooded frame, dark field, white foam",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "ink-bear-bloom",
+      "sourceFile": "f70e2d05de60c2df.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "f70e2d05de60c2df21e22b9f0db6f1d04c0e2f44a9c502ec13162f5603b2f1dc",
+      "slug": "birthday-submerged",
+      "title": "Birthday, Submerged",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "fragile",
+        "luminous",
+        "aquatic"
+      ],
+      "description": "single candle, submerged flame, splash crown, dark water, warm point",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "flooded-arcades",
+      "sourceFile": "196ca0624f18f47c.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "196ca0624f18f47ce5210a875a195722b7f834f400fbf3c15ea537b04c02e669",
+      "slug": "night-dispensary",
+      "title": "Night Dispensary",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "nocturnal",
+        "mechanical",
+        "dreamlike"
+      ],
+      "description": "vending machine, night scene, teal glow, print texture, cream frame",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "ice-procession",
+      "sourceFile": "dafe4ac7dc602bcd.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "dafe4ac7dc602bcd49ea43378087458f86efb74f6fcf92672e4be17dac7244da",
+      "slug": "spire-field",
+      "title": "Spire Field",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "alien",
+        "vast",
+        "mineral"
+      ],
+      "description": "rock spires, ochre desert, green stone, wide horizon, dry light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "sail-cathedral",
+      "sourceFile": "422e3da9339ff4c8.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "422e3da9339ff4c8d25447a47f19df03738896879c6ec08db1c821d230b669da",
+      "slug": "analog-root-system",
+      "title": "Analog Root System",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "nostalgic",
+        "organic",
+        "technical"
+      ],
+      "description": "cassette tape, root system, ink line, cream ground, teal body",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "emerald-colonnade",
+      "sourceFile": "d2b1bad0ca75dc6b.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "d2b1bad0ca75dc6b317805a722e1b8a89ed785c9e7c33113c98c0a710d92a392",
+      "slug": "bath-of-ink",
+      "title": "Bath of Ink",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "turbulent",
+        "domestic",
+        "dark"
+      ],
+      "description": "clawfoot tub, black smoke, wave form, cream ground, coral sun",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "parasol-walkers",
+      "sourceFile": "5beb8edb69497bb1.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "5beb8edb69497bb13f6ab418d68fdc30666bd9427a8f977ea411581d230612c8",
+      "slug": "bowl-and-blood-orange",
+      "title": "Bowl and Blood Orange",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "appetite",
+        "violent",
+        "graphic"
+      ],
+      "description": "noodle bowl, red splatter, teal rim, cream ground, ink hatch",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "cosmic-pilgrim",
+      "sourceFile": "605ba4ee3d2ee2ab.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "605ba4ee3d2ee2ab8dd5e31c23e94e46677f0dbb2663f86e5f9f15cf98988577",
+      "slug": "gilt-reflections",
+      "title": "Gilt Reflections",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "opulent",
+        "layered",
+        "ancient"
+      ],
+      "description": "gold-leaf towers, mirrored canal, teal water, cracked gilding, dense skyline",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "the-endless-archive",
+      "sourceFile": "f7761d2eb3fa7704.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "f7761d2eb3fa7704d8ea4ededce2e8cd35282d1162c2e3c5ab8593190d1f8c16",
+      "slug": "dinner-guest",
+      "title": "Dinner Guest",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "absurd",
+        "formal",
+        "aquatic"
+      ],
+      "description": "fish-headed figure, suit and tie, round bowl, coral ring, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "the-owl-librarian",
+      "sourceFile": "71b2d785a8821939.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "71b2d785a8821939d7bad8f869c7f6b74c6df227a16bab658e9931728ddfa00f",
+      "slug": "procession-of-swans",
+      "title": "Procession of Swans",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "receding",
+        "serene",
+        "uncanny"
+      ],
+      "description": "swan line, flat horizon, pale sand, receding scale, soft light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "electric-cobalt-minimalist",
+      "sourceFile": "5b374481524cf287.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "5b374481524cf2878aece0528db5b55b93975c487c4e9ced728f4539f84bf5b3",
+      "slug": "saint-of-small-machines",
+      "title": "Saint of Small Machines",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "reverent",
+        "mechanical",
+        "iconic"
+      ],
+      "description": "mechanical figure, red halo, radiating lines, cream ground, technical icon",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "vibrant-risograph-surrealism",
+      "sourceFile": "923c75d60f779ba3.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "923c75d60f779ba3ed308ccb3a8f7e0d5228a29b5627fd6046b1a73edcbca81f",
+      "slug": "the-floor-opens",
+      "title": "The Floor Opens",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "devouring",
+        "vertiginous",
+        "dark"
+      ],
+      "description": "open mouth, swirling ink, tiled floor, pink lip, black void",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "graphic-angular-urbanism",
+      "sourceFile": "fe656bad87823593.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "fe656bad878235933f3e81da7cc6eb51223637f7442dd1e3e733d6264e37bd87",
+      "slug": "counting-room",
+      "title": "Counting Room",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "conspiratorial",
+        "repetitive",
+        "muted"
+      ],
+      "description": "hooded rows, counting hands, pink ground, uniform figures, flat colour",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "surreal-botanical-synthesis",
+      "sourceFile": "15dc5bdf61949f7a.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "15dc5bdf61949f7a05b02a23937f98341ac9144fe4d0b77ccdda6cd293cda502",
+      "slug": "red-witness",
+      "title": "Red Witness",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "surveilled",
+        "bleeding",
+        "wry"
+      ],
+      "description": "camera housing, red drip, teal wall, ink outline, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "monochrome-glitch-abstraction",
+      "sourceFile": "c6acbf0642b050e2.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "c6acbf0642b050e20448a056e7482a3e57dd36c05772e3922c69b321e83120d1",
+      "slug": "wedding-jurisdiction",
+      "title": "Wedding Jurisdiction",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "ironic",
+        "ceremonial",
+        "layered"
+      ],
+      "description": "tiered cake, courthouse spire, teal icing, coral trim, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "graphic-surrealist-minimalism",
+      "sourceFile": "dbbf873c6dbd1715.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "dbbf873c6dbd17155d02db3ef4056f65652d8536255dd9a4078ca3210292683b",
+      "slug": "assembly-partial",
+      "title": "Assembly, Partial",
+      "category": "Mixed Media / Collage",
+      "moodTags": [
+        "fragmented",
+        "constructed",
+        "bold"
+      ],
+      "description": "torn collage, red sun, layered paper, ink marks, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "kinetic-ghost-minimalism",
+      "sourceFile": "47e67393b1e125a0.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "47e67393b1e125a045789c5b3e5dcb9815bdc241824cabc13ad54cf6ff471274",
+      "slug": "yellow-slump",
+      "title": "Yellow Slump",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "melting",
+        "comic",
+        "arid"
+      ],
+      "description": "yellow face, melting profile, dry plain, blue sky, soft collapse",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "velvet-moss-surrealism",
+      "sourceFile": "5b08be6fc14bfbfb.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "5b08be6fc14bfbfb70f69a66a65b0c42519181b7b763c6d94b39eddc0b6c9001",
+      "slug": "umbrella-reversed",
+      "title": "Umbrella, Reversed",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "inverted",
+        "smoky",
+        "wry"
+      ],
+      "description": "inverted umbrella, pouring smoke, cream ground, coral line, ink wash",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "corrupted-digital-dreamscape",
+      "sourceFile": "331aa663dfd5ef75.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "331aa663dfd5ef752ceeaa509ccf3e4027fd183d8e53bf5c708732137139a36d",
+      "slug": "two-skulls-two-suns",
+      "title": "Two Skulls, Two Suns",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "mortal",
+        "graphic",
+        "arid"
+      ],
+      "description": "animal skulls, coral orbs, teal shadow, cream ground, flat cut",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "hyper-saturated-surreal-pop",
+      "sourceFile": "4492eec8d4db144e.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "4492eec8d4db144eebb066ff164fc404b191a9beddc4b94a1fda7b82117e3331",
+      "slug": "breakfast-circuitry",
+      "title": "Breakfast Circuitry",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "absurd",
+        "wired",
+        "domestic"
+      ],
+      "description": "wired figure, cereal box, teal flakes, coral splash, cream ground",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "graphic-kinetic-surrealism",
+      "sourceFile": "84db519f9078ff34.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "84db519f9078ff347ed858e5aa1e1302495dd53c1b432e04e0aa8f8a1e4161ee",
+      "slug": "one-wet-eye",
+      "title": "One Wet Eye",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "grieving",
+        "singular",
+        "ink"
+      ],
+      "description": "single eye, ink wash, teal tear, cream ground, brush edge",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "textured-geometric-minimalism",
+      "sourceFile": "8c7ed40725786b5e.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "8c7ed40725786b5eb55b15ac2ea64568ebb65443d91a847360a57a5579e4f274",
+      "slug": "cost-of-smiling",
+      "title": "Cost of Smiling",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "greedy",
+        "grotesque",
+        "graphic"
+      ],
+      "description": "grinning mouth, coin pile, ink teeth, cream ground, dense hatch",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "luminous-cosmic-folklore",
+      "sourceFile": "73863595b64eb4d4.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "73863595b64eb4d41d684f56ab746631025bc3f64aa5ae1dd2f0a3503901521b",
+      "slug": "exhale-red",
+      "title": "Exhale, Red",
+      "category": "Mixed Media / Collage",
+      "moodTags": [
+        "contemplative",
+        "smoky",
+        "bold"
+      ],
+      "description": "seated man, red smoke, teal ground, halftone, print collage",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "cloud-chamber-communion",
+      "sourceFile": "b753562340b43844.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "b753562340b438444f0bf4f889f6407d745d11c367207d3230cd68d5574605c2",
+      "slug": "city-in-the-steam",
+      "title": "City in the Steam",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "urban",
+        "appetite",
+        "reflective"
+      ],
+      "description": "ramen bowl, skyline reflection, rising steam, cream ground, teal broth",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "ethereal-painterly-botanica",
+      "sourceFile": "a74f4807d5798e93.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "a74f4807d5798e9360e58306911b46e521840b7d26c7c5a400755bb278da0a65",
+      "slug": "dinner-on-hold",
+      "title": "Dinner on Hold",
+      "category": "Graphic / Illustration / Print",
+      "moodTags": [
+        "absurd",
+        "burning",
+        "domestic"
+      ],
+      "description": "noodle bowl, rising flame, rotary phone, cream ground, ink line",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "monochrome-gothic-printmaking",
+      "sourceFile": "c3aeff1c669a9c4d.png",
+      "sourcePool": "generated_images",
+      "sourceMimeType": "image/png",
+      "sha256": "c3aeff1c669a9c4df5e40dfc583af136cea401f19f87e7cccef32b4e10511b75",
+      "slug": "the-mirror-dances-back",
+      "title": "The Mirror Dances Back",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "theatrical",
+        "mortal",
+        "ornate"
+      ],
+      "description": "harlequin figure, held mirror, dancing skeleton, patterned ground, muted gold",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "bold-graphic-neon-surrealism",
+      "sourceFile": "6016a8ebb5d3f5a9.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "6016a8ebb5d3f5a9f23d22294dc7fd62924c4a2169ab2ec38263441eeb2446e9",
+      "slug": "overhead-memento",
+      "title": "Overhead Memento",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "mortal",
+        "looming",
+        "nocturnal"
+      ],
+      "description": "giant skull, small city, violet sky, ruin field, cold light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "tactile-organic-opulence",
+      "sourceFile": "a35f10c78389d416.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "a35f10c78389d4167866b910f2b4a5153e4a643ef1647007738ff2f244153b67",
+      "slug": "one-tower-one-shadow",
+      "title": "One Tower, One Shadow",
+      "category": "Minimal / Abstract",
+      "moodTags": [
+        "minimal",
+        "solitary",
+        "arid"
+      ],
+      "description": "brick tower, long shadow, ochre sand, teal sky, flat plane",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "gritty-graphic-macabre",
+      "sourceFile": "58260ef3a72649a0.png",
+      "sourcePool": "concept_reference_art",
+      "sourceMimeType": "image/png",
+      "sha256": "58260ef3a72649a05bce38c145a6f6607bab1279bad48a5399930bbbb7dc12d8",
+      "slug": "refuse-orbiting",
+      "title": "Refuse, Orbiting",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "mundane",
+        "cosmic",
+        "wry"
+      ],
+      "description": "tied trash bag, tiled ledge, star field, deep blue, quiet void",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "herald-of-the-orbit-bloom",
+      "sourceFile": "726bae853a07de16.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "726bae853a07de16600bf9fb7201e42e67fb0d525c4ba43c361475a7c2437518",
+      "slug": "signal-head",
+      "title": "Signal Head",
+      "category": "Mixed Media / Collage",
+      "moodTags": [
+        "fragmented",
+        "guiding",
+        "layered"
+      ],
+      "description": "profile head, small lighthouse, falling squares, gold ground, collage edge",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "graphic-surreal-pop",
+      "sourceFile": "c121d6e4e87e15a1.png",
+      "sourcePool": "new_meta_images",
+      "sourceMimeType": "image/png",
+      "sha256": "c121d6e4e87e15a1a0aaa2a4f759243e81daf19d54ec864042e9386203cbc770",
+      "slug": "black-prism-peak",
+      "title": "Black Prism Peak",
+      "category": "Material / Sculptural / Organic",
+      "moodTags": [
+        "severe",
+        "mineral",
+        "monumental"
+      ],
+      "description": "crystalline peak, jagged facets, grey sky, mineral edge, cold light",
+      "series": "collection_rescore_2026-08-14"
+    }
+  ]
+}

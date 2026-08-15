@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "swapId": "2026-08-14-collection-rescore-generated_images-png",
+  "date": "2026-08-14",
+  "directive": "Owner-directed rescore swap: every launch position from 18 to 100 is replaced by a higher-scoring work selected from a full 294,036-image sweep of E:\\ART_COLLECTION. Positions 1-17 are untouched. Each replacement inherits the removed work's launch position, priceCents and saleMode, so the price ladder and the exclusive/repeatable split are unchanged. Split by source pool and MIME type because the spec schema carries a single sourcePool and sourceMimeType.",
+  "removalReason": "collection_rescore_owner_directive_2026-08-14",
+  "sourcePool": "generated_images",
+  "sourceDirectory": "C:/Users/serge/Desktop/ARTCOVR/outputs/catalog/regen-picks-2026-08-14",
+  "sourceMimeType": "image/png",
+  "reviewFlags": [
+    "owner_direct_use_pool_source",
+    "machine_scored_style_and_rarity_rank_2026-08-14",
+    "independent_visual_gate_passed_no_visible_text_logo_watermark_likeness_child_nudity_or_protected_character",
+    "commercial_rights_unconfirmed",
+    "owner_approval_required"
+  ],
+  "provenanceNote": "Selection evidence in E:\\ART_COLLECTION\\.artcovr-scoring (features.jsonl, ranked.jsonl, model.json, final83.json, swap-evidence.json, verify_*.jpg, before_after_*.jpg). Source bytes are unmodified originals copied from the owner-approved direct-use pools; each file is named by its own SHA-256 prefix.",
+  "works": [
+    {
+      "replaces": "burned-prophecy",
+      "sourceFile": "5de0f64e80aa1a64.png",
+      "sha256": "5de0f64e80aa1a6494261e5e8895b7573c34ad0583496c8a331e7c341a634bc0",
+      "slug": "one-knot",
+      "title": "One Knot",
+      "category": "Minimal / Abstract",
+      "moodTags": [
+        "minimal",
+        "taut",
+        "singular"
+      ],
+      "description": "red cord, single knot, black field, thin line, empty space",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "end-of-takeout",
+      "sourceFile": "0b9c4f8a5cc2a7fd.png",
+      "sha256": "0b9c4f8a5cc2a7fd422a1d2748f607d5945818eb1846542fba570e4365b8f58c",
+      "slug": "green-vortex",
+      "title": "Green Vortex",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "churning",
+        "verdant",
+        "alien"
+      ],
+      "description": "green orb, swirling mass, dark field, organic bloom, deep glow",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "cold-cabinet",
+      "sourceFile": "1aecac512099c480.png",
+      "sha256": "1aecac512099c480b7d54f402873a719d0f677cc453317c7d8f8be8bbdb889b7",
+      "slug": "branch-offering",
+      "title": "Branch Offering",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "serene",
+        "ceremonial",
+        "pale"
+      ],
+      "description": "robed figure, flowering branch, misty ground, pale palette, soft light",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "mailbox-garden",
+      "sourceFile": "13e294842fc075b5.png",
+      "sha256": "13e294842fc075b565344e9228e61c316a5df6bbeeaa43a8a2a6c4fe804933c4",
+      "slug": "doorway-cumulus",
+      "title": "Doorway, Cumulus",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "numinous",
+        "aerial",
+        "inviting"
+      ],
+      "description": "cloud door, night sky, white vapour, dark blue, open threshold",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "tower-of-smoke",
+      "sourceFile": "45891424ab079d2e.png",
+      "sha256": "45891424ab079d2ec6fc310f90c02b1d01b8e98b049958f616f1a8c123bb9f17",
+      "slug": "threshold-above",
+      "title": "Threshold Above",
+      "category": "Surreal / Hybrid",
+      "moodTags": [
+        "aspirational",
+        "absurd",
+        "spare"
+      ],
+      "description": "tall ladder, floating door, pale dune, small figure, blue sky",
+      "series": "collection_rescore_2026-08-14"
+    },
+    {
+      "replaces": "monochrome-gothic-printmaking",
+      "sourceFile": "c3aeff1c669a9c4d.png",
+      "sha256": "c3aeff1c669a9c4df5e40dfc583af136cea401f19f87e7cccef32b4e10511b75",
+      "slug": "the-mirror-dances-back",
+      "title": "The Mirror Dances Back",
+      "category": "Painterly / Illustrative",
+      "moodTags": [
+        "theatrical",
+        "mortal",
+        "ornate"
+      ],
+      "description": "harlequin figure, held mirror, dancing skeleton, patterned ground, muted gold",
+      "series": "collection_rescore_2026-08-14"
+    }
+  ]
+}
