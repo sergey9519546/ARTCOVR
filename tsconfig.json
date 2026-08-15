@@ -41,6 +41,8 @@
   ],
   "exclude": [
     "node_modules",
-    "supabase/functions"
+    "supabase/functions",
+    "**/*.PROPOSED.ts",
+    "**/*.bak"
   ]
 }

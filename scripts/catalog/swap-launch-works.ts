@@ -15,7 +15,17 @@
  *    byte-detected format, decoded square dimensions and byte length;
  *  - metadata that has no trustworthy source stays an explicit null/empty
  *    value (prompt, avoids, palette, lighting, texture, linework, composition)
- *    with the lowest honest confidence labels, per catalog/README.md;
+ *    with the lowest honest confidence labels, per catalog/README.md, and
+ *    provenance is derived from the row's real source pool rather than stamped
+ *    from a template;
+ *  - a new SHA-256 NEVER acquires rights or publication here. Replacement rows
+ *    land `rightsApproved: false, published: false` and must go through
+ *    scripts/catalog/import-approval-workbook.mjs, the only path with a real
+ *    `decision === "approve"` gate. Because the approved catalog projection
+ *    rejects unapproved rows, a swap fails loudly until that has happened;
+ *  - a source on the launch blocklist (hardcoded rejects, regeneration-only
+ *    identities, and every owner exclusion in catalog/excluded-candidates.json)
+ *    is refused at selection time;
  *  - every removed work is written to catalog/excluded-candidates.json as an
  *    audit record instead of silently disappearing.
  *
@@ -41,9 +51,18 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { buildCatalogImport } from "../../src/lib/artcovr/catalog-import.ts";
-import { validateLaunchReviewIntegrity } from "../../src/lib/artcovr/catalog-review.ts";
+import {
+  BLOCKED_LAUNCH_SOURCE_HASHES,
+  isBlockedLaunchSource,
+  validateLaunchReviewIntegrity,
+} from "../../src/lib/artcovr/catalog-review.ts";
 import { decodeImageHeader } from "../../src/lib/artcovr/catalog-source.ts";
-import { buildSearchText, launchSelection } from "../../src/lib/artcovr/launch-selection.ts";
+import type { DirectSourcePool } from "../../src/lib/artcovr/launch-selection.ts";
+import {
+  LAUNCH_SOURCE_POOLS,
+  buildSearchText,
+  launchSelection,
+} from "../../src/lib/artcovr/launch-selection.ts";
 import { candidateIdentityFingerprint } from "./approval-workbook-schema.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -116,13 +135,43 @@ const spec = await readJson<SwapSpec>(specPath);
 if (spec.schemaVersion !== 1 && spec.schemaVersion !== 2) {
   throw new Error(`Unsupported swap spec version: ${spec.schemaVersion}.`);
 }
-if (spec.schemaVersion === 1 && spec.works.some((work) => work.sourcePool ?? work.sourceMimeType)) {
+// `!== undefined` and not a nullish/truthy test: an empty-string sourcePool is
+// still a per-work override, and it must not slip past the schemaVersion gate
+// only to be silently replaced by the spec-level default further down.
+if (
+  spec.schemaVersion === 1 &&
+  spec.works.some((work) => work.sourcePool !== undefined || work.sourceMimeType !== undefined)
+) {
   throw new Error("Per-work sourcePool/sourceMimeType requires schemaVersion 2.");
 }
 
-/** Per-work provenance, falling back to the spec-level default. */
-const poolOf = (work: SwapWork): string => work.sourcePool ?? spec.sourcePool;
-const mimeOf = (work: SwapWork): "image/png" | "image/jpeg" => work.sourceMimeType ?? spec.sourceMimeType;
+const APPROVED_SOURCE_POOLS = new Set<string>(LAUNCH_SOURCE_POOLS);
+
+/**
+ * Per-work source pool, falling back to the spec-level default, validated
+ * rather than merely defaulted: an empty or unknown pool is a spec error, not
+ * a reason to quietly adopt the spec default.
+ */
+const poolOf = (work: SwapWork): DirectSourcePool => {
+  const pool = work.sourcePool ?? spec.sourcePool;
+  if (typeof pool !== "string" || pool.trim().length === 0) {
+    throw new Error(`${work.slug}: sourcePool is missing or empty at both the work and spec level.`);
+  }
+  if (!APPROVED_SOURCE_POOLS.has(pool)) {
+    throw new Error(
+      `${work.slug}: '${pool}' is not an owner-approved source pool (${[...APPROVED_SOURCE_POOLS].join(", ")}).`,
+    );
+  }
+  return pool as DirectSourcePool;
+};
+
+const mimeOf = (work: SwapWork): "image/png" | "image/jpeg" => {
+  const mime = work.sourceMimeType ?? spec.sourceMimeType;
+  if (mime !== "image/png" && mime !== "image/jpeg") {
+    throw new Error(`${work.slug}: sourceMimeType must be image/png or image/jpeg, got ${JSON.stringify(mime)}.`);
+  }
+  return mime;
+};
 
 const curated = await readJson<JsonRecord[]>(curatedPath);
 const review = await readJson<JsonRecord[]>(reviewPath);
@@ -207,6 +256,17 @@ for (const work of spec.works) {
     throw new Error(`Cannot replace ${work.replaces}: it is not in the current launch catalog.`);
   }
   const source = await measureSource(work);
+  // Rejected at selection time, not merely warned about: the blocklist covers
+  // hardcoded visible-text rejects, regeneration-only identities, and every
+  // SHA-256 the owner removed in catalog/excluded-candidates.json. A swap may
+  // not bring one back under a new slug.
+  if (isBlockedLaunchSource(source.sha256)) {
+    throw new Error(
+      `${work.slug}: source ${source.sha256} is on the launch blocklist ` +
+        `(${BLOCKED_LAUNCH_SOURCE_HASHES.size} retired identities; see catalog/excluded-candidates.json ` +
+        `and src/lib/artcovr/catalog-review.ts). It can never re-enter the launch catalog.`,
+    );
+  }
   const catalogId = `art_${source.sha256.slice(0, 20)}`;
   swapped.push({
     work,
@@ -228,10 +288,68 @@ for (const record of curated) {
   }
 }
 
+/**
+ * Provenance is a claim about where a row's bytes and its labels came from, so
+ * it is derived from the row's real source pool — never stamped from a single
+ * hardcoded template.
+ *
+ * Only `regenerated_originals` has a provenance this script can establish from
+ * the data it holds: the delivered file IS the new work, so the join is the
+ * recomputed SHA-256 of that file, the classification is `regenerated_original`
+ * and the title comes from the owner's regeneration brief.
+ *
+ * The direct-use pools are different in kind. A `concept_reference_art` row
+ * joins to its pool through the audit index and carries a per-row
+ * classification (`other`, `neo_gekiga`, ...); a `generated_images` row joins
+ * through its ordinal, style-profile path and manifest. A swap spec carries
+ * none of that, and catalog/README.md forbids guessing metadata, so those pools
+ * are rejected here instead of being described with another pool's shape.
+ */
+function provenanceFor(entry: (typeof swapped)[number]): JsonRecord {
+  const { work } = entry;
+  const pool = poolOf(work);
+  if (pool !== "regenerated_originals") {
+    throw new Error(
+      `${work.slug}: cannot establish provenance for sourcePool '${pool}'. This script can only ` +
+        `describe 'regenerated_originals', whose provenance is the recomputed SHA-256 of the ` +
+        `delivered output. A '${pool}' row joins to its pool through an audit index, ordinal or ` +
+        `style-profile manifest that this swap spec does not carry, and catalog/README.md forbids ` +
+        `guessing metadata. Stamping 'regenerated_original' on it would record false provenance.`,
+    );
+  }
+  const series = typeof work.series === "string" ? work.series.trim() : "";
+  if (series.length === 0) {
+    throw new Error(`${work.slug}: a regenerated original must name the regeneration-brief series.`);
+  }
+  return {
+    confidence: {
+      identity_dimensions_hash: "high",
+      title_keywords:
+        "medium: owner-authored labels from the regeneration brief; no source-metadata join",
+      prompt: "unavailable",
+      rights: "unverified",
+    },
+    linkage: {
+      join: "recomputed SHA-256 of the delivered regeneration output",
+      source: pool,
+      classification: "regenerated_original",
+      reference_series: series,
+      title_source: "owner regeneration brief",
+      keyword_source: "curator visual review of the exact SHA-locked image",
+      prompt_source:
+        "unavailable; original brief held outside this repository and not ledger-linked",
+    },
+    promptStatus: "unavailable; not reconstructed",
+    provider: null,
+    model: null,
+  };
+}
+
 function curatedRecordFor(entry: (typeof swapped)[number]): JsonRecord {
   const { work, source, catalogId, position } = entry;
   const keywords = keywordsFrom(work.description);
   if (keywords.length === 0) throw new Error(`${work.slug}: description yields no review keywords.`);
+  const provenance = provenanceFor(entry);
   return {
     id: catalogId,
     position,
@@ -273,26 +391,7 @@ function curatedRecordFor(entry: (typeof swapped)[number]): JsonRecord {
       promptTemplates: {},
       qualityFlags: [],
       styleProfile: null,
-      provenance: {
-        confidence: {
-          identity_dimensions_hash: "high",
-          title_keywords: "medium: owner-authored labels from the regeneration brief; no source-metadata join",
-          prompt: "unavailable",
-          rights: "unverified",
-        },
-        linkage: {
-          join: "recomputed SHA-256 of the delivered regeneration output",
-          source: poolOf(work),
-          classification: "regenerated_original",
-          reference_series: work.series,
-          title_source: "owner regeneration brief",
-          keyword_source: "curator visual review of the exact SHA-locked image",
-          prompt_source: "unavailable; original brief held outside this repository and not ledger-linked",
-        },
-        promptStatus: "unavailable; not reconstructed",
-        provider: null,
-        model: null,
-      },
+      provenance,
       searchText: buildSearchText({
         title: work.title,
         description: work.description,
@@ -328,12 +427,22 @@ const reviewRecordFor = (record: JsonRecord): JsonRecord => ({
   accentColor: "#0b0b0b",
 });
 
-const approvedRecordFor = (record: JsonRecord, entry: (typeof swapped)[number]): JsonRecord => ({
+/**
+ * A swap introduces a NEW SHA-256 that no human has ever reviewed for rights.
+ * Rights and publication are granted by exactly one path —
+ * scripts/catalog/import-approval-workbook.mjs, the only place with a real
+ * `decision === "approve"` gate — so the row this script produces lands
+ * explicitly unapproved and unpublished. It inherits the replaced work's price
+ * and sale mode because the ladder and the exclusive/repeatable split are owner
+ * decisions this script must preserve, never recompute.
+ */
+const pendingApprovalRecordFor = (
+  record: JsonRecord,
+  entry: (typeof swapped)[number],
+): JsonRecord => ({
   ...record,
-  rightsApproved: true,
-  published: true,
-  // Inherited from the replaced work: the ladder and the sale-mode split are
-  // owner decisions this script must preserve, never recompute.
+  rightsApproved: false,
+  published: false,
   saleMode: entry.saleMode,
   priceCents: entry.priceCents,
   currency: "USD",
@@ -352,7 +461,7 @@ for (const entry of swapped) {
   const record = curatedRecordFor(entry);
   nextCurated[index] = record;
   nextReview[reviewIndex] = reviewRecordFor(record);
-  nextApproved[approvedIndex] = approvedRecordFor(record, entry);
+  nextApproved[approvedIndex] = pendingApprovalRecordFor(record, entry);
 }
 
 const auditRecords = swapped.map(({ removed }) => ({
@@ -395,8 +504,30 @@ if (integrityIssues.length > 0) {
   );
 }
 const importBuild = buildCatalogImport(nextApproved);
-if (importBuild.issues.length > 0) {
-  failures.push(`approved catalog import: ${importBuild.issues.map(({ code }) => code).join(", ")}`);
+// The rows this swap introduces are unapproved by construction, so the approved
+// catalog projection rejects them. That is the correct, intended outcome: it is
+// the downstream inconsistency that stops a never-reviewed SHA from shipping.
+// Report it as an approval-workflow instruction rather than a generic failure.
+const introducedCatalogIds = new Set(swapped.map(({ catalogId }) => catalogId));
+const pendingApprovalIssues = importBuild.issues.filter(
+  ({ code, catalogId }) =>
+    code === "NOT_APPROVED" && catalogId !== null && introducedCatalogIds.has(catalogId),
+);
+const otherImportIssues = importBuild.issues.filter(
+  (issue) => !pendingApprovalIssues.includes(issue),
+);
+if (pendingApprovalIssues.length > 0) {
+  failures.push(
+    `${pendingApprovalIssues.length} newly introduced SHA-256 identit${pendingApprovalIssues.length === 1 ? "y is" : "ies are"} ` +
+      "unapproved and unpublished, which is the only honest state a swap may produce. This script " +
+      "must never grant rights or publication to a work no one has reviewed. Run " +
+      "`npm run catalog:approval:build`, record the owner's decision in the workbook, then " +
+      "`npm run catalog:approval:import` (the only path with a real `decision === \"approve\"` gate). " +
+      `Pending: ${pendingApprovalIssues.map(({ catalogId }) => catalogId).join(", ")}`,
+  );
+}
+if (otherImportIssues.length > 0) {
+  failures.push(`approved catalog import: ${otherImportIssues.map(({ code }) => code).join(", ")}`);
 }
 if (nextCurated.length !== 100 || nextReview.length !== 100 || nextApproved.length !== 100) {
   failures.push("the launch catalog must remain exactly 100 rows");
