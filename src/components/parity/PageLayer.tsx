@@ -9,7 +9,7 @@ export function PageLayer({ active = false }: { active?: boolean }) {
       }`}
       aria-hidden={!active}
     >
-      <div className="artcovr-wordmark text-4xl">ARTCOVR</div>
+      <div className="artcovr-wordmark artcovr-wordmark-optical text-4xl">ARTCOVR</div>
     </div>
   );
 }

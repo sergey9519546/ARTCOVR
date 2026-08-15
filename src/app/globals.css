@@ -131,6 +131,29 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   letter-spacing: -.095em;
 }
 
+/*
+ * Optical compensation for the small wordmarks.
+ *
+ * The family ships Regular/Medium/Bold only (400/700/800), so `font-weight: 900`
+ * has no matching face and `font-synthesis: none` forbids faking it — every mark
+ * already renders at Bold, the heaviest weight available. At 20-36px that face
+ * rasterises visibly lighter than the same face at 300px, so the header mark
+ * reads thinner than the hero even though the geometry is identical.
+ *
+ * A hairline stroke in `em` restores the apparent weight proportionally, and
+ * `paint-order` keeps it outside the glyph so counters stay open. The stroke
+ * closes the gaps between letters, so tracking is opened slightly to land on the
+ * hero's apparent rhythm rather than its literal value.
+ *
+ * Delete this rule the moment a Black/Heavy face is added and set the real
+ * weight instead — this is a workaround for a missing font file, not a design.
+ */
+.artcovr-wordmark-optical {
+  -webkit-text-stroke: .019em currentColor;
+  paint-order: stroke fill;
+  letter-spacing: -.082em;
+}
+
 .artcovr-button {
   background: var(--foreground);
   color: var(--background);

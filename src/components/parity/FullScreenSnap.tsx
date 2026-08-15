@@ -148,7 +148,7 @@ export function FullScreenSnap() {
       >
         <span>ARTCOVR</span>
         <span className="opacity-50" aria-hidden="true">|</span>
-        <Link href="/archive" className="link-hover">Archive</Link>
+        <Link href="/archive" className="link-hover">Art Search</Link>
       </div>
       <div style={{ scrollSnapType: staticMode ? "none" : "y proximity" }}>
         {SECTIONS.map((section) => {

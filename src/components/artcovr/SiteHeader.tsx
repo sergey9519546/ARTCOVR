@@ -7,8 +7,8 @@ import { MobileMenu } from "@/components/parity/MobileMenu";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/archive", label: "Archive" },
-  { href: "/my-images", label: "My Images" },
+  { href: "/archive", label: "Art Search" },
+  { href: "/my-images", label: "Cart" },
   { href: "/about", label: "About" },
 ];
 

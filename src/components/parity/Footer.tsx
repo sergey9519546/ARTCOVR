@@ -33,13 +33,13 @@ export function Footer() {
       <div className="grid grid-cols-16 gap-x-6 gap-y-20 font-bold md:gap-6">
         <div className="order-last col-span-16 md:order-first md:col-span-4">
           <div className="flex flex-col">
-            <span className="artcovr-wordmark mb-2 text-2xl">ARTCOVR</span>
+            <span className="artcovr-wordmark artcovr-wordmark-optical mb-2 text-2xl">ARTCOVR</span>
             <span>All rights reserved © 2026</span>
           </div>
         </div>
         <div className="col-span-8 md:col-span-3">
-          <Link href="/archive" className="link-hover block w-fit">Archive</Link>
-          <Link href="/my-images" className="link-hover block w-fit">My Images</Link>
+          <Link href="/archive" className="link-hover block w-fit">Art Search</Link>
+          <Link href="/my-images" className="link-hover block w-fit">Cart</Link>
           <Link href="/contact" className="link-hover block w-fit">Custom inquiry</Link>
         </div>
         <div className="col-span-8 md:col-span-4">
