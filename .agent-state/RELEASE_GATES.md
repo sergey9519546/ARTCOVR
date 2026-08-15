@@ -4,7 +4,7 @@ All release gates must pass before any version is marked production-ready.
 
 | Gate | Requirement | Command / Check | Status (2026-08-15) |
 | :--- | :--- | :--- | :--- |
-| **G1: Unit & Contract Tests** | 100% test pass | `npm test` | **PASS** (141 pass, 0 fail, 0 skip) |
+| **G1: Unit & Contract Tests** | 100% test pass | `npm test` | **PASS** (142 pass, 0 fail, 0 skip) |
 | **G2: TypeScript Compilation** | Zero type errors | `npm run typecheck` | **PASS** |
 | **G3: Code Quality & Lint** | Zero ESLint warnings / errors | `npm run lint` | **PASS** |
 | **G4: Production Build** | Zero build errors; export pruned to approved assets | `npm run build` | **PASS** (100 published, 0 removed; 1953 files scanned, 0 forbidden slugs, 0 violations) |
