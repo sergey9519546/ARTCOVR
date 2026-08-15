@@ -36,6 +36,21 @@ alter table public.purchases
   add column if not exists entitlement_paused_at timestamptz;
 
 -- ---------------------------------------------------------------------------
+-- Prior base-snapshot audit. reconcile_base_drift re-snapshots a purchase to
+-- the artwork's CURRENT verified bytes, but the fail-closed substitution guard
+-- exists precisely because the snapshot the buyer paid for is the value we
+-- must be able to stand behind. A destructive overwrite would erase that
+-- provenance, so reconcile_base_drift stashes the displaced prior tuple here
+-- (one-deep: the immediately-replaced key+sha256 plus when). Nullable so every
+-- legacy purchase and any reconcile-not-needed path keeps a NULL prior.
+-- No perceptual/content-continuity gate is added: that is image inference and
+-- belongs to the deferred speculative-feature set this migration deliberately
+-- does not ship; provenance retention here gives the manual audit trail instead.
+-- ---------------------------------------------------------------------------
+alter table public.purchases
+  add column if not exists base_snapshot_prior jsonb;
+
+-- ---------------------------------------------------------------------------
 -- record_entitlement_pause. Called by the stripe-webhook edge function in the
 -- charge.dispute.created branch, right after revoke_purchase_access returns
 -- 'revoked'/'already_revoked'. Locks the purchase row only (no artwork touch),
@@ -93,8 +108,12 @@ $$;
 --     credit would be applied while access is still withheld;
 --   * a paused_at exists (legacy revocations without one credit zero and are
 --     a no-op success, so restore-only legacy rows keep working);
---   * extension is clamped to a sane ceiling so a pathological paused_at
---     can never inflate the entitlement arbitrarily.
+--   * extension is clamped to a sane ceiling. greatest(now()-paused_at, 0)
+--     already neutralizes a future/negative paused_at, so the ceiling's only
+--     job is to cap a *far-past* (buggy) paused_at from inflating the
+--     entitlement arbitrarily. It is set above the realistic Stripe
+--     arbitration maximum (chargeback + representment + pre-arb + arbitration
+--     can run ~90-150 days) so genuine long disputes are credited in full.
 --
 -- Purchase-only lock; cannot cycle settlement. The frozen restore function is
 -- not called, replaced, or redefined here.
@@ -107,7 +126,9 @@ returns text language plpgsql security definer set search_path = '' as $$
 declare
   v_purchase public.purchases%rowtype;
   v_extension interval;
-  v_ceiling constant interval := interval '90 days';
+  -- 180 d: above the realistic Stripe arbitration maximum; caps a far-past
+  -- (buggy) paused_at without truncating a genuine long dispute.
+  v_ceiling constant interval := interval '180 days';
 begin
   select * into v_purchase
   from public.purchases
@@ -134,8 +155,13 @@ begin
     v_ceiling
   );
 
+  -- Shelter the extension base: when a late chargeback disputes an
+  -- entitlement that had already lapsed (paused_at > expires_at), crediting
+  -- the old expires_at lands in the past and leaves the buyer with restored
+  -- access they cannot use. Anchor to the later of {expires_at, paused_at} so
+  -- the new expiry is always at or past the banished clock, never past-dated.
   update public.purchases
-  set entitlement_expires_at = v_purchase.entitlement_expires_at + v_extension,
+  set entitlement_expires_at = greatest(v_purchase.entitlement_expires_at, v_purchase.entitlement_paused_at) + v_extension,
       entitlement_paused_at = null
   where id = v_purchase.id
     and status = 'paid'
@@ -156,7 +182,12 @@ $$;
 --
 -- It refuses to act unless the artwork currently carries a valid square source
 -- (>=1024, width = height, non-empty key, real digest), and is a no-op if the
--- snapshot already matches. Purchase-only lock; cannot cycle settlement.
+-- snapshot already matches. Before overwriting, it stashes the displaced prior
+-- tuple into base_snapshot_prior so the provenance the buyer paid for survives
+-- the re-key and a later audit can detect a masked substitution. No
+-- perceptual/content-continuity gate runs here (that is deferred image
+-- inference, out of scope for this migration). Purchase-only lock; cannot
+-- cycle settlement.
 -- ---------------------------------------------------------------------------
 create or replace function public.reconcile_base_drift(
   p_purchase_id uuid
@@ -196,7 +227,11 @@ begin
 
   update public.purchases
   set base_object_key_snapshot = v_art.base_object_key,
-      base_source_sha256_snapshot = v_art.source_sha256
+      base_source_sha256_snapshot = v_art.source_sha256,
+      base_snapshot_prior = jsonb_build_object(
+        'reconciled_from_key', v_purchase.base_object_key_snapshot,
+        'reconciled_from_sha256', v_purchase.base_source_sha256_snapshot,
+        'reconciled_at', now())
   where id = v_purchase.id
     and status = 'paid';
   if not found then return 'not_paid'; end if;
