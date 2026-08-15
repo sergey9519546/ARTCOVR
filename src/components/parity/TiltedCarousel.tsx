@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { displayArtworks } from "@/lib/artcovr/artworks";
+import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 
 const ITEMS = displayArtworks.map((artwork, index) => ({
   id: artwork.id,

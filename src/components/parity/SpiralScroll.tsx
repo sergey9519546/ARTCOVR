@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { displayArtworks } from "@/lib/artcovr/artworks";
+import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 
 const MAX_SPIRAL_ITEMS = 40;
 function sampleSpiralItems(offset: number) {

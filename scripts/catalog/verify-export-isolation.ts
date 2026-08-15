@@ -44,6 +44,10 @@ const readCatalog = async (fileName: string): Promise<CatalogRow[]> => {
 
 const review = await readCatalog("curated-review.json");
 const publicProjection = await readCatalog("curated-public.json");
+const approvedArtifactPath = path.join(projectRoot, "catalog", "approved-artworks.json");
+const approvedArtifact = JSON.parse(await readFile(approvedArtifactPath, "utf8")) as unknown;
+if (!Array.isArray(approvedArtifact)) fail("CATALOG_NOT_ARRAY", { file: "approved-artworks.json" });
+const approvedRows = approvedArtifact as CatalogRow[];
 
 const slugOf = (row: CatalogRow): string => (typeof row.slug === "string" ? row.slug : "");
 
@@ -53,6 +57,21 @@ if (reviewSlugs.size === 0 || reviewSlugs.size !== review.length) {
     reason: "the review catalog must hold a non-empty set of unique, non-empty slugs",
     rows: review.length,
     uniqueSlugs: reviewSlugs.size,
+  });
+}
+
+// The owner-approval artifact is the source of truth for what may be public.
+// It grew past the launch review on 2026-08-15, so approval — not launch-review
+// membership — is the isolation boundary. Non-boolean flags fail closed.
+const approvedSlugs = new Set(
+  approvedRows
+    .filter((row) => row.rightsApproved === true && row.published === true)
+    .map(slugOf)
+    .filter(Boolean),
+);
+if (approvedSlugs.size === 0) {
+  fail("APPROVED_CATALOG_UNUSABLE", {
+    reason: "approved-artworks.json must hold at least one approved, published row",
   });
 }
 
@@ -70,23 +89,27 @@ const allowedSlugs = new Set(
     .filter(Boolean),
 );
 
-// The published projection must be a strict subset of the review set: a slug
-// that was never under review cannot have been approved out of it, and if one
-// appears here the two artifacts have drifted and the partition below is a lie.
-const unreviewedPublicSlugs = [...allowedSlugs].filter((slug) => !reviewSlugs.has(slug));
-if (unreviewedPublicSlugs.length > 0) {
-  fail("PUBLIC_SLUG_NOT_UNDER_REVIEW", {
-    reason: "curated-public.json approved a slug that curated-review.json does not contain",
-    slugs: unreviewedPublicSlugs.slice(0, 10),
-    total: unreviewedPublicSlugs.length,
+// The published projection must be a strict subset of the owner-approval
+// artifact: a slug with no approved row cannot have been approved at all, and
+// if one appears here the artifacts have drifted and the partition is a lie.
+const unapprovedPublicSlugs = [...allowedSlugs].filter((slug) => !approvedSlugs.has(slug));
+if (unapprovedPublicSlugs.length > 0) {
+  fail("PUBLIC_SLUG_NOT_APPROVED", {
+    reason: "curated-public.json contains a slug that approved-artworks.json does not approve",
+    slugs: unapprovedPublicSlugs.slice(0, 10),
+    total: unapprovedPublicSlugs.length,
   });
 }
 
-const forbiddenSlugs = [...reviewSlugs].filter((slug) => !allowedSlugs.has(slug));
-if (allowedSlugs.size + forbiddenSlugs.length !== reviewSlugs.size) {
+// Forbidden = every slug either catalog has ever named that is not currently
+// allowed to be public. That covers launch-review works the owner removed AND
+// approved rows later unpublished — none of them may leak into the export.
+const knownSlugs = new Set([...reviewSlugs, ...approvedSlugs]);
+const forbiddenSlugs = [...knownSlugs].filter((slug) => !allowedSlugs.has(slug));
+if (allowedSlugs.size + forbiddenSlugs.length !== knownSlugs.size) {
   fail("PARTITION_MISMATCH", {
-    reason: "every reviewed slug must be either approved-and-published or forbidden",
-    reviewSlugs: reviewSlugs.size,
+    reason: "every known slug must be either approved-and-published or forbidden",
+    knownSlugs: knownSlugs.size,
     allowed: allowedSlugs.size,
     forbidden: forbiddenSlugs.length,
   });

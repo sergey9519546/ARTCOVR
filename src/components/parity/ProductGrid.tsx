@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { ProductCard } from "./ProductCard";
-import { displayArtworks } from "@/lib/artcovr/artworks";
+// The home grid renders the featured tier only (owner rule: green works on the
+// front page, archive works on /archive). Aliased to the historical name so the
+// motion/parity source contracts keep matching.
+import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 
 function hasRange(min: number, max: number) {
   return displayArtworks.length >= min && displayArtworks.length <= max;

@@ -29,7 +29,23 @@ export type Artwork = {
   rightsApproved: boolean;
   published: boolean;
   accentColor: string;
+  /**
+   * Owner display tier. Only "featured" works may appear on the home page;
+   * "archive" works live on the archive page. Optional because the private
+   * staging catalog predates the field — see `artworkTier` for the fail-open
+   * default that keeps staging previews whole.
+   */
+  tier?: "featured" | "archive";
 };
+
+/**
+ * Tier accessor with the staging default: a record without a tier (the private
+ * review catalog) counts as featured so staging previews render everything.
+ * Public records always carry an explicit tier from the projection.
+ */
+export function artworkTier(artwork: Artwork): "featured" | "archive" {
+  return artwork.tier ?? "featured";
+}
 
 /**
  * The private staging selection preserves the owner's 100-image launch review.
@@ -138,6 +154,19 @@ export function orderForDisplay(items: readonly Artwork[]) {
 
 export const displayArtworks = orderForDisplay(
   isPrivateStaging ? stagingArtworks : artworks,
+);
+
+/**
+ * The home-page catalog: featured-tier works only, palette-spread through the
+ * same display ordering as the full list. The archive page, search, product
+ * routes and the sitemap keep using `displayArtworks`, which spans every
+ * published tier — the owner's rule is that archive works stay reachable and
+ * searchable, just never on the front page.
+ */
+export const featuredArtworks = orderForDisplay(
+  (isPrivateStaging ? stagingArtworks : artworks).filter(
+    (artwork) => artworkTier(artwork) === "featured",
+  ),
 );
 
 export function normalizeArtworkSearchValue(value: string) {

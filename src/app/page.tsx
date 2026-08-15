@@ -19,7 +19,7 @@ import { ScrollProgress } from "@/components/parity/ScrollProgress";
 import { SpiralScroll } from "@/components/parity/SpiralScroll";
 import { TiltedCarousel } from "@/components/parity/TiltedCarousel";
 import { useLenis } from "@/hooks/artcovr/useLenis";
-import { displayArtworks } from "@/lib/artcovr/artworks";
+import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 
 const STATIC_MEDIA_QUERY =
   "(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)";

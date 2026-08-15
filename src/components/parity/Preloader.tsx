@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
-import { displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
+import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
 
 const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 6);
 const ROTATIONS = [9.98, -12.43, -2.99, -6.51, 17.67, -1.09];

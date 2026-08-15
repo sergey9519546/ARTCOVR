@@ -43,7 +43,7 @@ const approvedArtwork = {
 };
 
 test("approved artifact projects deterministically into sale-ready storefront data", () => {
-  const projected = projectApprovedCatalog([approvedArtwork]);
+  const projected = projectApprovedCatalog([{ ...approvedArtwork, tier: "featured" }]);
 
   assert.deepEqual(projected, [
     {
@@ -63,9 +63,46 @@ test("approved artifact projects deterministically into sale-ready storefront da
       rightsApproved: true,
       published: true,
       accentColor: "#0b0b0b",
+      tier: "featured",
     },
   ]);
-  assert.equal(serializePublicCatalog([approvedArtwork]), `${JSON.stringify(projected, null, 2)}\n`);
+  assert.equal(
+    serializePublicCatalog([{ ...approvedArtwork, tier: "featured" }]),
+    `${JSON.stringify(projected, null, 2)}\n`,
+  );
+});
+
+test("tier gates the projection: deletes drop out, unknown tiers fail safe to archive", () => {
+  const kept = projectApprovedCatalog([
+    { ...approvedArtwork, tier: "featured" },
+    {
+      ...approvedArtwork,
+      id: `art_${"b".repeat(20)}`,
+      slug: "iron-sky",
+      sha256: "b".repeat(64),
+      privateBasePath: `artworks/art_${"b".repeat(20)}/base`,
+      displayPath: "/assets/artworks/iron-sky.jpg",
+      position: 8,
+      tier: "delete",
+    },
+    {
+      ...approvedArtwork,
+      id: `art_${"c".repeat(20)}`,
+      slug: "tin-sky",
+      sha256: "c".repeat(64),
+      privateBasePath: `artworks/art_${"c".repeat(20)}/base`,
+      displayPath: "/assets/artworks/tin-sky.jpg",
+      position: 9,
+      // no tier at all — must never be promoted to featured by accident
+    },
+  ]);
+  assert.deepEqual(
+    kept.map(({ slug, tier }) => ({ slug, tier })),
+    [
+      { slug: "copper-sky", tier: "featured" },
+      { slug: "tin-sky", tier: "archive" },
+    ],
+  );
 });
 
 test("empty and invalid approval artifacts cannot become public projections", () => {
@@ -73,5 +110,9 @@ test("empty and invalid approval artifacts cannot become public projections", ()
   assert.throws(
     () => projectApprovedCatalog([{ ...approvedArtwork, rightsApproved: false }]),
     /NOT_APPROVED/,
+  );
+  assert.throws(
+    () => projectApprovedCatalog([{ ...approvedArtwork, tier: "delete" }]),
+    /EMPTY_APPROVED_CATALOG/,
   );
 });
