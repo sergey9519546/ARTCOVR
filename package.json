@@ -8,6 +8,7 @@
     "dev": "next dev",
     "build": "next build && node --experimental-strip-types scripts/catalog/prune-deployment-assets.ts && node --experimental-strip-types scripts/catalog/verify-export-isolation.ts",
     "start": "next start",
+    "preview": "node --experimental-strip-types scripts/serve-export.ts",
     "lint": "eslint src tests scripts --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types",

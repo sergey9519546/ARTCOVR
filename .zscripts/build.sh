@@ -9,8 +9,9 @@ set -euo pipefail
 # 使用 $0 获取脚本路径（兼容 sh 和 bash）
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Next.js 项目路径
-NEXTJS_PROJECT_DIR="/home/z/my-project"
+# Next.js 项目路径（.zscripts 的上级目录，即本仓库根目录）
+# 从 SCRIPT_DIR 推导，避免写死其他机器上的绝对路径。
+NEXTJS_PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # 检查 Next.js 项目目录是否存在
 if [ ! -d "$NEXTJS_PROJECT_DIR" ]; then
@@ -69,9 +70,12 @@ echo "🔨 构建 Next.js 应用..."
 bun run build
 
 # Deployment builds validate source configuration; they never rewrite source
-# files or silently change the selected Next.js output mode.
-if [ ! -f ".next/standalone/server.js" ]; then
-    echo "❌ 构建未产出 .next/standalone/server.js。请在 next.config 中显式配置 output: \"standalone\"。"
+# files or silently change the selected Next.js output mode. next.config.ts
+# selects output: "export", which emits a static site under out/ and can never
+# produce a standalone server bundle, so the gate verifies the artifact that
+# mode actually writes.
+if [ ! -s "out/index.html" ]; then
+    echo "❌ 构建未产出非空的 out/index.html。请确认 next.config 中的 output: \"export\" 配置。"
     exit 1
 fi
 
@@ -94,24 +98,14 @@ fi
 # 将所有构建产物复制到临时构建目录
 echo "📦 收集构建产物到 $BUILD_DIR..."
 
-# 复制 Next.js standalone 构建输出
-if [ -d ".next/standalone" ]; then
-    echo "  - 复制 .next/standalone"
-    cp -r .next/standalone "$BUILD_DIR/next-service-dist/"
-fi
-
-# 复制 Next.js 静态文件
-if [ -d ".next/static" ]; then
-    echo "  - 复制 .next/static"
-    mkdir -p "$BUILD_DIR/next-service-dist/.next"
-    cp -r .next/static "$BUILD_DIR/next-service-dist/.next/"
-fi
-
-# 复制 public 目录
-if [ -d "public" ]; then
-    echo "  - 复制 public"
-    cp -r public "$BUILD_DIR/next-service-dist/"
-fi
+# output: "export" 的唯一产物是 out/ 静态站点根目录。它已经包含了旧流程分别
+# 复制的三份内容：public/ 的全部文件位于 out/ 根目录，.next/static 位于
+# out/_next/static，而 .next/standalone 在导出模式下根本不会生成。因此这里只
+# 复制 out/，替代原来的三个分支拷贝。
+# 落点保持为 next-service-dist/public，这样下面的部署期修剪路径不变。
+echo "  - 复制 out（静态导出站点根目录）"
+mkdir -p "$BUILD_DIR/next-service-dist/public"
+cp -r out/. "$BUILD_DIR/next-service-dist/public/"
 
 if [ "${NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING:-0}" != "1" ]; then
     echo "🧹 从公共包中移除未批准的审核图像..."

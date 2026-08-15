@@ -90,7 +90,10 @@ wait_for_service() {
 	echo "Waiting for $service_name to be ready on $host:$port..."
 
 	while [ "$attempt" -le "$max_attempts" ]; do
-		if curl -s --connect-timeout 2 --max-time 5 "http://$host:$port" >/dev/null 2>&1; then
+		# -f makes curl exit non-zero on 4xx/5xx. Without it a dev server that
+		# boots but answers 404/500 would count as "ready", and the health check
+		# below would then be the first thing to notice the app is broken.
+		if curl -fs --connect-timeout 2 --max-time 5 "http://$host:$port" >/dev/null 2>&1; then
 			echo "$service_name is ready!"
 			return 0
 		fi
@@ -127,17 +130,24 @@ log_step_end "bun install"
 
 log_step_start "Starting Next.js dev server"
 echo "[BUN] Starting development server..."
+# `next dev` binds to $PORT. Pin it explicitly so the readiness probe and the
+# health check below cannot poll a different port than the server actually
+# listens on — previously both were hardcoded to 3000, so any run with PORT set
+# (or with 3000 already taken) waited forever on a port nothing was serving.
+DEV_PORT="${PORT:-3000}"
+export PORT="$DEV_PORT"
+echo "[BUN] Dev server port: ${DEV_PORT}"
 bun run dev &
 DEV_PID=$!
 log_step_end "Starting Next.js dev server"
 
 log_step_start "Waiting for Next.js dev server"
-wait_for_service "localhost" "3000" "Next.js dev server"
+wait_for_service "localhost" "$DEV_PORT" "Next.js dev server"
 log_step_end "Waiting for Next.js dev server"
 
 log_step_start "Health check"
 echo "[BUN] Performing health check..."
-curl -fsS localhost:3000 >/dev/null
+curl -fsS "localhost:${DEV_PORT}" >/dev/null
 echo "[BUN] Health check passed"
 log_step_end "Health check"
 
