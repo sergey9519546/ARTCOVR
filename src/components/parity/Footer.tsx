@@ -38,8 +38,8 @@ export function Footer() {
           </div>
         </div>
         <div className="col-span-8 md:col-span-3">
-          <Link href="/archive" className="link-hover block w-fit">Art Search</Link>
-          <Link href="/my-images" className="link-hover block w-fit">Cart</Link>
+          <Link href="/archive" className="link-hover block w-fit">archive</Link>
+          <Link href="/my-images" className="link-hover block w-fit">my cart</Link>
           <Link href="/contact" className="link-hover block w-fit">Custom inquiry</Link>
         </div>
         <div className="col-span-8 md:col-span-4">

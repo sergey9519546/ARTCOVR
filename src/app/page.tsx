@@ -17,7 +17,6 @@ import { Preloader } from "@/components/parity/Preloader";
 import { ProductGrid } from "@/components/parity/ProductGrid";
 import { ScrollProgress } from "@/components/parity/ScrollProgress";
 import { SpiralScroll } from "@/components/parity/SpiralScroll";
-import { ThemeSwitcher } from "@/components/parity/ThemeSwitcher";
 import { TiltedCarousel } from "@/components/parity/TiltedCarousel";
 import { useLenis } from "@/hooks/artcovr/useLenis";
 import { displayArtworks } from "@/lib/artcovr/artworks";
@@ -154,9 +153,6 @@ export default function Home() {
       <div id="page-shell" aria-hidden={pageBlocked} inert={pageBlocked ? true : undefined}>
         <ErrorBoundary label="header">
           <Header onMenuToggle={toggleMenu} menuOpen={menuOpen} />
-        </ErrorBoundary>
-        <ErrorBoundary label="theme">
-          <ThemeSwitcher />
         </ErrorBoundary>
         <ErrorBoundary label="mobile-menu">
           <MobileMenu open={menuOpen} onClose={closeMenu} />

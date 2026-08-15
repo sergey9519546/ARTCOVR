@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 
 const items = [
   { label: "Home", href: "/" },
-  { label: "Art Search", href: "/archive" },
-  { label: "Cart", href: "/my-images" },
+  { label: "archive", href: "/archive" },
+  { label: "my cart", href: "/my-images" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
   { label: "FAQ", href: "/faq" },
