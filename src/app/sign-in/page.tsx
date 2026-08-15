@@ -65,7 +65,7 @@ export default function SignInPage() {
           >
             {state === "sending" ? "Sending…" : "Send magic link"}
           </button>
-          {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
+          {error && <p role="alert" className="mt-4 text-sm text-[#a11212] dark:text-[#ff6b6b]">{error}</p>}
         </form>
       )}
     </PublicPage>

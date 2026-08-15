@@ -83,4 +83,10 @@ server.log
 agent/
 skills-lock.json
 
+# Catalog rescore scratch: proposals and pre-swap backups are working artifacts,
+# never part of the compiled program. Excluded from tsconfig for the same reason.
+**/*.PRE-RESCORE.bak
+**/*.PROPOSED.ts
+scripts/catalog/__pycache__/
+
 

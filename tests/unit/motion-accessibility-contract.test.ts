@@ -25,5 +25,5 @@ test("carousel links to artwork and owns keyboard handling only while focused", 
 test("theme restores only a recognized saved preference", async () => {
   const theme = await read("src/hooks/artcovr/useTheme.ts");
   assert.match(theme, /localStorage\.getItem\("theme"\)/);
-  assert.match(theme, /stored === "light" \|\| stored === "dark" \|\| stored === "red"/);
+  assert.match(theme, /stored === "light" \|\| stored === "dark"/);
 });

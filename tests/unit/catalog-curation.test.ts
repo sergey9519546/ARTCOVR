@@ -104,7 +104,7 @@ test("regenerated originals are SHA-locked new works, never reused reference ide
     selected.map(({ sourceSha256 }) => sourceSha256).sort(),
   );
 
-  // Owner-directed curator visual review (2026-08-14) enriched these 8 rows
+// Owner-directed curator visual review (2026-08-14) enriched these 8 rows
   // with artcovr.cover-taxonomy.v1 controlled terms: catalog/swaps/2026-08-14-regenerated-metadata-enrichment.json.
   const BANNED_KEYWORD_TERMS = [
     "masterpiece",
@@ -180,6 +180,67 @@ test("regenerated originals are SHA-locked new works, never reused reference ide
     );
     assert.equal(record.metadata.provenance.linkage.taxonomy_version, "artcovr.cover-taxonomy.v1");
   }
+});
+
+test("every launch-selection sourceSha256 resolves to a curated catalog sha256 (canonical identity invariant, ADR-016)", async () => {
+  const curated = JSON.parse(
+    await readFile(new URL("../../catalog/curated-artworks.json", import.meta.url), "utf8"),
+  ) as Array<{ sha256: string; sourcePool: string; sourceOrdinal: number | null }>;
+  const curatedSha = new Set(curated.map(({ sha256 }) => sha256));
+  assert.equal(curated.length, 100);
+
+  // XOR invariant (re-affirmed): every entry has exactly one of sourceOrdinal/sourceSha256.
+  assert.ok(
+    launchSelection.every(({ sourceOrdinal, sourceSha256 }) =>
+      Boolean(sourceOrdinal) !== Boolean(sourceSha256),
+    ),
+    "expected XOR invariant: every launchSelection entry has exactly one of sourceOrdinal/sourceSha256",
+  );
+
+  // The generated_images pool identifies its source by ordinal into a manifest,
+  // not by hash (curate-launch.ts:344-346 resolves via normalizeGenerated(sourceOrdinal),
+  // not metaByHash.get(...)). Reaffirm that none of the 19 generated_images entries
+  // carry a sourceSha256 — they must all use sourceOrdinal.
+  const genImg = launchSelection.filter(({ sourcePool }) => sourcePool === "generated_images");
+  assert.equal(genImg.length, 19);
+  for (const entry of genImg) {
+    assert.equal(
+      typeof entry.sourceOrdinal,
+      "number",
+      `generated_images entry must use sourceOrdinal, got sourceSha256=${entry.sourceSha256}`,
+    );
+    assert.equal(entry.sourceSha256, undefined);
+  }
+
+  // ADR-010: catalog sha256 fields track source files, not display derivatives,
+  // so a launch-selection.sourceSha256 (the source-file hash) must resolve to a
+  // curated row whose sha256 equals it. A mismatch here would mean either the
+  // catalog stores a derivative hash for that pool (benign, needs documenting)
+  // OR 19 rows point at source files that are not what shipped (real identity
+  // break in a rights-gated catalog). Empirically all 81 known sourceSha256
+  // entries resolve; this test fails loudly if any future proposal breaks that.
+  const withSha = launchSelection.filter(
+    ({ sourceSha256 }) => sourceSha256 !== undefined,
+  ) as Array<{ sourcePool: string; sourceSha256: string }>;
+  assert.equal(withSha.length, 81, "expected exactly 81 sourceSha256-bearing entries");
+
+  const byPool = withSha.reduce((counts, { sourcePool }) => {
+    counts[sourcePool] = (counts[sourcePool] ?? 0) + 1;
+    return counts;
+  }, {} as Record<string, number>);
+  assert.deepEqual(byPool, {
+    new_meta_images: 12,
+    meta_updated_images: 1,
+    concept_reference_art: 60,
+    regenerated_originals: 8,
+  });
+
+  const unmatched = withSha.filter(({ sourcePool, sourceSha256 }) => !curatedSha.has(sourceSha256));
+  assert.equal(
+    unmatched.length,
+    0,
+    `expected every sourceSha256 to match a curated.sha256; unmatched: ${JSON.stringify(unmatched, null, 2)}`,
+  );
 });
 
 test("thinned style-cluster works are removed from source and kept as audit records", async () => {

@@ -26,6 +26,8 @@ export function ProductGrid() {
   const uniformRowClass = "grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-y-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16";
   const firstRowSpacing = isPartialCatalog ? "mb-6 md:mb-8" : "mb-10 md:mb-12";
   const canReveal = remainingArtworks.length > CLAMPED_TRAILING_CARDS;
+  // The clamp is still driven purely by "there is more to show and it is
+  // currently hidden"; only the button's own mounting is decoupled from it.
   const showReveal = canReveal && !revealed;
 
   return (
@@ -51,16 +53,25 @@ export function ProductGrid() {
         </div>
       )}
 
-      {showReveal && (
+      {canReveal && (
         <div className="artwork-grid-reveal mb-16 flex justify-center md:mb-20">
+          {/*
+            A disclosure has to outlive its own activation. Unmounting this
+            button on click dropped focus to <body> and left `aria-expanded`
+            permanently false, so the state change was never announced. Keeping
+            it mounted lets the control report the truth, keeps focus where the
+            user put it, and gives them a way back to the clamped grid.
+          */}
           <button
             type="button"
-            onClick={() => setRevealed(true)}
+            onClick={() => setRevealed((expanded) => !expanded)}
             aria-controls="artwork-grid-rest"
-            aria-expanded={false}
+            aria-expanded={revealed}
             className="artcovr-button px-10 py-4 text-[11px] font-bold tracking-[.1em] uppercase"
           >
-            Reveal more — {displayArtworks.length} covers
+            {revealed
+              ? "Show fewer covers"
+              : `Reveal more — ${displayArtworks.length} covers`}
           </button>
         </div>
       )}

@@ -108,11 +108,7 @@ export function SpiralScroll() {
       itemElements.forEach((element, index) => {
         const position = positions[index];
         const z = camera - position.station;
-
-        if (z <= DEPTH_FAR || z >= DEPTH_NEAR) {
-          gsap.set(element, { opacity: 0 });
-          return;
-        }
+        const drawn = z > DEPTH_FAR && z < DEPTH_NEAR;
 
         const fadeIn = Math.min(1, (z - DEPTH_FAR) / FADE_IN);
         const fadeOut = Math.min(1, (DEPTH_NEAR - z) / FADE_OUT);
@@ -120,12 +116,28 @@ export function SpiralScroll() {
         gsap.set(element, {
           x: position.x,
           y: position.y,
-          z,
-          opacity: Math.min(fadeIn, fadeOut),
+          // A cover outside the depth window still needs a transform. Left
+          // unassigned it keeps its layout position — `.spiral-item` is
+          // absolutely centred with negative margins, so it would sit at z=0,
+          // full size and invisible, in front of every drawn cover (all of
+          // which are strictly behind DEPTH_NEAR) and swallow their clicks.
+          // Parking it at the far wall puts it behind the whole tunnel.
+          z: drawn ? z : DEPTH_FAR,
+          opacity: drawn ? Math.min(fadeIn, fadeOut) : 0,
           // Covers angle back toward the centre line of the tunnel.
           rotationY: -position.x * 0.045,
           rotationX: position.y * 0.02,
         });
+
+        // Only the covers actually drawn in the tunnel are hit-testable and
+        // tabbable. The rest would be invisible click targets and invisible
+        // tab stops whose focus ring renders on an opacity:0 element.
+        const visibility = drawn ? "visible" : "hidden";
+        if (element.style.visibility !== visibility) {
+          element.style.visibility = visibility;
+          element.style.pointerEvents = drawn ? "auto" : "none";
+          element.tabIndex = drawn ? 0 : -1;
+        }
       });
 
       // A slow roll of the whole tunnel; deliberately small, so the run never
@@ -134,6 +146,13 @@ export function SpiralScroll() {
     };
 
     gsap.set(itemElements, { opacity: 0, transformOrigin: "50% 50%" });
+    // Inert until place() decides otherwise, so no frame ships 40 stacked,
+    // invisible, clickable covers.
+    itemElements.forEach((element) => {
+      element.style.visibility = "hidden";
+      element.style.pointerEvents = "none";
+      element.tabIndex = -1;
+    });
     place(0);
 
     triggerRef.current = ScrollTrigger.create({
@@ -171,6 +190,11 @@ export function SpiralScroll() {
       triggerRef.current = null;
       gsap.set(stage, { clearProps: "transform" });
       gsap.set(itemElements, { clearProps: "transform,opacity" });
+      itemElements.forEach((element) => {
+        element.style.removeProperty("visibility");
+        element.style.removeProperty("pointer-events");
+        element.removeAttribute("tabindex");
+      });
     };
   }, [staticMode, cardSize]);
 

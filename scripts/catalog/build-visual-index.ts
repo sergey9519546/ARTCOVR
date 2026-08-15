@@ -73,8 +73,10 @@ const workingDirectory = mkdtempSync(path.join(tmpdir(), "artcovr-visual-"));
 const payloadPath = path.join(workingDirectory, "payload.json");
 let payload: Payload;
 try {
+  // Windows installs the launcher as `python`; POSIX ships `python3`. Matches
+  // scripts/catalog/swap-launch-works.ts.
   const compute = spawnSync(
-    process.env.PYTHON ?? "python3",
+    process.env.PYTHON ?? (process.platform === "win32" ? "python" : "python3"),
     [
       path.join(projectRoot, "scripts", "catalog", "compute-visual-index.py"),
       "--root",

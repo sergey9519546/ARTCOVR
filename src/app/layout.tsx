@@ -82,12 +82,19 @@ export default function RootLayout({
   const organization = buildOrganizationStructuredData(siteUrl);
 
   return (
-    <html lang="en" className={display.className} data-theme="dark" suppressHydrationWarning>
+    <html lang="en" className={display.className} data-theme="light" suppressHydrationWarning>
       <body>
+        {/*
+          Pre-paint theme bootstrap. This must agree with useTheme: light is the
+          primary theme, and light|dark are the only themes. Anything else in
+          storage — including the removed `red` theme, which is still persisted
+          in the browsers of anyone who selected it — falls back to light rather
+          than painting a palette that no longer exists.
+        */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:'dark'}catch(e){document.documentElement.dataset.theme='dark'}",
+              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:'light'}catch(e){document.documentElement.dataset.theme='light'}",
           }}
         />
         <script

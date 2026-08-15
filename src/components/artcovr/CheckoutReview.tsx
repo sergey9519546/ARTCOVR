@@ -24,9 +24,17 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
 
   useEffect(() => {
     let active = true;
-    const selectedPreviewId = sessionStorage.getItem(
-      `artcovr:selected-preview:${artwork.id}`,
-    );
+    let selectedPreviewId: string | null = null;
+    try {
+      selectedPreviewId = sessionStorage.getItem(
+        `artcovr:selected-preview:${artwork.id}`,
+      );
+    } catch {
+      // Locked-down iframes and some privacy modes throw on storage access.
+      // Checkout degrades to "no selected preview" rather than unmounting the
+      // route — there is no ErrorBoundary above this component.
+      return;
+    }
     if (!selectedPreviewId) return;
     void getGenerationStatus(selectedPreviewId)
       .then((status) => {
@@ -94,13 +102,13 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
               : "Checkout activates after the owner approves commercial rights, price, license mode, and publication."}
           </p>
           <label className="mt-7 flex gap-3 text-sm leading-5">
-            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} disabled={!checkoutReady} className="mt-1 size-4 accent-black" />
+            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} disabled={!checkoutReady} className="mt-1 size-4 accent-[var(--foreground)]" />
             <span>I agree to the <Link href="/license" className="underline underline-offset-4">commercial license</Link> and <Link href="/legal/terms" className="underline underline-offset-4">terms</Link>.</span>
           </label>
           <button type="button" disabled={!checkoutReady || !accepted || loading} onClick={continueToCheckout} className="artcovr-button mt-7 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
             {checkoutReady ? (loading ? "Opening checkout…" : "Continue to checkout") : "Checkout pending owner approval"}
           </button>
-          {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
+          {error && <p role="alert" className="mt-3 text-sm text-[#a11212] dark:text-[#ff6b6b]">{error}</p>}
         </section>
       </div>
     </main>

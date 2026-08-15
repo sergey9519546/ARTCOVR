@@ -7,8 +7,8 @@ import { MobileMenu } from "@/components/parity/MobileMenu";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/archive", label: "Archive" },
-  { href: "/my-images", label: "My Images" },
+  { href: "/archive", label: "archive" },
+  { href: "/my-images", label: "my cart" },
   { href: "/about", label: "About" },
 ];
 
@@ -20,7 +20,14 @@ export function SiteHeader() {
   return (
     <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <header className="fixed inset-x-0 top-0 z-30 mix-blend-difference text-white">
+      {/*
+        * Same resolution as src/components/parity/Header.tsx: `text-white` is
+        * cream (#f3ecd9) here, and under mix-blend-difference the fixed bar
+        * inverted against whatever full-bleed artwork scrolled beneath it,
+        * resolving to arbitrary hues. A child cannot opt out of an ancestor's
+        * blend group, so the nav paints the theme colour directly instead.
+        */}
+      <header className="fixed inset-x-0 top-0 z-30 text-[var(--foreground)]">
         <nav aria-label="Primary" className="mx-auto flex max-w-[1600px] items-center justify-between px-4 py-4 lg:px-7">
           <Link href="/" className="flex min-h-11 items-center text-sm font-extrabold tracking-tight" aria-label="ARTCOVR home">
             ARTCOVR

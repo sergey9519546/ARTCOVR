@@ -3,13 +3,11 @@
 
 /* These variants and tokens are part of the supplied archive UI contract. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-@custom-variant red (&:where([data-theme="red"], [data-theme="red"] *));
 
 @theme {
   --color-cream: #f3ecd9;
   --color-paper: #f3ecd9;
   --color-carbon: #0b0b0b;
-  --color-red: #122519;
   --color-white: #f3ecd9;
   --color-signal: #122519;
   --color-graphite: #74746f;
@@ -51,17 +49,6 @@ html[data-theme="dark"] {
   --input: rgb(243 236 217 / 22%);
   --ring: rgb(243 236 217 / 55%);
   --cursor-color: #f3ecd9;
-}
-html[data-theme="red"] {
-  color-scheme: light;
-  --background: #f3ecd9;
-  --foreground: #122519;
-  --card: #fff;
-  --card-foreground: #122519;
-  --border: rgb(18 37 25 / 18%);
-  --input: rgb(18 37 25 / 22%);
-  --ring: rgb(18 37 25 / 50%);
-  --cursor-color: #122519;
 }
 * { box-sizing: border-box; }
 html {
@@ -129,6 +116,36 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   font-weight: 900;
   line-height: .8;
   letter-spacing: -.095em;
+}
+
+/*
+ * Optical compensation for the small wordmarks.
+ *
+ * The family ships Regular/Medium/Bold only (400/700/800), so `font-weight: 900`
+ * has no matching face and `font-synthesis: none` forbids faking it — every mark
+ * already renders at Bold, the heaviest weight available. At 20-36px that face
+ * rasterises visibly lighter than the same face at 300px, so the header mark
+ * reads thinner than the hero even though the geometry is identical.
+ *
+ * A stroke in `em` restores the apparent weight proportionally, and
+ * `paint-order` keeps it outside the glyph so counters stay open.
+ *
+ * Tracking is reset to 0 rather than inheriting -.095em. That value is a
+ * DISPLAY setting: measured by rasterising the wordmark and counting clear
+ * vertical columns between glyphs, -.095em leaves zero separation at 20-24px —
+ * the letters fuse into one shape. Tracking in `em` scales proportionally, which
+ * is precisely wrong optically, since small type needs more air, not the same
+ * ratio. At 0 tracking the small marks recover 4-5 of 6 letter gaps while
+ * measuring 0.20 ink density against the hero's 0.211, i.e. the same apparent
+ * weight without the fusing.
+ *
+ * Delete this rule the moment a Black/Heavy face is added and set the real
+ * weight instead — this is a workaround for a missing font file, not a design.
+ */
+.artcovr-wordmark-optical {
+  -webkit-text-stroke: .026em currentColor;
+  paint-order: stroke fill;
+  letter-spacing: 0;
 }
 
 .artcovr-button {

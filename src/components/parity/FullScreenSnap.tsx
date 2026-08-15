@@ -120,8 +120,15 @@ export function FullScreenSnap() {
 
   return (
     <div ref={wrapperRef} className="relative">
+      {/*
+        * The bar paints the theme ground, not a fixed cream. `bg-cream` is the
+        * same #f3ecd9 as `--foreground` in the dark theme, so the marquee text
+        * went cream-on-cream — and because the primary nav is fixed at z-[3]
+        * directly over this z-[2] bar, the whole nav went with it for the
+        * length of the editorial section.
+        */}
       <div
-        className={`${staticMode ? "absolute" : "fixed"} top-0 left-0 right-0 z-[2] flex h-12 items-center overflow-hidden border-b border-current/10 bg-cream/90 backdrop-blur-sm transition-opacity duration-300 ${inView ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`${staticMode ? "absolute" : "fixed"} top-0 left-0 right-0 z-[2] flex h-12 items-center overflow-hidden border-b border-current/10 bg-background/90 text-foreground backdrop-blur-sm transition-opacity duration-300 ${inView ? "opacity-100" : "pointer-events-none opacity-0"}`}
         aria-hidden={!inView}
         inert={!inView ? true : undefined}
       >
@@ -136,10 +143,12 @@ export function FullScreenSnap() {
       </div>
       <div
         className={`${staticMode ? "absolute" : "fixed"} bottom-6 left-1/2 z-[2] flex -translate-x-1/2 items-center gap-6 rounded-full bg-black/90 px-6 py-3 text-sm font-bold text-cream shadow-lg backdrop-blur-sm transition-opacity duration-300 ${inView ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        aria-hidden={!inView}
+        inert={!inView ? true : undefined}
       >
         <span>ARTCOVR</span>
         <span className="opacity-50" aria-hidden="true">|</span>
-        <Link href="/archive" className="link-hover">Archive</Link>
+        <Link href="/archive" className="link-hover">archive</Link>
       </div>
       <div style={{ scrollSnapType: staticMode ? "none" : "y proximity" }}>
         {SECTIONS.map((section) => {

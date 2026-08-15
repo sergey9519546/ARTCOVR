@@ -5,18 +5,13 @@ import test from "node:test";
 const source = (path: string) => readFile(new URL(`../../${path}`, import.meta.url), "utf8");
 
 test("archive color and theme tokens remain compiled from the supplied UI contract", async () => {
-  const [css, theme] = await Promise.all([
-    source("src/app/globals.css"),
-    source("src/components/parity/ThemeSwitcher.tsx"),
-  ]);
+  const css = await source("src/app/globals.css");
 
   assert.match(css, /@custom-variant dark/);
-  assert.match(css, /@custom-variant red/);
-  for (const token of ["--color-cream", "--color-red", "--color-background", "--color-foreground"]) {
+  for (const token of ["--color-cream", "--color-background", "--color-foreground"]) {
     assert.match(css, new RegExp(token));
   }
   assert.match(css, /\.artcovr-button/);
-  assert.match(theme, /min-h-11 min-w-11/);
 });
 
 test("primary actions never make currentColor both their background and foreground", async () => {

@@ -8,8 +8,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { launchSelection } from "../../../src/lib/artcovr/launch-selection.ts";
-import { EXCLUDED_LAUNCH_SOURCE_HASHES } from "../../../src/lib/artcovr/catalog-review.ts";
-import { REGENERATION_REQUIRED_SOURCE_HASHES } from "../../../src/lib/artcovr/source-exclusions.ts";
+import {
+  BLOCKED_LAUNCH_SOURCE_HASHES,
+  isBlockedLaunchSource,
+} from "../../../src/lib/artcovr/catalog-review.ts";
 
 type Ev = {
   replaces: string; sourceFile: string; sha256: string; slug: string; title: string;
@@ -18,7 +20,10 @@ type Ev = {
   _replacesPosition: number; _replacesPriceCents: number; _replacesSaleMode: string;
 };
 
-const ROOT = process.cwd();
+// Resolved from this file, not the shell's cwd, so running the script from any
+// directory writes the spec and the proposal to the same repository paths every
+// sibling script uses.
+const ROOT = path.resolve(import.meta.dirname, "../../..");
 const EVIDENCE = "E:\\ART_COLLECTION\\.artcovr-scoring\\swap-evidence.json";
 const STAGE = path.join(ROOT, "outputs", "catalog", "regen-picks-2026-08-14");
 
@@ -32,17 +37,47 @@ const POOL: Record<string, string> = {
 };
 
 // ---- blocklist gate -------------------------------------------------------
-const blocked = works.filter(
-  (w) => REGENERATION_REQUIRED_SOURCE_HASHES.has(w.sha256) || EXCLUDED_LAUNCH_SOURCE_HASHES.has(w.sha256),
-);
-if (blocked.length > 0) throw new Error(`blocklisted picks still present: ${blocked.map((w) => w.slug).join(", ")}`);
-console.log("blocklist gate: clean");
+// One blocklist for everything retired: hardcoded visible-text rejects,
+// regeneration-only identities, and every SHA-256 the owner removed in
+// catalog/excluded-candidates.json.
+const blocked = works.filter((w) => isBlockedLaunchSource(w.sha256));
+if (blocked.length > 0) {
+  throw new Error(
+    `blocklisted picks still present (${blocked.length}): ` +
+      blocked.map((w) => `${w.slug} ${w.sha256}`).join(", "),
+  );
+}
+console.log("blocklist gate: clean against", BLOCKED_LAUNCH_SOURCE_HASHES.size, "retired identities");
 
-// ---- collision gate against the retained head -----------------------------
+// ---- collision gate -------------------------------------------------------
+// A collision is a duplicate identity in the launch set, which every downstream
+// integrity check rejects. It throws, exactly like the blocklist gate above;
+// logging the count let a broken selection sail through to the spec file.
 const head = launchSelection.slice(0, 17);
 const headHashes = new Set(head.map((s) => s.sourceSha256).filter(Boolean) as string[]);
 const collide = works.filter((w) => headHashes.has(w.sha256));
-console.log("collides with kept 1-17:", collide.length);
+if (collide.length > 0) {
+  throw new Error(
+    `picks collide with retained slots 1-17 (${collide.length}): ` +
+      collide.map((w) => `${w.slug} ${w.sha256}`).join(", "),
+  );
+}
+
+const seenHashes = new Map<string, string>();
+const seenSlugs = new Map<string, string>();
+const internalDuplicates: string[] = [];
+for (const w of works) {
+  const priorHash = seenHashes.get(w.sha256);
+  if (priorHash) internalDuplicates.push(`sha ${w.sha256}: ${priorHash} + ${w.slug}`);
+  else seenHashes.set(w.sha256, w.slug);
+  const priorSlug = seenSlugs.get(w.slug);
+  if (priorSlug) internalDuplicates.push(`slug ${w.slug} used twice (replaces ${priorSlug} and ${w.replaces})`);
+  else seenSlugs.set(w.slug, w.replaces);
+}
+if (internalDuplicates.length > 0) {
+  throw new Error(`duplicate identities within the generated set: ${internalDuplicates.join("; ")}`);
+}
+console.log("collision gate: clean (0 against kept 1-17, 0 within the generated set)");
 
 if (works.length !== 83) throw new Error(`expected 83 works, got ${works.length}`);
 if (works[0]._replacesPosition !== 18 || works[82]._replacesPosition !== 100) throw new Error("position span wrong");

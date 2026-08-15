@@ -53,32 +53,67 @@ cd "$BUILD_DIR" || exit 1
 
 ls -lah
 
-# 启动 Next.js 服务器
-if [ -f "./next-service-dist/server.js" ]; then
-    echo "🚀 启动 Next.js 服务器..."
-    cd next-service-dist/ || exit 1
-    
-    # 设置环境变量
-    export NODE_ENV=production
-    export PORT="${PORT:-3000}"
-    export HOSTNAME="${HOSTNAME:-0.0.0.0}"
-    # 后台启动 Next.js
-    bun server.js &
+# 启动静态文件服务器（output: "export" 不产生 next-service-dist/server.js；build.sh 把 out/ 复制到了 next-service-dist/public/）
+STATIC_ROOT="./next-service-dist/public"
+if [ -f "$STATIC_ROOT/index.html" ]; then
+    echo "🚀 启动静态文件服务器..."
+    PORT="${PORT:-3000}"
+    HOSTNAME="${HOSTNAME:-0.0.0.0}"
+    STATIC_ROOT="$STATIC_ROOT" PORT="$PORT" HOSTNAME="$HOSTNAME" bun << SRV_EOF &
+        const ct = {
+            ".html":"text/html; charset=utf-8", ".htm":"text/html; charset=utf-8",
+            ".js":"text/javascript; charset=utf-8", ".mjs":"text/javascript; charset=utf-8",
+            ".css":"text/css; charset=utf-8", ".json":"application/json; charset=utf-8",
+            ".map":"application/json; charset=utf-8", ".svg":"image/svg+xml",
+            ".png":"image/png", ".jpg":"image/jpeg", ".jpeg":"image/jpeg",
+            ".webp":"image/webp", ".avif":"image/avif", ".gif":"image/gif",
+            ".ico":"image/x-icon", ".woff":"font/woff", ".woff2":"font/woff2",
+            ".txt":"text/plain; charset=utf-8", ".xml":"application/xml; charset=utf-8",
+            ".webmanifest":"application/manifest+json; charset=utf-8"
+        };
+        const { resolve, extname, join } = require("node:path");
+        const { existsSync } = require("node:fs");
+        const root = resolve(process.env.STATIC_ROOT ?? "./next-service-dist/public");
+        const port = Number(process.env.PORT ?? "3000");
+        const hostname = process.env.HOSTNAME ?? "0.0.0.0";
+        const inRoot = (p) => (p === root || p.startsWith(root + "/")) && existsSync(p);
+        const reply = (p) => inRoot(p) ? new Response(Bun.file(p), {
+            headers: { "Content-Type": ct[extname(p).toLowerCase()] ?? "application/octet-stream" }
+        }) : null;
+        Bun.serve({
+            port, hostname,
+            fetch(req) {
+                let rel;
+                try { rel = decodeURIComponent(new URL(req.url).pathname); } catch {
+                    return new Response("Bad Request", { status: 400 });
+                }
+                if (rel.includes("\0")) return new Response("Bad Request", { status: 400 });
+                if (rel !== "/" && rel.endsWith("/"))
+                    return new Response(null, { status: 308, headers: { Location: rel.replace(/\/+$/, "") } });
+                rel = rel.replace(/^\/+/, "");
+                if (rel === "") return reply(join(root, "index.html")) ?? new Response("Not Found", { status: 404 });
+                for (const cand of [join(root, rel), join(root, rel + ".html"), join(root, rel, "index.html")]) {
+                    const r = reply(cand);
+                    if (r) return r;
+                }
+                return reply(join(root, "404.html")) ?? new Response("Not Found", { status: 404 });
+            }
+        });
+        console.log("[artcovr] serving " + root + " at http://" + hostname + ":" + port);
+SRV_EOF
     NEXT_PID=$!
     pids="$NEXT_PID"
-    
-    # 等待一小段时间检查进程是否成功启动
+
     sleep 1
     if ! kill -0 "$NEXT_PID" 2>/dev/null; then
-        echo "❌ Next.js 服务器启动失败"
+        echo "❌ 静态文件服务器启动失败"
         exit 1
     else
-        echo "✅ Next.js 服务器已启动 (PID: $NEXT_PID, Port: $PORT)"
+        echo "✅ 静态文件服务器已启动 (PID: $NEXT_PID, Port: $PORT, serving $STATIC_ROOT)"
     fi
-    
-    cd ../
 else
-    echo "⚠️  未找到 Next.js 服务器文件: ./next-service-dist/server.js"
+    echo "⚠️  未找到静态导出站点: $STATIC_ROOT/index.html"
+    echo "    run .zscripts/build.sh (it copies out/ to next-service-dist/public/)"
 fi
 
 # 启动 mini-services

@@ -13,6 +13,9 @@ import {
 const read = (path: string) =>
   readFile(new URL(`../../${path}`, import.meta.url), "utf8");
 
+const readBytes = (path: string) =>
+  readFile(new URL(`../../${path}`, import.meta.url));
+
 test("site URL normalization rejects non-web protocols and discards path state", () => {
   assert.equal(getSiteUrl("javascript:alert(1)"), "https://artcovr.com");
   assert.equal(getSiteUrl("https://example.com/stale?x=1#y"), "https://example.com");
@@ -95,14 +98,84 @@ test("Product and Offer schema are emitted only for purchasable art", () => {
   assert.equal(unpublished.some((entry) => entry["@type"] === "Product"), false);
 });
 
-test("Next configuration enforces baseline browser security headers", async () => {
-  const config = await read("next.config.ts");
-  assert.match(config, /poweredByHeader:\s*false/);
-  assert.match(config, /Content-Security-Policy/);
-  assert.match(config, /frame-ancestors 'none'/);
-  assert.match(config, /X-Content-Type-Options[\s\S]*nosniff/);
-  assert.match(config, /Referrer-Policy[\s\S]*strict-origin-when-cross-origin/);
-  assert.match(config, /X-Frame-Options[\s\S]*DENY/);
+// The Next.js `headers()` hook never executes under `output: "export"`, so
+// asserting against next.config.ts only proves that a dead code path is
+// well-formed. vercel.json is the file the CDN actually reads, so the security
+// contract has to be enforced there.
+type DeployHeader = { key: string; value: string };
+type DeployHeaderRule = { source: string; headers: DeployHeader[] };
+type DeployConfig = { headers: DeployHeaderRule[] };
+
+const headerValue = (rule: DeployHeaderRule, key: string): string | undefined =>
+  rule.headers.find((header) => header.key.toLowerCase() === key.toLowerCase())
+    ?.value;
+
+const findRule = (
+  config: DeployConfig,
+  source: string,
+): DeployHeaderRule | undefined =>
+  config.headers.find((rule) => rule.source === source);
+
+test("the deployed Vercel config enforces baseline browser security headers", async () => {
+  const config = JSON.parse(await read("vercel.json")) as DeployConfig;
+
+  const globalRule = findRule(config, "/(.*)");
+  assert.ok(globalRule, "vercel.json must declare a global /(.*) header rule");
+
+  const csp = headerValue(globalRule, "Content-Security-Policy");
+  assert.ok(csp, "the deployed config must ship a Content-Security-Policy");
+  for (const directive of [
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ]) {
+    assert.ok(csp.includes(directive), `CSP is missing "${directive}"`);
+  }
+
+  assert.equal(
+    headerValue(globalRule, "Referrer-Policy"),
+    "strict-origin-when-cross-origin",
+  );
+  assert.equal(headerValue(globalRule, "X-Content-Type-Options"), "nosniff");
+  assert.equal(headerValue(globalRule, "X-Frame-Options"), "DENY");
+});
+
+test("the deployed Vercel config keeps every private route uncacheable and unindexed", async () => {
+  const config = JSON.parse(await read("vercel.json")) as DeployConfig;
+
+  // /auth/(.*) is the Supabase OAuth callback; /api/(.*) is reserved for any
+  // future non-static handler. Both must stay off the CDN and out of the index.
+  for (const source of [
+    "/checkout/(.*)",
+    "/my-images",
+    "/sign-in",
+    "/auth/(.*)",
+    "/api/(.*)",
+  ]) {
+    const rule = findRule(config, source);
+    assert.ok(rule, `vercel.json must declare private headers for ${source}`);
+
+    const cacheControl = headerValue(rule, "Cache-Control") ?? "";
+    assert.match(cacheControl, /\bprivate\b/, `${source} must be private`);
+    assert.match(cacheControl, /\bno-store\b/, `${source} must not be stored`);
+    assert.match(
+      headerValue(rule, "X-Robots-Tag") ?? "",
+      /\bnoindex\b/,
+      `${source} must be noindex`,
+    );
+  }
+});
+
+test("the root and exported Vercel configs cannot drift apart", async () => {
+  const [rootConfig, exportedConfig] = await Promise.all([
+    readBytes("vercel.json"),
+    readBytes("public/vercel.json"),
+  ]);
+  assert.ok(
+    rootConfig.equals(exportedConfig),
+    "./vercel.json and ./public/vercel.json must stay byte-identical",
+  );
 });
 
 test("private account and checkout routes declare noindex metadata", async () => {

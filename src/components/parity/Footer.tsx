@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:gap-8">
         <div className="flex-1 text-[2.75rem] leading-[1] font-[900] tracking-tighter text-balance md:text-[6vw]">
           <p>Cover art, made yours.</p>
-          <p className="text-[#5A5A5A]">Start with art. Prompt what comes next.</p>
+          <p className="opacity-70">Start with art. Prompt what comes next.</p>
         </div>
         <p className="text-[45vw] leading-[1] font-[900] tracking-tighter md:text-[12.75vw]">©26</p>
       </div>
@@ -33,13 +33,13 @@ export function Footer() {
       <div className="grid grid-cols-16 gap-x-6 gap-y-20 font-bold md:gap-6">
         <div className="order-last col-span-16 md:order-first md:col-span-4">
           <div className="flex flex-col">
-            <span className="artcovr-wordmark mb-2 text-2xl">ARTCOVR</span>
+            <span className="artcovr-wordmark artcovr-wordmark-optical mb-2 text-2xl">ARTCOVR</span>
             <span>All rights reserved © 2026</span>
           </div>
         </div>
         <div className="col-span-8 md:col-span-3">
-          <Link href="/archive" className="link-hover block w-fit">Archive</Link>
-          <Link href="/my-images" className="link-hover block w-fit">My Images</Link>
+          <Link href="/archive" className="link-hover block w-fit">archive</Link>
+          <Link href="/my-images" className="link-hover block w-fit">my cart</Link>
           <Link href="/contact" className="link-hover block w-fit">Custom inquiry</Link>
         </div>
         <div className="col-span-8 md:col-span-4">

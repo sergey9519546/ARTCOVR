@@ -40,6 +40,11 @@ export function TiltedCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [staticMode, setStaticMode] = useState(false);
   const [cardSize, setCardSize] = useState(CARD_MIN);
+  // Card size follows viewport HEIGHT, but the pin's travel distance and the
+  // active-card window are both functions of viewport WIDTH, so width has to be
+  // tracked separately or a width-only resize leaves the mapping stale and the
+  // last covers unreachable. 0 means "not measured yet" (first client render).
+  const [viewportWidth, setViewportWidth] = useState(0);
   const activeIndexRef = useRef(0);
   const scrollTriggerRef = useRef<ReturnType<
     typeof ScrollTrigger.create
@@ -48,6 +53,21 @@ export function TiltedCarousel() {
   const CW = cardSize;
   const CH = cardSize;
   const CG = Math.round(cardSize * CARD_GAP_RATIO);
+
+  // The pin maps `pinScroll` page pixels onto `maxTravel` px of track
+  // translation. Both effects below need that mapping, so it lives here.
+  //
+  // maxTravel is the translation that centres the LAST card. The track carries
+  // `paddingLeft: 50%`, so card i sits at `50vw + i*(CW+CG)` and is centred when
+  // the translation reaches `i*(CW+CG) + CW/2`. Deriving it from the track width
+  // instead (`trackWidth - viewportWidth + CW`) ignores that padding and stops
+  // roughly one card short: at 1920x1080 with 100 cards it ended 204px of the
+  // final cover off-screen and the counter could never reach the last index.
+  const maxTravel =
+    viewportWidth === 0
+      ? 0
+      : Math.max(0, (ITEMS.length - 1) * (CW + CG) + CW / 2);
+  const pinScroll = Math.max(6000, ITEMS.length * SCROLL_PIXELS_PER_CARD);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
@@ -58,40 +78,59 @@ export function TiltedCarousel() {
   }, []);
 
   useEffect(() => {
-    const updateSize = () => setCardSize(computeCardSize(window.innerHeight));
+    const updateSize = () => {
+      setCardSize(computeCardSize(window.innerHeight));
+      setViewportWidth(window.innerWidth);
+    };
     updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
   useEffect(() => {
-    if (!sectionRef.current || !trackRef.current) return;
+    if (!sectionRef.current || !trackRef.current || viewportWidth === 0) return;
 
     const section = sectionRef.current;
     const track = trackRef.current;
+    const cards = track.querySelectorAll<HTMLElement>(".carousel-card");
+
     if (window.matchMedia(STATIC_MEDIA_QUERY).matches) {
       track.style.transform = "translateX(0px)";
+      // The static track is a real scroll container, so scroll-into-view on
+      // focus is the right behaviour there and every card stays tabbable.
+      cards.forEach((card) => card.removeAttribute("tabindex"));
       return;
     }
 
+    // Off-screen cards live inside an overflow-hidden, translated track. Left
+    // in the tab order, focusing one makes the browser scroll it into view and
+    // fight the pin, so only the cards actually on screen stay tabbable.
+    const syncFocusWindow = (translate: number) => {
+      cards.forEach((card, index) => {
+        const left = viewportWidth / 2 + index * (CW + CG) - translate;
+        const onScreen = left + CW > 0 && left < viewportWidth;
+        const nextTabIndex = onScreen ? 0 : -1;
+        if (card.tabIndex !== nextTabIndex) card.tabIndex = nextTabIndex;
+      });
+    };
+
     try {
       gsap.registerPlugin(ScrollTrigger);
-      const trackWidth = ITEMS.length * (CW + CG);
-      const maxTravel = Math.max(0, trackWidth - window.innerWidth + CW);
 
       scrollTriggerRef.current = ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: `+=${Math.max(6000, ITEMS.length * SCROLL_PIXELS_PER_CARD)}`,
+        end: `+=${pinScroll}`,
         pin: true,
         scrub: 0.8,
         onUpdate: (self) => {
           try {
-            track.style.transform = `translateX(${-self.progress * maxTravel}px)`;
-            const center = window.innerWidth / 2;
-            const index = Math.round(
-              (center + self.progress * maxTravel - CW / 2) / (CW + CG),
-            );
+            const translate = self.progress * maxTravel;
+            track.style.transform = `translateX(${-translate}px)`;
+            // The track's own paddingLeft is 50%, i.e. the same half-viewport
+            // that used to be added here — counting it once put the active
+            // index a constant ~1.27 cards ahead, so the counter opened on 02.
+            const index = Math.round((translate - CW / 2) / (CW + CG));
             const clampedIndex = Math.max(
               0,
               Math.min(ITEMS.length - 1, index),
@@ -100,6 +139,7 @@ export function TiltedCarousel() {
               activeIndexRef.current = clampedIndex;
               setActiveIndex(clampedIndex);
             }
+            syncFocusWindow(translate);
           } catch (error) {
             console.error("Carousel update error:", error);
           }
@@ -109,11 +149,16 @@ export function TiltedCarousel() {
             activeIndexRef.current = 0;
             setActiveIndex(0);
             track.style.transform = "translateX(0px)";
+            syncFocusWindow(0);
           } catch (error) {
             console.error("Carousel leaveBack error:", error);
           }
         },
       });
+
+      // Seed from the trigger's real progress, not 0: a reload deep inside the
+      // pin starts mid-track, and the window must match what is on screen.
+      syncFocusWindow((scrollTriggerRef.current?.progress ?? 0) * maxTravel);
     } catch (error) {
       console.error("Carousel GSAP init failed:", error);
     }
@@ -122,11 +167,12 @@ export function TiltedCarousel() {
       try {
         scrollTriggerRef.current?.kill();
         scrollTriggerRef.current = null;
+        cards.forEach((card) => card.removeAttribute("tabindex"));
       } catch (error) {
         console.error("Carousel cleanup error:", error);
       }
     };
-  }, [staticMode, CW, CG]);
+  }, [staticMode, CW, CG, viewportWidth, maxTravel, pinScroll]);
 
   // Preserve the archive's keyboard navigation; static mode scrolls the track
   // horizontally so reduced-motion and touch users are never forced through a pin.
@@ -141,9 +187,10 @@ export function TiltedCarousel() {
 
       event.preventDefault();
       const direction = event.key === "ArrowRight" ? 1 : -1;
+      const currentIndex = activeIndexRef.current;
       const nextIndex = Math.max(
         0,
-        Math.min(ITEMS.length - 1, activeIndexRef.current + direction),
+        Math.min(ITEMS.length - 1, currentIndex + direction),
       );
 
       if (staticMode) {
@@ -153,15 +200,19 @@ export function TiltedCarousel() {
         return;
       }
 
+      if (maxTravel <= 0) return;
+      // One press must advance exactly one card, so the page-scroll delta is
+      // derived from the pin's own mapping (pinScroll px of scroll == maxTravel
+      // px of translation) rather than from a guessed fraction of a card.
+      const scrollPerCard = (pinScroll * (CW + CG)) / maxTravel;
       const targetY =
-        window.scrollY +
-        (nextIndex - activeIndexRef.current) * (CW + CG) * 0.8;
+        window.scrollY + (nextIndex - currentIndex) * scrollPerCard;
       window.scrollTo({ top: targetY, behavior: "smooth" });
     };
 
     section.addEventListener("keydown", onKey);
     return () => section.removeEventListener("keydown", onKey);
-  }, [staticMode, CW, CG]);
+  }, [staticMode, CW, CG, maxTravel, pinScroll]);
 
   if (ITEMS.length === 0) return null;
 
@@ -170,11 +221,16 @@ export function TiltedCarousel() {
       ref={sectionRef}
       aria-label="The ARTCOVR archive"
       tabIndex={0}
-      className={`relative w-full bg-cream ${
+      className={`relative w-full ${
         staticMode
           ? "min-h-screen overflow-hidden py-20"
           : "flex h-screen items-center overflow-hidden"
       }`}
+      // Hardcoded cream against the inherited --foreground made the label, the
+      // counter and the bg-current progress bar render at 1.00:1 in dark theme,
+      // where --foreground is also #f3ecd9. Theme tokens pair correctly in all
+      // three themes. (--color-white is #f3ecd9 too, so it is no escape hatch.)
+      style={{ background: "var(--background)", color: "var(--foreground)" }}
     >
       <div className="absolute top-26 left-4 z-10 text-xs font-bold tracking-tight uppercase lg:left-6">
         <p>The ARTCOVR Archive</p>

@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 
 const items = [
   { label: "Home", href: "/" },
-  { label: "Archive", href: "/archive" },
-  { label: "My Images", href: "/my-images" },
+  { label: "archive", href: "/archive" },
+  { label: "my cart", href: "/my-images" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
   { label: "FAQ", href: "/faq" },
@@ -16,6 +16,31 @@ const items = [
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const dialog = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
+  // The modal effect below must survive parent re-renders that hand down a
+  // fresh inline callback. Its cleanup restores body scrolling, the captured
+  // inert baseline, and focus, so re-running it on every parent render would
+  // yank focus back to the opener and re-capture the baseline from an
+  // already-modified DOM. Read the latest callback through a ref instead.
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  // The overlay itself has no breakpoint gate, but its only close button — and
+  // every hamburger that opens it — is `md:hidden`. Widening past the `md`
+  // breakpoint with the menu open would leave a full-screen overlay that a
+  // mouse-only user cannot dismiss, so close it on that crossing.
+  useEffect(() => {
+    if (!open) return;
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const closeWhenDesktop = () => {
+      if (desktop.matches) onCloseRef.current();
+    };
+    closeWhenDesktop();
+    desktop.addEventListener("change", closeWhenDesktop);
+    return () => desktop.removeEventListener("change", closeWhenDesktop);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -23,13 +48,17 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (event.key !== "Tab") return;
+      // Only currently-rendered controls can hold focus. Counting the
+      // `md:hidden` close button would make the first/last comparisons below
+      // test against a node that can never be `document.activeElement`, which
+      // lets Shift+Tab walk straight out of the dialog.
       const focusable = Array.from(
         dialog.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? [],
-      );
+      ).filter((element) => element.getClientRects().length > 0);
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -67,7 +96,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
       window.removeEventListener("keydown", onKeyDown);
       previouslyFocused?.focus();
     };
-  }, [onClose, open]);
+  }, [open]);
 
   return (
     <div
