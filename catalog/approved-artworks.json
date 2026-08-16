@@ -14,8 +14,6 @@
       "uncanny"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -84,7 +82,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_8a1b6f2d3f74c098f243",
@@ -101,8 +100,6 @@
       "inventive"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -171,7 +168,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_b3f4491ac7965631b3b1",
@@ -188,8 +186,6 @@
       "sunlit"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -258,7 +254,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_a2de27b6021422e09b89",
@@ -365,7 +362,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_c73360b8f81c50b57ad0",
@@ -382,8 +380,6 @@
       "spare"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -452,7 +448,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_dfead6e9a75acb469725",
@@ -469,8 +466,6 @@
       "enigmatic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -539,7 +534,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_f2835117b4c4ae98b6e2",
@@ -556,8 +552,6 @@
       "quiet"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -626,7 +620,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_bd41353a5408921c7d58",
@@ -643,8 +638,6 @@
       "enigmatic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -713,7 +706,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_fd84809ef1554e0a7869",
@@ -730,8 +724,6 @@
       "graphic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -800,7 +792,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_0f35c7c5c3ddc2eec9eb",
@@ -817,8 +810,6 @@
       "minimal"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -887,7 +878,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 20000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_77c70ed3ed2d410dbfd5",
@@ -904,8 +896,6 @@
       "meditative"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -974,7 +964,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_95b953c39ee6f78c922b",
@@ -991,8 +982,6 @@
       "symbolic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1061,7 +1050,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_a22e035c417e6e774d51",
@@ -1078,8 +1068,6 @@
       "graphic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1148,7 +1136,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_0e872f93a29287069ecd",
@@ -1165,8 +1154,6 @@
       "graphic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1235,7 +1222,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_6baed7162ea6572b2434",
@@ -1252,8 +1240,6 @@
       "strange"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1322,7 +1308,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_e114dbcce2588ae7f0b8",
@@ -1428,7 +1415,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_f271bff03a4a8bf3660c",
@@ -1445,8 +1433,6 @@
       "stark"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1515,7 +1501,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_c70963dfd83c1b3cd4dc",
@@ -1532,8 +1519,6 @@
       "electric"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1602,7 +1587,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_8d7e7164e829ecdb2c96",
@@ -1619,8 +1605,6 @@
       "graphic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1689,7 +1673,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_c757341870883fc1c55d",
@@ -1706,8 +1691,6 @@
       "playful"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1776,7 +1759,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_9acb2bf21ff1f0f4a954",
@@ -1882,7 +1866,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_78dbbe3b64a54b0969a9",
@@ -1899,8 +1884,6 @@
       "precise"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -1969,7 +1952,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_af133895ec864914fc62",
@@ -1986,8 +1970,6 @@
       "dreamlike"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2056,7 +2038,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_fd6312bbd6441c9e025a",
@@ -2073,8 +2056,6 @@
       "quiet"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2143,7 +2124,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_d27b6457129241d3a6a6",
@@ -2160,8 +2142,6 @@
       "organic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2230,7 +2210,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_9401682d689b745117c1",
@@ -2247,8 +2228,6 @@
       "still"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2317,7 +2296,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_a9db588e9d9142ad503e",
@@ -2334,8 +2314,6 @@
       "uncanny"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2404,7 +2382,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_4a75bfcdf2490e7a4b83",
@@ -2421,8 +2400,6 @@
       "inventive"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2491,7 +2468,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_7042fab38aac05f1101f",
@@ -2508,8 +2486,6 @@
       "strange"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2578,7 +2554,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_9fc168e232a06e37ad41",
@@ -2595,8 +2572,6 @@
       "whimsical"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2665,7 +2640,8 @@
     },
     "saleMode": "exclusive",
     "priceCents": 8000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_382f017ddadad8dcd971",
@@ -2682,8 +2658,6 @@
       "uncanny"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2752,7 +2726,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_ee6e7132fe55b92cf922",
@@ -2769,8 +2744,6 @@
       "stormy"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2839,7 +2812,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_715fddc62e34dbc2144f",
@@ -2856,8 +2830,6 @@
       "wry"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -2926,7 +2898,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_578ee281ba438155ef14",
@@ -2943,8 +2916,6 @@
       "quiet"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3013,7 +2984,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_627f08639fb16e987934",
@@ -3030,8 +3002,6 @@
       "precise"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3100,7 +3070,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_837796045f0203561622",
@@ -3117,8 +3088,6 @@
       "dreamlike"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3187,7 +3156,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_74de779f9a5094900514",
@@ -3204,8 +3174,6 @@
       "enigmatic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3274,7 +3242,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_9cb1a2fe81ec0abab1d4",
@@ -3291,8 +3260,6 @@
       "precise"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3361,7 +3328,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_09792071af253ce5ced7",
@@ -3378,8 +3346,6 @@
       "warm"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3448,7 +3414,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_28e4e00053befb00ef93",
@@ -3465,8 +3432,6 @@
       "inventive"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3535,7 +3500,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_de1b7dfed90adeb25868",
@@ -3552,8 +3518,6 @@
       "minimal"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3622,7 +3586,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_1867ad4d47f6cf118096",
@@ -3639,8 +3604,6 @@
       "symbolic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3709,7 +3672,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_8d826a0a155a513e16e9",
@@ -3726,8 +3690,6 @@
       "renewed"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3796,7 +3758,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_2da8f2c43d592abc4820",
@@ -3813,8 +3776,6 @@
       "precise"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3883,7 +3844,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_833e2718e7baccc72475",
@@ -3900,8 +3862,6 @@
       "playful"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -3970,7 +3930,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_0a89082cf7ea6fdc8053",
@@ -3987,8 +3948,6 @@
       "enigmatic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4057,7 +4016,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_944f68ea1dc73a7d1bbe",
@@ -4163,7 +4123,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_d8689878945e344a2a6e",
@@ -4270,7 +4231,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_81ef9c04560ca0aeda35",
@@ -4287,8 +4249,6 @@
       "graphic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4357,7 +4317,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_fa434ce71985f9d2d728",
@@ -4374,8 +4335,6 @@
       "precise"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4444,7 +4403,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_3f42d6c658f7d1f939c8",
@@ -4461,8 +4421,6 @@
       "intricate"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4531,7 +4489,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_131d1c582019d52f601e",
@@ -4548,8 +4507,6 @@
       "organic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4618,7 +4575,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_b1f1040d07c0d4c630d5",
@@ -4635,8 +4593,6 @@
       "dreamlike"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4705,7 +4661,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_18cbf168a4cb315e911b",
@@ -4722,8 +4679,6 @@
       "precise"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review",
       "generic-robot-form-review"
     ],
@@ -4793,7 +4748,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_97d06554f98ac4a01acb",
@@ -4810,8 +4766,6 @@
       "expressive"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4880,7 +4834,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_8a962fbd0ab5e17817b6",
@@ -4897,8 +4852,6 @@
       "wry"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -4967,7 +4920,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_2ba4375af85a094747a9",
@@ -4984,8 +4938,6 @@
       "uncanny"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5054,7 +5006,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_6abeb3afbb63aeb37067",
@@ -5161,7 +5114,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_71ce1a2a8a217f9a28c2",
@@ -5178,8 +5132,6 @@
       "expressive"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5248,7 +5200,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_1f4f5cd44cd269966214",
@@ -5265,8 +5218,6 @@
       "absurd"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5335,7 +5286,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 3500,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_e6912b15c7cd4d65cec8",
@@ -5352,8 +5304,6 @@
       "wry"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5422,7 +5372,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_ca24dc2ffebcfb051043",
@@ -5439,8 +5390,6 @@
       "quiet"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5509,7 +5458,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_f9ce6d0c0217d5729eb0",
@@ -5526,8 +5476,6 @@
       "strange"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5596,7 +5544,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_d59d96a2244e080de51d",
@@ -5613,8 +5562,6 @@
       "wry"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5683,7 +5630,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_7383709e7f5569768468",
@@ -5700,8 +5648,6 @@
       "symbolic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5770,7 +5716,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_ec167f53be46f41b5787",
@@ -5787,8 +5734,6 @@
       "graphic"
     ],
     "reviewFlags": [
-      "commercial_rights_unconfirmed",
-      "owner_approval_required",
       "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
     ],
     "width": 1280,
@@ -5857,7 +5802,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_2973a68902d5428a7e0a",
@@ -5929,7 +5875,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_b1fbacd89915f78dcc35",
@@ -6001,7 +5948,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_890f397c8d4f3ee5bccb",
@@ -6073,7 +6021,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_33adf63fdc4cff78989d",
@@ -6145,7 +6094,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_6ecb2b7f031cdd95453f",
@@ -6217,7 +6167,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_f4f72512dd71fff29a9f",
@@ -6289,7 +6240,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_9423d95f6320303cb2c4",
@@ -6361,7 +6313,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_67b7593dec53d1f531d4",
@@ -6433,7 +6386,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_07bdf5aba1e72db9acd7",
@@ -6505,7 +6459,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_359bd0a10815d29b69f5",
@@ -6577,7 +6532,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_d1ca9ed8d6c3f8f8337b",
@@ -6649,7 +6605,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_8fe11ce5bcbed92880b1",
@@ -6721,7 +6678,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_5e8537a9e84a63c44576",
@@ -6793,7 +6751,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_2cff56d7104f3ed540c0",
@@ -7024,7 +6983,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_ae2326bd33d9ebcccb7a",
@@ -7249,7 +7209,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_7d498d5557e8a66000dc",
@@ -7482,7 +7443,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_666617e55cbd033bba75",
@@ -7726,7 +7688,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_ae8b53c3abeafb10e33d",
@@ -7935,7 +7898,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_d9d61f5f3d045bb5f072",
@@ -8191,7 +8155,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_df4cec32854d959802a3",
@@ -8411,7 +8376,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_b80c460640414e1d62a3",
@@ -8647,7 +8613,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_f0ff9b953e94eb604992",
@@ -8881,7 +8848,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_094d0c33efc13f8c0b3d",
@@ -9110,7 +9078,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_9301fc22a3464cb0d296",
@@ -9330,7 +9299,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_6a20a4c76dbc108c8ea4",
@@ -9577,7 +9547,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "delete"
   },
   {
     "id": "art_18fee4bf2eaa9f2ce1a5",
@@ -9814,7 +9785,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_a50373a194fc24e48d32",
@@ -9920,7 +9892,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_4d603e11105c86408382",
@@ -10139,7 +10112,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_0f9bd0b056f799756e83",
@@ -10353,7 +10327,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "archive"
   },
   {
     "id": "art_8b65ec9172e4f0395168",
@@ -10583,7 +10558,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_7883ab1e65e974742396",
@@ -10796,7 +10772,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_c427d53e477404b3a91b",
@@ -11014,7 +10991,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_a75e86bdbba9d20ba692",
@@ -11122,7 +11100,8 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
   },
   {
     "id": "art_bc8268a8e110d051c958",
@@ -11362,6 +11341,3713 @@
     },
     "saleMode": "repeatable",
     "priceCents": 1000,
-    "currency": "USD"
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_2e4631f9b7a43cfee00c",
+    "position": 101,
+    "slug": "magi-in-grey",
+    "title": "Magi in Grey",
+    "description": "Three grey-robed magi lean forward with cupped offerings while a crimson-mantled figure on the adjoining panel cradles a pale disc holding a small dark child. Flat tempera colour, gold-lettered plaque and a dry brick-red ground keep the whole thing hushed and liturgical.",
+    "alt": "A two-panel icon painting: three grey-robed magi bow with gifts on the left panel while a red-robed haloed woman on the right holds a round medallion containing a dark figure.",
+    "category": "Painterly / Illustrative",
+    "mood": "devotional, solemn, austere",
+    "moodTags": [
+      "devotional",
+      "solemn",
+      "austere"
+    ],
+    "reviewFlags": [
+      "watermark_or_text",
+      "possible_photo_of_physical_artwork"
+    ],
+    "width": 1080,
+    "height": 1080,
+    "bytes": 74668,
+    "sha256": "2e4631f9b7a43cfee00cbac7d67610505db2d2f755dd10482de829dc2188387b",
+    "sourcePool": "christian_surrealism",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_2e4631f9b7a43cfee00c/base",
+    "displayPath": "/assets/artworks/magi-in-grey.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "magi-in-grey",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "devotional",
+        "solemn",
+        "austere",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#6b2f22"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_86e5f53f908b95d44bc4",
+    "position": 102,
+    "slug": "desert-broadcast-saint",
+    "title": "Desert Broadcast Saint",
+    "description": "A veiled figure sits cross-legged on yellow sand under stacked halo rings, a rainbow sash spilling down her dark robe and a boxy old television glowing at her knee. Two red antenna-crosses stand far off in a pink and green sky.",
+    "alt": "A robed figure with a rainbow-striped sash sits cross-legged in a yellow desert beneath concentric halo rings, with a small vintage television beside her and two red antenna-crosses on the horizon.",
+    "category": "Surreal / Hybrid",
+    "mood": "devotional, otherworldly, saturated",
+    "moodTags": [
+      "devotional",
+      "otherworldly",
+      "saturated"
+    ],
+    "reviewFlags": [],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 123561,
+    "sha256": "86e5f53f908b95d44bc427faca7ef95f025a022f2e32c4afb34eef4c563671af",
+    "sourcePool": "modern_surrealism",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_86e5f53f908b95d44bc4/base",
+    "displayPath": "/assets/artworks/desert-broadcast-saint.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "desert-broadcast-saint",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "devotional",
+        "otherworldly",
+        "saturated",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#ebd877"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_158cd9e2058a1ff19994",
+    "position": 103,
+    "slug": "crown-of-black-spikes",
+    "title": "Crown of Black Spikes",
+    "description": "A masked figure in a heavy mustard robe sits cross-legged inside a cracked stone niche, skeletal hands folded, ribs showing through the fabric. A halo of long black spikes tipped with dark discs fans out behind the blank white face.",
+    "alt": "An anime-styled figure in a mustard robe with a smooth white teardrop mask sits cross-legged before a pale stone arch, ringed by long black spikes tipped with dark discs.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "macabre, ritual, high-contrast",
+    "moodTags": [
+      "macabre",
+      "ritual",
+      "high-contrast"
+    ],
+    "reviewFlags": [],
+    "width": 1080,
+    "height": 1080,
+    "bytes": 320057,
+    "sha256": "158cd9e2058a1ff19994fdb466971e7633fd8058444184fb28a62355adc91470",
+    "sourcePool": "modern_surrealism",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_158cd9e2058a1ff19994/base",
+    "displayPath": "/assets/artworks/crown-of-black-spikes.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "crown-of-black-spikes",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "macabre",
+        "ritual",
+        "high-contrast",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c9a12c"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_28045b4e171c65b43e14",
+    "position": 104,
+    "slug": "veil-in-red-wind",
+    "title": "Veil in Red Wind",
+    "description": "A figure in a pale blouse turns away as a length of fabric sweeps across the head and erases the face entirely. Everything drowns in a saturated red field, the grain thick enough to feel like dust.",
+    "alt": "A grainy red-toned photograph of a person seen from behind in a pale blouse, with a length of dark fabric whipped across and completely covering the head.",
+    "category": "Surreal / Hybrid",
+    "mood": "haunting, melancholic, tactile",
+    "moodTags": [
+      "haunting",
+      "melancholic",
+      "tactile"
+    ],
+    "reviewFlags": [
+      "identifiable_person"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 347940,
+    "sha256": "28045b4e171c65b43e1499acaacf431abc4d3429e8c096456f77e23322fa9ee9",
+    "sourcePool": "modern_surrealism",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_28045b4e171c65b43e14/base",
+    "displayPath": "/assets/artworks/veil-in-red-wind.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "veil-in-red-wind",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "haunting",
+        "melancholic",
+        "tactile",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c4484a"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_a3225ad55ea19e838b3f",
+    "position": 105,
+    "slug": "widow-in-the-wildflowers",
+    "title": "Widow in the Wildflowers",
+    "description": "A figure sealed head to hem in black stands motionless in a riot of red, magenta and orange blooms. The sky behind her splits into a smouldering orange break, birds scattering across the grey.",
+    "alt": "A figure fully wrapped in a long black veil stands with her back turned in a dense field of red, pink and orange wildflowers under a stormy sky with a burning orange break in the clouds.",
+    "category": "Painterly / Illustrative",
+    "mood": "elegiac, botanical, storm-lit",
+    "moodTags": [
+      "elegiac",
+      "botanical",
+      "storm-lit"
+    ],
+    "reviewFlags": [],
+    "width": 1080,
+    "height": 1080,
+    "bytes": 289232,
+    "sha256": "a3225ad55ea19e838b3f00eb6b95c375a11729dc283b7a82d5833aba6c61fedc",
+    "sourcePool": "modern_surrealism",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a3225ad55ea19e838b3f/base",
+    "displayPath": "/assets/artworks/widow-in-the-wildflowers.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "widow-in-the-wildflowers",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "elegiac",
+        "botanical",
+        "storm-lit",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e3b08b"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_70c8cb0d6bd4fb0b7702",
+    "position": 106,
+    "slug": "cross-in-the-red",
+    "title": "Cross in the Red",
+    "description": "A woman with a blunt black bob tilts her chin, cross earring and pendant catching the light, thin red scratches under one eye. The background is a single flat wall of red with nothing else in it.",
+    "alt": "An anime-style portrait of a woman with a black bob and blunt fringe wearing a cross earring and cross pendant, with red scratch marks under one eye, set flat against a solid red background.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "bold, macabre, high-contrast",
+    "moodTags": [
+      "bold",
+      "macabre",
+      "high-contrast"
+    ],
+    "reviewFlags": [],
+    "width": 1440,
+    "height": 1440,
+    "bytes": 143702,
+    "sha256": "70c8cb0d6bd4fb0b770226560fd1dcbacc20c0a0e42baa63c71d010ec67a8490",
+    "sourcePool": "anime_music",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_70c8cb0d6bd4fb0b7702/base",
+    "displayPath": "/assets/artworks/cross-in-the-red.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "cross-in-the-red",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "bold",
+        "macabre",
+        "high-contrast",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e5493a"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_5f394c1df8412dec9646",
+    "position": 107,
+    "slug": "white-eyes-in-the-rain",
+    "title": "White Eyes in the Rain",
+    "description": "Rain streams down a woman with long white hair, blank luminous eyes and a studded choker, her blue top slick against the dark. Behind her a concrete wall carries pale graffiti marks, half-dissolved in the downpour.",
+    "alt": "An anime-style illustration of a woman with long white hair, blank glowing white eyes and a spiked metal choker, soaked in heavy rain against a marked concrete wall, wearing a bright blue top.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "nocturnal, electric, haunting",
+    "moodTags": [
+      "nocturnal",
+      "electric",
+      "haunting"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1440,
+    "height": 1440,
+    "bytes": 343717,
+    "sha256": "5f394c1df8412dec964674c39abe7849de241594f01291acf3464c4de47b6792",
+    "sourcePool": "anime_music",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_5f394c1df8412dec9646/base",
+    "displayPath": "/assets/artworks/white-eyes-in-the-rain.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "white-eyes-in-the-rain",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "nocturnal",
+        "electric",
+        "haunting",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#2fa9f0"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_6599fbe3361287679cff",
+    "position": 108,
+    "slug": "portrait-in-slippage",
+    "title": "Portrait in Slippage",
+    "description": "One head holds three or four faces at once, features dragged sideways in dense black stipple across warm cream paper. Black circles orbit the silhouette and a single red thread drips from the jaw.",
+    "alt": "A stippled halftone portrait on cream paper in which a single head carries several overlapping smeared faces, flanked by black circles, with a thin red drip and a small red-and-black block in the upper right.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "monochrome, fragmented, uncanny",
+    "moodTags": [
+      "monochrome",
+      "fragmented",
+      "uncanny"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1200,
+    "height": 1200,
+    "bytes": 455775,
+    "sha256": "6599fbe3361287679cff888b39604ed88d9b75fb77018c25af41391701486edf",
+    "sourcePool": "gothic_surrealism",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_6599fbe3361287679cff/base",
+    "displayPath": "/assets/artworks/portrait-in-slippage.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "portrait-in-slippage",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "monochrome",
+        "fragmented",
+        "uncanny",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#d92b1f"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_8c950047fe3756a2a5a4",
+    "position": 109,
+    "slug": "apparition-over-the-gorge",
+    "title": "Apparition Over the Gorge",
+    "description": "A bark-skinned, many-spined apparition hangs above a pale canyon, a burning white orb suspended beneath it and thin triangle lines drawn across the sky. Two small figures stand on the cliff lip, watching it happen.",
+    "alt": "A sepia painting of a winged, bark-textured entity with a skull-like face hovering above a canyon, holding a glowing white orb, with faint geometric triangle lines and two tiny figures on a cliff edge below.",
+    "category": "Painterly / Illustrative",
+    "mood": "mythic, vast, arcane",
+    "moodTags": [
+      "mythic",
+      "vast",
+      "arcane"
+    ],
+    "reviewFlags": [],
+    "width": 1668,
+    "height": 1668,
+    "bytes": 381709,
+    "sha256": "8c950047fe3756a2a5a4b6c9c9fec6e2f5590e027fc02541b732c6d369c01f90",
+    "sourcePool": "gothic_surrealism",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_8c950047fe3756a2a5a4/base",
+    "displayPath": "/assets/artworks/apparition-over-the-gorge.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "apparition-over-the-gorge",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "mythic",
+        "vast",
+        "arcane",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e8d89a"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_f942e5b6d543fcd04fc0",
+    "position": 110,
+    "slug": "magenta-eclipse",
+    "title": "Magenta Eclipse",
+    "description": "Three grainy discs overlap on a black field, magenta bleeding into red and a green rim surfacing at the edges. The noise is heavy enough to read as printed dust rather than light.",
+    "alt": "Three overlapping grainy circles in magenta, red and green float against a flat black field, their edges soft and their interiors mottled with noise.",
+    "category": "Minimal / Abstract",
+    "mood": "abstract, saturated, vibrant",
+    "moodTags": [
+      "abstract",
+      "saturated",
+      "vibrant"
+    ],
+    "reviewFlags": [],
+    "width": 2362,
+    "height": 2362,
+    "bytes": 3294474,
+    "sha256": "f942e5b6d543fcd04fc0583f82a56011298d8f04995e828fa3a53ff57b4d474a",
+    "sourcePool": "random_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_f942e5b6d543fcd04fc0/base",
+    "displayPath": "/assets/artworks/magenta-eclipse.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "magenta-eclipse",
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "abstract",
+        "saturated",
+        "vibrant",
+        "minimal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e455c4"
+      ],
+      "lighting": "even studio light with one hard shadow axis",
+      "mediumAndTexture": "matte color fields with minimal surface grain",
+      "lineworkAndEdges": "restrained hard-edged geometry",
+      "compositionAndMotion": "large negative space around an isolated subject",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_f7be9c4c9b5a04d554c8",
+    "position": 111,
+    "slug": "sherbet-orbits",
+    "title": "Sherbet Orbits",
+    "description": "Soft-edged spheres in pink, cream, orange and green slide over one another against black, each one grained like risograph ink. Where they overlap the colour turns and a new fruit-coloured body appears.",
+    "alt": "A cluster of overlapping grainy spheres in pink, pale cream, orange and green drift across a flat black background.",
+    "category": "Minimal / Abstract",
+    "mood": "abstract, vivid, layered",
+    "moodTags": [
+      "abstract",
+      "vivid",
+      "layered"
+    ],
+    "reviewFlags": [],
+    "width": 2362,
+    "height": 2362,
+    "bytes": 3398349,
+    "sha256": "f7be9c4c9b5a04d554c8f5f54186d2ea71fc1a5fcfeb9b9d969ecb8be02d5439",
+    "sourcePool": "random_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_f7be9c4c9b5a04d554c8/base",
+    "displayPath": "/assets/artworks/sherbet-orbits.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "sherbet-orbits",
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "abstract",
+        "vivid",
+        "layered",
+        "minimal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e6213c"
+      ],
+      "lighting": "even studio light with one hard shadow axis",
+      "mediumAndTexture": "matte color fields with minimal surface grain",
+      "lineworkAndEdges": "restrained hard-edged geometry",
+      "compositionAndMotion": "large negative space around an isolated subject",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_7f2bb229e942291dd292",
+    "position": 112,
+    "slug": "sleeper-on-the-rainbow",
+    "title": "Sleeper on the Rainbow",
+    "description": "A nude figure lies stretched along the curve of a rainbow, one arm folded under her head, hair loose across the band of colour. Below her a bank of clouds catches the last warm light of the day.",
+    "alt": "An academic oil painting of a nude woman lying face down along the arc of a rainbow above a bank of sunlit clouds, her long hair spread behind her.",
+    "category": "Painterly / Illustrative",
+    "mood": "luminous, serene, painterly",
+    "moodTags": [
+      "luminous",
+      "serene",
+      "painterly"
+    ],
+    "reviewFlags": [
+      "possible_photo_of_physical_artwork"
+    ],
+    "width": 1080,
+    "height": 1080,
+    "bytes": 317546,
+    "sha256": "7f2bb229e942291dd292503694d7eb7d070759fd700b3e4f0d969666e37514dc",
+    "sourcePool": "renaissance_goddess",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_7f2bb229e942291dd292/base",
+    "displayPath": "/assets/artworks/sleeper-on-the-rainbow.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "sleeper-on-the-rainbow",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "luminous",
+        "serene",
+        "painterly",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c9a071"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_83117c6ba64fda33e1c8",
+    "position": 113,
+    "slug": "fishing-the-reflected-sky",
+    "title": "Fishing the Reflected Sky",
+    "description": "A cracked salt pan holds one shallow pool, and the pool holds the entire star-thick sky. A single seated figure works a line into the reflection while gold light burns along the far horizon.",
+    "alt": "A heavily textured painting of a cracked salt flat with a shallow blue pool reflecting a dense starfield, and a single small figure seated at the water's edge holding a rod.",
+    "category": "Painterly / Illustrative",
+    "mood": "celestial, solitary, weathered",
+    "moodTags": [
+      "celestial",
+      "solitary",
+      "weathered"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2945744,
+    "sha256": "83117c6ba64fda33e1c89d7bd056d9043fd7b40bd7e8aba95d740df6b90feaf1",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_83117c6ba64fda33e1c8/base",
+    "displayPath": "/assets/artworks/fishing-the-reflected-sky.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "fishing-the-reflected-sky",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "celestial",
+        "solitary",
+        "weathered",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#3f7f9c"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_6d03883de9c56418de8b",
+    "position": 114,
+    "slug": "the-boating-afternoon",
+    "title": "The Boating Afternoon",
+    "description": "Figures in pale summer dress cluster on a small wooded island while rowing boats slide across the blue water around it. The paint is laid on thick, every leaf and ripple a separate loaded stroke.",
+    "alt": "An impasto oil painting of figures in pale summer dress gathered on a small wooded island while rowing boats cross the blue lake around them.",
+    "category": "Painterly / Illustrative",
+    "mood": "sunlit, painterly, tranquil",
+    "moodTags": [
+      "sunlit",
+      "painterly",
+      "tranquil"
+    ],
+    "reviewFlags": [
+      "possible_photo_of_physical_artwork"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2769092,
+    "sha256": "6d03883de9c56418de8bcfa943742140aa9202fd1745971d51ee790fc6f850ff",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_6d03883de9c56418de8b/base",
+    "displayPath": "/assets/artworks/the-boating-afternoon.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-boating-afternoon",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "sunlit",
+        "painterly",
+        "tranquil",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#2f6ea8"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_47e67393b1e125a04578",
+    "position": 115,
+    "slug": "the-crumbling-colossus",
+    "title": "The Crumbling Colossus",
+    "description": "An enormous yellow head hangs in a teal sky above a flat desert, the back of the skull dissolving into a trail of drifting fragments. Far below, a single figure in red walks on as if nothing unusual is overhead.",
+    "alt": "A colossal yellow head in profile floats above a yellow desert plain against a teal sky, its back half breaking apart into drifting fragments, with one tiny red-clad figure walking below.",
+    "category": "Surreal / Hybrid",
+    "mood": "monumental, vast, uncanny",
+    "moodTags": [
+      "monumental",
+      "vast",
+      "uncanny"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3780059,
+    "sha256": "47e67393b1e125a045789c5b3e5dcb9815bdc241824cabc13ad54cf6ff471274",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_47e67393b1e125a04578/base",
+    "displayPath": "/assets/artworks/the-crumbling-colossus.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-crumbling-colossus",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "monumental",
+        "vast",
+        "uncanny",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#ccb223"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_fcffcb30926fd696e35e",
+    "position": 116,
+    "slug": "vigil-at-the-golden-cross",
+    "title": "Vigil at the Golden Cross",
+    "description": "Four figures in deep blue kneel in the grass before a plain cross set against a burning gold disc, the whole scene built from small tesserae. Orange and vermilion fields roll away behind them to a low horizon.",
+    "alt": "A mosaic-style illustration of four figures in blue robes and hats kneeling before a tall wooden cross backed by a radiant gold disc, above orange and red fields.",
+    "category": "Mixed Media / Collage",
+    "mood": "devotional, radiant, sacred",
+    "moodTags": [
+      "devotional",
+      "radiant",
+      "sacred"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3238510,
+    "sha256": "fcffcb30926fd696e35e50f1571ce319fc3c75c09be7af41268a97a6a4985e2d",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_fcffcb30926fd696e35e/base",
+    "displayPath": "/assets/artworks/vigil-at-the-golden-cross.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "vigil-at-the-golden-cross",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "devotional",
+        "radiant",
+        "sacred",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#f09a08"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_6016a8ebb5d3f5a9f23d",
+    "position": 117,
+    "slug": "the-verdigris-skull",
+    "title": "The Verdigris Skull",
+    "description": "A vast green skull lies half-sunk among pale pink blocks and broken towers, its surface pitted like old bronze. Violet smoke rises behind the ruins in fine engraved hatching.",
+    "alt": "A giant weathered green skull rests among pale pink and violet blocks and ruined towers under a mauve sky, rendered in fine engraved hatching.",
+    "category": "Surreal / Hybrid",
+    "mood": "macabre, monumental, weathered",
+    "moodTags": [
+      "macabre",
+      "monumental",
+      "weathered"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3889728,
+    "sha256": "6016a8ebb5d3f5a9f23d22294dc7fd62924c4a2169ab2ec38263441eeb2446e9",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_6016a8ebb5d3f5a9f23d/base",
+    "displayPath": "/assets/artworks/the-verdigris-skull.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-verdigris-skull",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "macabre",
+        "monumental",
+        "weathered",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#93a37c"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_38bbfbb3cd7d931b2271",
+    "position": 118,
+    "slug": "boy-and-the-ant",
+    "title": "Boy and the Ant",
+    "description": "A curly-haired youth lies flat on the ground, chin propped on one hand, chewing the end of a twig while an ant works past his elbow. The whole plate is printed in a single hot yellow, the hatching fine as thread.",
+    "alt": "A yellow monochrome engraving of a curly-haired youth lying prone on the ground chewing a twig, propped on one hand, with an ant beside him and faint inscribed marks along the lower edge.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "sunlit, still, print",
+    "moodTags": [
+      "sunlit",
+      "still",
+      "print"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3182931,
+    "sha256": "38bbfbb3cd7d931b2271c6330178fe4d0f65ade3cf7cc75b15fac0f92f56bb07",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_38bbfbb3cd7d931b2271/base",
+    "displayPath": "/assets/artworks/boy-and-the-ant.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "boy-and-the-ant",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "sunlit",
+        "still",
+        "print",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#dcb80a"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_d63a0b9bf15916cb7661",
+    "position": 119,
+    "slug": "hands-holding-the-eye",
+    "title": "Hands Holding the Eye",
+    "description": "Two oversized pale hands cup a yellow-green sphere in which a single blue eye stares out, wide open and unblinking. Below them a small dark plinth sits on a banded gold ledge, everything assembled from tesserae.",
+    "alt": "A mosaic-style image of two large pale hands cradling a yellow-green sphere that contains a single wide blue eye, above a small dark plinth and a decorative gold band.",
+    "category": "Mixed Media / Collage",
+    "mood": "watchful, symbolic, tactile",
+    "moodTags": [
+      "watchful",
+      "symbolic",
+      "tactile"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3446450,
+    "sha256": "d63a0b9bf15916cb76619aee62026fc00dd5e37270e000e1128e669d6501ed38",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_d63a0b9bf15916cb7661/base",
+    "displayPath": "/assets/artworks/hands-holding-the-eye.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "hands-holding-the-eye",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "watchful",
+        "symbolic",
+        "tactile",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c1b061"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_36ff0ac7ef6f1644c861",
+    "position": 120,
+    "slug": "head-in-the-rapeseed",
+    "title": "Head in the Rapeseed",
+    "description": "A bald head in profile closes its eyes and lets its neck become the field, the same hatching carrying skin into yellow flower. Pink hills stack behind it under a sky ruled in fine horizontal lines.",
+    "alt": "A crosshatched engraving of a bald head in profile with closed eyes, its neck dissolving into a yellow flowering field, with pink and magenta hills behind under a striped pink sky.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "contemplative, rooted, print",
+    "moodTags": [
+      "contemplative",
+      "rooted",
+      "print"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3582070,
+    "sha256": "36ff0ac7ef6f1644c86173966078273931f60036707e9255792b92841dce2d35",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_36ff0ac7ef6f1644c861/base",
+    "displayPath": "/assets/artworks/head-in-the-rapeseed.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "head-in-the-rapeseed",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "contemplative",
+        "rooted",
+        "print",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c8981c"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_6300243b12de93e8b568",
+    "position": 121,
+    "slug": "two-dancers-in-linen",
+    "title": "Two Dancers in Linen",
+    "description": "Two dancers made of nothing but wound linen and teal cloth twist mid-leap, hands flung out, no faces anywhere in the knots. Behind them the red ground is troweled on thick and scarred with the palette knife.",
+    "alt": "Two figures built entirely from wrapped strips of pale linen and teal cloth leap and twist against a thickly painted red background.",
+    "category": "Material / Sculptural / Organic",
+    "mood": "tactile, kinetic, sculptural",
+    "moodTags": [
+      "tactile",
+      "kinetic",
+      "sculptural"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2776667,
+    "sha256": "6300243b12de93e8b5684405c36c5b5110ea264ded278981a59377fce57f9019",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_6300243b12de93e8b568/base",
+    "displayPath": "/assets/artworks/two-dancers-in-linen.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "two-dancers-in-linen",
+      "styleFamily": "Material / Sculptural / Organic",
+      "keywords": [
+        "tactile",
+        "kinetic",
+        "sculptural",
+        "material"
+      ],
+      "avoids": [],
+      "palette": [
+        "#a8323c"
+      ],
+      "lighting": "raking light revealing surface relief",
+      "mediumAndTexture": "dense organic texture built in physical layers",
+      "lineworkAndEdges": "edges defined by material boundaries, not line",
+      "compositionAndMotion": "mass and void balanced sculpturally",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_53767393a9005016922a",
+    "position": 122,
+    "slug": "the-brass-halo",
+    "title": "The Brass Halo",
+    "description": "A veiled figure gathers a spray of red leaves against her chest, pale hands the only bright thing in the fabric. Behind her hangs a broken brass ring strung with small weights, floating in a room with no walls.",
+    "alt": "A dark painting of a veiled figure in heavy black robes holding a bunch of red leaves, seated before a large brass ring halo with small hanging weights, against a near-black ground.",
+    "category": "Painterly / Illustrative",
+    "mood": "nocturnal, devotional, haunting",
+    "moodTags": [
+      "nocturnal",
+      "devotional",
+      "haunting"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2048197,
+    "sha256": "53767393a9005016922a26005e89b61746254e460f7c19d17816d4c0df47a372",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_53767393a9005016922a/base",
+    "displayPath": "/assets/artworks/the-brass-halo.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-brass-halo",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "nocturnal",
+        "devotional",
+        "haunting",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#8c6b3c"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_cb9ff20aa18143aeeeaf",
+    "position": 123,
+    "slug": "basin-for-a-head",
+    "title": "Basin for a Head",
+    "description": "A man stands squarely in a dark coat, and where his head should be there is a wide shallow basin holding one small pool of light. Thin arcs rise from the rim like water thrown and never landing.",
+    "alt": "A sepia-toned image of a man in a dark buttoned coat whose head is a wide shallow basin holding a small glowing pool of light, with faint arcs rising from its rim.",
+    "category": "Surreal / Hybrid",
+    "mood": "melancholic, uncanny, weathered",
+    "moodTags": [
+      "melancholic",
+      "uncanny",
+      "weathered"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2969354,
+    "sha256": "cb9ff20aa18143aeeeaff0b31f2e49fa32ff2188b2f28be7a6d1c2b04e6b6c38",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_cb9ff20aa18143aeeeaf/base",
+    "displayPath": "/assets/artworks/basin-for-a-head.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "basin-for-a-head",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "melancholic",
+        "uncanny",
+        "weathered",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#7a6248"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_67d248b99bfb86f75ebf",
+    "position": 124,
+    "slug": "exit-in-fragments",
+    "title": "Exit in Fragments",
+    "description": "A red EXIT sign hangs at an angle on bare cream, its last letter already lost, red and teal shrapnel bursting away from it. The whole thing reads like a print pulled a half-second after the impact.",
+    "alt": "A red illuminated EXIT sign on a cream ground, its lettering partly obscured, surrounded by scattered red and teal debris that appears to be blasting outward.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "stark, graphic, urban",
+    "moodTags": [
+      "stark",
+      "graphic",
+      "urban"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2369042,
+    "sha256": "67d248b99bfb86f75ebf611cde17456653d9da4264dd27da165fb28bd784714e",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_67d248b99bfb86f75ebf/base",
+    "displayPath": "/assets/artworks/exit-in-fragments.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "exit-in-fragments",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "stark",
+        "graphic",
+        "urban",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c8281e"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_6af16f35b34d60d12e74",
+    "position": 125,
+    "slug": "playing-the-stapler",
+    "title": "Playing the Stapler",
+    "description": "A gaunt man in a suit tips his head back and plays a small boxy office object like a harmonica, a red drip running from his mouth to the floor. A red disc sits behind his skull and black blocks stack around him on aged cream paper.",
+    "alt": "A collage-style print on aged cream paper of a gaunt man in a suit holding a small boxy metal object to his lips like a harmonica, backed by a red disc and black rectangular blocks.",
+    "category": "Mixed Media / Collage",
+    "mood": "absurd, deadpan, graphic",
+    "moodTags": [
+      "absurd",
+      "deadpan",
+      "graphic"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2539921,
+    "sha256": "6af16f35b34d60d12e7433d1f0dd8aa924132a62396a157ce07fdec7d4ad8c32",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_6af16f35b34d60d12e74/base",
+    "displayPath": "/assets/artworks/playing-the-stapler.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "playing-the-stapler",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "absurd",
+        "deadpan",
+        "graphic",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#d0644e"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_0b48225357aba4d54e73",
+    "position": 126,
+    "slug": "halftone-skull-in-red",
+    "title": "Halftone Skull in Red",
+    "description": "A skull in coarse black halftone fills the sheet, red spatter caught in the eye socket and along the jaw. Thin registration lines, a red vertical panel of reversed type and rows of tiny printed microtext frame it like a damaged record sleeve.",
+    "alt": "A large human skull in profile rendered in coarse black halftone on cream paper, spattered with red, with a red vertical panel of reversed lettering and thin technical registration lines and microtext.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "macabre, distressed, high-contrast",
+    "moodTags": [
+      "macabre",
+      "distressed",
+      "high-contrast"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 437174,
+    "sha256": "0b48225357aba4d54e730f3ba398700dd4888a6e1bec8ced75bb8bc5733fcde3",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_0b48225357aba4d54e73/base",
+    "displayPath": "/assets/artworks/halftone-skull-in-red.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "halftone-skull-in-red",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "macabre",
+        "distressed",
+        "high-contrast",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e8402c"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_0fd601a7160d4f9facfd",
+    "position": 127,
+    "slug": "motel-in-teal-night",
+    "title": "Motel in Teal Night",
+    "description": "A roadside motel sign burns orange against a wall of teal night, its second panel already half dead. Below it only a dark roofline and the pole, nothing else awake on the block.",
+    "alt": "A lit roadside motel sign reading VACANTIC MOTEL glows orange and red on a wooden post against a deep teal night wall, with a dark roofline in the lower corner.",
+    "category": "Painterly / Illustrative",
+    "mood": "nocturnal, nostalgic, cinematic",
+    "moodTags": [
+      "nocturnal",
+      "nostalgic",
+      "cinematic"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2219206,
+    "sha256": "0fd601a7160d4f9facfdad26c7d93b89ed9be867a560681f226d21ba3515c493",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_0fd601a7160d4f9facfd/base",
+    "displayPath": "/assets/artworks/motel-in-teal-night.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "motel-in-teal-night",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "nocturnal",
+        "nostalgic",
+        "cinematic",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e2662c"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_923c75d60f779ba3ed30",
+    "position": 128,
+    "slug": "mouth-in-the-floor",
+    "title": "Mouth in the Floor",
+    "description": "An enormous mouth breaks up through a tiled floor, pink gums and blunt teeth opening onto a black throat with embers in it. Dense ink smoke boils around the hole, threaded with cold teal.",
+    "alt": "A pen-and-ink illustration of an enormous open mouth with pink gums and blocky teeth erupting through a tiled grey floor, surrounded by dense black smoke with teal wisps.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "macabre, kinetic, uncanny",
+    "moodTags": [
+      "macabre",
+      "kinetic",
+      "uncanny"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3076178,
+    "sha256": "923c75d60f779ba3ed308ccb3a8f7e0d5228a29b5627fd6046b1a73edcbca81f",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_923c75d60f779ba3ed30/base",
+    "displayPath": "/assets/artworks/mouth-in-the-floor.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "mouth-in-the-floor",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "macabre",
+        "kinetic",
+        "uncanny",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#ef8a6c"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_a9e192edb2e42460375f",
+    "position": 129,
+    "slug": "the-lives-not-chosen",
+    "title": "The Lives Not Chosen",
+    "description": "A girl with a red backpack stands very small before a wall of stacked teal crates, each one hand-labelled and going up past the frame. Red stains bloom across several of the boxes near the middle of the stack.",
+    "alt": "A girl in an orange skirt with a red backpack stands with her back turned before a towering wall of stacked teal crates marked with handwritten labels and stained with red.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "melancholic, archival, solitary",
+    "moodTags": [
+      "melancholic",
+      "archival",
+      "solitary"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2399515,
+    "sha256": "a9e192edb2e42460375ffab630d758d89d57a96cea68f394093fa84686cde038",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a9e192edb2e42460375f/base",
+    "displayPath": "/assets/artworks/the-lives-not-chosen.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-lives-not-chosen",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "melancholic",
+        "archival",
+        "solitary",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#3f8a80"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_8c7ed40725786b5eb55b",
+    "position": 130,
+    "slug": "mouth-full-of-coins",
+    "title": "Mouth Full of Coins",
+    "description": "A huge mouth hangs open on cream paper, red lips and blunt teeth pressed against drifts of loose coins piling into the lower jaw. An open book lies abandoned at the edge of the heap.",
+    "alt": "A screenprint-style illustration of a huge open mouth with large teeth and red lips, its lower jaw buried in heaps of loose coins, with an open book lying at the left edge.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "absurd, macabre, graphic",
+    "moodTags": [
+      "absurd",
+      "macabre",
+      "graphic"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2978709,
+    "sha256": "8c7ed40725786b5eb55b15ac2ea64568ebb65443d91a847360a57a5579e4f274",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_8c7ed40725786b5eb55b/base",
+    "displayPath": "/assets/artworks/mouth-full-of-coins.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "mouth-full-of-coins",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "absurd",
+        "macabre",
+        "graphic",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e0522f"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_fe656bad878235933f3e",
+    "position": 131,
+    "slug": "the-waiting-bench",
+    "title": "The Waiting Bench",
+    "description": "A dozen near-identical men in grey-blue coats sit shoulder to shoulder, heads bowed over the small papers in their hands. The floor is flat pink, the wall is bare except for one small placard, and nobody is being called.",
+    "alt": "Rows of nearly identical men in grey-blue coats sit side by side on benches with heads bowed over papers in their hands, on a flat pink floor with a small placard on the pale wall behind.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "deadpan, systemic, melancholic",
+    "moodTags": [
+      "deadpan",
+      "systemic",
+      "melancholic"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2532916,
+    "sha256": "fe656bad878235933f3e81da7cc6eb51223637f7442dd1e3e733d6264e37bd87",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_fe656bad878235933f3e/base",
+    "displayPath": "/assets/artworks/the-waiting-bench.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-waiting-bench",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "deadpan",
+        "systemic",
+        "melancholic",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#f08890"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_9747b235c3f40ed5776d",
+    "position": 132,
+    "slug": "the-xerox-scream",
+    "title": "The Xerox Scream",
+    "description": "A spike-haired face laughs open-mouthed in blown-out halftone, printed on paper soft and foxed at every corner. Dense columns of tiny type run down both margins and along the top like a sleeve nobody has read in years.",
+    "alt": "A worn cream zine cover carrying a high-contrast halftone photograph of a laughing, spike-haired face, framed on three sides by dense blocks of tiny printed text.",
+    "category": "Mixed Media / Collage",
+    "mood": "distressed, monochrome, gritty",
+    "moodTags": [
+      "distressed",
+      "monochrome",
+      "gritty"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3384748,
+    "sha256": "9747b235c3f40ed5776d258d0a755bf1fcf141cb49d1260f37ef9f46371ef5c5",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_9747b235c3f40ed5776d/base",
+    "displayPath": "/assets/artworks/the-xerox-scream.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-xerox-scream",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "distressed",
+        "monochrome",
+        "gritty",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c2b193"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_2d7942bf9e266b0b7f7f",
+    "position": 133,
+    "slug": "ramen-with-my-skeleton",
+    "title": "Ramen with My Skeleton",
+    "description": "A man in a suit lifts noodles from his bowl while the skeleton beside him works an identical bowl with the same patience. A red banner of katakana runs across the top of the aged cream sheet, ink already breaking up.",
+    "alt": "A halftone print on aged cream paper showing a bespectacled man in a suit eating a bowl of ramen with chopsticks beside a seated skeleton eating an identical bowl, under a red banner of Japanese katakana.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "deadpan, macabre, print",
+    "moodTags": [
+      "deadpan",
+      "macabre",
+      "print"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3527526,
+    "sha256": "2d7942bf9e266b0b7f7f38f753d8a6d4dcb26a39dfc7b024bab66b59fbd9bd8e",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_2d7942bf9e266b0b7f7f/base",
+    "displayPath": "/assets/artworks/ramen-with-my-skeleton.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "ramen-with-my-skeleton",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "deadpan",
+        "macabre",
+        "print",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e02a20"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_fe5ff95ceff9c926a109",
+    "position": 134,
+    "slug": "coffee-for-the-skeleton",
+    "title": "Coffee for the Skeleton",
+    "description": "A skeleton leans over a red desk piled with books and loose paper, one hand resting near a cup that has clearly gone cold. The teal ground behind it is scraped and worked until the board shows through.",
+    "alt": "A textured print of a skeleton seated on a red chair leaning over a red desk stacked with books and papers, a cup at its elbow, against a scraped teal background.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "deadpan, macabre, textured",
+    "moodTags": [
+      "deadpan",
+      "macabre",
+      "textured"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3082866,
+    "sha256": "fe5ff95ceff9c926a109053cefb2f06b087cf34c4101563456cc699c560aacbd",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_fe5ff95ceff9c926a109/base",
+    "displayPath": "/assets/artworks/coffee-for-the-skeleton.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "coffee-for-the-skeleton",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "deadpan",
+        "macabre",
+        "textured",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#df5a3e"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_dbbf873c6dbd17155d02",
+    "position": 135,
+    "slug": "the-uplifted-face",
+    "title": "The Uplifted Face",
+    "description": "A face tilts up with eyes closed while the top of the head tears open into layered photographic scraps and cruciform blocks. Two red discs hang at the right like suns that never agreed on a position.",
+    "alt": "A collage on cream paper of a face tilted upward with eyes closed, its crown torn away into layered photographic fragments and cross-shaped blocks, with two red discs and a teal rectangle.",
+    "category": "Mixed Media / Collage",
+    "mood": "fragmented, poetic, monochrome",
+    "moodTags": [
+      "fragmented",
+      "poetic",
+      "monochrome"
+    ],
+    "reviewFlags": [],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2938980,
+    "sha256": "dbbf873c6dbd17155d02db3ef4056f65652d8536255dd9a4078ca3210292683b",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_dbbf873c6dbd17155d02/base",
+    "displayPath": "/assets/artworks/the-uplifted-face.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-uplifted-face",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "fragmented",
+        "poetic",
+        "monochrome",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c6523b"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_2aca37845311e7be668f",
+    "position": 136,
+    "slug": "ethereal-muted-minimalism",
+    "title": "Ethereal Muted Minimalism",
+    "description": "A single bare branch, still carrying a few dried blossoms, stands in a chalky ceramic vase on a rough plank table. Light comes through one paned window and fills the room with a soft grey haze.",
+    "alt": "A pale ceramic vase holding a single bare branch with small dried blossoms sits on a rough wooden plank in a misty room, lit by a paned window on the left.",
+    "category": "Minimal / Abstract",
+    "mood": "ethereal, minimal, quiet",
+    "moodTags": [
+      "ethereal",
+      "minimal",
+      "quiet"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 284958,
+    "sha256": "2aca37845311e7be668f9878e419258d5a5dcfee88e804951d00d96fcf960109",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 1,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_2aca37845311e7be668f/base",
+    "displayPath": "/assets/artworks/ethereal-muted-minimalism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "ethereal-muted-minimalism",
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "ethereal",
+        "minimal",
+        "quiet",
+        "minimal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#ada7a3"
+      ],
+      "lighting": "even studio light with one hard shadow axis",
+      "mediumAndTexture": "matte color fields with minimal surface grain",
+      "lineworkAndEdges": "restrained hard-edged geometry",
+      "compositionAndMotion": "large negative space around an isolated subject",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_d0736315f58b90c27d5a",
+    "position": 137,
+    "slug": "oneiric-geometric-surrealism",
+    "title": "Oneiric Geometric Surrealism",
+    "description": "A cube of clipped grass, an open door standing on nothing and a pale stone sphere hang in a cloud-scattered sky. Below them a woman in a long brown dress follows a dirt path across a golden plain without looking up.",
+    "alt": "A grass-covered cube, a freestanding white door frame and a pale stone sphere float in a blue sky above a golden plain where a woman in a long dress walks along a dirt path.",
+    "category": "Surreal / Hybrid",
+    "mood": "dreamlike, geometric, surreal",
+    "moodTags": [
+      "dreamlike",
+      "geometric",
+      "surreal"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2409667,
+    "sha256": "d0736315f58b90c27d5af73a2fda1ef07b459f5d2564b2ebac321d3264698587",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 1,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_d0736315f58b90c27d5a/base",
+    "displayPath": "/assets/artworks/oneiric-geometric-surrealism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "oneiric-geometric-surrealism",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "dreamlike",
+        "geometric",
+        "surreal",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#7f9a45"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_aa6471f478e9dbbb275a",
+    "position": 138,
+    "slug": "surrealist-liminal-pastoralism",
+    "title": "Surrealist Liminal Pastoralism",
+    "description": "A glass bus shelter waits in a summer meadow, its bench empty and its blue sign still posted. Beside it a colossal white staircase climbs, doubles back and simply stops in the open air.",
+    "alt": "A glass bus shelter with a wooden bench and a blue bus-stop sign stands in a green meadow beside an enormous white staircase that folds back on itself in mid-air under a clear blue sky.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, liminal, serene",
+    "moodTags": [
+      "surreal",
+      "liminal",
+      "serene"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2225231,
+    "sha256": "aa6471f478e9dbbb275a9a6059e7f43f71e3be698e1a6d9667d8966753f18a4d",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 4,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_aa6471f478e9dbbb275a/base",
+    "displayPath": "/assets/artworks/surrealist-liminal-pastoralism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surrealist-liminal-pastoralism",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "surreal",
+        "liminal",
+        "serene",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#59a7cb"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_423e62c842945cd16cc6",
+    "position": 139,
+    "slug": "ethereal-pastel-surrealism",
+    "title": "Ethereal Pastel Surrealism",
+    "description": "A small pink house holds the edge of a floating clifftop, its fence and blossom tree catching the last of the light. Thick palette-knife cloud piles up in lavender and cream below the grass line.",
+    "alt": "A pink two-story house with a white picket fence sits on a grassy clifftop above banks of lavender cloud, painted in thick impasto strokes.",
+    "category": "Painterly / Illustrative",
+    "mood": "ethereal, dreamlike, airy",
+    "moodTags": [
+      "ethereal",
+      "dreamlike",
+      "airy"
+    ],
+    "reviewFlags": [
+      "possible_photo_of_physical_artwork"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 3307686,
+    "sha256": "423e62c842945cd16cc6230ee7fdefd27a8b70106dc34cb8517155f8d2dedc65",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 7,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_423e62c842945cd16cc6/base",
+    "displayPath": "/assets/artworks/ethereal-pastel-surrealism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "ethereal-pastel-surrealism",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "ethereal",
+        "dreamlike",
+        "airy",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e6bcc2"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_dc81be5d2327c96efbba",
+    "position": 140,
+    "slug": "narrative-surrealist-synthesis",
+    "title": "Narrative Surrealist Synthesis",
+    "description": "A seated figure in a dark suit keeps his composure while a fractured marble head, a ringed planet and two watching eyes crowd the sky behind him. Staircases in pink and sage climb nowhere at the edges of the paper.",
+    "alt": "A vintage collage of a seated man in a dark suit surrounded by a broken classical bust, a ringed planet, two disembodied eyes, a marble statue and pink and green staircases.",
+    "category": "Mixed Media / Collage",
+    "mood": "surreal, layered, enigmatic",
+    "moodTags": [
+      "surreal",
+      "layered",
+      "enigmatic"
+    ],
+    "reviewFlags": [
+      "identifiable_person"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2648692,
+    "sha256": "dc81be5d2327c96efbbaff60c363ad8df77860127bc1c320458af42e3d6f0ca8",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 8,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_dc81be5d2327c96efbba/base",
+    "displayPath": "/assets/artworks/narrative-surrealist-synthesis.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "narrative-surrealist-synthesis",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "surreal",
+        "layered",
+        "enigmatic",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c9b795"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_2c760cd64cd7ebc22d17",
+    "position": 141,
+    "slug": "cinematic-surreal-sci-fi",
+    "title": "Cinematic Surreal Sci-Fi",
+    "description": "A weathered rocket leans out of its geodesic hangar while a full moon rises over the dry valley. A single robed figure watches from the near bank of a shallow stream.",
+    "alt": "A white and red rocket stands in front of a geodesic dome in a dry rocky landscape, with a large moon in the sky and a figure in a rust-colored robe seen from behind.",
+    "category": "Surreal / Hybrid",
+    "mood": "monumental, solitary, otherworldly",
+    "moodTags": [
+      "monumental",
+      "solitary",
+      "otherworldly"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2391724,
+    "sha256": "2c760cd64cd7ebc22d17124596b16f8c3d532648d639c6ac945e5ec7d788caf3",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 14,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_2c760cd64cd7ebc22d17/base",
+    "displayPath": "/assets/artworks/cinematic-surreal-sci-fi.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "cinematic-surreal-sci-fi",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "monumental",
+        "solitary",
+        "otherworldly",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#9a4630"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_b69113075626167281d0",
+    "position": 142,
+    "slug": "surrealist-sky-collage",
+    "title": "Surrealist Sky Collage",
+    "description": "Cut arches and staircases float over a torn horizon, pinned in place by circles of cloud and coral. A small figure in a green dress stands on the shoreline below, watching the pieces hold.",
+    "alt": "A paper collage of classical arches, floating stone stairs, cloud fragments and blue and coral circles above a pale shore, with a woman in a green dress standing at the water's edge.",
+    "category": "Mixed Media / Collage",
+    "mood": "layered, architectural, dreamlike",
+    "moodTags": [
+      "layered",
+      "architectural",
+      "dreamlike"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2253793,
+    "sha256": "b69113075626167281d0a32f939587f0dc12f76d57805eb77e4747bdfb82ba9a",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 16,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_b69113075626167281d0/base",
+    "displayPath": "/assets/artworks/surrealist-sky-collage.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surrealist-sky-collage",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "layered",
+        "architectural",
+        "dreamlike",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#d48a67"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_2d16865a147ad01f193c",
+    "position": 143,
+    "slug": "minimalist-surrealist-dreamscapes",
+    "title": "Minimalist Surrealist Dreamscapes",
+    "description": "A coral door has come to rest on a cloud, a ladder set against it and nothing on the other side. A man in a long coat stands on the flat sand and takes his time deciding.",
+    "alt": "A coral-pink door stands on a small white cloud in a pale desert, reached by a wooden ladder, while a man in a long coat watches from the ground.",
+    "category": "Surreal / Hybrid",
+    "mood": "dreamlike, spare, quiet",
+    "moodTags": [
+      "dreamlike",
+      "spare",
+      "quiet"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2093236,
+    "sha256": "2d16865a147ad01f193cd341db5fac4218316dd782e210dc6e4f60ee9b7fb9b7",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 18,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_2d16865a147ad01f193c/base",
+    "displayPath": "/assets/artworks/minimalist-surrealist-dreamscapes.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "minimalist-surrealist-dreamscapes",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "dreamlike",
+        "spare",
+        "quiet",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e28a5c"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_8e1ed6d367b55c9b8681",
+    "position": 144,
+    "slug": "atmospheric-surrealist-nostalgia",
+    "title": "Atmospheric Surrealist Nostalgia",
+    "description": "A porcelain cup the size of a boat spills the sea back onto the shore, its painted rose still bright. A woman in a green skirt stands close enough to feel the spray.",
+    "alt": "A giant porcelain teacup painted with a rose lies on its side on a beach pouring seawater onto the sand, while a woman in a white blouse and green skirt watches from the left.",
+    "category": "Painterly / Illustrative",
+    "mood": "tidal, quiet, dreamlike",
+    "moodTags": [
+      "tidal",
+      "quiet",
+      "dreamlike"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2071249,
+    "sha256": "8e1ed6d367b55c9b8681f0474f656323a7cd516fea94b47b12778d96d787e10c",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 23,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_8e1ed6d367b55c9b8681/base",
+    "displayPath": "/assets/artworks/atmospheric-surrealist-nostalgia.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "atmospheric-surrealist-nostalgia",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "tidal",
+        "quiet",
+        "dreamlike",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#97a5a2"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_8c4186e8782869560edd",
+    "position": 145,
+    "slug": "surreal-minimalist-waterscapes",
+    "title": "Surreal Minimalist Waterscapes",
+    "description": "A concrete cube stands ankle-deep in still water with a pink cup and saucer balanced on its roof. A door in its side opens onto pink stairs, and a man in a hat waits on the beach.",
+    "alt": "An oversized pink teacup and saucer rest on a concrete cube standing in shallow water, with a pink doorway and stairs cut into the cube and a man in a coat and hat on the sand.",
+    "category": "Surreal / Hybrid",
+    "mood": "domestic, uncanny, quiet",
+    "moodTags": [
+      "domestic",
+      "uncanny",
+      "quiet"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2021601,
+    "sha256": "8c4186e8782869560edde1ea48bb03f788b3ff4de4b33435ef5d1c2b366e02ed",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 24,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_8c4186e8782869560edd/base",
+    "displayPath": "/assets/artworks/surreal-minimalist-waterscapes.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surreal-minimalist-waterscapes",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "domestic",
+        "uncanny",
+        "quiet",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e69580"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_f602e6a079a278f92200",
+    "position": 146,
+    "slug": "moody-ethereal-minimalism",
+    "title": "Moody Ethereal Minimalism",
+    "description": "A pale door hangs in the fog above the water, its reflection almost complete. A figure in a long coat stands at the edge of the concrete and does not move.",
+    "alt": "A figure in a long dark coat stands on a concrete ledge above still water, facing a pale door floating in heavy fog.",
+    "category": "Minimal / Abstract",
+    "mood": "solitary, quiet, ethereal",
+    "moodTags": [
+      "solitary",
+      "quiet",
+      "ethereal"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1746569,
+    "sha256": "f602e6a079a278f92200e338b51b3f2a2c265285e503e7e6ea6a3694002b9ac0",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 27,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_f602e6a079a278f92200/base",
+    "displayPath": "/assets/artworks/moody-ethereal-minimalism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "moody-ethereal-minimalism",
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "solitary",
+        "quiet",
+        "ethereal",
+        "minimal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#8b959a"
+      ],
+      "lighting": "even studio light with one hard shadow axis",
+      "mediumAndTexture": "matte color fields with minimal surface grain",
+      "lineworkAndEdges": "restrained hard-edged geometry",
+      "compositionAndMotion": "large negative space around an isolated subject",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_dcd2ab5ccf1f8cdc6764",
+    "position": 147,
+    "slug": "monolithic-cobalt-liminality",
+    "title": "Monolithic Cobalt Liminality",
+    "description": "A cobalt monolith stands in the shallows with its stairway lit from within, while cubes and spheres hold still in the air around it. One small figure at the foot of the steps gives the scale away.",
+    "alt": "A monumental cobalt archway with a circular opening rises from a lake, surrounded by floating blue cubes and spheres, smaller arches, and a small figure at the foot of a staircase.",
+    "category": "Surreal / Hybrid",
+    "mood": "cobalt, monumental, architectural",
+    "moodTags": [
+      "cobalt",
+      "monumental",
+      "architectural"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2067337,
+    "sha256": "dcd2ab5ccf1f8cdc676439a46a3b837a179ba86655a0002f426b888acac1b29c",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 31,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_dcd2ab5ccf1f8cdc6764/base",
+    "displayPath": "/assets/artworks/monolithic-cobalt-liminality.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "monolithic-cobalt-liminality",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "cobalt",
+        "monumental",
+        "architectural",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#1a3f9c"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_fb656ab44a3ebb1ea66c",
+    "position": 148,
+    "slug": "liminal-surrealist-distortion",
+    "title": "Liminal Surrealist Distortion",
+    "description": "A house comes apart into horizontal streaks of teal and rust, dragging its own sky with it. Below, a single figure stands in the shallows facing the smear.",
+    "alt": "A pixel-stretched house tears apart into horizontal streaks of teal and rust above a lone figure standing in shallow water.",
+    "category": "Digital / Computational",
+    "mood": "glitch, kinetic, dreamlike",
+    "moodTags": [
+      "glitch",
+      "kinetic",
+      "dreamlike"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2578636,
+    "sha256": "fb656ab44a3ebb1ea66cc08d5e10fa7e9bdb5cb4f0cc7c825f2d9c483abd6b76",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 32,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_fb656ab44a3ebb1ea66c/base",
+    "displayPath": "/assets/artworks/liminal-surrealist-distortion.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "liminal-surrealist-distortion",
+      "styleFamily": "Digital / Computational",
+      "keywords": [
+        "glitch",
+        "kinetic",
+        "dreamlike",
+        "digital"
+      ],
+      "avoids": [],
+      "palette": [
+        "#cf835f"
+      ],
+      "lighting": "emissive light computed from within the scene",
+      "mediumAndTexture": "clean procedural surfaces with synthetic grain",
+      "lineworkAndEdges": "precise vector-sharp boundaries",
+      "compositionAndMotion": "algorithmic repetition with controlled variation",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_2f7d9263e8d7433c7097",
+    "position": 149,
+    "slug": "surreal-liminal-minimalism",
+    "title": "Surreal Liminal Minimalism",
+    "description": "A single door stands open on the sand with nothing on either side of it. A pink cloud banks over the headland while a man walks the last few steps toward the threshold.",
+    "alt": "A freestanding wooden door stands open on an empty beach, with a large pink cloud over the headland and a man in a jacket walking toward the frame.",
+    "category": "Surreal / Hybrid",
+    "mood": "spare, quiet, enigmatic",
+    "moodTags": [
+      "spare",
+      "quiet",
+      "enigmatic"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2107274,
+    "sha256": "2f7d9263e8d7433c7097fc6555e9c915c860a9344eed9ac1f7db7025fef47239",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 34,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_2f7d9263e8d7433c7097/base",
+    "displayPath": "/assets/artworks/surreal-liminal-minimalism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surreal-liminal-minimalism",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "spare",
+        "quiet",
+        "enigmatic",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#eeb6a4"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_d2401d9256807ed95a9f",
+    "position": 150,
+    "slug": "disruptive-analog-grunge",
+    "title": "Disruptive Analog Grunge",
+    "description": "Torn newsprint, a yellow skull and an anarchy circle stack up around a mohawked smoker in high-contrast black and red. The headlines shout over each other all the way to the margins.",
+    "alt": "A punk collage with a mohawked figure smoking, layered newspaper scraps, a yellow skull, an anarchy symbol and the printed words DISRUPT, QUESTION EVERYTHING, NO FUTURE and dead and gone.",
+    "category": "Mixed Media / Collage",
+    "mood": "gritty, bold, distressed",
+    "moodTags": [
+      "gritty",
+      "bold",
+      "distressed"
+    ],
+    "reviewFlags": [
+      "watermark_or_text",
+      "identifiable_person"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1057241,
+    "sha256": "d2401d9256807ed95a9f9a814fce5be44fd36b76a7a403ed4a41b9fd45a1b253",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 42,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_d2401d9256807ed95a9f/base",
+    "displayPath": "/assets/artworks/disruptive-analog-grunge.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "disruptive-analog-grunge",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "gritty",
+        "bold",
+        "distressed",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c11d14"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_c923a7070a4a1b683a96",
+    "position": 151,
+    "slug": "surreal-retro-futurist-collage",
+    "title": "Surreal Retro-Futurist Collage",
+    "description": "An astronaut steps out of the sky and onto a desert highway lined with finned cars and onlookers. Saturn and a torn red sky sit behind him, clipped magazine headlines still attached.",
+    "alt": "A retro collage of an astronaut striding through a desert highway scene with planets, finned cars, a woman in a red top seen from behind, and the printed words Beyond Imagination and The Universe is wider than we think.",
+    "category": "Mixed Media / Collage",
+    "mood": "cosmic, layered, graphic",
+    "moodTags": [
+      "cosmic",
+      "layered",
+      "graphic"
+    ],
+    "reviewFlags": [
+      "watermark_or_text",
+      "identifiable_person"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 885485,
+    "sha256": "c923a7070a4a1b683a96e9f7404370f459216a82b948acdd8154ed5199e3acc7",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 61,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_c923a7070a4a1b683a96/base",
+    "displayPath": "/assets/artworks/surreal-retro-futurist-collage.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surreal-retro-futurist-collage",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "cosmic",
+        "layered",
+        "graphic",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#a31b15"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_8f367b849037308fa327",
+    "position": 152,
+    "slug": "high-contrast-fauvist-glitch",
+    "title": "High-Contrast Fauvist Glitch",
+    "description": "Palette-knife strokes build a hillside village down to a blue bay, cypresses standing black against a red sky. The road into town is laid in slabs of pink, yellow and violet.",
+    "alt": "A thickly painted village landscape with cypress trees, white houses with red roofs, a bell tower, a blue bay and a red-orange sky, worked in palette-knife strokes.",
+    "category": "Painterly / Illustrative",
+    "mood": "expressive, bold, warm",
+    "moodTags": [
+      "expressive",
+      "bold",
+      "warm"
+    ],
+    "reviewFlags": [
+      "possible_photo_of_physical_artwork"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2902294,
+    "sha256": "8f367b849037308fa327c2e8ddf23fb4866285fcb1893362a3082c8f970c3cbe",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 77,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_8f367b849037308fa327/base",
+    "displayPath": "/assets/artworks/high-contrast-fauvist-glitch.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "high-contrast-fauvist-glitch",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "expressive",
+        "bold",
+        "warm",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e93117"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_dd8e7caad6d74bbe91cc",
+    "position": 153,
+    "slug": "serene-pastel-surrealism",
+    "title": "Serene Pastel Surrealism",
+    "description": "Nested arches step inward from pink to blue to green on a low circular platform in still water. Pink cloud and a soft sun hold the horizon flat behind them.",
+    "alt": "A pastel painting of nested arches on a round pink platform standing in still water, with pink clouds and a low sun on the horizon.",
+    "category": "Minimal / Abstract",
+    "mood": "serene, airy, quiet",
+    "moodTags": [
+      "serene",
+      "airy",
+      "quiet"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 289415,
+    "sha256": "dd8e7caad6d74bbe91cc4e3b7ceb79e0b9a96970a32e0af1d5bc5fb00b4293fb",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 82,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_dd8e7caad6d74bbe91cc/base",
+    "displayPath": "/assets/artworks/serene-pastel-surrealism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "serene-pastel-surrealism",
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "serene",
+        "airy",
+        "quiet",
+        "minimal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#fcd2bc"
+      ],
+      "lighting": "even studio light with one hard shadow axis",
+      "mediumAndTexture": "matte color fields with minimal surface grain",
+      "lineworkAndEdges": "restrained hard-edged geometry",
+      "compositionAndMotion": "large negative space around an isolated subject",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_a88d3b6f35817a318596",
+    "position": 154,
+    "slug": "graphic-surrealist-collage",
+    "title": "Graphic Surrealist Collage",
+    "description": "A vintage portrait sits at the center while a torn red band, an orange disc and a black circle push in from the edges. A white rose, a hillside house and engraved leaves fill the remaining paper.",
+    "alt": "A collage combining a vintage black-and-white portrait of a woman with a torn red band, black and orange circles, a white rose, engraved leaves, a small house and mountains.",
+    "category": "Mixed Media / Collage",
+    "mood": "graphic, layered, archival",
+    "moodTags": [
+      "graphic",
+      "layered",
+      "archival"
+    ],
+    "reviewFlags": [
+      "identifiable_person"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 765356,
+    "sha256": "a88d3b6f35817a318596d3e1cf938a3b7d9a4bbe4caf27798829b447a3590152",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 88,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a88d3b6f35817a318596/base",
+    "displayPath": "/assets/artworks/graphic-surrealist-collage.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "graphic-surrealist-collage",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "graphic",
+        "layered",
+        "archival",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c4391c"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_eff89ca4454714ce5eda",
+    "position": 155,
+    "slug": "surreal-retro-cosmic-collage",
+    "title": "Surreal Retro Cosmic Collage",
+    "description": "A wooden-cased television plays a breaking wave on the surface of the moon, a star bursting at its corner. A woman in a red skirt stands on the rubble and watches the tide.",
+    "alt": "A retro collage of a vintage television showing a breaking ocean wave, standing on a grey lunar surface with planets, stars, an orange halftone field and a woman in a red skirt seen from behind.",
+    "category": "Mixed Media / Collage",
+    "mood": "cosmic, layered, uncanny",
+    "moodTags": [
+      "cosmic",
+      "layered",
+      "uncanny"
+    ],
+    "reviewFlags": [
+      "identifiable_person"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 935652,
+    "sha256": "eff89ca4454714ce5edaaeeadac2a0046f1750bdd90c6e1b99583fb50d5ab442",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 93,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_eff89ca4454714ce5eda/base",
+    "displayPath": "/assets/artworks/surreal-retro-cosmic-collage.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surreal-retro-cosmic-collage",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "cosmic",
+        "layered",
+        "uncanny",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#d3602a"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_57e77b3c104fad05c99a",
+    "position": 156,
+    "slug": "glass-stair-in-the-clouds",
+    "title": "Glass Stair in the Clouds",
+    "description": "A staircase of pale glass climbs out of the clouds toward an arch that opens on nothing. A large moon sits close in the pink sky, one iridescent sphere resting at the top step.",
+    "alt": "A pastel dreamscape of a glass staircase rising through clouds toward a pale arch, with a large moon and a small iridescent sphere on the landing.",
+    "category": "Digital / Computational",
+    "mood": "ethereal, ascending, dreamlike",
+    "moodTags": [
+      "ethereal",
+      "ascending",
+      "dreamlike"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 269603,
+    "sha256": "57e77b3c104fad05c99a43a6ce2ce5ee3e989964053827c35a70e07245f9f29b",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 95,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_57e77b3c104fad05c99a/base",
+    "displayPath": "/assets/artworks/glass-stair-in-the-clouds.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "glass-stair-in-the-clouds",
+      "styleFamily": "Digital / Computational",
+      "keywords": [
+        "ethereal",
+        "ascending",
+        "dreamlike",
+        "digital"
+      ],
+      "avoids": [],
+      "palette": [
+        "#f3d0d8"
+      ],
+      "lighting": "emissive light computed from within the scene",
+      "mediumAndTexture": "clean procedural surfaces with synthetic grain",
+      "lineworkAndEdges": "precise vector-sharp boundaries",
+      "compositionAndMotion": "algorithmic repetition with controlled variation",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_82a4a538f5c89565727d",
+    "position": 157,
+    "slug": "luminous-thermal-expressionism",
+    "title": "Luminous Thermal Expressionism",
+    "description": "A face tips back into the heat, painted in fluorescent orange and magenta over a blue-black ground. The strokes break apart at the hair and shoulders and keep the light moving.",
+    "alt": "An expressionist portrait of a woman with her head tilted back and eyes closed, painted in fluorescent orange, magenta and blue strokes.",
+    "category": "Painterly / Illustrative",
+    "mood": "luminous, expressive, electric",
+    "moodTags": [
+      "luminous",
+      "expressive",
+      "electric"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 941564,
+    "sha256": "82a4a538f5c89565727d002a7897a74c1c5f071da586f5d22c0b779daa0f3bd6",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 96,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_82a4a538f5c89565727d/base",
+    "displayPath": "/assets/artworks/luminous-thermal-expressionism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "luminous-thermal-expressionism",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "luminous",
+        "expressive",
+        "electric",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#f4711a"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_48a2493500437e9354ed",
+    "position": 158,
+    "slug": "graphic-retro-printmaker",
+    "title": "Graphic Retro Printmaker",
+    "description": "A classic motorcycle holds the middle of the frame on a rutted ochre road, its chrome spokes picked out in ink. A red sun rises behind the mountains inside a worn poster border.",
+    "alt": "A vintage-style poster print of a classic motorcycle on a dirt road, backed by a large red sun and mountains, inside a cream and red printed border.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "graphic, weathered, bold",
+    "moodTags": [
+      "graphic",
+      "weathered",
+      "bold"
+    ],
+    "reviewFlags": [
+      "possible_photo_of_physical_artwork"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 3065122,
+    "sha256": "48a2493500437e9354ed382e1ce95dbcf587f94d5e3c614c49c3189b20d80569",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 115,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_48a2493500437e9354ed/base",
+    "displayPath": "/assets/artworks/graphic-retro-printmaker.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "graphic-retro-printmaker",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "graphic",
+        "weathered",
+        "bold",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#ab3f1b"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_34484601883fc0dafcdf",
+    "position": 159,
+    "slug": "ethereal-monochrome-motion",
+    "title": "Ethereal Monochrome Motion",
+    "description": "A single ribbon of black smoke turns in on itself and dissolves toward the edges of a white field. Nothing else enters the frame.",
+    "alt": "Black smoke curls and disperses across a plain white ground in a monochrome image.",
+    "category": "Minimal / Abstract",
+    "mood": "monochrome, kinetic, minimal",
+    "moodTags": [
+      "monochrome",
+      "kinetic",
+      "minimal"
+    ],
+    "reviewFlags": [],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 1274839,
+    "sha256": "34484601883fc0dafcdfec7d24412a991a2e41b58f57ed536ccf7a76596c4e96",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 132,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_34484601883fc0dafcdf/base",
+    "displayPath": "/assets/artworks/ethereal-monochrome-motion.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "ethereal-monochrome-motion",
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "monochrome",
+        "kinetic",
+        "minimal",
+        "minimal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#333333"
+      ],
+      "lighting": "even studio light with one hard shadow axis",
+      "mediumAndTexture": "matte color fields with minimal surface grain",
+      "lineworkAndEdges": "restrained hard-edged geometry",
+      "compositionAndMotion": "large negative space around an isolated subject",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_aa83f38d1426f968d7c2",
+    "position": 160,
+    "slug": "saturated-surrealist-minimalism",
+    "title": "Saturated Surrealist Minimalism",
+    "description": "Pink stairs climb a yellow wall to a blue door too small to matter, and a man in a blue coat stands in the open considering them. One cloud is allowed in the cyan sky.",
+    "alt": "A man in a blue coat stands with his back to the viewer on a pink ground, facing a yellow wall with pink stairs leading to a small blue door, under a cyan sky with one cloud.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "saturated, graphic, solitary",
+    "moodTags": [
+      "saturated",
+      "graphic",
+      "solitary"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1870742,
+    "sha256": "aa83f38d1426f968d7c2c84919017a82f14828e9c9afcc645410300a6960faf2",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 154,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_aa83f38d1426f968d7c2/base",
+    "displayPath": "/assets/artworks/saturated-surrealist-minimalism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "saturated-surrealist-minimalism",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "saturated",
+        "graphic",
+        "solitary",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e4b002"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_45891424ab079d2ec6fc",
+    "position": 161,
+    "slug": "surreal-graphic-minimalism",
+    "title": "Surreal Graphic Minimalism",
+    "description": "A ladder leans up from the dune to a door that opens on nothing at all. A man stands at its base in flat evening light with a coral sun setting behind him.",
+    "alt": "A minimal illustration of a man standing on a sand dune below a floating orange door reached by a tall ladder, with a coral sun on the horizon.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "minimal, spare, enigmatic",
+    "moodTags": [
+      "minimal",
+      "spare",
+      "enigmatic"
+    ],
+    "reviewFlags": [],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 1915176,
+    "sha256": "45891424ab079d2ec6fc310f90c02b1d01b8e98b049958f616f1a8c123bb9f17",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 157,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_45891424ab079d2ec6fc/base",
+    "displayPath": "/assets/artworks/surreal-graphic-minimalism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surreal-graphic-minimalism",
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "minimal",
+        "spare",
+        "enigmatic",
+        "graphic"
+      ],
+      "avoids": [],
+      "palette": [
+        "#e89173"
+      ],
+      "lighting": "flat poster lighting with hard tonal breaks",
+      "mediumAndTexture": "screen-print inks on matte stock, visible halftone grain",
+      "lineworkAndEdges": "bold cut contours with deliberate registration drift",
+      "compositionAndMotion": "centered subject in large flat fields, editorial crop",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_27b45d92929e0a9165af",
+    "position": 162,
+    "slug": "surreal-pastoral-technicolor",
+    "title": "Surreal Pastoral Technicolor",
+    "description": "A pink monolith opens on a staircase and stands alone in fields of magenta and yellow, doubled in the pond below. The clouds pass behind it at full scale.",
+    "alt": "A tall pink concrete archway with an interior staircase stands in rolling fields of magenta and yellow flowers beside a pond, under a blue sky with cumulus clouds.",
+    "category": "Surreal / Hybrid",
+    "mood": "saturated, monumental, vast",
+    "moodTags": [
+      "saturated",
+      "monumental",
+      "vast"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2859635,
+    "sha256": "27b45d92929e0a9165afe0bde5644bbd9aab8fb704c0efce39e08ff4e0c3041b",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 160,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_27b45d92929e0a9165af/base",
+    "displayPath": "/assets/artworks/surreal-pastoral-technicolor.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "surreal-pastoral-technicolor",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "saturated",
+        "monumental",
+        "vast",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#ef6b84"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_eb31a743d1aeba44e9fa",
+    "position": 163,
+    "slug": "kinetic-liminal-reflections",
+    "title": "Kinetic Liminal Reflections",
+    "description": "An oval mirror hangs inside a concrete arch and holds a sky slightly different from the one above it. Coral cloud banks at the right while the pool keeps everything twice.",
+    "alt": "A concrete arch holding a large oval mirror stands in a desert basin above a still circular pool, with coral clouds at the right.",
+    "category": "Surreal / Hybrid",
+    "mood": "reflective, serene, architectural",
+    "moodTags": [
+      "reflective",
+      "serene",
+      "architectural"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1996578,
+    "sha256": "eb31a743d1aeba44e9fa26c969c21207ccc3146d4463b7dff9ba5430156ffe12",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 161,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_eb31a743d1aeba44e9fa/base",
+    "displayPath": "/assets/artworks/kinetic-liminal-reflections.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "kinetic-liminal-reflections",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "reflective",
+        "serene",
+        "architectural",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c4805f"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_7665d24d25cbb3d2bb81",
+    "position": 164,
+    "slug": "crimson-tactile-surrealism",
+    "title": "Crimson Tactile Surrealism",
+    "description": "An enormous door leans into a cracked red plateau, panels and handle modeled like carved clay. A small figure in a robe stands at the lip of the drop, facing it.",
+    "alt": "A monochrome red scene of a small robed figure standing on a cracked plateau before an enormous red door tilted into the ground.",
+    "category": "Material / Sculptural / Organic",
+    "mood": "crimson, tactile, monumental",
+    "moodTags": [
+      "crimson",
+      "tactile",
+      "monumental"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2009417,
+    "sha256": "7665d24d25cbb3d2bb8108d1a5bb0b1a1b9cdaf9d7e2d432f7b095c925acb9c0",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 163,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_7665d24d25cbb3d2bb81/base",
+    "displayPath": "/assets/artworks/crimson-tactile-surrealism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "crimson-tactile-surrealism",
+      "styleFamily": "Material / Sculptural / Organic",
+      "keywords": [
+        "crimson",
+        "tactile",
+        "monumental",
+        "material"
+      ],
+      "avoids": [],
+      "palette": [
+        "#b8332f"
+      ],
+      "lighting": "raking light revealing surface relief",
+      "mediumAndTexture": "dense organic texture built in physical layers",
+      "lineworkAndEdges": "edges defined by material boundaries, not line",
+      "compositionAndMotion": "mass and void balanced sculpturally",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_e30a29929de9f58ef4b5",
+    "position": 165,
+    "slug": "cathedral-of-washers",
+    "title": "Cathedral of Washers",
+    "description": "A row of washing machines runs the length of an empty laundromat under flickering strip lights. A young face is printed over the corridor, a second lit room glowing inside the collar.",
+    "alt": "A grainy sepia image of a laundromat lined with washing machines under strip lights, overlaid with a large double-exposed portrait of a young person with closed eyes and a small lit room.",
+    "category": "Mixed Media / Collage",
+    "mood": "distressed, solitary, nocturnal",
+    "moodTags": [
+      "distressed",
+      "solitary",
+      "nocturnal"
+    ],
+    "reviewFlags": [
+      "identifiable_person"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 3412992,
+    "sha256": "e30a29929de9f58ef4b51a93e5d7c6e1828a1681d462be95bdeedff6139acd18",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_e30a29929de9f58ef4b5/base",
+    "displayPath": "/assets/artworks/cathedral-of-washers.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "cathedral-of-washers",
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "distressed",
+        "solitary",
+        "nocturnal",
+        "mixed media"
+      ],
+      "avoids": [],
+      "palette": [
+        "#8f7a66"
+      ],
+      "lighting": "mixed source lighting reconciled by overprint",
+      "mediumAndTexture": "torn paper, halftone scrap and ink layered physically",
+      "lineworkAndEdges": "cut edges left raw against drawn line",
+      "compositionAndMotion": "stacked fragments composed on a strict grid",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_a0fb88023bd8b3f74b72",
+    "position": 166,
+    "slug": "cube-in-the-wheat",
+    "title": "Cube in the Wheat",
+    "description": "A woman walks a worn path through a gold field while a hedge cube, a stone sphere and an empty doorway hold position in the air. The horizon stays low and the light stays even.",
+    "alt": "A painting of a woman in a cream dress walking a path through a golden field, with a floating hedge cube, a white stone sphere and a freestanding stone doorway in the sky.",
+    "category": "Surreal / Hybrid",
+    "mood": "dreamlike, vast, quiet",
+    "moodTags": [
+      "dreamlike",
+      "vast",
+      "quiet"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2317077,
+    "sha256": "a0fb88023bd8b3f74b72b7e1928db78745633dc0520ca32440317546fff26903",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 1,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a0fb88023bd8b3f74b72/base",
+    "displayPath": "/assets/artworks/cube-in-the-wheat.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "cube-in-the-wheat",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "dreamlike",
+        "vast",
+        "quiet",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#c2a256"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_03f778b0a48c953089da",
+    "position": 167,
+    "slug": "blue-hour-monolith",
+    "title": "Blue Hour Monolith",
+    "description": "A cobalt cube sits on arches over shallow water, spheres and smaller cubes suspended around it. A staircase runs down into the water and one figure stands on the rocks at the left.",
+    "alt": "A large blue cube rests on arched concrete legs above shallow water, with blue spheres and smaller cubes floating around it, a staircase below and a small figure on the rocks.",
+    "category": "Surreal / Hybrid",
+    "mood": "cobalt, monumental, still",
+    "moodTags": [
+      "cobalt",
+      "monumental",
+      "still"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2111218,
+    "sha256": "03f778b0a48c953089da6f8b7538f9cf2f9aca7b7ce18ade83a1240d3a84ae74",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": 31,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_03f778b0a48c953089da/base",
+    "displayPath": "/assets/artworks/blue-hour-monolith.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "blue-hour-monolith",
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "cobalt",
+        "monumental",
+        "still",
+        "surreal"
+      ],
+      "avoids": [],
+      "palette": [
+        "#2c46b4"
+      ],
+      "lighting": "dream-logic lighting with a single unexplained source",
+      "mediumAndTexture": "smooth oil-like blending over fine digital grain",
+      "lineworkAndEdges": "clean contours dissolving where forms merge",
+      "compositionAndMotion": "impossible staging held in classical balance",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_ce152d06a84cde631f79",
+    "position": 168,
+    "slug": "vase-in-the-mist",
+    "title": "Vase in the Mist",
+    "description": "A stoneware vase holds one dried branch on a plain wooden bench, the rest of the room lost to mist. Bare trees show faintly through where the wall should be.",
+    "alt": "A pale ceramic vase holding a dried flowering branch sits on a low wooden bench in a misty interior with faint bare trees beyond.",
+    "category": "Painterly / Illustrative",
+    "mood": "quiet, meditative, delicate",
+    "moodTags": [
+      "quiet",
+      "meditative",
+      "delicate"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 475928,
+    "sha256": "ce152d06a84cde631f79096fd4f64b472a295ddca0c9ef5c703056aea2fc93fd",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_ce152d06a84cde631f79/base",
+    "displayPath": "/assets/artworks/vase-in-the-mist.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "vase-in-the-mist",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "quiet",
+        "meditative",
+        "delicate",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#cac4b8"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
+  },
+  {
+    "id": "art_1aecac512099c480b7d5",
+    "position": 169,
+    "slug": "the-branch-bearer",
+    "title": "The Branch Bearer",
+    "description": "A woman in a white dress stands in profile holding a slender budding branch. The ground behind her is worked in dry washes of grey, blue and dusty rose that stop just short of a room.",
+    "alt": "A muted painting of a woman in a white dress seen in profile, hair tied back, holding a thin budding branch against a soft grey and rose background.",
+    "category": "Painterly / Illustrative",
+    "mood": "quiet, delicate, meditative",
+    "moodTags": [
+      "quiet",
+      "delicate",
+      "meditative"
+    ],
+    "reviewFlags": [],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2203454,
+    "sha256": "1aecac512099c480b7d54f402873a719d0f677cc453317c7d8f8be8bbdb889b7",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_1aecac512099c480b7d5/base",
+    "displayPath": "/assets/artworks/the-branch-bearer.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": "the-branch-bearer",
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "quiet",
+        "delicate",
+        "meditative",
+        "painterly"
+      ],
+      "avoids": [],
+      "palette": [
+        "#d3c9c2"
+      ],
+      "lighting": "soft directional light with warm falloff",
+      "mediumAndTexture": "loaded brushwork with visible impasto ridges",
+      "lineworkAndEdges": "drawn edges softened into wet blends",
+      "compositionAndMotion": "classical composition with a single focal figure",
+      "pricingNote": "machine-assigned entry tier pending owner pricing"
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "featured"
   }
 ]

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { displayArtworks } from "@/lib/artcovr/artworks";
+import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 
 const MARQUEE =
   "COVER ART, MADE YOURS • SELECT AN ARTWORK • PROMPT A CHANGE • KEEP ITERATING • PURCHASE AND DOWNLOAD • ";

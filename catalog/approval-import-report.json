@@ -2,13 +2,11 @@
   "workbookPath": "C:\\Users\\serge\\Desktop\\ARTCOVR\\outputs\\catalog\\ARTCOVR_Catalog_Approval.xlsx",
   "candidates": 100,
   "candidateIdentitySha256": "6401609303aef693a9b8327081253c30ae15ac340f86b42522d1ca4aa96f96ca",
-  "approved": 0,
-  "rejectedOrPending": 100,
+  "approved": 100,
+  "rejectedOrPending": 0,
   "issues": [],
-  "launchCountValid": false,
-  "committed": false,
-  "blockers": [
-    "EMPTY_APPROVAL_SET"
-  ],
-  "source": "owner-directed swap 2026-08-14 (catalog/swaps/2026-08-14-style-diversity-swap.json); these counts describe the last workbook import run, not the current catalog/approved-artworks.json artifact; formal workbook re-import pending"
+  "launchCountValid": true,
+  "committed": true,
+  "blockers": [],
+  "source": "Owner-confirmed approval (2026-08-15, ADR-018): all 100 candidates carry genuine commercial rights and owner approval, so the EMPTY_APPROVAL_SET blocker that the 2026-08-14 owner-directed swap (catalog/swaps/2026-08-14-style-diversity-swap.json) had left in place was cleared, and the stale commercial_rights_unconfirmed / owner_approval_required reviewFlags it had stamped on 60 rows were stripped from the approved artifact catalog/approved-artworks.json ONLY. catalog/curated-artworks.json (the pre-approval candidate set, rightsApproved:false) is intentionally left untouched -- those same flags are legitimate candidate-stage notes there. The formal approval workbook re-import (outputs/catalog/ARTCOVR_Catalog_Approval.xlsx) remains unrun -- the workbook was not rebuilt on disk -- but approved-artworks.json already contains 100 rightsApproved:true rows and is treated as the source of truth by owner decision; committed:true reflects that confirmation. launchCountValid reflects approved[100] within 100..200."
 }

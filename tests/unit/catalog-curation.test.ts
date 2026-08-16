@@ -243,6 +243,87 @@ test("every launch-selection sourceSha256 resolves to a curated catalog sha256 (
   );
 });
 
+test("the approved artifact has no stale rights-contradiction flags once the owner confirms approval (ADR-018)", async () => {
+  // Two-stage model: curated-artworks.json is the pre-approval candidate set
+  // (rightsApproved===false on every row, reviewFlags carry the legitimate candidate
+  // notes "commercial_rights_unconfirmed" / "owner_approval_required"). approved-artworks.json
+  // is the owner-approved artifact: rightsApproved===true on every row, so the same two
+  // candidate notes there are STALE and contradicted the approval. ADR-018 strips them from
+  // approved-artworks.json only -- this test pins the reconciled approved state so a future
+  // swap or workbook re-import cannot silently re-stamp the contradiction.
+  const STALE_FLAGS = new Set(["commercial_rights_unconfirmed", "owner_approval_required"]);
+  const ALLOWED_REVIEW_FLAGS = new Set([
+    "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review",
+    "regenerated_original_reference_led",
+    "generic-robot-form-review",
+    // Provenance flags recorded during the 2026-08-15 catalog expansion. These
+    // annotate visible in-image lettering, photographic collage elements or a
+    // painted-canvas look for the owner's ongoing review; they do not contradict
+    // the owner's explicit green approval of the works.
+    "watermark_or_text",
+    "identifiable_person",
+    "possible_photo_of_physical_artwork",
+  ]);
+
+  const rows = JSON.parse(
+    await readFile(new URL("../../catalog/approved-artworks.json", import.meta.url), "utf8"),
+  ) as Array<{ id?: string; slug: string; rightsApproved?: boolean; reviewFlags?: string[] }>;
+
+  assert.ok(
+    rows.length >= LAUNCH_REVIEW_SIZE,
+    "approved-artworks.json must hold at least the 100 launch rows (the catalog may grow past launch)",
+  );
+
+  for (const row of rows) {
+    assert.equal(
+      row.rightsApproved,
+      true,
+      `approved-artworks.json/${row.slug}: ADR-018 requires rightsApproved===true on every approved row`,
+    );
+  }
+
+  // The stale candidate notes contradict approval and must not survive in the artifact.
+  const offenders = rows.filter((row) =>
+    (row.reviewFlags ?? []).some((flag) => STALE_FLAGS.has(flag)),
+  );
+  assert.equal(
+    offenders.length,
+    0,
+    `approved-artworks.json: ${offenders.length} row(s) still carry a stale rights-contradiction flag (${[
+      ...STALE_FLAGS,
+    ].join(" / ")}). Re-running the 2026-08-14 swap or an unmodified workbook import would reintroduce the rights/approval contradiction cleared in ADR-018.`,
+  );
+
+  // Legitimacy guard: every surviving reviewFlag is a known clearance/provenance flag,
+  // so an unexpected new flag cannot slip through this gate unnoticed.
+  const unknown = new Set<string>();
+  for (const row of rows) {
+    for (const flag of row.reviewFlags ?? []) {
+      if (!ALLOWED_REVIEW_FLAGS.has(flag)) unknown.add(flag);
+    }
+  }
+  assert.equal(
+    unknown.size,
+    0,
+    `approved-artworks.json: encountered reviewFlags outside the ADR-018 allowlist: ${[...unknown].join(", ")}`,
+  );
+
+  // The import report must agree with the reconciled approved artifact.
+  const report = JSON.parse(
+    await readFile(new URL("../../catalog/approval-import-report.json", import.meta.url), "utf8"),
+  ) as {
+    approved: number;
+    rejectedOrPending: number;
+    blockers: string[];
+    launchCountValid: boolean;
+  };
+
+  assert.equal(report.approved, LAUNCH_REVIEW_SIZE, "report.approved must reflect the 100 confirmed rows");
+  assert.equal(report.rejectedOrPending, 0);
+  assert.equal(report.launchCountValid, true);
+  assert.deepEqual(report.blockers, [], "EMPTY_APPROVAL_SET blocker must be cleared post ADR-018");
+});
+
 test("thinned style-cluster works are removed from source and kept as audit records", async () => {
   const removed = [
     "city-reflection-bowl",

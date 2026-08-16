@@ -3,14 +3,20 @@ import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { decodeImageHeader } from "../../src/lib/artcovr/catalog-source.ts";
+import curatedPublic from "../../src/lib/artcovr/curated-public.json" with { type: "json" };
 
 const artworkDirectory = new URL("../../public/assets/artworks/", import.meta.url);
 
-test("public/assets/artworks contains exactly 100 display derivatives", async () => {
-  const entries = (await readdir(artworkDirectory, { withFileTypes: true })).filter((entry) =>
-    entry.isFile(),
-  );
-  assert.equal(entries.length, 100);
+test("public/assets/artworks matches the projected catalog exactly", async () => {
+  const entries = (await readdir(artworkDirectory, { withFileTypes: true }))
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .sort();
+  const expected = (curatedPublic as { slug: string }[])
+    .map(({ slug }) => `${slug}.jpg`)
+    .sort();
+  assert.equal(entries.length, expected.length);
+  assert.deepEqual(entries, expected);
 });
 
 test("every display derivative is a true baseline JPEG with square dimensions", async () => {

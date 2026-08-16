@@ -40,7 +40,8 @@ const catalogSlugs = catalog.map(({ slug }) => slug).sort();
 const indexSlugs = Object.keys(visualIndex.works).sort();
 
 test("the visual index covers exactly the public catalog slugs", () => {
-  assert.equal(catalogSlugs.length, 100);
+  assert.equal(catalogSlugs.length, catalog.length);
+  assert.ok(catalog.length >= 7, "related-work fanout needs at least 7 catalog rows");
   assert.deepEqual(indexSlugs, catalogSlugs);
 });
 
@@ -68,7 +69,7 @@ test("every related slug exists in the catalog and never self-references", () =>
 
 test("diversityRank is a permutation of 0..99", () => {
   const ranks = indexSlugs.map((slug) => visualIndex.works[slug].diversityRank).sort((a, b) => a - b);
-  assert.deepEqual(ranks, Array.from({ length: 100 }, (_, index) => index));
+  assert.deepEqual(ranks, Array.from({ length: catalogSlugs.length }, (_, index) => index));
 });
 
 test("every work carries all 7 fastText-task labels with in-vocabulary values and conf in (0,1]", () => {
@@ -156,25 +157,39 @@ test("diversity ordering applies to a fully indexed catalog and falls back other
   assert.ok(ordered);
   assert.deepEqual(
     ordered.map(({ slug }) => visualIndex.works[slug].diversityRank),
-    Array.from({ length: 100 }, (_, index) => index),
+    Array.from({ length: catalog.length }, (_, index) => index),
   );
   // Unindexed works (the private staging catalog) must not produce a partial order.
   assert.equal(orderByDiversityRank([{ slug: "not-in-the-index" }]), null);
   assert.equal(orderByDiversityRank([]), null);
 });
 
-test("vector ordering separates the near-duplicate bowl works the category round-robin kept adjacent", () => {
+test("vector ordering separates near-duplicate works the category round-robin kept adjacent", () => {
   const ordered = orderByDiversityRank(catalog);
   assert.ok(ordered);
   const positionOf = (slug: string) => ordered.findIndex((artwork) => artwork.slug === slug);
+  // The original bowl-works cluster; owner-deleted members drop out of the
+  // catalog, so each pair is only asserted while both works remain published.
   const clusters: Array<[string, string]> = [
     ["city-in-the-broth", "staircase-soup"],
     ["city-in-the-broth", "storm-in-a-fishbowl"],
     ["staircase-soup", "storm-in-a-fishbowl"],
   ];
+  let assertedPairs = 0;
   for (const [left, right] of clusters) {
-    const distance = Math.abs(positionOf(left) - positionOf(right));
+    const leftAt = positionOf(left);
+    const rightAt = positionOf(right);
+    if (leftAt === -1 || rightAt === -1) continue;
+    assertedPairs += 1;
+    const distance = Math.abs(leftAt - rightAt);
     assert.ok(distance >= 4, `${left}/${right} are ${distance} apart in the diversity order`);
+  }
+  if (assertedPairs === 0) {
+    // Every bowl work was removed by the owner; the guard's premise is gone,
+    // but the removal itself must be real rather than a lookup failure.
+    for (const [slug] of clusters) {
+      assert.ok(!catalogSlugs.includes(slug), `${slug} should be absent from the catalog`);
+    }
   }
 });
 
