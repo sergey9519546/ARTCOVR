@@ -85,8 +85,69 @@ async function providerError(response: Response) {
   return new HttpError(502, "openai_request_rejected", "The image service rejected the server request.");
 }
 
-export async function editImage(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
-  if (!apiKey) throw new Error("Missing OPENAI_API_KEY.");
+function base64EncodeBytes(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)));
+  }
+  return btoa(binary);
+}
+
+async function blobToBase64DataUri(source: Blob): Promise<string> {
+  const mime = source.type || "image/png";
+  const bytes = new Uint8Array(await source.arrayBuffer());
+  return `data:${mime};base64,${base64EncodeBytes(bytes)}`;
+}
+
+async function downloadImageBytes(url: string): Promise<{ bytes: Uint8Array; requestId: string | null }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMilliseconds());
+  let response: Response;
+  try {
+    response = await fetch(url, { signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new HttpError(504, "generation_timed_out", "Image generation exceeded the server time limit.");
+    }
+    throw error;
+  } finally { clearTimeout(timeout); }
+  if (!response.ok || !response.body) {
+    throw new HttpError(502, "openai_invalid_response", "Image API returned no raster output.");
+  }
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maximumOutputBytes) {
+      throw new HttpError(502, "openai_output_too_large", "Image API returned an oversized raster output.");
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const piece of chunks) {
+    bytes.set(piece, offset);
+    offset += piece.byteLength;
+  }
+  return { bytes, requestId: response.headers.get("x-request-id") };
+}
+
+function decodeB64Json(b64: string): Uint8Array {
+  if (b64.length > Math.ceil(maximumOutputBytes / 3) * 4 + 8) {
+    throw new HttpError(502, "openai_output_too_large", "Image API returned an oversized raster output.");
+  }
+  try {
+    return Uint8Array.from(atob(b64), (character) => character.charCodeAt(0));
+  } catch {
+    throw new HttpError(502, "openai_invalid_base64", "Image API returned malformed raster data.");
+  }
+}
+
+async function editImageOpenai(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
   const form = new FormData();
   form.set("model", imageModel);
   form.set("prompt", prompt);
@@ -96,8 +157,7 @@ export async function editImage(source: Blob, prompt: string, purchased: boolean
   form.set("output_format", "webp");
   form.set("image[]", new File([source], "source.png", { type: source.type || "image/png" }));
   const controller = new AbortController();
-  const timeoutMs = timeoutMilliseconds();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const timeout = setTimeout(() => controller.abort(), timeoutMilliseconds());
   let response: Response;
   try {
     response = await fetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${apiKey}` }, body: form, signal: controller.signal });
@@ -107,32 +167,76 @@ export async function editImage(source: Blob, prompt: string, purchased: boolean
     }
     throw error;
   } finally { clearTimeout(timeout); }
-  if (!response.ok) {
-    throw await providerError(response);
-  }
+  if (!response.ok) throw await providerError(response);
   const payload = await response.json().catch(() => null);
   const b64 = payload?.data?.[0]?.b64_json;
   if (typeof b64 !== "string") throw new HttpError(502, "openai_invalid_response", "Image API returned no raster output.");
-  if (b64.length > Math.ceil(maximumOutputBytes / 3) * 4 + 8) {
-    throw new HttpError(502, "openai_output_too_large", "Image API returned an oversized raster output.");
-  }
-  let binary: Uint8Array;
+  return { bytes: decodeB64Json(b64), requestId: response.headers.get("x-request-id"), usage: payload?.usage ?? {} };
+}
+
+async function editImageXai(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
+  // xAI's /v1/images/edits accepts a JSON body with the source image as a
+  // base64 data-URI (`image.url`) rather than multipart form-data. It returns
+  // `data[0].url` by default; requesting `response_format: "b64_json"` avoids a
+  // second round-trip when the provider honors it, otherwise we download the
+  // URL. `output_format: "webp"` is passed best-effort so the clean deliverable
+  // stays a square WebP — if xAI ignores it the shared validator rejects the
+  // raster before it ever reaches storage.
+  const dataUri = await blobToBase64DataUri(source);
+  const body = {
+    model: imageModel,
+    prompt,
+    n: 1,
+    image: { url: dataUri },
+    size: purchased ? "2048x2048" : "1024x1024",
+    quality: purchased ? "high" : "medium",
+    output_format: "webp",
+    response_format: "b64_json",
+  };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMilliseconds());
+  let response: Response;
   try {
-    binary = Uint8Array.from(atob(b64), (character) => character.charCodeAt(0));
-  } catch {
-    throw new HttpError(502, "openai_invalid_base64", "Image API returned malformed raster data.");
-  }
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new HttpError(504, "generation_timed_out", "Image generation exceeded the server time limit.");
+    }
+    throw error;
+  } finally { clearTimeout(timeout); }
+  if (!response.ok) throw await providerError(response);
+  const payload = await response.json().catch(() => null);
+  const item = payload?.data?.[0];
+  const requestId = response.headers.get("x-request-id") ?? (typeof payload?.id === "string" ? payload.id : null);
+  const b64 = typeof item?.b64_json === "string" ? item.b64_json : null;
+  if (b64) return { bytes: decodeB64Json(b64), requestId, usage: payload?.usage ?? {} };
+  const url = typeof item?.url === "string" ? item.url : null;
+  if (!url) throw new HttpError(502, "openai_invalid_response", "Image API returned no raster output.");
+  const downloaded = await downloadImageBytes(url);
+  return { bytes: downloaded.bytes, requestId: downloaded.requestId ?? requestId, usage: payload?.usage ?? {} };
+}
+
+export async function editImage(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
+  if (!apiKey) throw new Error("Missing OPENAI_API_KEY.");
+  const result = provider === "xai"
+    ? await editImageXai(source, prompt, purchased)
+    : await editImageOpenai(source, prompt, purchased);
   try {
-    validateSquareWebp(binary, purchased ? 2048 : 1024, maximumOutputBytes);
+    validateSquareWebp(result.bytes, purchased ? 2048 : 1024, maximumOutputBytes);
   } catch (error) {
     if (error instanceof RasterValidationError) {
-      console.error("OpenAI raster validation failed", {
+      console.error(`${provider} raster validation failed`, {
         reason: error.reason,
-        requestId: response.headers.get("x-request-id"),
+        requestId: result.requestId,
       });
       throw new HttpError(502, "openai_invalid_raster", "Image API returned an invalid raster output.");
     }
     throw error;
   }
-  return { bytes: binary, requestId: response.headers.get("x-request-id"), usage: payload.usage ?? {} };
+  return result;
 }
