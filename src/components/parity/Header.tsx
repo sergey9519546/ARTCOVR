@@ -54,6 +54,7 @@ export function Header({
               </button>
             </li>
           </ul>
+          <div className="hidden h-[1.265625rem] w-[3.875rem] md:block" aria-hidden="true" />
           <ThemeSwitcher />
         </div>
       </div>
