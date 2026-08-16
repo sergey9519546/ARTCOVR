@@ -95,6 +95,20 @@ describe("artwork helpers", () => {
     }
   });
 
+  test("the production intro list resolves against the approved public catalog", async () => {
+    const introSlugs = (
+      await import("./production-intro.json", { with: { type: "json" } })
+    ).default as string[];
+    const publicSlugs = new Set(artworks.map((artwork) => artwork.slug));
+    for (const slug of introSlugs) {
+      assert.ok(publicSlugs.has(slug), `production intro slug ${slug} is missing from the approved catalog`);
+    }
+    // The preloader relied on a category-priority fallback that picked a near-
+    // black cover; the explicit list must be exactly six diverse covers so the
+    // default selection is never left to a future sort drift.
+    assert.equal(introSlugs.length, 6);
+  });
+
   test("searches artwork metadata across categories, moods, and descriptors", () => {
     const match = searchArtworks("cyan enigmatic collage", reviewCatalog);
     assert.ok(match.some((artwork) => artwork.slug === "cyan-passage"));

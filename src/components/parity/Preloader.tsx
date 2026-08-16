@@ -116,7 +116,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 width={450}
                 height={450}
                 decoding="async"
-                className="absolute aspect-square w-[28vw] object-cover md:w-[8vw]"
+                className="absolute aspect-square w-[34vw] object-cover md:w-[26vw]"
                 style={{
                   color: "transparent",
                   willChange: "transform",
@@ -124,7 +124,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                   transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)",
                   zIndex: index + 1,
                 }}
-                sizes="(max-width: 768px) 28vw, 8vw"
+                sizes="(max-width: 768px) 34vw, 26vw"
               />
             );
           })}

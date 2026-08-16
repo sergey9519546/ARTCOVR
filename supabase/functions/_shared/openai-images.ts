@@ -1,7 +1,13 @@
 import { HttpError } from "./errors.ts";
 import { RasterValidationError, validateSquareWebp } from "./raster.ts";
 
-const endpoint = "https://api.openai.com/v1/images/edits";
+// Vercel AI Gateway is the default image-edit endpoint: it is
+// OpenAI-compatible and routes the `gpt-image-2` model behind a single
+// gateway key (`vck_*` provisioned as OPENAI_API_KEY). Override only to
+// fall back to the direct provider (e.g. local debugging).
+const endpoint =
+  Deno.env.get("OPENAI_IMAGES_ENDPOINT") ??
+  "https://ai-gateway.vercel.sh/v1/images/edits";
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 export const imageModel = Deno.env.get("OPENAI_IMAGE_MODEL") ?? "gpt-image-2-2026-04-21";
 

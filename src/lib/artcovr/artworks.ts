@@ -2,6 +2,7 @@ import curatedPublic from "./curated-public.json" with { type: "json" };
 import ownerPicksJson from "./owner-picks.json" with { type: "json" };
 import curatedReview from "#staging-catalog" with { type: "json" };
 import stagingIntroJson from "#staging-intro" with { type: "json" };
+import productionIntroJson from "./production-intro.json" with { type: "json" };
 import { selectPublicCatalog } from "./catalog-visibility.ts";
 import {
   orderByDiversityRank,
@@ -209,11 +210,22 @@ export function searchArtworks(query: string, items: readonly Artwork[] = displa
 export const stagingIntroSlugs: readonly string[] = isPrivateStaging
   ? (stagingIntroJson as string[])
   : [];
+/**
+ * Owner-curated intro covers for production. Unlike the staging intro list,
+ * this set ships in every public build and is deliberately chosen for
+ * visibility (brightness/contrast) and category spread so the preloader never
+ * opens on a near-black or flat cover that reads as a loading failure.
+ */
+export const productionIntroSlugs: readonly string[] = !isPrivateStaging
+  ? (productionIntroJson as string[])
+  : [];
 
 export function pickIntroArtworks(
   items: readonly Artwork[] = displayArtworks,
   count = 6,
-  preferredIntroSlugs: readonly string[] = stagingIntroSlugs,
+  preferredIntroSlugs: readonly string[] = isPrivateStaging
+    ? stagingIntroSlugs
+    : productionIntroSlugs,
 ) {
   if (items.length <= count) return [...items];
 
