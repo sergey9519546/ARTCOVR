@@ -1,12 +1,14 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   getCheckoutTotal,
   type Artwork,
 } from "@/lib/artcovr/artworks";
+
+const ARTWORK_IMAGE_FALLBACK = "/assets/artwork-placeholder.svg";
 
 export const ProductCard = memo(function ProductCard({
   artwork,
@@ -15,8 +17,6 @@ export const ProductCard = memo(function ProductCard({
   artwork: Artwork;
   priority?: boolean;
 }) {
-  const [imageError, setImageError] = useState(false);
-
   return (
     <Link
       className="group block"
@@ -29,24 +29,23 @@ export const ProductCard = memo(function ProductCard({
         className="relative aspect-square overflow-hidden bg-[#d2cac3] dark:bg-neutral-800"
         data-inview="true"
       >
-        {imageError ? (
-          <div className="flex h-full w-full items-center justify-center px-6 text-center text-xs uppercase opacity-50">
-            {artwork.title}
-          </div>
-        ) : (
-          <Image
-            alt={artwork.alt}
-            draggable={false}
-            fill
-            priority={priority}
-            loading={priority ? "eager" : "lazy"}
-            unoptimized
-            className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]"
-            src={artwork.image}
-            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 40vw, 80vw"
-            onError={() => setImageError(true)}
-          />
-        )}
+        <Image
+          alt={artwork.alt}
+          draggable={false}
+          fill
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+          unoptimized
+          className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]"
+          src={artwork.image}
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 40vw, 80vw"
+          onError={(event) => {
+            const image = event.currentTarget;
+            if (image.dataset.artworkFallback === "true") return;
+            image.dataset.artworkFallback = "true";
+            image.src = ARTWORK_IMAGE_FALLBACK;
+          }}
+        />
       </div>
       <div className="mt-3 flex flex-col justify-between gap-2 text-lg leading-5 md:flex-row">
         <p>{artwork.title}</p>
