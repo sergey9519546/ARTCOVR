@@ -83,6 +83,7 @@ export function SpiralScroll() {
     const stage = stageRef.current;
     const label = labelRef.current;
     const itemElements = stage.querySelectorAll<HTMLElement>(".spiral-item");
+    const chrome = section.querySelectorAll<HTMLElement>("[data-chrome]");
 
     // Fixed station for every cover: an angle on the ellipse and a depth.
     const angleStep = (TURNS * Math.PI * 2) / Math.max(1, ITEMS.length - 1);

@@ -37,6 +37,7 @@ const SCROLL_PIXELS_PER_CARD = 170;
 export function TiltedCarousel() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const convergeRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [staticMode, setStaticMode] = useState(false);
   const [cardSize, setCardSize] = useState(CARD_MIN);
@@ -93,6 +94,7 @@ export function TiltedCarousel() {
     const section = sectionRef.current;
     const track = trackRef.current;
     const cards = track.querySelectorAll<HTMLElement>(".carousel-card");
+    const chrome = section.querySelectorAll<HTMLElement>("[data-chrome]");
 
     if (window.matchMedia(STATIC_MEDIA_QUERY).matches) {
       track.style.transform = "translateX(0px)";
@@ -140,6 +142,20 @@ export function TiltedCarousel() {
               setActiveIndex(clampedIndex);
             }
             syncFocusWindow(translate);
+
+            // Seam blend: chrome fades in as the pinned section settles after
+            // the normal grid above it (seam A). The whole row then tips back
+            // into the screen and the chrome fades out (seam B), so the next
+            // pinned stage — the depth spiral — takes over from a shared
+            // ground rather than a hard cut.
+            const head = Math.min(1, self.progress / 0.08);
+            const tail = Math.max(0, (self.progress - 0.86) / 0.14);
+            chrome.forEach((el) => {
+              el.style.opacity = String(head * (1 - tail));
+            });
+            if (convergeRef.current) {
+              convergeRef.current.style.transform = `perspective(1200px) rotateX(${-tail * 24}deg) scale(${1 - tail * 0.16})`;
+            }
           } catch (error) {
             console.error("Carousel update error:", error);
           }
@@ -149,6 +165,12 @@ export function TiltedCarousel() {
             activeIndexRef.current = 0;
             setActiveIndex(0);
             track.style.transform = "translateX(0px)";
+            chrome.forEach((el) => {
+              el.style.opacity = "1";
+            });
+            if (convergeRef.current) {
+              convergeRef.current.style.transform = "perspective(1200px) rotateX(0deg) scale(1)";
+            }
             syncFocusWindow(0);
           } catch (error) {
             console.error("Carousel leaveBack error:", error);
@@ -168,6 +190,10 @@ export function TiltedCarousel() {
         scrollTriggerRef.current?.kill();
         scrollTriggerRef.current = null;
         cards.forEach((card) => card.removeAttribute("tabindex"));
+        chrome.forEach((el) => {
+          el.style.removeProperty("opacity");
+        });
+        if (convergeRef.current) convergeRef.current.style.removeProperty("transform");
       } catch (error) {
         console.error("Carousel cleanup error:", error);
       }
@@ -232,16 +258,21 @@ export function TiltedCarousel() {
       // three themes. (--color-white is #f3ecd9 too, so it is no escape hatch.)
       style={{ background: "var(--background)", color: "var(--foreground)" }}
     >
-      <div className="absolute top-26 left-4 z-10 text-xs font-bold tracking-tight uppercase lg:left-6">
+      <div data-chrome className="absolute top-26 left-4 z-10 text-xs font-bold tracking-tight uppercase lg:left-6">
         <p>The ARTCOVR Archive</p>
       </div>
-      <div className="absolute top-26 right-4 z-10 text-xs font-bold tracking-tight tabular-nums uppercase lg:right-6">
+      <div data-chrome className="absolute top-26 right-4 z-10 text-xs font-bold tracking-tight tabular-nums uppercase lg:right-6">
         <span>{String(activeIndex + 1).padStart(2, "0")}</span>
         <span className="opacity-40">
           {" "}/ {String(ITEMS.length).padStart(2, "0")}
         </span>
       </div>
 
+      <div
+        ref={convergeRef}
+        className="absolute inset-0 flex items-center"
+        style={{ transform: "perspective(1200px) rotateX(0deg) scale(1)" }}
+      >
       <div
         ref={trackRef}
         className={`flex items-center will-change-transform ${
@@ -295,8 +326,9 @@ export function TiltedCarousel() {
           </Link>
         ))}
       </div>
+      </div>
 
-      <div className="absolute bottom-20 left-1/2 z-10 w-[60%] max-w-[600px] -translate-x-1/2">
+      <div data-chrome className="absolute bottom-20 left-1/2 z-10 w-[60%] max-w-[600px] -translate-x-1/2">
         <div className="h-[2px] w-full overflow-hidden rounded-full bg-current/20">
           <div
             className="h-full rounded-full bg-current transition-all duration-300"
