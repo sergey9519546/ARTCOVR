@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { journeyPhases, smoothstep, type JourneyStore } from "./journey";
 
 const MAX_SPIRAL_ITEMS = 40;
 function sampleSpiralItems(offset: number) {
@@ -19,6 +17,7 @@ function sampleSpiralItems(offset: number) {
 }
 const STATIC_MEDIA_QUERY =
   "(prefers-reduced-motion: reduce), (pointer: coarse)";
+const ITEMS = sampleSpiralItems(0);
 
 /*
  * The archive spiral is a depth tunnel, not a stack of absolutely-placed rows.
@@ -27,6 +26,13 @@ const STATIC_MEDIA_QUERY =
  * distance, pass the viewer, and leave. Perspective does the scaling, which is
  * what keeps the composition centred at every scroll position — the previous
  * version drove x/y/scale by hand and pushed the whole run off-frame.
+ *
+ * The tunnel is a funnel, not a straight cylinder: the ellipse radius eases
+ * from a wide, flat band at the entrance to the full coil deeper in. The
+ * carousel outrun plunges back into that flat band, so the rail the cards
+ * travel on never "switches direction" — it merely curves inward as the
+ * camera descends. That curvature is the bleed-over the prompt asks for: the
+ * horizontal section was the mouth of the spiral all along.
  */
 const RADIUS_X = 360;
 const RADIUS_Y = 190;
@@ -51,14 +57,13 @@ function computeCardSize(viewportHeight: number) {
   );
 }
 
-export function SpiralScroll() {
+export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<ReturnType<typeof ScrollTrigger.create> | null>(null);
   const [staticMode, setStaticMode] = useState(false);
   const [cardSize, setCardSize] = useState(CARD_MIN);
-  const ITEMS = sampleSpiralItems(0);
+  const layered = !!journey && !staticMode;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
@@ -76,22 +81,29 @@ export function SpiralScroll() {
   }, []);
 
   useEffect(() => {
-    if (staticMode || ITEMS.length < 2 || !sectionRef.current || !stageRef.current) return;
+    if (!layered || !journey || ITEMS.length < 2 || !sectionRef.current || !stageRef.current) {
+      return;
+    }
 
-    gsap.registerPlugin(ScrollTrigger);
-    const section = sectionRef.current;
     const stage = stageRef.current;
     const label = labelRef.current;
     const itemElements = stage.querySelectorAll<HTMLElement>(".spiral-item");
-    const chrome = section.querySelectorAll<HTMLElement>("[data-chrome]");
+    const chrome = Array.from(
+      sectionRef.current!.querySelectorAll<HTMLElement>("[data-chrome]"),
+    );
 
     // Fixed station for every cover: an angle on the ellipse and a depth.
     const angleStep = (TURNS * Math.PI * 2) / Math.max(1, ITEMS.length - 1);
     const positions = ITEMS.map((_, index) => {
       const angle = index * angleStep - Math.PI / 2;
+      // Per-station bend: 0 at the mouth (flat, wide band — the continuation of
+      // the carousel outrun) easing to 1 deep in the tunnel (full coil).
+      const bend = smoothstep(index / Math.max(1, ITEMS.length - 1));
+      const radiusX = RADIUS_X * (1.18 - 0.18 * bend);
+      const radiusY = RADIUS_Y * (0.28 + 0.72 * bend);
       return {
-        x: Math.cos(angle) * RADIUS_X,
-        y: Math.sin(angle) * RADIUS_Y,
+        x: Math.cos(angle) * radiusX,
+        y: Math.sin(angle) * radiusY,
         station: index * DEPTH_STEP,
       };
     });
@@ -103,8 +115,20 @@ export function SpiralScroll() {
     const travelEnd = positions[positions.length - 1].station + DEPTH_END;
     const travelRange = travelEnd - travelStart;
 
-    const place = (progress: number) => {
-      const camera = travelStart + progress * travelRange;
+    // Depth travel eases in at the mouth so the tunnel never "snatches" the
+    // motion the carousel outrun was carrying — the camera drifts through the
+    // flat band first, then accelerates down the coil as the outrun gives way.
+    const depthEase = (s: number) => s * s * (3 - 2 * s) * 0.35 + s * 0.65;
+
+    const place = (P: number) => {
+      const ph = journeyPhases(P, journey.consts);
+      const s = ph.s;
+      const camera = travelStart + depthEase(s) * travelRange;
+      // A residual horizontal drift carried over from the outrun, decaying
+      // across the first third of the descent — a literal momentum hand-off so
+      // the first spiral cards slide, then settle, then fall into depth.
+      const drift = (1 - smoothstep(s / 0.3)) * -cardSize * 0.6;
+      const layerOpacity = ph.spiralOpacity;
 
       itemElements.forEach((element, index) => {
         const position = positions[index];
@@ -114,94 +138,81 @@ export function SpiralScroll() {
         const fadeIn = Math.min(1, (z - DEPTH_FAR) / FADE_IN);
         const fadeOut = Math.min(1, (DEPTH_NEAR - z) / FADE_OUT);
 
-        gsap.set(element, {
-          x: position.x,
-          y: position.y,
-          // A cover outside the depth window still needs a transform. Left
-          // unassigned it keeps its layout position — `.spiral-item` is
-          // absolutely centred with negative margins, so it would sit at z=0,
-          // full size and invisible, in front of every drawn cover (all of
-          // which are strictly behind DEPTH_NEAR) and swallow their clicks.
-          // Parking it at the far wall puts it behind the whole tunnel.
-          z: drawn ? z : DEPTH_FAR,
-          opacity: drawn ? Math.min(fadeIn, fadeOut) : 0,
-          // Covers angle back toward the centre line of the tunnel.
-          rotationY: -position.x * 0.045,
-          rotationX: position.y * 0.02,
-        });
+        element.style.transform = `translate3d(${position.x + drift}px, ${position.y}px, ${drawn ? z : DEPTH_FAR}px) rotateY(${-position.x * 0.045}deg) rotateX(${position.y * 0.02}deg)`;
+        element.style.opacity = drawn
+          ? String(Math.min(fadeIn, fadeOut) * layerOpacity)
+          : "0";
 
-        // Only the covers actually drawn in the tunnel are hit-testable and
-        // tabbable. The rest would be invisible click targets and invisible
-        // tab stops whose focus ring renders on an opacity:0 element.
-        const visibility = drawn ? "visible" : "hidden";
+        const visibility = drawn && layerOpacity > 0.001 ? "visible" : "hidden";
         if (element.style.visibility !== visibility) {
           element.style.visibility = visibility;
-          element.style.pointerEvents = drawn ? "auto" : "none";
-          element.tabIndex = drawn ? 0 : -1;
         }
+        const pointer = drawn && layerOpacity > 0.4 ? "auto" : "none";
+        if (element.style.pointerEvents !== pointer) {
+          element.style.pointerEvents = pointer;
+        }
+        const tabIndex = drawn && layerOpacity > 0.4 ? 0 : -1;
+        if (element.tabIndex !== tabIndex) element.tabIndex = tabIndex;
       });
 
       // A slow roll of the whole tunnel; deliberately small, so the run never
-      // leaves frame the way the old 170-degree stage spin did.
-      gsap.set(stage, { rotationZ: -5 + progress * 10 });
+      // leaves frame the way the old 170-degree stage spin did. It continues the
+      // roll the outrun earned as it plunged, so the rotation is one value.
+      stage.style.transform = `rotateZ(${-5 + P * 10}deg)`;
+      stage.style.opacity = String(layerOpacity);
+
+      if (label) {
+        const index = Math.min(ITEMS.length - 1, Math.floor(s * ITEMS.length));
+        const itemProgress = (s * ITEMS.length) % 1;
+        const opacity =
+          itemProgress < 0.15
+            ? itemProgress / 0.15
+            : itemProgress > 0.85
+              ? (1 - itemProgress) / 0.15
+              : 1;
+        if (label.textContent !== ITEMS[index].title) {
+          label.textContent = ITEMS[index].title;
+        }
+        label.style.opacity = String(opacity * layerOpacity);
+      }
+
+      // The spiral's own chrome rises with the layer.
+      chrome.forEach((el) => {
+        el.style.opacity = String(layerOpacity);
+      });
     };
 
-    gsap.set(itemElements, { opacity: 0, transformOrigin: "50% 50%" });
     // Inert until place() decides otherwise, so no frame ships 40 stacked,
     // invisible, clickable covers.
     itemElements.forEach((element) => {
       element.style.visibility = "hidden";
       element.style.pointerEvents = "none";
       element.tabIndex = -1;
+      element.style.opacity = "0";
     });
     place(0);
 
-    triggerRef.current = ScrollTrigger.create({
-      trigger: section,
-      start: "top top",
-      end: "+=6000",
-      pin: true,
-      scrub: 1,
-      onUpdate: ({ progress }) => {
-        place(progress);
-
-        if (label) {
-          const index = Math.min(ITEMS.length - 1, Math.floor(progress * ITEMS.length));
-          const itemProgress = (progress * ITEMS.length) % 1;
-          const opacity =
-            itemProgress < 0.15
-              ? itemProgress / 0.15
-              : itemProgress > 0.85
-                ? (1 - itemProgress) / 0.15
-                : 1;
-          if (label.textContent !== ITEMS[index].title) {
-            label.textContent = ITEMS[index].title;
-          }
-          label.style.opacity = String(opacity);
-        }
-      },
-      onLeaveBack: () => {
-        place(0);
-        if (label) label.style.opacity = "0";
-      },
-    });
+    const unregister = journey.register(place);
 
     return () => {
-      triggerRef.current?.kill();
-      triggerRef.current = null;
-      gsap.set(stage, { clearProps: "transform" });
-      gsap.set(itemElements, { clearProps: "transform,opacity" });
+      unregister();
       itemElements.forEach((element) => {
+        element.style.removeProperty("transform");
+        element.style.removeProperty("opacity");
         element.style.removeProperty("visibility");
         element.style.removeProperty("pointer-events");
         element.removeAttribute("tabindex");
       });
+      stage.style.removeProperty("transform");
+      stage.style.removeProperty("opacity");
+      if (label) label.style.removeProperty("opacity");
+      chrome.forEach((el) => el.style.removeProperty("opacity"));
     };
-  }, [staticMode, cardSize]);
+  }, [layered, journey, cardSize]);
 
   if (ITEMS.length === 0) return null;
 
-  if (staticMode || ITEMS.length < 2) {
+  if (!layered || ITEMS.length < 2) {
     const staticItems = displayArtworks;
     return (
       <section
@@ -243,19 +254,22 @@ export function SpiralScroll() {
     <section
       ref={sectionRef}
       aria-label="ARTCOVR spiral archive"
-      className="relative flex h-screen w-full items-center justify-center overflow-hidden"
+      className="absolute inset-0 flex items-center justify-center overflow-hidden"
       style={{
         background: "var(--background)",
         color: "var(--foreground)",
         perspective: `${PERSPECTIVE}px`,
       }}
     >
-      <div className="absolute top-24 left-1/2 z-[4] flex -translate-x-1/2 items-center gap-3 text-sm font-bold tracking-tight uppercase">
+      <div
+        data-chrome
+        className="absolute top-24 left-1/2 z-[4] flex -translate-x-1/2 items-center gap-3 text-sm font-bold tracking-tight uppercase"
+      >
         <span className="border-b border-current pb-0.5">archive</span>
         <span className="opacity-30">•</span>
         <span className="opacity-50">spiral</span>
       </div>
-      <div className="absolute top-24 right-6 z-[4]">
+      <div data-chrome className="absolute top-24 right-6 z-[4]">
         <Link
           href="/archive"
           className="flex items-center gap-2 rounded-full border border-current/20 px-4 py-2 text-xs font-bold tracking-tight uppercase transition-colors hover:bg-current/10"
@@ -263,13 +277,16 @@ export function SpiralScroll() {
           archive <span className="h-1.5 w-1.5 rounded-full bg-current" />
         </Link>
       </div>
-      <div className="absolute bottom-8 left-6 z-10 text-xs font-bold tracking-tight uppercase opacity-40">
+      <div
+        data-chrome
+        className="absolute bottom-8 left-6 z-10 text-xs font-bold tracking-tight uppercase opacity-40"
+      >
         ARTCOVR® • COVER ARCHIVE • 2026
       </div>
       <div
         ref={stageRef}
         className="absolute top-0 left-0 h-full w-full will-change-transform"
-        style={{ transformStyle: "preserve-3d" }}
+        style={{ transformStyle: "preserve-3d", transform: "rotateZ(-5deg)", opacity: 0 }}
       >
         {ITEMS.map((artwork) => (
           <Link
@@ -284,6 +301,9 @@ export function SpiralScroll() {
               height: `${cardSize}px`,
               marginTop: `${-cardSize / 2}px`,
               marginLeft: `${-cardSize / 2}px`,
+              visibility: "hidden",
+              pointerEvents: "none",
+              opacity: 0,
             }}
           >
             <span
@@ -309,7 +329,7 @@ export function SpiralScroll() {
       <div
         ref={labelRef}
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-32 left-1/2 z-20 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-bold tracking-tight uppercase transition-opacity duration-300"
+        className="pointer-events-none absolute bottom-32 left-1/2 z-20 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-bold tracking-tight uppercase"
         style={{
           opacity: 0,
           background: "var(--foreground)",

@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { clamp01, journeyPhases, type JourneyStore } from "./journey";
 
 const ITEMS = displayArtworks.map((artwork, index) => ({
   id: artwork.id,
@@ -34,7 +33,7 @@ const STATIC_MEDIA_QUERY =
   "(prefers-reduced-motion: reduce), (pointer: coarse)";
 const SCROLL_PIXELS_PER_CARD = 170;
 
-export function TiltedCarousel() {
+export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const convergeRef = useRef<HTMLDivElement>(null);
@@ -47,13 +46,11 @@ export function TiltedCarousel() {
   // last covers unreachable. 0 means "not measured yet" (first client render).
   const [viewportWidth, setViewportWidth] = useState(0);
   const activeIndexRef = useRef(0);
-  const scrollTriggerRef = useRef<ReturnType<
-    typeof ScrollTrigger.create
-  > | null>(null);
 
   const CW = cardSize;
   const CH = cardSize;
   const CG = Math.round(cardSize * CARD_GAP_RATIO);
+  const layered = !!journey && !staticMode;
 
   // The pin maps `pinScroll` page pixels onto `maxTravel` px of track
   // translation. Both effects below need that mapping, so it lives here.
@@ -68,6 +65,9 @@ export function TiltedCarousel() {
     viewportWidth === 0
       ? 0
       : Math.max(0, (ITEMS.length - 1) * (CW + CG) + CW / 2);
+  // The scrolls-per-card stays identical in journey coordinates: the carousel
+  // phase consumes exactly `pinScroll` master scroll px, so the master scroll
+  // per card equals the old per-card formula unchanged.
   const pinScroll = Math.max(6000, ITEMS.length * SCROLL_PIXELS_PER_CARD);
 
   useEffect(() => {
@@ -89,24 +89,23 @@ export function TiltedCarousel() {
   }, []);
 
   useEffect(() => {
-    if (!sectionRef.current || !trackRef.current || viewportWidth === 0) return;
-
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    const cards = track.querySelectorAll<HTMLElement>(".carousel-card");
-    const chrome = section.querySelectorAll<HTMLElement>("[data-chrome]");
-
-    if (window.matchMedia(STATIC_MEDIA_QUERY).matches) {
-      track.style.transform = "translateX(0px)";
-      // The static track is a real scroll container, so scroll-into-view on
-      // focus is the right behaviour there and every card stays tabbable.
-      cards.forEach((card) => card.removeAttribute("tabindex"));
+    if (!layered || !journey || !sectionRef.current || viewportWidth === 0) {
       return;
     }
 
-    // Off-screen cards live inside an overflow-hidden, translated track. Left
-    // in the tab order, focusing one makes the browser scroll it into view and
-    // fight the pin, so only the cards actually on screen stay tabbable.
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    const converge = convergeRef.current;
+    const chrome = Array.from(
+      section.querySelectorAll<HTMLElement>("[data-chrome]"),
+    );
+    const cards = track
+      ? track.querySelectorAll<HTMLElement>(".carousel-card")
+      : [];
+
+    // Only the cards actually on screen stay tabbable: off-screen ones live
+    // inside an overflow-hidden, translated track, and the browser would fight
+    // the transform by scrolling any focused off-screen card into view.
     const syncFocusWindow = (translate: number) => {
       cards.forEach((card, index) => {
         const left = viewportWidth / 2 + index * (CW + CG) - translate;
@@ -116,92 +115,68 @@ export function TiltedCarousel() {
       });
     };
 
-    try {
-      gsap.registerPlugin(ScrollTrigger);
+    const update = (P: number) => {
+      const ph = journeyPhases(P, journey.consts);
+      const translate = ph.c * maxTravel;
 
-      scrollTriggerRef.current = ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: `+=${pinScroll}`,
-        pin: true,
-        scrub: 0.8,
-        onUpdate: (self) => {
-          try {
-            const translate = self.progress * maxTravel;
-            track.style.transform = `translateX(${-translate}px)`;
-            // The track's own paddingLeft is 50%, i.e. the same half-viewport
-            // that used to be added here — counting it once put the active
-            // index a constant ~1.27 cards ahead, so the counter opened on 02.
-            const index = Math.round((translate - CW / 2) / (CW + CG));
-            const clampedIndex = Math.max(
-              0,
-              Math.min(ITEMS.length - 1, index),
-            );
-            if (clampedIndex !== activeIndexRef.current) {
-              activeIndexRef.current = clampedIndex;
-              setActiveIndex(clampedIndex);
-            }
-            syncFocusWindow(translate);
-
-            // Seam blend: chrome fades in as the pinned section settles after
-            // the normal grid above it (seam A). The whole row then tips back
-            // into the screen and the chrome fades out (seam B), so the next
-            // pinned stage — the depth spiral — takes over from a shared
-            // ground rather than a hard cut.
-            const head = Math.min(1, self.progress / 0.08);
-            const tail = Math.max(0, (self.progress - 0.86) / 0.14);
-            chrome.forEach((el) => {
-              el.style.opacity = String(head * (1 - tail));
-            });
-            if (convergeRef.current) {
-              convergeRef.current.style.transform = `perspective(1200px) rotateX(${-tail * 24}deg) scale(${1 - tail * 0.16})`;
-            }
-          } catch (error) {
-            console.error("Carousel update error:", error);
-          }
-        },
-        onLeaveBack: () => {
-          try {
-            activeIndexRef.current = 0;
-            setActiveIndex(0);
-            track.style.transform = "translateX(0px)";
-            chrome.forEach((el) => {
-              el.style.opacity = "1";
-            });
-            if (convergeRef.current) {
-              convergeRef.current.style.transform = "perspective(1200px) rotateX(0deg) scale(1)";
-            }
-            syncFocusWindow(0);
-          } catch (error) {
-            console.error("Carousel leaveBack error:", error);
-          }
-        },
-      });
-
-      // Seed from the trigger's real progress, not 0: a reload deep inside the
-      // pin starts mid-track, and the window must match what is on screen.
-      syncFocusWindow((scrollTriggerRef.current?.progress ?? 0) * maxTravel);
-    } catch (error) {
-      console.error("Carousel GSAP init failed:", error);
-    }
-
-    return () => {
       try {
-        scrollTriggerRef.current?.kill();
-        scrollTriggerRef.current = null;
-        cards.forEach((card) => card.removeAttribute("tabindex"));
+        if (track) track.style.transform = `translateX(${-translate}px)`;
+
+        if (converge) {
+          // The flat outrun pivots back into the screen through the blend: a
+          // real spatial reason for the cards to disappear, not a UI cut.
+          const plunge = ph.carouselPlunge;
+          converge.style.transform =
+            `perspective(1200px) rotateX(${-plunge * 22}deg) scale(${1 - plunge * 0.16})`;
+          converge.style.opacity = String(ph.carouselOpacity);
+          // Once the outrun has given way to the tunnel the cards stop being a
+          // click target so the spiral's covers take the pointer.
+          converge.style.pointerEvents =
+            ph.carouselOpacity > 0.4 ? "auto" : "none";
+        }
+
+        // Chrome opens with the journey and steps out through the blend.
+        const head = clamp01(P / 0.025);
+        const chromeOpacity = head * ph.carouselOpacity;
         chrome.forEach((el) => {
-          el.style.removeProperty("opacity");
+          el.style.opacity = String(chromeOpacity);
         });
-        if (convergeRef.current) convergeRef.current.style.removeProperty("transform");
-      } catch (error) {
-        console.error("Carousel cleanup error:", error);
+
+        const index = Math.max(
+          0,
+          Math.min(ITEMS.length - 1, Math.round((translate - CW / 2) / (CW + CG))),
+        );
+        if (index !== activeIndexRef.current) {
+          activeIndexRef.current = index;
+          setActiveIndex(index);
+        }
+        syncFocusWindow(translate);
+      } catch {
+        /* keep inert — the ErrorBoundary above renders the failing layer null */
       }
     };
-  }, [staticMode, CW, CG, viewportWidth, maxTravel, pinScroll]);
 
-  // Preserve the archive's keyboard navigation; static mode scrolls the track
-  // horizontally so reduced-motion and touch users are never forced through a pin.
+    const unregister = journey.register(update);
+    // Seed the live frame so a reload deep inside the journey doesn't open on
+    // the first card while the real progress is somewhere mid-rail.
+    syncFocusWindow((maxTravel));
+
+    return () => {
+      unregister();
+      if (track) track.style.transform = "translateX(0px)";
+      if (converge) {
+        converge.style.transform = "perspective(1200px) rotateX(0deg) scale(1)";
+        converge.style.removeProperty("opacity");
+        converge.style.removeProperty("pointer-events");
+      }
+      chrome.forEach((el) => el.style.removeProperty("opacity"));
+      cards.forEach((card) => card.removeAttribute("tabindex"));
+    };
+  }, [layered, journey, CW, CG, viewportWidth, maxTravel]);
+
+  // Preserve the archive's keyboard navigation. Static mode scrolls its own
+  // track; the layered mode translates the journey's master scroll — the
+  // per-card math is identical because the carousel phase spans `pinScroll` px.
   useEffect(() => {
     if (!sectionRef.current || !trackRef.current) return;
     const section = sectionRef.current;
@@ -226,10 +201,10 @@ export function TiltedCarousel() {
         return;
       }
 
-      if (maxTravel <= 0) return;
+      if (!layered || maxTravel <= 0) return;
       // One press must advance exactly one card, so the page-scroll delta is
-      // derived from the pin's own mapping (pinScroll px of scroll == maxTravel
-      // px of translation) rather than from a guessed fraction of a card.
+      // derived from the pin's own mapping (pinScroll px of master scroll ==
+      // maxTravel px of translation) rather than from a guessed fraction.
       const scrollPerCard = (pinScroll * (CW + CG)) / maxTravel;
       const targetY =
         window.scrollY + (nextIndex - currentIndex) * scrollPerCard;
@@ -238,30 +213,132 @@ export function TiltedCarousel() {
 
     section.addEventListener("keydown", onKey);
     return () => section.removeEventListener("keydown", onKey);
-  }, [staticMode, CW, CG, maxTravel, pinScroll]);
+  }, [layered, staticMode, CW, CG, maxTravel, pinScroll]);
 
   if (ITEMS.length === 0) return null;
 
+  // Reduced-motion / coarse-pointer / non-journey rendering: a real swipeable
+  // track that owns its own scroll, and never forces anyone through a pin.
+  if (!layered) {
+    return (
+      <section
+        ref={sectionRef}
+        aria-label="The ARTCOVR archive"
+        tabIndex={0}
+        className={`relative w-full ${
+          staticMode
+            ? "min-h-screen overflow-hidden py-20"
+            : "flex min-h-screen items-center overflow-hidden"
+        }`}
+        style={{ background: "var(--background)", color: "var(--foreground)" }}
+      >
+        <div
+          data-chrome
+          className="absolute top-26 left-4 z-10 text-xs font-bold tracking-tight uppercase lg:left-6"
+        >
+          <p>The ARTCOVR Archive</p>
+        </div>
+        <div
+          data-chrome
+          className="absolute top-26 right-4 z-10 text-xs font-bold tracking-tight tabular-nums uppercase lg:right-6"
+        >
+          <span>{String(activeIndex + 1).padStart(2, "0")}</span>
+          <span className="opacity-40">
+            {" "}/ {String(ITEMS.length).padStart(2, "0")}
+          </span>
+        </div>
+
+        <div
+          className={`flex items-center will-change-transform ${
+            staticMode
+              ? "mt-16 w-full snap-x snap-mandatory overflow-x-auto"
+              : ""
+          }`}
+          style={{
+            gap: `${CG}px`,
+            paddingLeft: "50%",
+            paddingRight: staticMode ? "50%" : undefined,
+            transform: "translateX(0px)",
+          }}
+          onScroll={
+            staticMode
+              ? (event) => {
+                  const nextIndex = Math.max(
+                    0,
+                    Math.min(
+                      ITEMS.length - 1,
+                      Math.round(event.currentTarget.scrollLeft / (CW + CG)),
+                    ),
+                  );
+                  if (nextIndex !== activeIndexRef.current) {
+                    activeIndexRef.current = nextIndex;
+                    setActiveIndex(nextIndex);
+                  }
+                }
+              : undefined
+          }
+        >
+          {ITEMS.map((item) => (
+            <Link
+              key={item.id}
+              className={`carousel-card flex flex-shrink-0 snap-center flex-col items-center gap-3 ${item.bg}`}
+              style={{ width: `${CW}px`, height: `${CH}px` }}
+              href={`/product/${item.slug}`}
+              data-artwork="true"
+              aria-label={`Open ${item.title}`}
+            >
+              <div className="h-full w-full overflow-hidden">
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  width={CW}
+                  height={CH}
+                />
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div
+          data-chrome
+          className="absolute bottom-20 left-1/2 z-10 w-[60%] max-w-[600px] -translate-x-1/2"
+        >
+          <div className="h-[2px] w-full overflow-hidden rounded-full bg-current/20">
+            <div
+              className="h-full rounded-full bg-current"
+              style={{
+                width: `${ITEMS.length > 1 ? (activeIndex / (ITEMS.length - 1)) * 100 : 100}%`,
+              }}
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Journey rendering: the carousel is one of two absolutely positioned layers
+  // inside the single pinned stage; it owns only the horizontal outrun phase,
+  // translation driven by the master progress handed to it via `journey`.
   return (
     <section
       ref={sectionRef}
       aria-label="The ARTCOVR archive"
-      tabIndex={0}
-      className={`relative w-full ${
-        staticMode
-          ? "min-h-screen overflow-hidden py-20"
-          : "flex h-screen items-center overflow-hidden"
-      }`}
-      // Hardcoded cream against the inherited --foreground made the label, the
-      // counter and the bg-current progress bar render at 1.00:1 in dark theme,
-      // where --foreground is also #f3ecd9. Theme tokens pair correctly in all
-      // three themes. (--color-white is #f3ecd9 too, so it is no escape hatch.)
+      tabIndex={-1}
+      className="absolute inset-0 overflow-hidden"
       style={{ background: "var(--background)", color: "var(--foreground)" }}
     >
-      <div data-chrome className="absolute top-26 left-4 z-10 text-xs font-bold tracking-tight uppercase lg:left-6">
+      <div
+        data-chrome
+        className="absolute top-26 left-4 z-10 text-xs font-bold tracking-tight uppercase lg:left-6"
+      >
         <p>The ARTCOVR Archive</p>
       </div>
-      <div data-chrome className="absolute top-26 right-4 z-10 text-xs font-bold tracking-tight tabular-nums uppercase lg:right-6">
+      <div
+        data-chrome
+        className="absolute top-26 right-4 z-10 text-xs font-bold tracking-tight tabular-nums uppercase lg:right-6"
+      >
         <span>{String(activeIndex + 1).padStart(2, "0")}</span>
         <span className="opacity-40">
           {" "}/ {String(ITEMS.length).padStart(2, "0")}
@@ -270,68 +347,45 @@ export function TiltedCarousel() {
 
       <div
         ref={convergeRef}
-        className="absolute inset-0 flex items-center"
+        className="absolute inset-0 flex items-center will-change-transform"
         style={{ transform: "perspective(1200px) rotateX(0deg) scale(1)" }}
       >
-      <div
-        ref={trackRef}
-        className={`flex items-center will-change-transform ${
-          staticMode
-            ? "mt-16 w-full snap-x snap-mandatory overflow-x-auto"
-            : ""
-        }`}
-        style={{
-          gap: `${CG}px`,
-          paddingLeft: "50%",
-          paddingRight: staticMode ? "50%" : undefined,
-          transform: "translateX(0px)",
-        }}
-        onScroll={
-          staticMode
-            ? (event) => {
-                const nextIndex = Math.max(
-                  0,
-                  Math.min(
-                    ITEMS.length - 1,
-                    Math.round(event.currentTarget.scrollLeft / (CW + CG)),
-                  ),
-                );
-                if (nextIndex !== activeIndexRef.current) {
-                  activeIndexRef.current = nextIndex;
-                  setActiveIndex(nextIndex);
-                }
-              }
-            : undefined
-        }
-      >
-        {ITEMS.map((item) => (
-          <Link
-            key={item.id}
-            className={`carousel-card flex flex-shrink-0 snap-center flex-col items-center gap-3 ${item.bg}`}
-            style={{ width: `${CW}px`, height: `${CH}px` }}
-            href={`/product/${item.slug}`}
-            data-artwork="true"
-            aria-label={`Open ${item.title}`}
-          >
-            <div className="h-full w-full overflow-hidden">
-              <img
-                src={item.src}
-                alt={item.alt}
-                className="h-full w-full object-cover"
-                loading="lazy"
-                width={CW}
-                height={CH}
-              />
-            </div>
-          </Link>
-        ))}
-      </div>
+        <div
+          ref={trackRef}
+          className="flex items-center will-change-transform"
+          style={{ gap: `${CG}px`, paddingLeft: "50%", transform: "translateX(0px)" }}
+        >
+          {ITEMS.map((item) => (
+            <Link
+              key={item.id}
+              className={`carousel-card flex flex-shrink-0 snap-center flex-col items-center gap-3 ${item.bg}`}
+              style={{ width: `${CW}px`, height: `${CH}px` }}
+              href={`/product/${item.slug}`}
+              data-artwork="true"
+              aria-label={`Open ${item.title}`}
+            >
+              <div className="h-full w-full overflow-hidden">
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  width={CW}
+                  height={CH}
+                />
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      <div data-chrome className="absolute bottom-20 left-1/2 z-10 w-[60%] max-w-[600px] -translate-x-1/2">
+      <div
+        data-chrome
+        className="absolute bottom-20 left-1/2 z-10 w-[60%] max-w-[600px] -translate-x-1/2"
+      >
         <div className="h-[2px] w-full overflow-hidden rounded-full bg-current/20">
           <div
-            className="h-full rounded-full bg-current transition-all duration-300"
+            className="h-full rounded-full bg-current"
             style={{
               width: `${ITEMS.length > 1 ? (activeIndex / (ITEMS.length - 1)) * 100 : 100}%`,
             }}
