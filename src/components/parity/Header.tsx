@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 export function Header({
   onMenuToggle,
@@ -53,7 +54,7 @@ export function Header({
               </button>
             </li>
           </ul>
-          <div className="hidden h-[1.265625rem] w-[3.875rem] md:block" />
+          <ThemeSwitcher />
         </div>
       </div>
     </nav>
