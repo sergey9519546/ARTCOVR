@@ -1,15 +1,31 @@
 import { HttpError } from "./errors.ts";
 import { RasterValidationError, validateSquareWebp } from "./raster.ts";
 
-// Vercel AI Gateway is the default image-edit endpoint: it is
-// OpenAI-compatible and routes the `gpt-image-2` model behind a single
-// gateway key (`vck_*` provisioned as OPENAI_API_KEY). Override only to
-// fall back to the direct provider (e.g. local debugging).
+// `OPENAI_IMAGES_ENDPOINT` overrides the image-edit host for any provider.
+// The default is direct OpenAI; set this to `https://api.x.ai/v1/images/edits`
+// to route through xAI's grok-imagine adapter instead. The Vercel AI Gateway
+// (`ai-gateway.vercel.sh/v1/images/edits`) does NOT proxy image *edits* (only
+// `/v1/images/generations` for text-to-image), so it must never be the default.
 const endpoint =
   Deno.env.get("OPENAI_IMAGES_ENDPOINT") ??
-  "https://ai-gateway.vercel.sh/v1/images/edits";
+  "https://api.openai.com/v1/images/edits";
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 export const imageModel = Deno.env.get("OPENAI_IMAGE_MODEL") ?? "gpt-image-2-2026-04-21";
+
+// `IMAGE_PROVIDER` forces the request/response wire shape (`"openai"` multipart
+// form-data vs `"xai"` JSON with a base64 data-URI image). When unset the host
+// of `OPENAI_IMAGES_ENDPOINT` selects it (`api.x.ai` -> xai, otherwise openai).
+type ImageProvider = "openai" | "xai";
+const provider: ImageProvider = (() => {
+  const explicit = Deno.env.get("IMAGE_PROVIDER")?.toLowerCase();
+  if (explicit === "xai" || explicit === "openai") return explicit;
+  try {
+    const host = new URL(endpoint).host;
+    return host === "api.x.ai" || host.endsWith(".x.ai") ? "xai" : "openai";
+  } catch {
+    return "openai";
+  }
+})();
 
 type EditResult = { bytes: Uint8Array; requestId: string | null; usage: Record<string, unknown> };
 
