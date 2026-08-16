@@ -337,6 +337,7 @@ test("the approved catalog carries the owner-confirmed four-tier pricing distrib
   const rows = JSON.parse(
     await readFile(new URL("../../catalog/approved-artworks.json", import.meta.url), "utf8"),
   ) as Array<{
+    id: string;
     slug: string;
     saleMode: string;
     priceCents: number;
@@ -377,6 +378,38 @@ test("the approved catalog carries the owner-confirmed four-tier pricing distrib
     rows.filter((r) => r.saleMode === "repeatable").length,
     118,
     "118 repeatable rows (51 + 67)",
+  );
+
+  // Per-work exclusivity snapshot (ADR-019): the redistribution silently
+  // flipped 21 works from repeatable -> exclusive under a commit framed as
+  // "pricing confirmation". The count assertions above only guard the 51/118
+  // totals, so a future repricing could reassign WHICH works are one-of-a-kind
+  // while preserving those totals. This sorted id set pins the exact exclusive
+  // membership so any future reassignment requires an explicit, test-visible
+  // update to this constant (the decision record for exclusivity changes).
+  const EXCLUSIVE_IDS = [
+    "art_03f778b0a48c953089da", "art_0e872f93a29287069ecd", "art_0f35c7c5c3ddc2eec9eb",
+    "art_0fd601a7160d4f9facfd", "art_28045b4e171c65b43e14", "art_34484601883fc0dafcdf",
+    "art_36ff0ac7ef6f1644c861", "art_38bbfbb3cd7d931b2271", "art_4a75bfcdf2490e7a4b83",
+    "art_57e77b3c104fad05c99a", "art_5f394c1df8412dec9646", "art_6016a8ebb5d3f5a9f23d",
+    "art_6300243b12de93e8b568", "art_6baed7162ea6572b2434", "art_6da3a7473dbfdf826e6c",
+    "art_7042fab38aac05f1101f", "art_7665d24d25cbb3d2bb81", "art_77c70ed3ed2d410dbfd5",
+    "art_78dbbe3b64a54b0969a9", "art_8a1b6f2d3f74c098f243", "art_8c950047fe3756a2a5a4",
+    "art_8d7e7164e829ecdb2c96", "art_9401682d689b745117c1", "art_95b953c39ee6f78c922b",
+    "art_9acb2bf21ff1f0f4a954", "art_9fc168e232a06e37ad41", "art_a0fb88023bd8b3f74b72",
+    "art_a22e035c417e6e774d51", "art_a2de27b6021422e09b89", "art_a88d3b6f35817a318596",
+    "art_a9db588e9d9142ad503e", "art_a9e192edb2e42460375f", "art_aa6471f478e9dbbb275a",
+    "art_aa83f38d1426f968d7c2", "art_af133895ec864914fc62", "art_b3f4491ac7965631b3b1",
+    "art_bd41353a5408921c7d58", "art_c70963dfd83c1b3cd4dc", "art_c73360b8f81c50b57ad0",
+    "art_c757341870883fc1c55d", "art_d27b6457129241d3a6a6", "art_dfead6e9a75acb469725",
+    "art_e114dbcce2588ae7f0b8", "art_f271bff03a4a8bf3660c", "art_f2835117b4c4ae98b6e2",
+    "art_f602e6a079a278f92200", "art_f942e5b6d543fcd04fc0", "art_fd6312bbd6441c9e025a",
+    "art_fd84809ef1554e0a7869", "art_fe5ff95ceff9c926a109", "art_fe656bad878235933f3e",
+  ];
+  assert.deepEqual(
+    rows.filter((r) => r.saleMode === "exclusive").map((r) => r.id).sort(),
+    [...EXCLUSIVE_IDS].sort(),
+    "exclusive id set must match the ADR-019 snapshot — a future redistribution cannot silently flip a work's exclusivity (repeatable <-> exclusive) while preserving the 51/118 totals",
   );
 
   assert.equal(displayTiers.get("featured"), 92, "92 featured display rows");

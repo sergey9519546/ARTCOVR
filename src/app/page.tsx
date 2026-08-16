@@ -15,9 +15,8 @@ import { PageLayer } from "@/components/parity/PageLayer";
 import { PageTransition } from "@/components/parity/PageTransition";
 import { Preloader } from "@/components/parity/Preloader";
 import { ProductGrid } from "@/components/parity/ProductGrid";
+import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { ScrollProgress } from "@/components/parity/ScrollProgress";
-import { SpiralScroll } from "@/components/parity/SpiralScroll";
-import { TiltedCarousel } from "@/components/parity/TiltedCarousel";
 import { useLenis } from "@/hooks/artcovr/useLenis";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 
@@ -194,11 +193,8 @@ export default function Home() {
         <ErrorBoundary label="artwork-grid">
           <ProductGrid />
         </ErrorBoundary>
-        <ErrorBoundary label="carousel">
-          <TiltedCarousel />
-        </ErrorBoundary>
-        <ErrorBoundary label="spiral">
-          <SpiralScroll />
+        <ErrorBoundary label="journey">
+          <ScrollJourney enabled={preloaderDone && motionAllowed} />
         </ErrorBoundary>
         <ErrorBoundary label="editorial">
           <FullScreenSnap />

@@ -116,7 +116,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 width={450}
                 height={450}
                 decoding="async"
-                className="absolute aspect-square w-[30vw] object-cover md:w-[12vw]"
+                className="absolute aspect-square w-[28vw] object-cover md:w-[8vw]"
                 style={{
                   color: "transparent",
                   willChange: "transform",
@@ -124,14 +124,14 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                   transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)",
                   zIndex: index + 1,
                 }}
-                sizes="(max-width: 768px) 30vw, 12vw"
+                sizes="(max-width: 768px) 28vw, 8vw"
               />
             );
           })}
         </div>
         <div
           aria-hidden="true"
-          className="artcovr-wordmark text-cream relative mx-auto w-[28rem] max-w-[70vw] overflow-visible text-center text-[clamp(3.2rem,8vw,7.5rem)] mix-blend-difference md:max-w-none"
+          className="artcovr-wordmark text-cream relative mx-auto w-fit max-w-[88vw] overflow-visible text-center text-[clamp(2.8rem,9vw,8.5rem)] mix-blend-difference"
           style={{ zIndex: 20 }}
         >
           ARTCOVR
