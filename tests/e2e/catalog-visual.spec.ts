@@ -1,10 +1,15 @@
 ﻿import { expect, test } from "@playwright/test";
 
-import curatedPublic from "../../src/lib/artcovr/curated-public.json" with { type: "json" };
+import curatedReview from "../../src/lib/artcovr/curated-review.json" with { type: "json" };
 
-type PublicRow = { slug: string; tier?: "featured" | "archive" };
-const catalog = curatedPublic as PublicRow[];
-const featuredCount = catalog.filter((row) => row.tier === "featured").length;
+// The Playwright suite runs with NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING=1 (see
+// playwright.config.ts), so the app renders curated-review.json — 100 works
+// that carry no tier and therefore all default to the "featured" tier. Assert
+// against that catalog, which is what this build actually surfaces, rather than
+// curated-public (139), which only the production build uses.
+type ReviewRow = { slug: string; tier?: "featured" | "archive" };
+const catalog = curatedReview as ReviewRow[];
+const featuredCount = catalog.length;
 const archiveCount = catalog.length;
 const SPIRAL_CAP = 40;
 

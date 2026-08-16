@@ -327,7 +327,9 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       </div>
       <div
         ref={labelRef}
-        aria-hidden="true"
+        role="status"
+        aria-live="polite"
+        aria-label="Current artwork"
         className="pointer-events-none absolute bottom-32 left-1/2 z-20 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-bold tracking-tight uppercase"
         style={{
           opacity: 0,

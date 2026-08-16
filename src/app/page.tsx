@@ -19,7 +19,7 @@ import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { ScrollProgress } from "@/components/parity/ScrollProgress";
 import { useLenis } from "@/hooks/artcovr/useLenis";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
-import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
+import { STATIC_MEDIA_QUERY, REDUCED_MOTION_QUERY } from "@/lib/artcovr/motion";
 
 export default function Home() {
   const router = useRouter();
@@ -33,10 +33,15 @@ export default function Home() {
   useEffect(() => {
     setHydrated(true);
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
+    const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY);
     const updateMode = () => {
       const allowed = !mediaQuery.matches;
       setMotionAllowed(allowed);
-      if (!allowed) {
+      // The scroll journey stays static for coarse-pointer and narrow screens
+      // (`allowed` is false), but the intro still plays on those devices. Only
+      // reduced-motion bypasses the intro here; touch and narrow viewports wait
+      // for the Preloader's own completion callback (and the failsafe below).
+      if (reducedMotion.matches) {
         setPreloaderDone(true);
       }
     };

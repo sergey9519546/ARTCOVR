@@ -120,7 +120,19 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
           jobId.current = created.generationId;
         }
 
+        const startedAt = Date.now();
+        const MAX_POLL_ATTEMPTS = 90;
+        const POLL_DEADLINE_MS = 180_000;
+        let attempts = 0;
+
         const poll = async () => {
+          if (Date.now() - startedAt >= POLL_DEADLINE_MS || attempts >= MAX_POLL_ATTEMPTS) {
+            setMessage("Generation timed out. Your allowance was not used.");
+            setPhase("error");
+            return;
+          }
+          attempts += 1;
+
           const status = await getGenerationStatus(jobId.current!);
           if (!active) return;
 

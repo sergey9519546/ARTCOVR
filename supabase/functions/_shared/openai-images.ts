@@ -1,5 +1,5 @@
 import { HttpError } from "./errors.ts";
-import { RasterValidationError, validateSquareWebp } from "./raster.ts";
+import { RasterValidationError, validateSquareRaster } from "./raster.ts";
 
 // `OPENAI_IMAGES_ENDPOINT` overrides the image-edit host for any provider.
 // The default is direct OpenAI; set this to `https://api.x.ai/v1/images/edits`
@@ -27,7 +27,7 @@ const provider: ImageProvider = (() => {
   }
 })();
 
-type EditResult = { bytes: Uint8Array; requestId: string | null; usage: Record<string, unknown> };
+type EditResult = { bytes: Uint8Array; requestId: string | null; usage: Record<string, unknown>; format: "webp" | "png" | "jpeg" };
 
 const maximumOutputBytes = 20 * 1024 * 1024;
 
@@ -89,7 +89,8 @@ function base64EncodeBytes(bytes: Uint8Array): string {
   let binary = "";
   const chunkSize = 0x8000;
   for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)));
+    const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+    binary += String.fromCharCode.apply(null, chunk as unknown as number[]);
   }
   return btoa(binary);
 }
@@ -171,26 +172,26 @@ async function editImageOpenai(source: Blob, prompt: string, purchased: boolean)
   const payload = await response.json().catch(() => null);
   const b64 = payload?.data?.[0]?.b64_json;
   if (typeof b64 !== "string") throw new HttpError(502, "openai_invalid_response", "Image API returned no raster output.");
-  return { bytes: decodeB64Json(b64), requestId: response.headers.get("x-request-id"), usage: payload?.usage ?? {} };
+  return { bytes: decodeB64Json(b64), requestId: response.headers.get("x-request-id"), usage: payload?.usage ?? {}, format: "webp" };
 }
 
 async function editImageXai(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
-  // xAI's /v1/images/edits accepts a JSON body with the source image as a
-  // base64 data-URI (`image.url`) rather than multipart form-data. It returns
-  // `data[0].url` by default; requesting `response_format: "b64_json"` avoids a
-  // second round-trip when the provider honors it, otherwise we download the
-  // URL. `output_format: "webp"` is passed best-effort so the clean deliverable
-  // stays a square WebP — if xAI ignores it the shared validator rejects the
-  // raster before it ever reaches storage.
+  // xAI's /v1/images/edits takes a JSON body with the source image as a base64
+  // data-URI in `image.url` (`type: "image_url"` matches every official example).
+  // xAI exposes neither a request-side codec control nor a `quality` field; the
+  // response `data[0].mime_type` is whatever the model emits (png | jpeg | webp).
+  // Dimensions are set by `aspect_ratio: "1:1"` + `resolution` ("1k" | "2k"), so
+  // the shared validator enforces the catalog's exact square size regardless of
+  // the native codec. `response_format: "b64_json"` avoids a second download
+  // round-trip when honored; otherwise `data[0].url` is followed below.
   const dataUri = await blobToBase64DataUri(source);
   const body = {
     model: imageModel,
     prompt,
     n: 1,
-    image: { url: dataUri },
-    size: purchased ? "2048x2048" : "1024x1024",
-    quality: purchased ? "high" : "medium",
-    output_format: "webp",
+    aspect_ratio: "1:1",
+    resolution: purchased ? "2k" : "1k",
+    image: { url: dataUri, type: "image_url" },
     response_format: "b64_json",
   };
   const controller = new AbortController();
@@ -213,12 +214,14 @@ async function editImageXai(source: Blob, prompt: string, purchased: boolean): P
   const payload = await response.json().catch(() => null);
   const item = payload?.data?.[0];
   const requestId = response.headers.get("x-request-id") ?? (typeof payload?.id === "string" ? payload.id : null);
+  const mimeType = typeof item?.mime_type === "string" ? item.mime_type : "image/webp";
+  const format = mimeType === "image/png" ? "png" : mimeType === "image/jpeg" ? "jpeg" : "webp";
   const b64 = typeof item?.b64_json === "string" ? item.b64_json : null;
-  if (b64) return { bytes: decodeB64Json(b64), requestId, usage: payload?.usage ?? {} };
+  if (b64) return { bytes: decodeB64Json(b64), requestId, usage: payload?.usage ?? {}, format };
   const url = typeof item?.url === "string" ? item.url : null;
   if (!url) throw new HttpError(502, "openai_invalid_response", "Image API returned no raster output.");
   const downloaded = await downloadImageBytes(url);
-  return { bytes: downloaded.bytes, requestId: downloaded.requestId ?? requestId, usage: payload?.usage ?? {} };
+  return { bytes: downloaded.bytes, requestId: downloaded.requestId ?? requestId, usage: payload?.usage ?? {}, format };
 }
 
 export async function editImage(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
@@ -227,7 +230,8 @@ export async function editImage(source: Blob, prompt: string, purchased: boolean
     ? await editImageXai(source, prompt, purchased)
     : await editImageOpenai(source, prompt, purchased);
   try {
-    validateSquareWebp(result.bytes, purchased ? 2048 : 1024, maximumOutputBytes);
+    const validated = validateSquareRaster(result.bytes, purchased ? 2048 : 1024, maximumOutputBytes);
+    result.format = validated.format;
   } catch (error) {
     if (error instanceof RasterValidationError) {
       console.error(`${provider} raster validation failed`, {

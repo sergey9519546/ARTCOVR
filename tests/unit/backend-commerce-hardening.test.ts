@@ -178,7 +178,7 @@ test("the worker refuses a watermark renderer that returns the clean image", asy
   // The passthrough check must precede the preview upload so a clean original
   // is never stored under the watermarked preview key.
   const check = worker.indexOf("digestsMatch(cleanDigest, previewDigest)");
-  const previewUpload = worker.indexOf("uploadPrivate(keys.preview", check);
+  const previewUpload = worker.indexOf("uploadPrivate(previewKey", check);
   assert.ok(check > 0 && previewUpload > check, "passthrough must be detected before the preview upload");
 });
 

@@ -4,7 +4,7 @@ import { editImage, imageModel } from "../_shared/openai-images.ts";
 import { postgresHttpError } from "../_shared/postgres-errors.ts";
 import { admin, readJson, requireUser } from "../_shared/supabase.ts";
 import { digestsMatch, sha256Hex } from "../_shared/raster.ts";
-import { downloadPrivate, outputKeys, removePrivate, signPrivate, uploadPrivate } from "../_shared/storage.ts";
+import { downloadPrivate, outputKeys, removePrivate, signPrivate, uploadPrivate, mimeTypeFor } from "../_shared/storage.ts";
 import { rasterizePreview } from "../_shared/watermark.ts";
 
 type RequestBody = {
@@ -21,15 +21,16 @@ async function release(id: string, status: "blocked" | "failed" | "timed_out", c
 }
 
 async function runGeneration(generationId: string, userId: string, running: { artwork_id: string; purchase_id: string | null; prompt: string; source_object_key: string }) {
-  const keys = outputKeys(running.artwork_id, generationId);
+  const previewKey = outputKeys(running.artwork_id, generationId).preview;
   const uploaded: string[] = [];
   let finalized = false;
   try {
     const source = await downloadPrivate(running.source_object_key);
     const result = await editImage(source, running.prompt, Boolean(running.purchase_id));
-    await uploadPrivate(keys.clean, result.bytes);
-    uploaded.push(keys.clean);
-    const cleanForRenderer = await signPrivate(keys.clean, 60);
+    const cleanKey = outputKeys(running.artwork_id, generationId, result.format).clean;
+    await uploadPrivate(cleanKey, result.bytes, mimeTypeFor(result.format));
+    uploaded.push(cleanKey);
+    const cleanForRenderer = await signPrivate(cleanKey, 60);
     const watermarked = await rasterizePreview(cleanForRenderer, running.purchase_id ? 2048 : 1024);
     const [cleanDigest, previewDigest] = await Promise.all([
       sha256Hex(result.bytes),
@@ -40,10 +41,10 @@ async function runGeneration(generationId: string, userId: string, running: { ar
     if (digestsMatch(cleanDigest, previewDigest)) {
       throw new HttpError(502, "watermark_passthrough", "Raster watermark renderer returned the clean image unchanged.");
     }
-    await uploadPrivate(keys.preview, watermarked);
-    uploaded.push(keys.preview);
+    await uploadPrivate(previewKey, watermarked, "image/webp");
+    uploaded.push(previewKey);
     const { data: completed, error: completeError } = await admin.rpc("complete_generation", {
-      p_generation_id: generationId, p_preview_object_key: keys.preview, p_clean_object_key: keys.clean,
+      p_generation_id: generationId, p_preview_object_key: previewKey, p_clean_object_key: cleanKey,
       p_openai_request_id: result.requestId, p_usage: result.usage,
     });
     if (completeError || !completed) throw new HttpError(409, "generation_finalize_failed", "Generation could not be finalized.");

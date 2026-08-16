@@ -37,10 +37,10 @@ export function Header({
         <div className="flex items-center gap-3 md:gap-16">
           <ul className="text-md flex gap-8 tracking-tight md:items-center md:gap-16 md:text-2xl">
             <li className="hidden md:block">
-              <Link className="link-hover" data-selected={archiveSelected || undefined} aria-current={archiveSelected ? "page" : undefined} href="/archive">archive</Link>
+              <Link className="link-hover" data-selected={archiveSelected || undefined} aria-current={archiveSelected ? "page" : undefined} href="/archive">Archive</Link>
             </li>
             <li>
-              <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">my cart</Link>
+              <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">My Images</Link>
             </li>
             <li className="md:hidden">
               <button

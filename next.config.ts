@@ -80,7 +80,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/(.*)", headers: securityHeaders },
-      { source: "/api/:path*", headers: privateRouteHeaders },
       { source: "/auth/:path*", headers: privateRouteHeaders },
       { source: "/checkout/:path*", headers: privateRouteHeaders },
       { source: "/my-images", headers: privateRouteHeaders },

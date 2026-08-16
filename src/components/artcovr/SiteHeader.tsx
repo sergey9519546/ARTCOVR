@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MobileMenu } from "@/components/parity/MobileMenu";
+import { ThemeToggle } from "@/components/artcovr/ThemeToggle";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/archive", label: "archive" },
-  { href: "/my-images", label: "my cart" },
+  { href: "/archive", label: "Archive" },
+  { href: "/my-images", label: "My Images" },
   { href: "/about", label: "About" },
 ];
 
@@ -16,6 +17,10 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  useEffect(() => {
+    document.documentElement.classList.add("loaded");
+  }, []);
 
   return (
     <>
@@ -44,7 +49,8 @@ export function SiteHeader() {
               </Link>
             ))}
             <Link href="/sign-in" className="link-hover flex min-h-11 items-center">Sign in</Link>
-          </div>
+              <ThemeToggle />
+            </div>
           <button
             type="button"
             onClick={() => setMenuOpen(true)}

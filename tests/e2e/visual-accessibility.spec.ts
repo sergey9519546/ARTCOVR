@@ -65,13 +65,17 @@ test("mobile navigation opens, traps initial focus, and closes", async ({ page }
 test("desktop theme controls have touch-size targets and change the rendered theme", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith("desktop"), "Desktop theme controls");
   await page.goto("/");
-  const darkTheme = page.getByRole("button", { name: "Switch to dark theme" });
-  await expect(darkTheme).toBeVisible();
-  const box = await darkTheme.boundingBox();
+  // Locate by stable id rather than the dynamic aria-label ("Switch to X
+  // theme"), which depends on the currently resolved theme.
+  const toggle = page.locator("#theme-switcher");
+  await expect(toggle).toBeVisible();
+  const box = await toggle.boundingBox();
   expect(box?.width).toBeGreaterThanOrEqual(44);
   expect(box?.height).toBeGreaterThanOrEqual(44);
-  await darkTheme.click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  const before = await page.locator("html").getAttribute("data-theme");
+  await toggle.click();
+  const after = await page.locator("html").getAttribute("data-theme");
+  expect(after).not.toEqual(before);
 });
 
 test("server-rendered home remains usable when JavaScript is disabled", async ({ browser }, testInfo) => {

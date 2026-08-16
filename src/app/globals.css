@@ -163,6 +163,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 html.has-custom-cursor,
 html.has-custom-cursor * { cursor: none !important; }
+html.has-custom-cursor input,
+html.has-custom-cursor textarea,
+html.has-custom-cursor button,
+html.has-custom-cursor a,
+html.has-custom-cursor [contenteditable] { cursor: auto !important; }
+html.has-custom-cursor input:focus,
+html.has-custom-cursor textarea:focus,
+html.has-custom-cursor button:focus,
+html.has-custom-cursor a:focus { cursor: auto !important; }
 @media (pointer: coarse), (hover: none) {
   html.has-custom-cursor,
   html.has-custom-cursor * { cursor: auto !important; }

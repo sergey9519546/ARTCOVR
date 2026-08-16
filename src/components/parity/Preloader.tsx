@@ -5,17 +5,20 @@ import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/ar
 
 const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 6);
 const ROTATIONS = [9.98, -12.43, -2.99, -6.51, 17.67, -1.09];
+// The counter is paced as a slow crawl that accelerates into a ramp: it dwells
+// in the low single digits for a long time (the "really slow start"), then the
+// gaps between steps shrink and the increments grow as it ramps toward 100.
 const COUNTER_STEPS = [
-  { d: 800, v: 1 }, { d: 1100, v: 4 }, { d: 1300, v: 9 },
-  { d: 1500, v: 16 }, { d: 1700, v: 29 }, { d: 1900, v: 76 },
-  { d: 2100, v: 86 }, { d: 2300, v: 94 }, { d: 2500, v: 98 },
-  { d: 2700, v: 100 },
+  { d: 1100, v: 1 }, { d: 1600, v: 2 }, { d: 2050, v: 4 },
+  { d: 2450, v: 9 }, { d: 2800, v: 16 }, { d: 3100, v: 29 },
+  { d: 3350, v: 52 }, { d: 3550, v: 76 }, { d: 3700, v: 92 },
+  { d: 3780, v: 100 },
 ];
-const IMAGE_START = 600;
-const IMAGE_INTERVAL = 120;
-const EXIT_TIME = 2900;
-const COMPLETE_TIME = 3500;
-const DISMISS_TIME = 3700;
+const IMAGE_START = 840;
+const IMAGE_INTERVAL = 168;
+const EXIT_TIME = 4060;
+const COMPLETE_TIME = 4900;
+const DISMISS_TIME = 5180;
 
 export function Preloader({ onComplete }: { onComplete?: () => void }) {
   const [visibleImages, setVisibleImages] = useState(0);
@@ -30,11 +33,14 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
 
   useEffect(() => {
     document.documentElement.classList.add("ready");
-    const staticExperience = window.matchMedia(
-      "(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)",
+    // The intro plays on touch and narrow screens too. Only reduced-motion
+    // users skip it — coarse pointer and a small viewport keep the experience
+    // and reach the static scroll journey through the home-page gate instead.
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    if (staticExperience) {
+    if (reducedMotion) {
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
@@ -60,7 +66,8 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
     // Keyboard users must never be locked out of the page by the intro:
     // any key press (Tab toward the skip link, Enter, Escape) dismisses the
     // preloader immediately so the inert main content becomes reachable.
-    const skipIntro = () => {
+    const skipIntro = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" && e.key !== "Tab" && e.key !== "Enter") return;
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
@@ -103,10 +110,17 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
          * The archive intro stacks every cover on the exact same centre point,
          * each one rotated and punched in from scale 0. The cards must not be
          * fanned apart across the viewport: the overlap is the effect.
+         *
+         * On exit the stack does NOT hold as a final cover lockup: every card
+         * collapses back to scale 0 (scales down out of the way) while the
+         * curtain wipes up, so the held frame is the real hero behind, not a
+         * blue cover. The build punch-in is untouched — only `exited` reads
+         * here, and it stays false until the counter reaches 100.
          */}
         <div className="fixed inset-0 flex items-center justify-center" style={{ contain: "layout paint style" }}>
           {PRELOADER_IMAGES.map((artwork, index) => {
             const visible = index < visibleImages;
+            const shown = visible && !exited;
             return (
               <img
                 key={artwork.id}
@@ -120,7 +134,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 style={{
                   color: "transparent",
                   willChange: "transform",
-                  transform: `translate3d(0,0,0) rotate(${ROTATIONS[index]}deg) scale(${visible ? 1 : 0})`,
+                  transform: `translate3d(0,0,0) rotate(${ROTATIONS[index]}deg) scale(${shown ? 1 : 0})`,
                   transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)",
                   zIndex: index + 1,
                 }}
@@ -132,7 +146,11 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
         <div
           aria-hidden="true"
           className="artcovr-wordmark text-cream relative mx-auto w-fit max-w-[88vw] overflow-visible text-center text-[clamp(2.8rem,9vw,8.5rem)] mix-blend-difference"
-          style={{ zIndex: 20 }}
+          style={{
+            zIndex: 20,
+            opacity: exited ? 0 : 1,
+            transition: "opacity 0.4s cubic-bezier(0.19,1,0.22,1)",
+          }}
         >
           ARTCOVR
         </div>
