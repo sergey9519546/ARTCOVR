@@ -324,6 +324,66 @@ test("the approved artifact has no stale rights-contradiction flags once the own
   assert.deepEqual(report.blockers, [], "EMPTY_APPROVAL_SET blocker must be cleared post ADR-018");
 });
 
+test("the approved catalog carries the owner-confirmed four-tier pricing distribution (ADR-019)", async () => {
+  // ADR-019 supersedes ADR-017: the four-tier pricing structure is owner-approved.
+  // The launch catalog grew from 100 -> 169 rows (commit 12bbcd9 added 69 works);
+  // the four price tiers scale proportionally across the full 169-row set:
+  //   $200 x17 exclusive, $80 x34 exclusive, $35 x51 repeatable, $10 x67 repeatable
+  //   (51 exclusive / 118 repeatable). A display `tier` field (featured/archive/delete)
+  // was introduced with the expansion: 92 featured, 47 archive, 30 delete.
+  // This test pins the confirmed price-tier distribution AND the display tiers so a
+  // future swap or re-import cannot silently change pricing or launch visibility
+  // without an explicit decision.
+  const rows = JSON.parse(
+    await readFile(new URL("../../catalog/approved-artworks.json", import.meta.url), "utf8"),
+  ) as Array<{
+    slug: string;
+    saleMode: string;
+    priceCents: number;
+    tier?: string;
+    rightsApproved?: boolean;
+  }>;
+
+  // Every priced row must be rights-approved and carry an explicit display tier.
+  for (const row of rows) {
+    assert.equal(row.rightsApproved, true, `${row.slug}: ADR-018 + ADR-019 require rightsApproved===true`);
+    assert.ok(
+      row.tier === "featured" || row.tier === "archive" || row.tier === "delete",
+      `${row.slug}: display tier must be featured|archive|delete, got ${String(row.tier)}`,
+    );
+  }
+
+  const priceTiers = new Map<string, number>();
+  const displayTiers = new Map<string, number>();
+  for (const row of rows) {
+    const priceKey = `${row.saleMode}|${row.priceCents}`;
+    priceTiers.set(priceKey, (priceTiers.get(priceKey) ?? 0) + 1);
+    if (row.tier) displayTiers.set(row.tier, (displayTiers.get(row.tier) ?? 0) + 1);
+  }
+
+  assert.equal(rows.length, 169, "approved-artworks.json: 169 rows (100 launch + 69 expansion)");
+  assert.equal(priceTiers.get("exclusive|20000"), 17, "exclusive @ $20000 ($200): 17 rows");
+  assert.equal(priceTiers.get("exclusive|8000"), 34, "exclusive @ $8000 ($80): 34 rows");
+  assert.equal(priceTiers.get("repeatable|3500"), 51, "repeatable @ $3500 ($35): 51 rows");
+  assert.equal(priceTiers.get("repeatable|1000"), 67, "repeatable @ $1000 ($10): 67 rows");
+  assert.equal(priceTiers.size, 4, "exactly four price-tier combinations");
+
+  assert.equal(
+    rows.filter((r) => r.saleMode === "exclusive").length,
+    51,
+    "51 exclusive rows (17 + 34)",
+  );
+  assert.equal(
+    rows.filter((r) => r.saleMode === "repeatable").length,
+    118,
+    "118 repeatable rows (51 + 67)",
+  );
+
+  assert.equal(displayTiers.get("featured"), 92, "92 featured display rows");
+  assert.equal(displayTiers.get("archive"), 47, "47 archive display rows");
+  assert.equal(displayTiers.get("delete"), 30, "30 delete display rows");
+});
+
 test("thinned style-cluster works are removed from source and kept as audit records", async () => {
   const removed = [
     "city-reflection-bowl",

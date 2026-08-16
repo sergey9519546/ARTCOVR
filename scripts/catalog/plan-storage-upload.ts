@@ -51,6 +51,14 @@ if (build.issues.length > 0) {
 }
 if (build.rows.length === 0) throw new Error("EMPTY_APPROVED_CATALOG");
 
+// Delete-tier rows never reach the storefront: their display derivatives are
+// removed from public/ and nothing may be sold, so nothing gets uploaded.
+const deleteTierIds = new Set(
+  (approved as Array<{ id?: unknown; tier?: unknown }>)
+    .filter((row) => row.tier === "delete" && typeof row.id === "string")
+    .map((row) => row.id as string),
+);
+
 const sourceMap = JSON.parse(await readFile(sourceMapPath, "utf8")) as Array<{
   id: string;
   sha256: string;
@@ -61,6 +69,7 @@ if (sourceById.size !== sourceMap.length) throw new Error("Private source map co
 
 const entries: PlannedArtwork[] = [];
 for (const row of build.rows) {
+  if (deleteTierIds.has(row.catalogId)) continue;
   const source = sourceById.get(row.catalogId);
   if (!source || source.sha256 !== row.sourceSha256) {
     throw new Error(`Private source identity mismatch for ${row.catalogId}.`);
