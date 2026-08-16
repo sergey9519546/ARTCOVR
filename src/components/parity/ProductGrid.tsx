@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ProductCard } from "./ProductCard";
 // The home grid renders the featured tier only (owner rule: green works on the
 // front page, archive works on /archive). Aliased to the historical name so the
 // motion/parity source contracts keep matching.
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+
+const ARTWORK_IMAGE_FALLBACK = "/assets/artwork-placeholder.svg";
 
 function hasRange(min: number, max: number) {
   return displayArtworks.length >= min && displayArtworks.length <= max;
@@ -21,6 +23,37 @@ const CLAMPED_TRAILING_CARDS = 16;
 
 export function ProductGrid() {
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const applyFallback = (image: HTMLImageElement) => {
+      if (image.dataset.artworkFallback === "true") return;
+      image.dataset.artworkFallback = "true";
+      image.src = ARTWORK_IMAGE_FALLBACK;
+    };
+
+    const recoverAlreadyBroken = () => {
+      document
+        .querySelectorAll<HTMLImageElement>('a[data-artwork="true"] img')
+        .forEach((image) => {
+          if (image.complete && image.naturalWidth === 0) applyFallback(image);
+        });
+    };
+
+    const handleImageError = (event: Event) => {
+      const image = event.target;
+      if (!(image instanceof HTMLImageElement)) return;
+      if (!image.closest('a[data-artwork="true"]')) return;
+      applyFallback(image);
+    };
+
+    // Image `error` does not bubble, so capture it at the document. This covers
+    // the grid, archive carousel and spiral with one recovery path while keeping
+    // every valid private-staging image untouched.
+    document.addEventListener("error", handleImageError, true);
+    recoverAlreadyBroken();
+
+    return () => document.removeEventListener("error", handleImageError, true);
+  }, []);
 
   if (displayArtworks.length === 0) return null;
   const isPartialCatalog = hasRange(4, 7);
