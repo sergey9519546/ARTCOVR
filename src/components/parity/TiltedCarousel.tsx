@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 import { clamp01, journeyPhases, type JourneyStore } from "./journey";
 
 const ITEMS = displayArtworks.map((artwork, index) => ({
@@ -29,8 +30,6 @@ function computeCardSize(viewportHeight: number) {
   );
 }
 
-const STATIC_MEDIA_QUERY =
-  "(prefers-reduced-motion: reduce), (pointer: coarse)";
 const SCROLL_PIXELS_PER_CARD = 170;
 
 export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
@@ -157,9 +156,11 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
     };
 
     const unregister = journey.register(update);
-    // Seed the live frame so a reload deep inside the journey doesn't open on
-    // the first card while the real progress is somewhere mid-rail.
-    syncFocusWindow((maxTravel));
+    // register() already invokes update() with the LIVE master progress above,
+    // which seeds both the track transform and the focus window to the current
+    // station. The previous manual syncFocusWindow(maxTravel) seed reset the
+    // tab-window to the LAST card immediately after, desyncing tabIndex from the
+    // real track position (and focus) until the next scroll fired an onUpdate.
 
     return () => {
       unregister();
@@ -208,7 +209,16 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
       const scrollPerCard = (pinScroll * (CW + CG)) / maxTravel;
       const targetY =
         window.scrollY + (nextIndex - currentIndex) * scrollPerCard;
-      window.scrollTo({ top: targetY, behavior: "smooth" });
+      // Route through Lenis when it owns the scroll engine so the smooth motion
+      // is single-sourced; a native window.scrollTo({behavior:"smooth"}) would
+      // fight Lenis' own rAF and lurch.
+      const lenis = (
+        window as Window & {
+          __lenis?: { scrollTo: (t: number, o?: { immediate?: boolean }) => void };
+        }
+      ).__lenis;
+      if (lenis) lenis.scrollTo(targetY);
+      else window.scrollTo({ top: targetY, behavior: "smooth" });
     };
 
     section.addEventListener("keydown", onKey);

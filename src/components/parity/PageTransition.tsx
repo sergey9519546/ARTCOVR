@@ -9,7 +9,7 @@ export function PageTransition({ active, onComplete }: { active: boolean; onComp
       setPhase("idle");
       return;
     }
-    if (window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)").matches) {
       setPhase("done");
       onComplete?.();
       return;

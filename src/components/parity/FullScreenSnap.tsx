@@ -4,11 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 
 const MARQUEE =
   "COVER ART, MADE YOURS • SELECT AN ARTWORK • PROMPT A CHANGE • KEEP ITERATING • PURCHASE AND DOWNLOAD • ";
-const STATIC_MEDIA_QUERY =
-  "(prefers-reduced-motion: reduce), (pointer: coarse)";
 
 const SECTIONS = [
   {
@@ -119,7 +118,7 @@ export function FullScreenSnap() {
   if (displayArtworks.length === 0) return null;
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div ref={wrapperRef} id="editorial" tabIndex={-1} className="relative scroll-mt-0 focus:outline-none">
       {/*
         * The bar paints the theme ground, not a fixed cream. `bg-cream` is the
         * same #f3ecd9 as `--foreground` in the dark theme, so the marquee text

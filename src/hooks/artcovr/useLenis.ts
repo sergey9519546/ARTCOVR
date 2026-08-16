@@ -4,9 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-const STATIC_MEDIA_QUERY =
-  "(prefers-reduced-motion: reduce), (pointer: coarse)";
+import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 
 export function useLenis(enabled = true) {
   useEffect(() => {
@@ -27,6 +25,15 @@ export function useLenis(enabled = true) {
     lenis.on("scroll", ScrollTrigger.update);
     refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 100);
 
+    // Bfcache restore does not re-run effects and leaves ScrollTrigger pinned at
+    // pre-leave coordinates (the document may have scrolled elsewhere in the
+    // history stack). Forcing a refresh resynchronises the pin when the page is
+    // restored from the back/forward cache.
+    const handlePageshow = (event: PageTransitionEvent) => {
+      if (event.persisted) ScrollTrigger.refresh();
+    };
+    window.addEventListener("pageshow", handlePageshow);
+
     const render = (time: number) => {
       lenis.raf(time);
       animationFrame = window.requestAnimationFrame(render);
@@ -36,6 +43,7 @@ export function useLenis(enabled = true) {
     return () => {
       window.clearTimeout(refreshTimer);
       window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("pageshow", handlePageshow);
       lenis.off("scroll", ScrollTrigger.update);
       lenis.destroy();
       delete (window as Window & { __lenis?: Lenis }).__lenis;

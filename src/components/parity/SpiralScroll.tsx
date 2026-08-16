@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 import { journeyPhases, smoothstep, type JourneyStore } from "./journey";
 
 const MAX_SPIRAL_ITEMS = 40;
@@ -15,8 +16,6 @@ function sampleSpiralItems(offset: number) {
     return displayArtworks[(sourceIndex + offset) % displayArtworks.length];
   });
 }
-const STATIC_MEDIA_QUERY =
-  "(prefers-reduced-motion: reduce), (pointer: coarse)";
 const ITEMS = sampleSpiralItems(0);
 
 /*

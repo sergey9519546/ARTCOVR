@@ -19,9 +19,7 @@ import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { ScrollProgress } from "@/components/parity/ScrollProgress";
 import { useLenis } from "@/hooks/artcovr/useLenis";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
-
-const STATIC_MEDIA_QUERY =
-  "(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)";
+import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 
 export default function Home() {
   const router = useRouter();
@@ -55,9 +53,14 @@ export default function Home() {
     document.documentElement.classList.add("loaded");
     gsap.registerPlugin(ScrollTrigger);
     const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 100);
+    const refreshOnLoad = () => ScrollTrigger.refresh();
+    if (document.readyState !== "complete") {
+      window.addEventListener("load", refreshOnLoad, { once: true });
+    }
 
     return () => {
       window.clearTimeout(refreshTimer);
+      window.removeEventListener("load", refreshOnLoad);
       document.documentElement.classList.remove("loaded");
     };
   }, [preloaderDone]);
@@ -139,6 +142,9 @@ export default function Home() {
     <>
       <a href="#page" className="skip-link">
         Skip to content
+      </a>
+      <a href="#editorial" className="skip-link">
+        Skip archive journey
       </a>
       <ErrorBoundary label="scroll-progress">
         <ScrollProgress />

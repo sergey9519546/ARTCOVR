@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import { featuredArtworks } from "@/lib/artcovr/artworks";
+import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 import { TiltedCarousel } from "./TiltedCarousel";
 import { SpiralScroll } from "./SpiralScroll";
 import {
@@ -14,8 +15,6 @@ import {
   type JourneyStore,
 } from "./journey";
 
-const STATIC_MEDIA_QUERY =
-  "(prefers-reduced-motion: reduce), (pointer: coarse)";
 
 export function ScrollJourney({ enabled }: { enabled: boolean }) {
   const rootRef = useRef<HTMLElement | null>(null);
