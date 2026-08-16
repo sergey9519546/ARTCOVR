@@ -89,4 +89,8 @@ skills-lock.json
 **/*.PROPOSED.ts
 scripts/catalog/__pycache__/
 
+# Local journey visual-debug sweep — scratch fixture with hardcoded local paths
+journey-sweep.mjs
+
+
 
