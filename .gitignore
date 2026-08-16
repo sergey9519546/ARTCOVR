@@ -92,5 +92,8 @@ scripts/catalog/__pycache__/
 # Local journey visual-debug sweep — scratch fixture with hardcoded local paths
 journey-sweep.mjs
 
+# Qwen CLI local scratch (temp files, computed artifacts)
+.qwen/
+
 
 
