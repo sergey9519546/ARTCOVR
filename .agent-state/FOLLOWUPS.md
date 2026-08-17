@@ -13,13 +13,13 @@ captured in the session log. Rotate it before any further remote work.
 - After rotation: update anywhere the token is stored (none on disk in this repo).
 - Done when: the old token returns 403 on any `supabase` CLI call.
 
-## [2026-08-15] Merge PR #2
-PR #2 (`fix/audit-remediation-2026-08-15` -> `artcovr-storefront`) is OPEN and
-ready for squash-merge. The branch now carries the full post-audit remediation:
+## [2026-08-15] PR #2 Merged (was OPEN)
+PR #2 (`fix/audit-remediation-2026-08-15` -> `artcovr-storefront`) was **MERGED as `04184c7`** on 2026-08-15.
+The squash-merge carried the full post-audit remediation:
 
-- ADR-018 rights reconciliation + ADR-017/019 pricing (deferred -> owner-confirmed four-tier).
-- Catalog expansion 100 -> 169 rows with proportional four-tier pricing
-  ($200x17 / $80x34 / $35x51 / $10x67) and display `tier` (featured/archive/delete).
+- ADR-018 rights reconciliation + ADR-017/019 pricing (deferred → owner-confirmed four-tier).
+- Catalog expansion 100 → 169 rows with proportional four-tier pricing
+  ($200×17 / $80×34 / $35×51 / $10×67) and display `tier` (featured/archive/delete).
 - Live Supabase rollout (11 migrations applied), watchdog crons + edge functions
   deployed and verified returning HTTP 200.
 - Vercel-target cutover: `public/_headers` + `public/_redirects` removed, `vercel.json`
@@ -27,4 +27,3 @@ ready for squash-merge. The branch now carries the full post-audit remediation:
 
 URL: https://github.com/sergey9519546/ARTCOVR/pull/2
 Verification: `npm run verify` green (144 pass / 0 fail), typecheck, lint, build clean.
-Base is `artcovr-storefront`; no conflicts expected.

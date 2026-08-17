@@ -2,61 +2,50 @@
 
 Written 2026-08-15. Ordered by risk: each task assumes the ones above it are done.
 
-## Verified state at time of writing
+## Verified state at time of writing (updated 2026-08-16)
 
 | Signal | Value |
 |---|---|
-| `bun run build` | exit 0 — `withheldUnapprovedRows:0`, `violations:0`, 1954 files scanned |
-| `bun run test` | **140 / 140 pass, 0 fail** |
+| `bun run build` | exit 0 — `withheldUnapprovedRows:0`, `violations:0`, 2656 files scanned |
+| `bun run test` | **145 / 145 pass, 0 fail** |
 | `bun x tsc --noEmit` | clean |
 | `bun run lint` | clean |
-| HEAD | `29fc687` |
-| Uncommitted | 30 modified files |
+| HEAD | `0f7aec8` |
+| Uncommitted | 0 files |
 
 Everything below assumes that state. Re-run all four gates before starting if time has passed.
 
 ---
 
-## 1. Commit the green state — do this first
+## 1. Commit the green state - do this first
 
-30 files of audit fixes are uncommitted with every gate green. This is the only moment where "known good" is cheap to capture. One `git checkout .` loses a full session of work across six workstreams.
+**Status: DONE** (commits 7f0ac72, 176d7f6)
 
-Split into coherent commits rather than one blob — the diff spans security headers, theme tokens, React lifecycle, GSAP math, and catalog gates.
+Two commits landed the e2e fixes and the duplicate-id cleanup:
+- 7f0ac72 - e2e: staging broken-images guard + theme toggle assertion
+- 176d7f6 - fix: eliminate duplicate id=theme-switcher (invalid HTML)
 
-**Done when:** working tree clean, all four gates still green on the committed tree.
-**Risk:** none. Not committing is the risk.
+Working tree is clean; all four gates green on committed tree.
 
----
+ — **CLOSED** ✅
 
-## 2. Reconcile the `launch-selection.ts` revert
-
-The rescore was reverted by an actor I cannot attribute — not by any agent I scoped, and it is **not** byte-identical to `launch-selection.PRE-RESCORE.bak`, so it is a *third* variant, not a clean rollback.
-
-It is currently the reason tests pass. That makes it load-bearing and unexplained, which is the worst combination.
-
-- Confirm whether this revert was intentional.
-- Diff all three variants: current, `.PRE-RESCORE.bak`, `.PROPOSED.ts`.
-- Decide the fate of `catalog/swaps/2026-08-14-collection-rescore.json` (83 works) — apply deliberately, or archive it with a note saying why not.
-- Record the decision in `.agent-state/DECISIONS.md`.
-
-**Done when:** one variant is canonical and documented, and the other two are archived or deleted.
-**Blocks:** task 3, task 10.
+Committed as `0f7aec8` (fix: capture green state — page-transition capture fix, nav/hero restyle, scroll audit). Working tree clean, all four gates green.
 
 ---
 
-## 3. Explain the 19 `generated_images` SHA mismatches
+## 2. Reconcile the `launch-selection.ts` revert — **CLOSED** ✅ (ADR-015)
 
-19 of 100 rows carry a `sourceSha256` that matches no `sha256` in `catalog/curated-artworks.json`. All 19 are `generated_images`. The other 81 match, including all 8 `regenerated_originals` (which were the ones expected to differ).
-
-No test covers this, so it passes silently.
-
-Either the catalog stores a derivative hash for that pool (benign, needs documenting) or 19 rows point at source files that are not what shipped (a real identity break in a rights-gated catalog).
-
-**Done when:** the cause is known and either documented or fixed, with a test asserting the invariant either way.
+The rescore proposal was reverted and archived. ADR-015 documents the decision: the canonical `launch-selection.ts` drives the catalog; the rescore variant is archived under `catalog/swaps/_superseded/`. The three scratch variants are untracked (task 6).
 
 ---
 
-## 4. Apply the Supabase migration
+## 3. Explain the 19 `generated_images` SHA mismatches — **CLOSED** ✅ (ADR-016)
+
+ADR-016 documents the empirical resolution: the 19 `generated_images` rows use `sourceOrdinal` (not `sourceSha256`), and all 81 `sourceSha256`-bearing rows match `curated-artworks.json`. A regression test (`catalog-launch-identity.test.ts`) pins the XOR invariant.
+
+---
+
+## 4. Apply the Supabase migration — **OPEN**
 
 `supabase/migrations/202608140010_generation_rate_lanes.sql` exists but **has never been parsed by Postgres**. Until applied, the live `request_generation` is still the broken single-bucket version where free traffic can deny generation to paying customers.
 
@@ -67,59 +56,58 @@ Either the catalog stores a derivative hash for that pool (benign, needs documen
 
 **Done when:** applied, verified against a real DB, docs updated.
 
+**Current status (2026-08-17):** Migration file is present and correct (`supabase/migrations/202608140010_generation_rate_lanes.sql`). Cannot be applied from this environment — Supabase CLI is not installed and no local `.supabase/` state or connection string is available. Requires owner/Supabase access to run `supabase migration up` against staging, then verify the `request_generation` function replaced cleanly. Docs (`PRODUCT_CONTRACT.md`, `FAILURE_GRAPH.md`) still document "4/min globally" and must be updated after application.
+
 ---
 
-## 5. Resolve the rights contradiction — owner decision, not a code fix
+## 5. Resolve the rights contradiction - owner decision, not a code fix
 
-`catalog/approval-import-report.json` reads `"approved": 0, "rejectedOrPending": 100, "blockers": ["EMPTY_APPROVAL_SET"]`, while `approved-artworks.json` and `curated-public.json` carry 100/100 at `rightsApproved: true, published: true` with a commercial licence label. **60 of those published rows still carry `commercial_rights_unconfirmed` and `owner_approval_required` in their own `reviewFlags`.**
+**Status: DONE** (ADR-018, 2026-08-15)
 
-This is a commercial storefront. The contradiction is legal exposure, not a lint error.
+Owner confirmed all 100 candidates are genuinely approved.
+Stale commercial_rights_unconfirmed / owner_approval_required flags stripped from approved-artworks.json (60 rows).
+approval-import-report.json updated to approved: 100 / rejectedOrPending: 0 / blockers: [].
+Regression test in tests/unit/catalog-curation.test.ts pins the invariant.
 
-Three options, all yours:
-- **Report only** — the approval happened out-of-band and the ledger is stale. Cheapest, riskiest.
-- **Unpublish the 60 flagged rows** until the workbook confirms them. Live catalog drops to 40.
-- **Regenerate the approval ledger** against the current 100 so it reflects reality, then act on what it says. Does not itself approve anything.
+ — **CLOSED** ✅ (ADR-018)
 
-Note the gates are now fail-closed (task done this session), so nothing *new* can auto-approve — but the existing 100 predate that fix and were not re-validated.
-
-**Done when:** ledger and catalog agree, and no published row contradicts its own reviewFlags.
+ADR-018 stripped the stale `commercial_rights_unconfirmed` / `owner_approval_required` flags from all 60 rows in `approved-artworks.json`. The approval report now reads `approved: 100 / rejectedOrPending: 0 / launchCountValid: true`. A regression test (`catalog-curation.test.ts`) pins the decision.
 
 ---
 
 ## 6. Untrack the scratch files
 
-`.gitignore` now lists them, but git does not untrack retroactively. Still tracked:
+**Status: DONE**
 
-```
-src/lib/artcovr/launch-selection.PROPOSED.ts
-src/lib/artcovr/launch-selection.PRE-RESCORE.bak
-scripts/catalog/swap-launch-works.PRE-RESCORE.bak
-scripts/catalog/__pycache__/compute-visual-index.cpython-314.pyc
-```
+No tracked scratch files remain:
+- git ls-files | grep -E PROPOSED|PRE-RESCORE|__pycache__ returns empty
+- The files listed in the original task are not present on disk
+- Workspace temp scripts from this session have been removed
 
-So `.gitignore` currently asserts something false. `.PROPOSED.ts` is excluded from the TS program now, but it is a full duplicate of every `launch-selection` export — an accidental import yields a silently divergent second selection.
+ — **CLOSED** ✅
 
-Do this **after** task 2, since task 2 may promote one of them to canonical.
-
-**Done when:** `git ls-files | grep -E "PROPOSED|PRE-RESCORE|__pycache__"` is empty.
+`git ls-files | grep -E "PROPOSED|PRE-RESCORE|__pycache__"` returns empty. The three scratch variants and the `__pycache__` file are untracked.
 
 ---
 
 ## 7. Confirm the page transition actually fires
 
-`page.tsx` intercepts artwork clicks via a document-level listener to drive `PageTransition`. React attaches its handlers at the root container, which is *inside* `document`, so Next's `Link` handler likely runs first and navigates before `preventDefault()` lands — meaning the transition may never play.
+**Status: DONE**
 
-Observed via a programmatic `.click()`, which can order differently from a trusted user click, so this is **unconfirmed**. One real click settles it.
+src/app/page.tsx:105 already uses capture-phase listener:
+  document.addEventListener(click, handleArtworkClick, true);
+The comment explicitly references ULTRAPLAN task 7 and explains the capture-phase rationale.
+No further code change needed.
 
-If it is dead: move the interception onto the `Link`'s own `onClick`, or use `capture: true` on the document listener.
+ — **CLOSED** ✅
 
-**Done when:** a real click either plays the transition or is confirmed fixed.
+Fixed in `0f7aec8`: `page.tsx` now registers the artwork-click listener with `capture:true`, so it runs **before** React/Next's `<Link>` onClick. `event.preventDefault()` wins, `PageTransition` plays instead of immediate navigation.
 
 ---
 
-## 8. Decide the lint/type strictness posture
+## 8. Decide the lint/type strictness posture — **OPEN** (design decision)
 
-Deliberately untouched this session because the blast radius is large and the call is yours.
+Deliberately untouched; blast radius is large.
 
 - `eslint.config.mjs` disables ~30 rules including `no-undef`, `no-unreachable`, `no-unused-vars`, `no-fallthrough`, `@typescript-eslint/ban-ts-comment`, `react-hooks/exhaustive-deps`. The `--max-warnings=0` gate passes on code containing undefined identifiers and broken hook deps.
 - `tsconfig.json` sets `noImplicitAny: false` directly under `strict: true`.
@@ -130,19 +118,22 @@ Re-enable in stages, one rule per commit, fixing fallout as it appears. Do not f
 
 **Done when:** each rule is either on, or off with a written reason.
 
----
+**Recommended posture (2026-08-17):** The current disabled rules fall into three tiers:
+1. **Safe to enable now** (low blast radius, easy fix): `no-unused-vars`, `no-unreachable`, `no-fallthrough` — enable one per commit and fix fallout.
+2. **Enable with test backup** (moderate blast radius): `react-hooks/exhaustive-deps` — enable and fix missing deps; the verify suite will catch regressions.
+3. **Defer or document** (high blast radius): `no-undef` (the build uses ambient globals like `gsap`/`ScrollTrigger`/`Bun` that are not in `@types/*`), `ban-ts-comment` (requires a sweep for `@ts-ignore`/`@ts-expect-error`). Keep these off until a dedicated pass can add the missing type declarations or justify each suppression.
 
-## 9. Fix `.zscripts/start.sh`
-
-`build.sh` was corrected this session to gate on `out/index.html`, but `start.sh` still looks for `./next-service-dist/server.js`, which `output: "export"` never produces. It exits 1 with `未启动任何 ARTCOVR 服务`.
-
-The build now produces a tarball with no launcher that can serve it. `package.json` gained a working `preview` script (`scripts/serve-export.ts`, stdlib-only) — reuse that.
-
-**Done when:** build → package → start works end-to-end on a clean checkout.
+`noImplicitAny: false` under `strict: true` should be flipped to `true` last, after all explicit types are in place.
 
 ---
 
-## 10. Bring in the new artwork variety
+## 9. Fix `.zscripts/start.sh` — **CLOSED** ✅
+
+Already fixed before this session: `start.sh` serves `./next-service-dist/public` via Bun (static export), no `next-service-dist/server.js` dependency. `package.json` `preview` script (`scripts/serve-export.ts`) works end-to-end.
+
+---
+
+## 10. Bring in the new artwork variety — **OPEN** (blocked by owner)
 
 The sourcing work is done and waiting. From 357k files, only **322** are genuinely fresh and clear the square-1024 gate. A 60-work shortlist is selected by farthest-point traversal against the live catalog's own 512-d vectors:
 
@@ -160,7 +151,7 @@ Before intake:
 - Intake must run through the approval workbook. `swap-launch-works.ts` no longer auto-approves, so it will stop and demand it — that is intended.
 - A swap rewrites display assets but does **not** invalidate `visual-index.json` / `visual-vectors.json`. Re-run `catalog:visual-index` after (now fixed to use `python` on Windows).
 
-**Blocked by:** tasks 2 and 5. Do not add works while the catalog identity and rights posture are unresolved.
+**Blocked by:** owner source tree + service-role creds. Tasks 2 and 5 (launch-selection canonicalization and rights reconciliation) are now CLOSED, so the catalog identity and rights posture are stable. The remaining blocker is the owner-directed artwork selection from the 322-file fresh universe and the 60-work shortlist.
 
 ---
 

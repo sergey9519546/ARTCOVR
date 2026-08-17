@@ -1,7 +1,7 @@
 # PRODUCT CONTRACT & BUSINESS INVARIANTS
 
 ## 1. Catalog & Publishing
-- **100-Cover Review Catalog**: Exactly 100 owner-curated cover artworks are staged for launch review.
+- **Launch Review Catalog**: At least 100 owner-curated cover artworks are staged for launch review (currently **139 published / 169 approved**, including 30 delete-tier excluded from publication; ADR-019 permits growth past the 100-review launch set).
 - **Explicit Approval Gate**: An artwork becomes purchasable and publicly indexed ONLY when `rights_approved = true`, `published = true`, and valid `price_cents` are assigned in `approved-artworks.json`.
 - **Sale Modes**: Exactly two sale modes: `exclusive` (delisted on purchase) and `repeatable` (multi-license).
 - **Zero Pad / Zero Fake**: Never invent or pad artworks; never publish unapproved candidate assets.
