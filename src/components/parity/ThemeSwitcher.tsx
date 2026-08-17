@@ -24,7 +24,7 @@ export function ThemeSwitcher() {
   const indicatorClass = theme === "dark" ? "bg-cream" : "bg-black";
 
   return (
-    <div id="theme-switcher" className="fixed top-6 right-5 z-[3] hidden md:block">
+    <div id="theme-switcher" className="theme-control fixed top-6 right-5 z-[3] hidden md:block">
       <div className="relative flex gap-1">
         <span
           aria-hidden="true"

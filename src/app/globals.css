@@ -178,14 +178,14 @@ html.has-custom-cursor a:focus { cursor: auto !important; }
   html.has-custom-cursor * { cursor: auto !important; }
 }
 
-#header, #theme-switcher {
+#header, .theme-control {
   opacity: 0;
   transform: translateY(-6rem);
   transition: opacity 2s var(--ease-out-extreme), transform 2s var(--ease-out-extreme);
   transition-delay: .5s;
 }
 html.loaded #header,
-html.loaded #theme-switcher { opacity: 1; transform: translateY(0); }
+html.loaded .theme-control { opacity: 1; transform: translateY(0); }
 
 html.lenis, html.lenis body { height: auto; }
 .lenis { scroll-behavior: auto !important; }
@@ -200,7 +200,7 @@ html.lenis, html.lenis body { height: auto; }
     scroll-behavior: auto !important;
     transition-duration: .01ms !important;
   }
-  #header, #theme-switcher { opacity: 1; transform: none; }
+  #header, .theme-control { opacity: 1; transform: none; }
 }
 
 /*

@@ -145,7 +145,7 @@ These string-keyed channels are the fragile seams. Renaming one breaks the other
 | `<html class="lenis">` | `useLenis.ts` | global CSS |
 | `window.__lenis` | `useLenis.ts` | ad-hoc |
 | `#hero-line`, `#hero-content`, `#hero-title`, `#hero-subtitle`, `#hero-paragraph`, `#hero-link`, `#hero-shipping-returns-link`, `#hero-shipping-returns-link-mobile`, `#hero-copyright` | `Hero.tsx` (exposes, never reads) | GSAP timelines in `page.tsx` |
-| `#header`, `#layer` + `.active`, `#theme-switcher`, `#page` | respective components | GSAP / global CSS |
+| `#header`, `#layer` + `.active`, `#theme-switcher (parity), .theme-control (both)`, `#page` | respective components | GSAP / global CSS |
 | `.spiral-item` | `SpiralScroll.tsx` | itself, via `querySelectorAll` |
 
 `ProductCard.tsx` sets `data-product`, `data-cursor="text"`, `data-inview="true"` — **no reader was found anywhere**. Likely vestigial; confirm before removing.

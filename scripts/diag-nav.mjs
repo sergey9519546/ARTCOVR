@@ -7,7 +7,7 @@ await page.goto("http://localhost:3000", { waitUntil: "networkidle" });
 await page.waitForTimeout(7000);
 const nav = await page.evaluate(() => {
   const links = Array.from(document.querySelectorAll("#header nav a, #header nav button")).map((a) => a.textContent.trim());
-  const k = document.getElementById("theme-switcher");
+  const k = document.querySelector(".theme-control");
   return { headerItems: links, themeSwitcherVisible: k ? getComputedStyle(k).opacity : "n/a", preloader: !!document.getElementById("artcovr-preloader") };
 });
 console.log("HEADER:", JSON.stringify(nav));
