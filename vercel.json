@@ -1,1 +1,62 @@
-{"cleanUrls": true, "trailingSlash": false, "redirects": [{"source": "/bag", "destination": "/archive", "permanent": true}, {"source": "/shipping-and-return", "destination": "/refunds", "permanent": true}], "headers": [{"source": "/(.*)", "headers": [{"key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"}, {"key": "Referrer-Policy", "value": "strict-origin-when-cross-origin"}, {"key": "X-Content-Type-Options", "value": "nosniff"}, {"key": "X-Frame-Options", "value": "DENY"}, {"key": "Cross-Origin-Opener-Policy", "value": "same-origin"}, {"key": "Cross-Origin-Resource-Policy", "value": "same-origin"}, {"key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), browsing-topics=()"}, {"key": "Strict-Transport-Security", "value": "max-age=31536000"}]}, {"source": "/api/(.*)", "headers": [{"key": "Cache-Control", "value": "private, no-store"}, {"key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive"}]}, {"source": "/auth/(.*)", "headers": [{"key": "Cache-Control", "value": "private, no-store"}, {"key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive"}]}, {"source": "/checkout/(.*)", "headers": [{"key": "Cache-Control", "value": "private, no-store"}, {"key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive"}]}, {"source": "/my-images", "headers": [{"key": "Cache-Control", "value": "private, no-store"}, {"key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive"}]}, {"source": "/sign-in", "headers": [{"key": "Cache-Control", "value": "private, no-store"}, {"key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive"}]}]}
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": "out",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/bag", "destination": "/archive", "permanent": true },
+    { "source": "/shipping-and-return", "destination": "/refunds", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:; manifest-src 'self'; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000" }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "private, no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/auth/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "private, no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/checkout/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "private, no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/my-images",
+      "headers": [
+        { "key": "Cache-Control", "value": "private, no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/sign-in",
+      "headers": [
+        { "key": "Cache-Control", "value": "private, no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,14 @@ import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { searchArtworks } from "@/lib/artcovr/artworks";
 
+type SortMode = "featured" | "price-asc" | "price-desc";
+
+const SORT_MODES: { id: SortMode; label: string }[] = [
+  { id: "featured", label: "Featured" },
+  { id: "price-asc", label: "Price ↑" },
+  { id: "price-desc", label: "Price ↓" },
+];
+
 type PriceBand = { id: string; label: string; min: number; max: number };
 
 const PRICE_BANDS: PriceBand[] = [
@@ -27,6 +35,14 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
   const [category, setCategory] = useState<string | null>(null);
   const [priceBand, setPriceBand] = useState<string | null>(null);
   const [mood, setMood] = useState<string | null>(null);
+  const [sort, setSort] = useState<SortMode>("featured");
+
+  // Preserve the curated display order so "Featured" sort restores the
+  // owner-pick + palette-spread arrangement after filtering.
+  const orderIndex = useMemo(
+    () => new Map(items.map((item, index) => [item.slug, index])),
+    [items],
+  );
 
   const categories = useMemo(
     () => [...new Set(items.map((i) => i.category))].sort(),
@@ -44,13 +60,31 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
 
   const filteredItems = useMemo(() => {
     const textMatched = searchArtworks(query, items);
-    return textMatched.filter((art) => {
+    const matched = textMatched.filter((art) => {
       if (category && art.category !== category) return false;
       if (priceBand && priceBandOf(art) !== priceBand) return false;
       if (mood && !art.moodTags.includes(mood)) return false;
       return true;
     });
-  }, [items, query, category, priceBand, mood]);
+
+    const sorted = [...matched];
+    if (sort === "price-asc") {
+      sorted.sort((left, right) => (left.priceCents ?? Infinity) - (right.priceCents ?? Infinity));
+    } else if (sort === "price-desc") {
+      sorted.sort((left, right) => (right.priceCents ?? -Infinity) - (left.priceCents ?? -Infinity));
+    } else {
+      sorted.sort(
+        (left, right) =>
+          (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0),
+      );
+    }
+    return sorted;
+  }, [items, query, category, priceBand, mood, sort, orderIndex]);
+
+  const hasPriceData = useMemo(
+    () => items.some((item) => item.priceCents !== null),
+    [items],
+  );
 
   const activeFilters = [category, priceBand, mood].filter(Boolean).length;
   const clearAll = () => {
@@ -58,6 +92,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     setCategory(null);
     setPriceBand(null);
     setMood(null);
+    setSort("featured");
   };
 
   return (
@@ -122,6 +157,16 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
               </Chip>
             ))}
           </FilterRow>
+
+          {hasPriceData ? (
+            <FilterRow label="Sort">
+              {SORT_MODES.map((mode) => (
+                <Chip key={mode.id} active={sort === mode.id} onClick={() => setSort(mode.id)}>
+                  {mode.label}
+                </Chip>
+              ))}
+            </FilterRow>
+          ) : null}
         </div>
       </div>
 
