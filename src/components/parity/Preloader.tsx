@@ -25,7 +25,13 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
   const [counter, setCounter] = useState(0);
   const [exited, setExited] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [showSkip, setShowSkip] = useState(false);
   const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    const skipTimer = window.setTimeout(() => setShowSkip(true), 1200);
+    return () => window.clearTimeout(skipTimer);
+  }, []);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -85,10 +91,19 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
 
   if (dismissed) return null;
 
+  const dismiss = () => {
+    setVisibleImages(PRELOADER_IMAGES.length);
+    setCounter(100);
+    setExited(true);
+    setDismissed(true);
+    onCompleteRef.current?.();
+  };
+
   return (
-    <div
-      id="artcovr-preloader"
-      className="fixed inset-0 z-50 flex items-center justify-center gap-8"
+    <>
+      <div
+        id="artcovr-preloader"
+        className="fixed inset-0 z-50 flex items-center justify-center gap-8"
       style={{
         // Light is the primary theme, so the intro takes the theme background
         // (cream) rather than a hardcoded black. The wordmark and counter stay
@@ -168,5 +183,15 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
         />
       </div>
     </div>
+    {showSkip && !dismissed ? (
+      <button
+        type="button"
+        onClick={dismiss}
+        className="fixed bottom-8 right-8 z-[60] rounded-full border border-current/30 bg-[var(--background)] px-5 py-3 text-xs font-bold uppercase tracking-[.12em] backdrop-blur-sm transition hover:border-current"
+      >
+        Skip intro
+      </button>
+    ) : null}
+  </>
   );
 }

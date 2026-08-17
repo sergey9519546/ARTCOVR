@@ -18,7 +18,7 @@ export function Hero() {
           className="mb-10 grid grid-cols-8 gap-x-6 gap-y-10 text-xs font-bold md:grid-cols-16 md:gap-6"
         >
           <div className="col-span-3 md:col-span-4">
-            <h1 className="uppercase" id="hero-title">Cover art</h1>
+            <h1 className="uppercase" id="hero-title">Cover art that becomes yours.</h1>
           </div>
           <div className="col-span-5 md:col-span-8">
             <h2 className="mb-4 uppercase" id="hero-subtitle">How it works</h2>
@@ -27,8 +27,13 @@ export function Hero() {
             </p>
           </div>
           <div className="col-span-3 flex h-full flex-col justify-between md:col-span-3">
-            <Link className="link-hover max-w-fit uppercase" id="hero-link" href="/archive">Explore archive</Link>
-            <Link className="link-hover hidden max-w-fit uppercase md:inline-block" id="hero-license-link" href="/license">Commercial license</Link>
+            <div>
+              <Link className="link-hover max-w-fit uppercase" id="hero-link" href="/archive">Explore archive</Link>
+              <Link className="link-hover hidden max-w-fit uppercase md:inline-block" id="hero-license-link" href="/license">Commercial license</Link>
+              <p className="mt-4 text-[11px] font-bold uppercase tracking-[.12em] opacity-60">
+                Secure Stripe checkout · Commercial license included · 30-day download access
+              </p>
+            </div>
           </div>
           <div className="col-span-5 flex justify-end md:col-span-1" id="hero-copyright">© 2026</div>
           <div className="col-span-8 inline-block md:hidden" id="hero-license-link-mobile">

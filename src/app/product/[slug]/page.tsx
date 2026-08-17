@@ -80,6 +80,17 @@ export default async function ProductPage({ params }: Props) {
                 ? art.description
                 : "This candidate is in the ARTCOVR launch selection. Checkout opens only after commercial rights, price, license mode, and publication are approved."}
             </p>
+            <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-bold uppercase tracking-[.08em] opacity-60">
+              <li className="flex items-center gap-1.5">
+                <span aria-hidden="true">✓</span> Rights approved
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span aria-hidden="true">✓</span> Owner-verified source
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Link href="/refunds" className="link-hover">Return policy</Link>
+              </li>
+            </ul>
             {checkoutReady ? (
               <Link href={`/checkout/${art.slug}`} className="artcovr-button mt-7 inline-block px-5 py-4 text-xs font-bold uppercase tracking-[.08em]">Review license</Link>
             ) : (
@@ -90,9 +101,19 @@ export default async function ProductPage({ params }: Props) {
         <div className="mt-20"><PromptStudio artwork={art} /></div>
         {relatedWorks.length > 0 ? (
           <section aria-labelledby="related-works" className="mt-24 border-t-2 border-current pt-5">
-            <h2 id="related-works" className="text-[11px] font-bold uppercase tracking-[.1em]">
-              Related works
-            </h2>
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h2 id="related-works" className="text-[11px] font-bold uppercase tracking-[.1em]">
+                  Find similar
+                </h2>
+                <p className="mt-2 max-w-[44ch] text-sm leading-6 opacity-60">
+                  Visually nearest works from the approved catalog, ranked by image similarity.
+                </p>
+              </div>
+              <Link href="/archive" className="link-hover shrink-0 text-[11px] font-bold uppercase tracking-[.1em]">
+                Browse archive
+              </Link>
+            </div>
             <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 lg:gap-x-6">
               {relatedWorks.map((related) => (
                 <li key={related.id}>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PublicPage } from "@/components/artcovr/PublicPage";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -9,6 +9,13 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") === "callback") {
+      setError("Your sign-in link expired or was already used. Request a new one below.");
+    }
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

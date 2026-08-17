@@ -8,7 +8,7 @@ import { getCheckoutTotal, isCheckoutReady } from "@/lib/artcovr/artworks";
 import {
   shouldRotateCheckoutIdempotencyKey as shouldRotateCheckoutKey,
 } from "@/lib/artcovr/checkout-errors";
-import { createCheckout, getGenerationStatus } from "@/lib/artcovr/functions";
+import { ArtcovrApiError, createCheckout, getGenerationStatus } from "@/lib/artcovr/functions";
 
 export function CheckoutReview({ artwork }: { artwork: Artwork }) {
   const [accepted, setAccepted] = useState(false);
@@ -73,7 +73,9 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
       if (shouldRotateCheckoutKey(reason)) {
         sessionStorage.removeItem(keyName);
       }
-      setError(reason instanceof Error ? reason.message : "Checkout is unavailable.");
+      setError(reason instanceof ArtcovrApiError && reason.code === "unauthorized"
+        ? "Sign in to complete checkout."
+        : reason instanceof Error ? reason.message : "Checkout is unavailable.");
       setLoading(false);
     }
   }

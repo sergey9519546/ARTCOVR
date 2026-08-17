@@ -10,6 +10,9 @@ const items = [
   { label: "Contact", href: "/contact" },
   { label: "FAQ", href: "/faq" },
   { label: "License", href: "/license" },
+  { label: "Refunds", href: "/refunds" },
+  { label: "Privacy", href: "/legal/privacy" },
+  { label: "Terms", href: "/legal/terms" },
   { label: "Sign in", href: "/sign-in" },
 ];
 

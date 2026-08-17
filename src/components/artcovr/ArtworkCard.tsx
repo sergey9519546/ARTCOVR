@@ -20,7 +20,7 @@ export function ArtworkCard({ artwork, priority = false }: { artwork: Artwork; p
               {isCheckoutReady(artwork)
                 ? artwork.saleMode === "exclusive"
                   ? "Exclusive license available"
-                  : "Commercial license available"
+                  : "Non-exclusive license available"
                 : "Availability pending"}
             </p>
             {styleLabel ? (

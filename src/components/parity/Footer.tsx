@@ -39,7 +39,7 @@ export function Footer() {
         </div>
         <div className="col-span-8 md:col-span-3">
           <Link href="/archive" className="link-hover block w-fit">archive</Link>
-          <Link href="/my-images" className="link-hover block w-fit">my cart</Link>
+          <Link href="/my-images" className="link-hover block w-fit">My Images</Link>
           <Link href="/contact" className="link-hover block w-fit">Custom inquiry</Link>
         </div>
         <div className="col-span-8 md:col-span-4">

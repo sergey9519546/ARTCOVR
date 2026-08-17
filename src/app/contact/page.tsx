@@ -1,15 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { PublicPage } from "@/components/artcovr/PublicPage";
 import { ArtcovrApiError, submitInquiry } from "@/lib/artcovr/functions";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [needsSignIn, setNeedsSignIn] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    const client = getSupabaseBrowserClient();
+    if (!client) return;
+    let active = true;
+    client.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(!!data.session);
+    });
+    return () => { active = false; };
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,9 +48,9 @@ export default function ContactPage() {
       </p>
       {sent ? (
         <p role="status" className="mt-8 border-l-2 border-current pl-4 font-bold">
-          Your inquiry has been received. We’ll reply by email.
+          Your inquiry has been received. We'll reply by email.
         </p>
-      ) : (
+      ) : signedIn ? (
         <form onSubmit={submit} className="mt-8 grid gap-5">
           <label className="text-xs font-bold uppercase tracking-[.08em]">
             Name
@@ -58,6 +70,15 @@ export default function ContactPage() {
             </div>
           )}
         </form>
+      ) : (
+        <section className="mt-8">
+          <p className="max-w-[52ch] text-sm leading-6 opacity-70">
+            Sign in with your email to send a custom-work inquiry. We'll reply to the verified address on your account.
+          </p>
+          <Link href="/sign-in" className="artcovr-button mt-6 inline-block px-5 py-4 text-xs font-bold uppercase tracking-[.08em]">
+            Sign in with email
+          </Link>
+        </section>
       )}
     </PublicPage>
   );
