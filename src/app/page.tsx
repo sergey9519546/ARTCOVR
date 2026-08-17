@@ -99,8 +99,11 @@ export default function Home() {
       setTransitionActive(true);
     };
 
-    document.addEventListener("click", handleArtworkClick);
-    return () => document.removeEventListener("click", handleArtworkClick);
+    // Capture phase: run before React/Next's <Link> onClick (which is delegated
+    // at the root container) so our preventDefault() wins and the transition plays
+    // instead of an immediate navigation. See ULTRAPLAN task 7.
+    document.addEventListener("click", handleArtworkClick, true);
+    return () => document.removeEventListener("click", handleArtworkClick, true);
   }, [preloaderDone, motionAllowed]);
 
   const finishTransition = useCallback(() => {

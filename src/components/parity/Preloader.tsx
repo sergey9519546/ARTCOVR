@@ -25,13 +25,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
   const [counter, setCounter] = useState(0);
   const [exited, setExited] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [showSkip, setShowSkip] = useState(false);
   const onCompleteRef = useRef(onComplete);
-
-  useEffect(() => {
-    const skipTimer = window.setTimeout(() => setShowSkip(true), 1200);
-    return () => window.clearTimeout(skipTimer);
-  }, []);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -183,15 +177,6 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
         />
       </div>
     </div>
-    {showSkip && !dismissed ? (
-      <button
-        type="button"
-        onClick={dismiss}
-        className="fixed bottom-8 right-8 z-[60] rounded-full border border-current/30 bg-[var(--background)] px-5 py-3 text-xs font-bold uppercase tracking-[.12em] backdrop-blur-sm transition hover:border-current"
-      >
-        Skip intro
-      </button>
-    ) : null}
   </>
   );
 }

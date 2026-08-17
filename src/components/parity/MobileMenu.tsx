@@ -5,14 +5,7 @@ import { useEffect, useRef } from "react";
 const items = [
   { label: "Home", href: "/" },
   { label: "Archive", href: "/archive" },
-  { label: "My Images", href: "/my-images" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-  { label: "FAQ", href: "/faq" },
-  { label: "License", href: "/license" },
-  { label: "Refunds", href: "/refunds" },
-  { label: "Privacy", href: "/legal/privacy" },
-  { label: "Terms", href: "/legal/terms" },
+  { label: "Cart", href: "/my-images" },
   { label: "Sign in", href: "/sign-in" },
 ];
 
