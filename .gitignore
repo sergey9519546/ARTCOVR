@@ -74,6 +74,9 @@ server.log
 /catalog/candidates.csv
 /catalog/candidates.json
 
+# Local private source locators (never deployed)
+/catalog/*.local.json
+
 # Build-session scratch: screen recordings and pasted uploads are never runtime data
 /upload/
 *.mp4

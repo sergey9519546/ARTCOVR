@@ -86,7 +86,12 @@ async function main() {
   const approvedArtworks = ordered.map((artwork, index) => {
     // Create a copy of the artwork with all existing fields
     const approvedArtwork = { ...artwork };
-    
+    // The public projection is a clean, approved view: internal review flags
+    // (commercial_rights_unconfirmed / owner_approval_required / etc.) must
+    // never ship in client bundles. Drop them here so regeneration cannot
+    // leak them (regression-contract.test.ts enforces this).
+    delete approvedArtwork.reviewFlags;
+
     // Set approval fields
     approvedArtwork.rightsApproved = true;
     approvedArtwork.published = true;

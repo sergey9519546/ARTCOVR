@@ -4,6 +4,7 @@ import excludedCandidates from "../../../catalog/excluded-candidates.json" with 
 
 import { REGENERATION_REQUIRED_SOURCE_HASHES } from "./source-exclusions.ts";
 
+
 export const LAUNCH_REVIEW_SIZE = 100;
 export const RETIRED_GENERATED_SOURCE_ORDINALS = new Set([
   59, 60, 76, 77, 89, 96, 101, 117, 128,
@@ -104,6 +105,7 @@ export function validateLaunchReviewIntegrity(input: {
   if (candidates.length !== LAUNCH_REVIEW_SIZE) issues.push("CANDIDATE_COUNT");
   if (review.length !== LAUNCH_REVIEW_SIZE) issues.push("REVIEW_COUNT");
   if (selection.length !== LAUNCH_REVIEW_SIZE) issues.push("SELECTION_COUNT");
+  if (candidates.length !== review.length || review.length !== selection.length) issues.push("SIZE_MISMATCH");
 
   const ids = new Set<string>();
   const slugs = new Set<string>();

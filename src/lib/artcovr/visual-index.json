@@ -93,7 +93,7 @@
           "score": 0.7978
         }
       ],
-      "diversityRank": 75,
+      "diversityRank": 76,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -125,6 +125,65 @@
         }
       }
     },
+    "astral-ferry": {
+      "related": [
+        {
+          "slug": "monolithic-cobalt-liminality",
+          "score": 0.8251
+        },
+        {
+          "slug": "cloud-chamber-communion",
+          "score": 0.822
+        },
+        {
+          "slug": "white-eyes-in-the-rain",
+          "score": 0.7928
+        },
+        {
+          "slug": "azure-threshold",
+          "score": 0.7867
+        },
+        {
+          "slug": "flooded-arcades",
+          "score": 0.7631
+        },
+        {
+          "slug": "ice-procession",
+          "score": 0.7497
+        }
+      ],
+      "diversityRank": 103,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.687
+        },
+        "medium": {
+          "label": "Photograph",
+          "conf": 0.237
+        },
+        "mood": {
+          "label": "Majestic__Epic",
+          "conf": 0.275
+        },
+        "category": {
+          "label": "Light__Shadow_Paradox",
+          "conf": 0.761
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.4
+        },
+        "colorblend": {
+          "label": "Cool_Oceanic_Winter",
+          "conf": 0.831
+        },
+        "domcolor": {
+          "label": "Blue",
+          "conf": 0.812
+        }
+      }
+    },
     "atmospheric-surrealist-nostalgia": {
       "related": [
         {
@@ -152,7 +211,7 @@
           "score": 0.8183
         }
       ],
-      "diversityRank": 121,
+      "diversityRank": 125,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -195,20 +254,20 @@
           "score": 0.792
         },
         {
+          "slug": "astral-ferry",
+          "score": 0.7867
+        },
+        {
           "slug": "cloud-chamber-communion",
           "score": 0.7454
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.7278
+        },
+        {
           "slug": "last-sock-on-the-line",
           "score": 0.723
-        },
-        {
-          "slug": "the-boating-afternoon",
-          "score": 0.7135
-        },
-        {
-          "slug": "vibrant-risograph-surrealism",
-          "score": 0.6931
         }
       ],
       "diversityRank": 41,
@@ -270,7 +329,7 @@
           "score": 0.7724
         }
       ],
-      "diversityRank": 61,
+      "diversityRank": 62,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -329,7 +388,7 @@
           "score": 0.7177
         }
       ],
-      "diversityRank": 32,
+      "diversityRank": 33,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -388,7 +447,7 @@
           "score": 0.8333
         }
       ],
-      "diversityRank": 116,
+      "diversityRank": 120,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -431,6 +490,10 @@
           "score": 0.7752
         },
         {
+          "slug": "astral-ferry",
+          "score": 0.7344
+        },
+        {
           "slug": "surrealist-liminal-pastoralism",
           "score": 0.6832
         },
@@ -441,10 +504,6 @@
         {
           "slug": "electric-cobalt-minimalist",
           "score": 0.6658
-        },
-        {
-          "slug": "bold-graphic-neon-surrealism",
-          "score": 0.6532
         }
       ],
       "diversityRank": 21,
@@ -506,7 +565,7 @@
           "score": 0.6772
         }
       ],
-      "diversityRank": 33,
+      "diversityRank": 34,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -608,6 +667,10 @@
           "score": 0.8324
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.8193
+        },
+        {
           "slug": "cassette-veins",
           "score": 0.816
         },
@@ -618,13 +681,9 @@
         {
           "slug": "family-circuit",
           "score": 0.8083
-        },
-        {
-          "slug": "fishing-the-reflected-sky",
-          "score": 0.8031
         }
       ],
-      "diversityRank": 135,
+      "diversityRank": 139,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -683,7 +742,7 @@
           "score": 0.8333
         }
       ],
-      "diversityRank": 86,
+      "diversityRank": 87,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -742,7 +801,7 @@
           "score": 0.7512
         }
       ],
-      "diversityRank": 105,
+      "diversityRank": 108,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -801,7 +860,7 @@
           "score": 0.8497
         }
       ],
-      "diversityRank": 123,
+      "diversityRank": 127,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -852,12 +911,12 @@
           "score": 0.8064
         },
         {
-          "slug": "barcode-moon",
-          "score": 0.7724
+          "slug": "flooded-arcades",
+          "score": 0.8058
         },
         {
-          "slug": "coffee-for-the-skeleton",
-          "score": 0.7681
+          "slug": "barcode-moon",
+          "score": 0.7724
         }
       ],
       "diversityRank": 60,
@@ -899,6 +958,10 @@
           "score": 0.7876
         },
         {
+          "slug": "surreal-botanical-synthesis",
+          "score": 0.7822
+        },
+        {
           "slug": "luminous-cosmic-folklore",
           "score": 0.781
         },
@@ -913,13 +976,9 @@
         {
           "slug": "the-lives-not-chosen",
           "score": 0.7746
-        },
-        {
-          "slug": "surreal-retro-futurist-collage",
-          "score": 0.7551
         }
       ],
-      "diversityRank": 64,
+      "diversityRank": 69,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1037,7 +1096,7 @@
           "score": 0.8054
         }
       ],
-      "diversityRank": 96,
+      "diversityRank": 98,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1096,7 +1155,7 @@
           "score": 0.7542
         }
       ],
-      "diversityRank": 93,
+      "diversityRank": 94,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -1131,6 +1190,10 @@
     "cloud-chamber-communion": {
       "related": [
         {
+          "slug": "astral-ferry",
+          "score": 0.822
+        },
+        {
           "slug": "blue-hour-monolith",
           "score": 0.7752
         },
@@ -1147,12 +1210,8 @@
           "score": 0.7454
         },
         {
-          "slug": "ice-procession",
-          "score": 0.7201
-        },
-        {
-          "slug": "surrealist-sky-collage",
-          "score": 0.7079
+          "slug": "flooded-arcades",
+          "score": 0.7328
         }
       ],
       "diversityRank": 65,
@@ -1190,6 +1249,10 @@
     "coffee-for-the-skeleton": {
       "related": [
         {
+          "slug": "flooded-arcades",
+          "score": 0.8173
+        },
+        {
           "slug": "fishing-the-reflected-sky",
           "score": 0.8087
         },
@@ -1208,10 +1271,6 @@
         {
           "slug": "unopened-staircase",
           "score": 0.7859
-        },
-        {
-          "slug": "sleeping-cart",
-          "score": 0.7817
         }
       ],
       "diversityRank": 28,
@@ -1257,6 +1316,10 @@
           "score": 0.8064
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.8062
+        },
+        {
           "slug": "tower-of-smoke",
           "score": 0.8001
         },
@@ -1267,13 +1330,9 @@
         {
           "slug": "sleeping-cart",
           "score": 0.7893
-        },
-        {
-          "slug": "mailbox-garden",
-          "score": 0.7854
         }
       ],
-      "diversityRank": 90,
+      "diversityRank": 91,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1305,6 +1364,65 @@
         }
       }
     },
+    "copper-veil": {
+      "related": [
+        {
+          "slug": "surreal-liminal-minimalism",
+          "score": 0.7809
+        },
+        {
+          "slug": "sail-cathedral",
+          "score": 0.7685
+        },
+        {
+          "slug": "surrealist-sky-collage",
+          "score": 0.7502
+        },
+        {
+          "slug": "cinematic-surreal-sci-fi",
+          "score": 0.7479
+        },
+        {
+          "slug": "ice-procession",
+          "score": 0.7352
+        },
+        {
+          "slug": "atmospheric-surrealist-nostalgia",
+          "score": 0.7346
+        }
+      ],
+      "diversityRank": 30,
+      "labels": {
+        "style": {
+          "label": "Minimalism",
+          "conf": 0.509
+        },
+        "medium": {
+          "label": "3D_Render",
+          "conf": 0.659
+        },
+        "mood": {
+          "label": "Melancholic__Solitary",
+          "conf": 0.7
+        },
+        "category": {
+          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
+          "conf": 0.467
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.326
+        },
+        "colorblend": {
+          "label": "Teal__Orange_Cinematic",
+          "conf": 0.525
+        },
+        "domcolor": {
+          "label": "Blue",
+          "conf": 0.542
+        }
+      }
+    },
     "coral-beak": {
       "related": [
         {
@@ -1332,7 +1450,7 @@
           "score": 0.7896
         }
       ],
-      "diversityRank": 82,
+      "diversityRank": 84,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -1391,7 +1509,7 @@
           "score": 0.782
         }
       ],
-      "diversityRank": 72,
+      "diversityRank": 73,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -1568,7 +1686,7 @@
           "score": 0.7756
         }
       ],
-      "diversityRank": 55,
+      "diversityRank": 56,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -1686,7 +1804,7 @@
           "score": 0.801
         }
       ],
-      "diversityRank": 102,
+      "diversityRank": 105,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1745,7 +1863,7 @@
           "score": 0.7753
         }
       ],
-      "diversityRank": 92,
+      "diversityRank": 93,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -1804,7 +1922,7 @@
           "score": 0.7756
         }
       ],
-      "diversityRank": 77,
+      "diversityRank": 78,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1863,7 +1981,7 @@
           "score": 0.8017
         }
       ],
-      "diversityRank": 126,
+      "diversityRank": 130,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -1922,7 +2040,7 @@
           "score": 0.8415
         }
       ],
-      "diversityRank": 138,
+      "diversityRank": 142,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -2040,7 +2158,7 @@
           "score": 0.7578
         }
       ],
-      "diversityRank": 109,
+      "diversityRank": 112,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -2099,7 +2217,7 @@
           "score": 0.7196
         }
       ],
-      "diversityRank": 30,
+      "diversityRank": 31,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2158,7 +2276,7 @@
           "score": 0.7796
         }
       ],
-      "diversityRank": 56,
+      "diversityRank": 57,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2276,7 +2394,7 @@
           "score": 0.7367
         }
       ],
-      "diversityRank": 136,
+      "diversityRank": 140,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2571,7 +2689,7 @@
           "score": 0.829
         }
       ],
-      "diversityRank": 103,
+      "diversityRank": 106,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -2614,6 +2732,10 @@
           "score": 0.8031
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.7965
+        },
+        {
           "slug": "sleeping-cart",
           "score": 0.7847
         },
@@ -2624,13 +2746,9 @@
         {
           "slug": "kinetic-ghost-minimalism",
           "score": 0.7557
-        },
-        {
-          "slug": "cathedral-of-washers",
-          "score": 0.7518
         }
       ],
-      "diversityRank": 84,
+      "diversityRank": 86,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -2659,6 +2777,65 @@
         "domcolor": {
           "label": "Blue",
           "conf": 0.409
+        }
+      }
+    },
+    "flooded-arcades": {
+      "related": [
+        {
+          "slug": "ice-procession",
+          "score": 0.8472
+        },
+        {
+          "slug": "buried-clocks",
+          "score": 0.8193
+        },
+        {
+          "slug": "coffee-for-the-skeleton",
+          "score": 0.8173
+        },
+        {
+          "slug": "tower-of-smoke",
+          "score": 0.8148
+        },
+        {
+          "slug": "cold-cabinet",
+          "score": 0.8062
+        },
+        {
+          "slug": "cathedral-of-washers",
+          "score": 0.8058
+        }
+      ],
+      "diversityRank": 119,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.533
+        },
+        "medium": {
+          "label": "Photograph",
+          "conf": 0.237
+        },
+        "mood": {
+          "label": "Eerie__Dark",
+          "conf": 0.513
+        },
+        "category": {
+          "label": "Light__Shadow_Paradox",
+          "conf": 0.637
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.4
+        },
+        "colorblend": {
+          "label": "Teal__Orange_Cinematic",
+          "conf": 0.561
+        },
+        "domcolor": {
+          "label": "Blue",
+          "conf": 0.447
         }
       }
     },
@@ -2748,7 +2925,7 @@
           "score": 0.7605
         }
       ],
-      "diversityRank": 69,
+      "diversityRank": 70,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -2866,7 +3043,7 @@
           "score": 0.7991
         }
       ],
-      "diversityRank": 124,
+      "diversityRank": 128,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -3161,7 +3338,7 @@
           "score": 0.7914
         }
       ],
-      "diversityRank": 120,
+      "diversityRank": 124,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -3220,7 +3397,7 @@
           "score": 0.7988
         }
       ],
-      "diversityRank": 108,
+      "diversityRank": 111,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -3271,15 +3448,15 @@
           "score": 0.7963
         },
         {
-          "slug": "luminous-cosmic-folklore",
-          "score": 0.7789
+          "slug": "flooded-arcades",
+          "score": 0.7959
         },
         {
-          "slug": "kinetic-liminal-reflections",
-          "score": 0.7751
+          "slug": "luminous-cosmic-folklore",
+          "score": 0.7789
         }
       ],
-      "diversityRank": 62,
+      "diversityRank": 64,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -3397,7 +3574,7 @@
           "score": 0.7888
         }
       ],
-      "diversityRank": 71,
+      "diversityRank": 72,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -3456,7 +3633,7 @@
           "score": 0.7646
         }
       ],
-      "diversityRank": 117,
+      "diversityRank": 121,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -3515,7 +3692,7 @@
           "score": 0.7496
         }
       ],
-      "diversityRank": 88,
+      "diversityRank": 89,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -3554,6 +3731,10 @@
           "score": 0.8497
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.8472
+        },
+        {
           "slug": "coffee-for-the-skeleton",
           "score": 0.8056
         },
@@ -3568,13 +3749,9 @@
         {
           "slug": "cinematic-surreal-sci-fi",
           "score": 0.7511
-        },
-        {
-          "slug": "buried-clocks",
-          "score": 0.7483
         }
       ],
-      "diversityRank": 81,
+      "diversityRank": 83,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -3692,7 +3869,7 @@
           "score": 0.8182
         }
       ],
-      "diversityRank": 94,
+      "diversityRank": 95,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -3743,12 +3920,12 @@
           "score": 0.6617
         },
         {
-          "slug": "mouth-in-the-floor",
-          "score": 0.6431
+          "slug": "astral-ferry",
+          "score": 0.6483
         },
         {
-          "slug": "coffee-for-the-skeleton",
-          "score": 0.6302
+          "slug": "mouth-in-the-floor",
+          "score": 0.6431
         }
       ],
       "diversityRank": 4,
@@ -3810,7 +3987,7 @@
           "score": 0.8096
         }
       ],
-      "diversityRank": 99,
+      "diversityRank": 52,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -3928,7 +4105,7 @@
           "score": 0.7762
         }
       ],
-      "diversityRank": 57,
+      "diversityRank": 101,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -3987,7 +4164,7 @@
           "score": 0.8104
         }
       ],
-      "diversityRank": 95,
+      "diversityRank": 97,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -4223,7 +4400,7 @@
           "score": 0.7911
         }
       ],
-      "diversityRank": 112,
+      "diversityRank": 115,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4282,7 +4459,7 @@
           "score": 0.8745
         }
       ],
-      "diversityRank": 137,
+      "diversityRank": 141,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4341,7 +4518,7 @@
           "score": 0.8497
         }
       ],
-      "diversityRank": 132,
+      "diversityRank": 136,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4400,7 +4577,7 @@
           "score": 0.809
         }
       ],
-      "diversityRank": 85,
+      "diversityRank": 99,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4518,7 +4695,7 @@
           "score": 0.7009
         }
       ],
-      "diversityRank": 31,
+      "diversityRank": 32,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -4577,7 +4754,7 @@
           "score": 0.7892
         }
       ],
-      "diversityRank": 80,
+      "diversityRank": 82,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -4612,6 +4789,10 @@
     "monolithic-cobalt-liminality": {
       "related": [
         {
+          "slug": "astral-ferry",
+          "score": 0.8251
+        },
+        {
           "slug": "azure-threshold",
           "score": 0.8105
         },
@@ -4630,13 +4811,9 @@
         {
           "slug": "surreal-pastoral-technicolor",
           "score": 0.7057
-        },
-        {
-          "slug": "last-sock-on-the-line",
-          "score": 0.6528
         }
       ],
-      "diversityRank": 87,
+      "diversityRank": 88,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4813,7 +4990,7 @@
           "score": 0.8395
         }
       ],
-      "diversityRank": 129,
+      "diversityRank": 133,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4872,7 +5049,7 @@
           "score": 0.7996
         }
       ],
-      "diversityRank": 76,
+      "diversityRank": 77,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4931,7 +5108,7 @@
           "score": 0.788
         }
       ],
-      "diversityRank": 73,
+      "diversityRank": 74,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5049,7 +5226,7 @@
           "score": 0.7724
         }
       ],
-      "diversityRank": 115,
+      "diversityRank": 118,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -5100,15 +5277,15 @@
           "score": 0.7485
         },
         {
-          "slug": "graphic-retro-printmaker",
-          "score": 0.7388
+          "slug": "astral-ferry",
+          "score": 0.7406
         },
         {
-          "slug": "the-boating-afternoon",
-          "score": 0.7308
+          "slug": "graphic-retro-printmaker",
+          "score": 0.7388
         }
       ],
-      "diversityRank": 111,
+      "diversityRank": 114,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5167,7 +5344,7 @@
           "score": 0.7606
         }
       ],
-      "diversityRank": 100,
+      "diversityRank": 102,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -5226,7 +5403,7 @@
           "score": 0.8296
         }
       ],
-      "diversityRank": 127,
+      "diversityRank": 131,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5344,7 +5521,7 @@
           "score": 0.8534
         }
       ],
-      "diversityRank": 131,
+      "diversityRank": 135,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -5403,7 +5580,7 @@
           "score": 0.7956
         }
       ],
-      "diversityRank": 128,
+      "diversityRank": 132,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -5521,7 +5698,7 @@
           "score": 0.8391
         }
       ],
-      "diversityRank": 130,
+      "diversityRank": 134,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5580,7 +5757,7 @@
           "score": 0.83
         }
       ],
-      "diversityRank": 110,
+      "diversityRank": 113,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -5639,7 +5816,7 @@
           "score": 0.8009
         }
       ],
-      "diversityRank": 107,
+      "diversityRank": 110,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -5757,7 +5934,7 @@
           "score": 0.7928
         }
       ],
-      "diversityRank": 91,
+      "diversityRank": 92,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -5808,15 +5985,15 @@
           "score": 0.7724
         },
         {
-          "slug": "cosmic-pilgrim",
-          "score": 0.7662
+          "slug": "copper-veil",
+          "score": 0.7685
         },
         {
-          "slug": "microwave-bloom",
-          "score": 0.7622
+          "slug": "cosmic-pilgrim",
+          "score": 0.7662
         }
       ],
-      "diversityRank": 34,
+      "diversityRank": 61,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -5993,7 +6170,7 @@
           "score": 0.7288
         }
       ],
-      "diversityRank": 134,
+      "diversityRank": 138,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -6154,6 +6331,10 @@
           "score": 0.8112
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.7975
+        },
+        {
           "slug": "cold-cabinet",
           "score": 0.7893
         },
@@ -6164,13 +6345,9 @@
         {
           "slug": "coffee-for-the-skeleton",
           "score": 0.7817
-        },
-        {
-          "slug": "surreal-retro-cosmic-collage",
-          "score": 0.7765
         }
       ],
-      "diversityRank": 122,
+      "diversityRank": 126,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6261,6 +6438,65 @@
         }
       }
     },
+    "surreal-botanical-synthesis": {
+      "related": [
+        {
+          "slug": "luminous-cosmic-folklore",
+          "score": 0.8095
+        },
+        {
+          "slug": "celestial-paper-bag",
+          "score": 0.7822
+        },
+        {
+          "slug": "flooded-arcades",
+          "score": 0.7745
+        },
+        {
+          "slug": "cold-cabinet",
+          "score": 0.7715
+        },
+        {
+          "slug": "the-stitched-icon",
+          "score": 0.7547
+        },
+        {
+          "slug": "tactile-organic-opulence",
+          "score": 0.7501
+        }
+      ],
+      "diversityRank": 55,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.576
+        },
+        "medium": {
+          "label": "3D_Render",
+          "conf": 0.585
+        },
+        "mood": {
+          "label": "Eerie__Dark",
+          "conf": 0.306
+        },
+        "category": {
+          "label": "Material_Transmutation",
+          "conf": 0.51
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.4
+        },
+        "colorblend": {
+          "label": "Accent_Noir_Green",
+          "conf": 0.425
+        },
+        "domcolor": {
+          "label": "Black",
+          "conf": 0.563
+        }
+      }
+    },
     "surreal-graphic-minimalism": {
       "related": [
         {
@@ -6339,15 +6575,15 @@
           "score": 0.7882
         },
         {
-          "slug": "cosmic-pilgrim",
-          "score": 0.7748
+          "slug": "copper-veil",
+          "score": 0.7809
         },
         {
-          "slug": "surrealist-sky-collage",
-          "score": 0.7709
+          "slug": "cosmic-pilgrim",
+          "score": 0.7748
         }
       ],
-      "diversityRank": 53,
+      "diversityRank": 80,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -6406,7 +6642,7 @@
           "score": 0.7911
         }
       ],
-      "diversityRank": 97,
+      "diversityRank": 96,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6465,7 +6701,7 @@
           "score": 0.7087
         }
       ],
-      "diversityRank": 74,
+      "diversityRank": 75,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6524,7 +6760,7 @@
           "score": 0.8031
         }
       ],
-      "diversityRank": 133,
+      "diversityRank": 137,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6583,7 +6819,7 @@
           "score": 0.827
         }
       ],
-      "diversityRank": 106,
+      "diversityRank": 109,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6701,7 +6937,7 @@
           "score": 0.8087
         }
       ],
-      "diversityRank": 125,
+      "diversityRank": 129,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6760,7 +6996,7 @@
           "score": 0.7563
         }
       ],
-      "diversityRank": 52,
+      "diversityRank": 53,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -6819,7 +7055,7 @@
           "score": 0.8266
         }
       ],
-      "diversityRank": 119,
+      "diversityRank": 123,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6862,6 +7098,10 @@
           "score": 0.7907
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.7787
+        },
+        {
           "slug": "cube-in-the-wheat",
           "score": 0.7736
         },
@@ -6872,13 +7112,9 @@
         {
           "slug": "atmospheric-surrealist-nostalgia",
           "score": 0.7583
-        },
-        {
-          "slug": "widow-in-the-wildflowers",
-          "score": 0.7547
         }
       ],
-      "diversityRank": 104,
+      "diversityRank": 107,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -6937,7 +7173,7 @@
           "score": 0.7735
         }
       ],
-      "diversityRank": 70,
+      "diversityRank": 71,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -7291,7 +7527,7 @@
           "score": 0.8196
         }
       ],
-      "diversityRank": 114,
+      "diversityRank": 117,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7326,6 +7562,10 @@
     "the-verdigris-skull": {
       "related": [
         {
+          "slug": "flooded-arcades",
+          "score": 0.7213
+        },
+        {
           "slug": "hands-holding-the-eye",
           "score": 0.7165
         },
@@ -7344,10 +7584,6 @@
         {
           "slug": "ethereal-pastel-surrealism",
           "score": 0.6943
-        },
-        {
-          "slug": "fishing-the-reflected-sky",
-          "score": 0.6918
         }
       ],
       "diversityRank": 12,
@@ -7468,7 +7704,7 @@
           "score": 0.8056
         }
       ],
-      "diversityRank": 101,
+      "diversityRank": 104,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -7511,6 +7747,10 @@
           "score": 0.8245
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.8148
+        },
+        {
           "slug": "cold-cabinet",
           "score": 0.8001
         },
@@ -7521,13 +7761,9 @@
         {
           "slug": "storm-in-a-fishbowl",
           "score": 0.7774
-        },
-        {
-          "slug": "sleeping-cart",
-          "score": 0.7705
         }
       ],
-      "diversityRank": 118,
+      "diversityRank": 122,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7586,7 +7822,7 @@
           "score": 0.8266
         }
       ],
-      "diversityRank": 113,
+      "diversityRank": 116,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7704,7 +7940,7 @@
           "score": 0.7859
         }
       ],
-      "diversityRank": 78,
+      "diversityRank": 79,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7763,7 +7999,7 @@
           "score": 0.8097
         }
       ],
-      "diversityRank": 98,
+      "diversityRank": 100,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7940,7 +8176,7 @@
           "score": 0.7976
         }
       ],
-      "diversityRank": 79,
+      "diversityRank": 81,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -8058,7 +8294,7 @@
           "score": 0.774
         }
       ],
-      "diversityRank": 83,
+      "diversityRank": 85,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -8093,6 +8329,10 @@
     "white-eyes-in-the-rain": {
       "related": [
         {
+          "slug": "astral-ferry",
+          "score": 0.7928
+        },
+        {
           "slug": "monolithic-cobalt-liminality",
           "score": 0.7648
         },
@@ -8101,20 +8341,16 @@
           "score": 0.7489
         },
         {
+          "slug": "flooded-arcades",
+          "score": 0.744
+        },
+        {
           "slug": "luminous-cosmic-folklore",
           "score": 0.7131
         },
         {
           "slug": "tower-of-smoke",
           "score": 0.7097
-        },
-        {
-          "slug": "azure-threshold",
-          "score": 0.6838
-        },
-        {
-          "slug": "ice-procession",
-          "score": 0.6831
         }
       ],
       "diversityRank": 8,
@@ -8176,7 +8412,7 @@
           "score": 0.795
         }
       ],
-      "diversityRank": 89,
+      "diversityRank": 90,
       "labels": {
         "style": {
           "label": "Impressionism",

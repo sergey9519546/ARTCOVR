@@ -153,9 +153,20 @@ export function orderForDisplay(items: readonly Artwork[]) {
   return [...spreadForDisplay(leading), ...spreadForDisplay(trailing)];
 }
 
-export const displayArtworks = orderForDisplay(
-  isPrivateStaging ? stagingArtworks : artworks,
-);
+export const displayArtworks = (() => {
+  const ordered = orderForDisplay(
+    isPrivateStaging ? stagingArtworks : artworks,
+  );
+  // Artwork grid swap: 2nd and 15th positions (owner directive)
+  if (ordered.length >= 15) {
+    const swapped = [...ordered];
+    const temp = swapped[1];
+    swapped[1] = swapped[14];
+    swapped[14] = temp;
+    return swapped;
+  }
+  return ordered;
+})();
 
 /**
  * The home-page catalog: featured-tier works only, palette-spread through the
