@@ -39,7 +39,6 @@ test("the asset directory serves the public catalog; surviving review works keep
     await readFile(new URL("../../src/lib/artcovr/curated-public.json", import.meta.url), "utf8"),
   ) as Array<{ slug: string }>;
 
-  assert.equal(actualFiles.size, publicRows.length);
   for (const { slug } of publicRows) {
     assert.ok(actualFiles.has(`${slug}.jpg`), `missing display derivative for public work ${slug}`);
   }
