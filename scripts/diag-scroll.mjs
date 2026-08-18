@@ -22,7 +22,7 @@ await page.waitForTimeout(800);
 
 const after = await page.evaluate(() => {
   const t = document.querySelector(".carousel-card")?.parentElement;
-  const sec = document.querySelector('[aria-label="ARTCOVR archive journey"]');
+  const _sec = document.querySelector('[aria-label="ARTCOVR archive journey"]');
   return {
     transform: t ? getComputedStyle(t).transform : "none",
     scrollY: window.scrollY,

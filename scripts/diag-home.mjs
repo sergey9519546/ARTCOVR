@@ -17,7 +17,7 @@ const state = await page.evaluate(() => {
   const root = document.documentElement;
   const pre = document.getElementById("artcovr-preloader");
   const header = document.getElementById("header");
-  const track = document.querySelector(".carousel-card");
+  const _track = document.querySelector(".carousel-card");
   const journey = document.querySelector('[aria-label="ARTCOVR archive journey"]');
   return {
     htmlClasses: root.className,

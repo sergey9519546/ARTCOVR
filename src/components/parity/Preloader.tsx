@@ -85,14 +85,6 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
 
   if (dismissed) return null;
 
-  const dismiss = () => {
-    setVisibleImages(PRELOADER_IMAGES.length);
-    setCounter(100);
-    setExited(true);
-    setDismissed(true);
-    onCompleteRef.current?.();
-  };
-
   return (
     <>
       <div

@@ -235,7 +235,7 @@ test("every launch-selection sourceSha256 resolves to a curated catalog sha256 (
     regenerated_originals: 8,
   });
 
-  const unmatched = withSha.filter(({ sourcePool, sourceSha256 }) => !curatedSha.has(sourceSha256));
+  const unmatched = withSha.filter(({ sourceSha256 }) => !curatedSha.has(sourceSha256));
   assert.equal(
     unmatched.length,
     0,

@@ -1,23 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project
-
-**OUTFIT® by ++hellohello** — an apparel / cover-art storefront built as a single-page scroll experience: preloader intro, hero, product grid, a pinned tilted carousel, a pinned 3D spiral, a scroll-snap brand section, footer. Plus product detail, bag, and four static content routes.
-
-It is **frontend-only**. No auth, no orders, no server-side product data, no payment. Checkout is simulated. Do not infer otherwise from the dependency list — see [Dead code](#dead-code-inventory).
-
-Stack (resolved versions from `bun.lock`, which sits ahead of the caret ranges in `package.json`):
-
-| | |
-|---|---|
-| next | **16.1.3** (App Router, `output: "standalone"`) |
-| react / react-dom | **19.2.3** |
-| tailwindcss | **4.1.18** (CSS-first config — see [Theming](#theming)) |
-| typescript | **5.9.3** |
-| prisma / @prisma/client | **6.19.2** (dead code) |
-| package manager | **Bun** (`bun.lock`) |
+@AGENTS.md
 
 `worklog.md` at the repo root is the change/audit history and the only prose documentation.
 
