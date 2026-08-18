@@ -34,7 +34,7 @@
           "score": 0.7048
         }
       ],
-      "diversityRank": 20,
+      "diversityRank": 30,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -77,8 +77,8 @@
           "score": 0.8185
         },
         {
-          "slug": "days-almost-here",
-          "score": 0.8161
+          "slug": "subway-of-apologies",
+          "score": 0.8018
         },
         {
           "slug": "cyan-passage",
@@ -93,7 +93,7 @@
           "score": 0.7978
         }
       ],
-      "diversityRank": 75,
+      "diversityRank": 70,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -152,7 +152,7 @@
           "score": 0.8183
         }
       ],
-      "diversityRank": 121,
+      "diversityRank": 105,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -199,19 +199,19 @@
           "score": 0.7454
         },
         {
-          "slug": "last-sock-on-the-line",
-          "score": 0.723
-        },
-        {
           "slug": "the-boating-afternoon",
           "score": 0.7135
         },
         {
-          "slug": "vibrant-risograph-surrealism",
-          "score": 0.6931
+          "slug": "surrealist-sky-collage",
+          "score": 0.6914
+        },
+        {
+          "slug": "buried-clocks",
+          "score": 0.6879
         }
       ],
-      "diversityRank": 41,
+      "diversityRank": 12,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -270,7 +270,7 @@
           "score": 0.7724
         }
       ],
-      "diversityRank": 61,
+      "diversityRank": 55,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -329,7 +329,7 @@
           "score": 0.7177
         }
       ],
-      "diversityRank": 32,
+      "diversityRank": 28,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -361,6 +361,65 @@
         }
       }
     },
+    "bioluminescent-abyssal-biomech": {
+      "related": [
+        {
+          "slug": "luminous-nocturnal-abyss",
+          "score": 0.773
+        },
+        {
+          "slug": "white-eyes-in-the-rain",
+          "score": 0.7309
+        },
+        {
+          "slug": "luminous-cosmic-folklore",
+          "score": 0.6824
+        },
+        {
+          "slug": "monolithic-cobalt-liminality",
+          "score": 0.6764
+        },
+        {
+          "slug": "kinetic-ghost-minimalism",
+          "score": 0.6443
+        },
+        {
+          "slug": "the-brass-halo",
+          "score": 0.6267
+        }
+      ],
+      "diversityRank": 56,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.716
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.539
+        },
+        "mood": {
+          "label": "Vibrant__Energetic",
+          "conf": 0.283
+        },
+        "category": {
+          "label": "General_Generation",
+          "conf": 0.4
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.4
+        },
+        "colorblend": {
+          "label": "Accent_Noir_Blue",
+          "conf": 0.452
+        },
+        "domcolor": {
+          "label": "Black",
+          "conf": 0.731
+        }
+      }
+    },
     "birthday-spark": {
       "related": [
         {
@@ -380,15 +439,15 @@
           "score": 0.8386
         },
         {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.834
+          "slug": "the-uplifted-face",
+          "score": 0.8196
         },
         {
-          "slug": "camera-tears",
-          "score": 0.8333
+          "slug": "the-branch-bearer",
+          "score": 0.8081
         }
       ],
-      "diversityRank": 116,
+      "diversityRank": 102,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -439,15 +498,15 @@
           "score": 0.6773
         },
         {
-          "slug": "electric-cobalt-minimalist",
-          "score": 0.6658
+          "slug": "azure-threshold",
+          "score": 0.6515
         },
         {
-          "slug": "bold-graphic-neon-surrealism",
-          "score": 0.6532
+          "slug": "ethereal-pastel-surrealism",
+          "score": 0.6378
         }
       ],
-      "diversityRank": 21,
+      "diversityRank": 8,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -479,65 +538,6 @@
         }
       }
     },
-    "bold-graphic-neon-surrealism": {
-      "related": [
-        {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.788
-        },
-        {
-          "slug": "luminous-thermal-expressionism",
-          "score": 0.7417
-        },
-        {
-          "slug": "magenta-eclipse",
-          "score": 0.7049
-        },
-        {
-          "slug": "high-contrast-fauvist-glitch",
-          "score": 0.6992
-        },
-        {
-          "slug": "saturated-surrealist-minimalism",
-          "score": 0.6867
-        },
-        {
-          "slug": "graphic-kinetic-surrealism",
-          "score": 0.6772
-        }
-      ],
-      "diversityRank": 33,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.627
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.862
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.688
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.51
-        },
-        "weather": {
-          "label": "rainy",
-          "conf": 0.379
-        },
-        "colorblend": {
-          "label": "Cool_Oceanic_Winter",
-          "conf": 0.476
-        },
-        "domcolor": {
-          "label": "Blue",
-          "conf": 0.446
-        }
-      }
-    },
     "boy-and-the-ant": {
       "related": [
         {
@@ -565,7 +565,7 @@
           "score": 0.6966
         }
       ],
-      "diversityRank": 24,
+      "diversityRank": 42,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -608,23 +608,23 @@
           "score": 0.8324
         },
         {
-          "slug": "cassette-veins",
-          "score": 0.816
-        },
-        {
-          "slug": "sleeping-cart",
-          "score": 0.8112
-        },
-        {
           "slug": "family-circuit",
           "score": 0.8083
         },
         {
           "slug": "fishing-the-reflected-sky",
           "score": 0.8031
+        },
+        {
+          "slug": "coffee-for-the-skeleton",
+          "score": 0.7953
+        },
+        {
+          "slug": "surreal-retro-cosmic-collage",
+          "score": 0.788
         }
       ],
-      "diversityRank": 135,
+      "diversityRank": 115,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -656,183 +656,6 @@
         }
       }
     },
-    "camera-tears": {
-      "related": [
-        {
-          "slug": "mechanical-saint",
-          "score": 0.8745
-        },
-        {
-          "slug": "cassette-veins",
-          "score": 0.8558
-        },
-        {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8432
-        },
-        {
-          "slug": "door-on-a-plate",
-          "score": 0.8415
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.8347
-        },
-        {
-          "slug": "birthday-spark",
-          "score": 0.8333
-        }
-      ],
-      "diversityRank": 86,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.327
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.524
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.323
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.481
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.709
-        }
-      }
-    },
-    "cart-of-hours": {
-      "related": [
-        {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.8393
-        },
-        {
-          "slug": "the-brass-halo",
-          "score": 0.835
-        },
-        {
-          "slug": "chair-after-midnight",
-          "score": 0.7961
-        },
-        {
-          "slug": "wheel-of-quiet-relics",
-          "score": 0.756
-        },
-        {
-          "slug": "monochrome-gothic-printmaking",
-          "score": 0.7538
-        },
-        {
-          "slug": "disruptive-analog-grunge",
-          "score": 0.7512
-        }
-      ],
-      "diversityRank": 105,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.552
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.643
-        },
-        "mood": {
-          "label": "Eerie__Dark",
-          "conf": 0.347
-        },
-        "category": {
-          "label": "Temporal_Layering__Simultaneous_Time",
-          "conf": 0.667
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Accent_Noir_Red",
-          "conf": 0.517
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.791
-        }
-      }
-    },
-    "cassette-veins": {
-      "related": [
-        {
-          "slug": "mechanical-saint",
-          "score": 0.8962
-        },
-        {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8768
-        },
-        {
-          "slug": "transit-diagram",
-          "score": 0.8617
-        },
-        {
-          "slug": "camera-tears",
-          "score": 0.8558
-        },
-        {
-          "slug": "family-circuit",
-          "score": 0.8497
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.8497
-        }
-      ],
-      "diversityRank": 123,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.361
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.588
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.391
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.407
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.457
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.571
-        }
-      }
-    },
     "cathedral-of-washers": {
       "related": [
         {
@@ -840,16 +663,8 @@
           "score": 0.8851
         },
         {
-          "slug": "sleeping-cart",
-          "score": 0.8546
-        },
-        {
           "slug": "tower-of-smoke",
           "score": 0.8245
-        },
-        {
-          "slug": "cold-cabinet",
-          "score": 0.8064
         },
         {
           "slug": "barcode-moon",
@@ -858,9 +673,17 @@
         {
           "slug": "coffee-for-the-skeleton",
           "score": 0.7681
+        },
+        {
+          "slug": "unopened-staircase",
+          "score": 0.7572
+        },
+        {
+          "slug": "mouth-in-the-floor",
+          "score": 0.7548
         }
       ],
-      "diversityRank": 60,
+      "diversityRank": 54,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -895,6 +718,10 @@
     "celestial-paper-bag": {
       "related": [
         {
+          "slug": "stars-in-a-takeout-bag",
+          "score": 0.9992
+        },
+        {
           "slug": "emerald-colonnade",
           "score": 0.7876
         },
@@ -903,8 +730,8 @@
           "score": 0.781
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7793
+          "slug": "orange-door-encounter",
+          "score": 0.7773
         },
         {
           "slug": "mailbox-garden",
@@ -913,13 +740,9 @@
         {
           "slug": "the-lives-not-chosen",
           "score": 0.7746
-        },
-        {
-          "slug": "surreal-retro-futurist-collage",
-          "score": 0.7551
         }
       ],
-      "diversityRank": 64,
+      "diversityRank": 59,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -951,65 +774,6 @@
         }
       }
     },
-    "chair-after-midnight": {
-      "related": [
-        {
-          "slug": "cart-of-hours",
-          "score": 0.7961
-        },
-        {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.7811
-        },
-        {
-          "slug": "the-brass-halo",
-          "score": 0.7709
-        },
-        {
-          "slug": "celestial-paper-bag",
-          "score": 0.7175
-        },
-        {
-          "slug": "wheel-of-quiet-relics",
-          "score": 0.6939
-        },
-        {
-          "slug": "tactile-organic-opulence",
-          "score": 0.6913
-        }
-      ],
-      "diversityRank": 9,
-      "labels": {
-        "style": {
-          "label": "Minimalism",
-          "conf": 0.421
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.688
-        },
-        "mood": {
-          "label": "Eerie__Dark",
-          "conf": 0.278
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.275
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Accent_Noir_Blue",
-          "conf": 0.457
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.747
-        }
-      }
-    },
     "cinematic-surreal-sci-fi": {
       "related": [
         {
@@ -1037,7 +801,7 @@
           "score": 0.8054
         }
       ],
-      "diversityRank": 96,
+      "diversityRank": 73,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1092,11 +856,11 @@
           "score": 0.7569
         },
         {
-          "slug": "tactile-organic-opulence",
-          "score": 0.7542
+          "slug": "surreal-retro-cosmic-collage",
+          "score": 0.7389
         }
       ],
-      "diversityRank": 93,
+      "diversityRank": 82,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -1155,7 +919,7 @@
           "score": 0.7079
         }
       ],
-      "diversityRank": 65,
+      "diversityRank": 58,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1202,19 +966,19 @@
           "score": 0.7953
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7935
-        },
-        {
           "slug": "unopened-staircase",
           "score": 0.7859
         },
         {
-          "slug": "sleeping-cart",
-          "score": 0.7817
+          "slug": "cathedral-of-washers",
+          "score": 0.7681
+        },
+        {
+          "slug": "tower-of-smoke",
+          "score": 0.7676
         }
       ],
-      "diversityRank": 28,
+      "diversityRank": 29,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -1246,74 +1010,11 @@
         }
       }
     },
-    "cold-cabinet": {
-      "related": [
-        {
-          "slug": "escalator-to-nowhere",
-          "score": 0.8135
-        },
-        {
-          "slug": "cathedral-of-washers",
-          "score": 0.8064
-        },
-        {
-          "slug": "tower-of-smoke",
-          "score": 0.8001
-        },
-        {
-          "slug": "coffee-for-the-skeleton",
-          "score": 0.7935
-        },
-        {
-          "slug": "sleeping-cart",
-          "score": 0.7893
-        },
-        {
-          "slug": "mailbox-garden",
-          "score": 0.7854
-        }
-      ],
-      "diversityRank": 90,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.655
-        },
-        "medium": {
-          "label": "Photograph",
-          "conf": 0.429
-        },
-        "mood": {
-          "label": "Melancholic__Solitary",
-          "conf": 0.475
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.596
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Cool_Oceanic_Winter",
-          "conf": 0.532
-        },
-        "domcolor": {
-          "label": "Blue",
-          "conf": 0.462
-        }
-      }
-    },
     "coral-beak": {
       "related": [
         {
           "slug": "surreal-retro-futurist-collage",
           "score": 0.837
-        },
-        {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.825
         },
         {
           "slug": "veil-in-red-wind",
@@ -1330,9 +1031,13 @@
         {
           "slug": "graphic-surrealist-collage",
           "score": 0.7896
+        },
+        {
+          "slug": "weather-under-the-umbrella",
+          "score": 0.789
         }
       ],
-      "diversityRank": 82,
+      "diversityRank": 77,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -1391,7 +1096,7 @@
           "score": 0.782
         }
       ],
-      "diversityRank": 72,
+      "diversityRank": 65,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -1423,31 +1128,90 @@
         }
       }
     },
+    "crimson-grain-surrealism": {
+      "related": [
+        {
+          "slug": "crimson-tactile-surrealism",
+          "score": 0.7775
+        },
+        {
+          "slug": "two-dancers-in-linen",
+          "score": 0.7523
+        },
+        {
+          "slug": "magenta-eclipse",
+          "score": 0.7067
+        },
+        {
+          "slug": "luminous-thermal-expressionism",
+          "score": 0.703
+        },
+        {
+          "slug": "high-contrast-fauvist-glitch",
+          "score": 0.6926
+        },
+        {
+          "slug": "sherbet-orbits",
+          "score": 0.6915
+        }
+      ],
+      "diversityRank": 60,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.728
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.442
+        },
+        "mood": {
+          "label": "Mysterious__Dreamy",
+          "conf": 0.354
+        },
+        "category": {
+          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
+          "conf": 0.407
+        },
+        "weather": {
+          "label": "rainy",
+          "conf": 0.379
+        },
+        "colorblend": {
+          "label": "Warm_Autumnal_Sunset",
+          "conf": 0.754
+        },
+        "domcolor": {
+          "label": "Red",
+          "conf": 0.854
+        }
+      }
+    },
     "crimson-tactile-surrealism": {
       "related": [
         {
-          "slug": "two-dancers-in-linen",
-          "score": 0.6378
+          "slug": "crimson-grain-surrealism",
+          "score": 0.7775
         },
         {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.6191
+          "slug": "two-dancers-in-linen",
+          "score": 0.6378
         },
         {
           "slug": "luminous-thermal-expressionism",
           "score": 0.6136
         },
         {
-          "slug": "tactile-organic-opulence",
-          "score": 0.6134
-        },
-        {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.5989
-        },
-        {
           "slug": "coral-beak",
           "score": 0.5873
+        },
+        {
+          "slug": "sherbet-orbits",
+          "score": 0.5868
+        },
+        {
+          "slug": "desert-broadcast-saint",
+          "score": 0.586
         }
       ],
       "diversityRank": 3,
@@ -1497,19 +1261,19 @@
           "score": 0.7227
         },
         {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.7193
+          "slug": "graphic-surrealist-collage",
+          "score": 0.7134
         },
         {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.7151
+          "slug": "weather-under-the-umbrella",
+          "score": 0.7123
         },
         {
-          "slug": "mirror-box",
-          "score": 0.7137
+          "slug": "coral-beak",
+          "score": 0.7004
         }
       ],
-      "diversityRank": 40,
+      "diversityRank": 36,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -1556,19 +1320,19 @@
           "score": 0.8134
         },
         {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.7956
-        },
-        {
           "slug": "the-boating-afternoon",
           "score": 0.7907
         },
         {
           "slug": "desert-broadcast-saint",
           "score": 0.7756
+        },
+        {
+          "slug": "coral-beak",
+          "score": 0.7741
         }
       ],
-      "diversityRank": 55,
+      "diversityRank": 67,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -1627,7 +1391,7 @@
           "score": 0.759
         }
       ],
-      "diversityRank": 15,
+      "diversityRank": 97,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1662,6 +1426,10 @@
     "cyan-passage": {
       "related": [
         {
+          "slug": "subway-of-apologies",
+          "score": 0.9997
+        },
+        {
           "slug": "storm-in-a-fishbowl",
           "score": 0.8275
         },
@@ -1680,13 +1448,9 @@
         {
           "slug": "mailbox-garden",
           "score": 0.8013
-        },
-        {
-          "slug": "approved-horizon",
-          "score": 0.801
         }
       ],
-      "diversityRank": 102,
+      "diversityRank": 90,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1718,71 +1482,8 @@
         }
       }
     },
-    "days-almost-here": {
-      "related": [
-        {
-          "slug": "mouth-full-of-coins",
-          "score": 0.8163
-        },
-        {
-          "slug": "approved-horizon",
-          "score": 0.8161
-        },
-        {
-          "slug": "escalator-to-nowhere",
-          "score": 0.8028
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.7925
-        },
-        {
-          "slug": "reverse-rain",
-          "score": 0.7773
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.7753
-        }
-      ],
-      "diversityRank": 92,
-      "labels": {
-        "style": {
-          "label": "Minimalism",
-          "conf": 0.466
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.606
-        },
-        "mood": {
-          "label": "Melancholic__Solitary",
-          "conf": 0.441
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.275
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.55
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.712
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.257
-        }
-      }
-    },
     "desert-broadcast-saint": {
       "related": [
-        {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.8702
-        },
         {
           "slug": "vigil-at-the-golden-cross",
           "score": 0.7948
@@ -1802,9 +1503,13 @@
         {
           "slug": "crown-of-black-spikes",
           "score": 0.7756
+        },
+        {
+          "slug": "high-contrast-fauvist-glitch",
+          "score": 0.771
         }
       ],
-      "diversityRank": 77,
+      "diversityRank": 72,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1851,19 +1556,19 @@
           "score": 0.8568
         },
         {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.8493
-        },
-        {
           "slug": "surreal-retro-cosmic-collage",
           "score": 0.8325
         },
         {
           "slug": "portrait-in-slippage",
           "score": 0.8017
+        },
+        {
+          "slug": "ramen-with-my-skeleton",
+          "score": 0.7965
         }
       ],
-      "diversityRank": 126,
+      "diversityRank": 108,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -1918,11 +1623,11 @@
           "score": 0.8497
         },
         {
-          "slug": "camera-tears",
-          "score": 0.8415
+          "slug": "portrait-in-slippage",
+          "score": 0.8364
         }
       ],
-      "diversityRank": 138,
+      "diversityRank": 118,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -1954,65 +1659,6 @@
         }
       }
     },
-    "electric-cobalt-minimalist": {
-      "related": [
-        {
-          "slug": "blue-hour-monolith",
-          "score": 0.6658
-        },
-        {
-          "slug": "cloud-chamber-communion",
-          "score": 0.6076
-        },
-        {
-          "slug": "bold-graphic-neon-surrealism",
-          "score": 0.6022
-        },
-        {
-          "slug": "monolithic-cobalt-liminality",
-          "score": 0.5456
-        },
-        {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.5433
-        },
-        {
-          "slug": "luminous-thermal-expressionism",
-          "score": 0.5214
-        }
-      ],
-      "diversityRank": 1,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.59
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.529
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.691
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.8
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.326
-        },
-        "colorblend": {
-          "label": "Cool_Oceanic_Winter",
-          "conf": 0.666
-        },
-        "domcolor": {
-          "label": "Blue",
-          "conf": 0.951
-        }
-      }
-    },
     "emerald-colonnade": {
       "related": [
         {
@@ -2028,8 +1674,8 @@
           "score": 0.7876
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7763
+          "slug": "stars-in-a-takeout-bag",
+          "score": 0.7844
         },
         {
           "slug": "mailbox-garden",
@@ -2040,7 +1686,7 @@
           "score": 0.7578
         }
       ],
-      "diversityRank": 109,
+      "diversityRank": 95,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -2099,7 +1745,7 @@
           "score": 0.7196
         }
       ],
-      "diversityRank": 30,
+      "diversityRank": 9,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2142,23 +1788,23 @@
           "score": 0.8388
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.8135
-        },
-        {
-          "slug": "days-almost-here",
-          "score": 0.8028
-        },
-        {
           "slug": "approved-horizon",
           "score": 0.7921
         },
         {
           "slug": "unsaid-things",
           "score": 0.7796
+        },
+        {
+          "slug": "microwave-bloom",
+          "score": 0.777
+        },
+        {
+          "slug": "key-to-the-threshold",
+          "score": 0.7695
         }
       ],
-      "diversityRank": 56,
+      "diversityRank": 50,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2190,23 +1836,70 @@
         }
       }
     },
-    "ethereal-monochrome-motion": {
+    "ethereal-cloud-surrealism": {
       "related": [
         {
-          "slug": "second-sunrise",
-          "score": 0.7816
+          "slug": "glass-stair-in-the-clouds",
+          "score": 0.8
+        },
+        {
+          "slug": "ethereal-pastel-surrealism",
+          "score": 0.7306
+        },
+        {
+          "slug": "serene-pastel-surrealism",
+          "score": 0.6692
+        },
+        {
+          "slug": "ethereal-painterly-botanica",
+          "score": 0.6572
+        },
+        {
+          "slug": "birthday-spark",
+          "score": 0.6436
         },
         {
           "slug": "mechanical-saint",
+          "score": 0.6402
+        }
+      ],
+      "diversityRank": 7,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.737
+        },
+        "medium": {
+          "label": "Watercolor",
+          "conf": 0.301
+        },
+        "mood": {
+          "label": "Mysterious__Dreamy",
+          "conf": 0.432
+        },
+        "category": {
+          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
+          "conf": 0.407
+        },
+        "weather": {
+          "label": "cloudy",
+          "conf": 0.289
+        },
+        "colorblend": {
+          "label": "Royal_Opulent",
+          "conf": 0.681
+        },
+        "domcolor": {
+          "label": "Purple",
+          "conf": 0.603
+        }
+      }
+    },
+    "ethereal-monochrome-motion": {
+      "related": [
+        {
+          "slug": "mechanical-saint",
           "score": 0.78
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.7684
-        },
-        {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.768
         },
         {
           "slug": "microwave-bloom",
@@ -2215,9 +1908,21 @@
         {
           "slug": "transit-diagram",
           "score": 0.7527
+        },
+        {
+          "slug": "the-branch-bearer",
+          "score": 0.7476
+        },
+        {
+          "slug": "tears-as-currency",
+          "score": 0.7387
+        },
+        {
+          "slug": "portrait-in-slippage",
+          "score": 0.7353
         }
       ],
-      "diversityRank": 17,
+      "diversityRank": 27,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2276,7 +1981,7 @@
           "score": 0.7367
         }
       ],
-      "diversityRank": 136,
+      "diversityRank": 116,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2327,15 +2032,15 @@
           "score": 0.7767
         },
         {
-          "slug": "cyan-passage",
-          "score": 0.7745
+          "slug": "subway-of-apologies",
+          "score": 0.775
         },
         {
-          "slug": "microwave-bloom",
-          "score": 0.767
+          "slug": "cyan-passage",
+          "score": 0.7745
         }
       ],
-      "diversityRank": 59,
+      "diversityRank": 61,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -2382,19 +2087,19 @@
           "score": 0.7365
         },
         {
+          "slug": "ethereal-cloud-surrealism",
+          "score": 0.7306
+        },
+        {
           "slug": "head-in-the-rapeseed",
           "score": 0.7233
         },
         {
           "slug": "surrealist-liminal-pastoralism",
           "score": 0.7144
-        },
-        {
-          "slug": "approved-horizon",
-          "score": 0.7078
         }
       ],
-      "diversityRank": 68,
+      "diversityRank": 39,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -2437,6 +2142,10 @@
           "score": 0.8116
         },
         {
+          "slug": "subway-of-apologies",
+          "score": 0.8115
+        },
+        {
           "slug": "open-circle",
           "score": 0.7701
         },
@@ -2447,13 +2156,9 @@
         {
           "slug": "herald-of-the-orbit-bloom",
           "score": 0.7663
-        },
-        {
-          "slug": "coral-beak",
-          "score": 0.7522
         }
       ],
-      "diversityRank": 45,
+      "diversityRank": 40,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -2488,10 +2193,6 @@
     "family-circuit": {
       "related": [
         {
-          "slug": "cassette-veins",
-          "score": 0.8497
-        },
-        {
           "slug": "transit-diagram",
           "score": 0.8364
         },
@@ -2510,9 +2211,13 @@
         {
           "slug": "buried-clocks",
           "score": 0.8083
+        },
+        {
+          "slug": "mouth-in-the-floor",
+          "score": 0.7862
         }
       ],
-      "diversityRank": 47,
+      "diversityRank": 45,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -2544,65 +2249,6 @@
         }
       }
     },
-    "filing-cathedral": {
-      "related": [
-        {
-          "slug": "mechanical-saint",
-          "score": 0.893
-        },
-        {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8816
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.8566
-        },
-        {
-          "slug": "tears-as-currency",
-          "score": 0.8496
-        },
-        {
-          "slug": "birthday-spark",
-          "score": 0.8291
-        },
-        {
-          "slug": "second-sunrise",
-          "score": 0.829
-        }
-      ],
-      "diversityRank": 103,
-      "labels": {
-        "style": {
-          "label": "Expressionism",
-          "conf": 0.287
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.615
-        },
-        "mood": {
-          "label": "Majestic__Epic",
-          "conf": 0.449
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.275
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.55
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.643
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.511
-        }
-      }
-    },
     "fishing-the-reflected-sky": {
       "related": [
         {
@@ -2612,10 +2258,6 @@
         {
           "slug": "buried-clocks",
           "score": 0.8031
-        },
-        {
-          "slug": "sleeping-cart",
-          "score": 0.7847
         },
         {
           "slug": "ice-procession",
@@ -2628,9 +2270,13 @@
         {
           "slug": "cathedral-of-washers",
           "score": 0.7518
+        },
+        {
+          "slug": "luminous-cosmic-folklore",
+          "score": 0.7494
         }
       ],
-      "diversityRank": 84,
+      "diversityRank": 79,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -2669,6 +2315,10 @@
           "score": 0.8842
         },
         {
+          "slug": "ethereal-cloud-surrealism",
+          "score": 0.8
+        },
+        {
           "slug": "ethereal-pastel-surrealism",
           "score": 0.7771
         },
@@ -2683,13 +2333,9 @@
         {
           "slug": "microwave-bloom",
           "score": 0.7048
-        },
-        {
-          "slug": "second-sunrise",
-          "score": 0.6999
         }
       ],
-      "diversityRank": 10,
+      "diversityRank": 114,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -2721,124 +2367,6 @@
         }
       }
     },
-    "graphic-angular-urbanism": {
-      "related": [
-        {
-          "slug": "graphic-surrealist-collage",
-          "score": 0.7831
-        },
-        {
-          "slug": "graphic-retro-printmaker",
-          "score": 0.7769
-        },
-        {
-          "slug": "vigil-at-the-golden-cross",
-          "score": 0.7715
-        },
-        {
-          "slug": "desert-broadcast-saint",
-          "score": 0.7656
-        },
-        {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.7635
-        },
-        {
-          "slug": "unopened-staircase",
-          "score": 0.7605
-        }
-      ],
-      "diversityRank": 69,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.639
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.929
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.484
-        },
-        "category": {
-          "label": "Architectural__Spatial_Paradox",
-          "conf": 0.35
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.326
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.584
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.501
-        }
-      }
-    },
-    "graphic-kinetic-surrealism": {
-      "related": [
-        {
-          "slug": "graphic-surrealist-collage",
-          "score": 0.7743
-        },
-        {
-          "slug": "disruptive-analog-grunge",
-          "score": 0.7672
-        },
-        {
-          "slug": "graphic-angular-urbanism",
-          "score": 0.7556
-        },
-        {
-          "slug": "mouth-full-of-coins",
-          "score": 0.7505
-        },
-        {
-          "slug": "days-almost-here",
-          "score": 0.7382
-        },
-        {
-          "slug": "high-contrast-fauvist-glitch",
-          "score": 0.7382
-        }
-      ],
-      "diversityRank": 63,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.556
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.923
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.503
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.8
-        },
-        "weather": {
-          "label": "rainy",
-          "conf": 0.379
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.631
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.362
-        }
-      }
-    },
     "graphic-retro-printmaker": {
       "related": [
         {
@@ -2848,10 +2376,6 @@
         {
           "slug": "surreal-retro-futurist-collage",
           "score": 0.8527
-        },
-        {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.8441
         },
         {
           "slug": "ramen-with-my-skeleton",
@@ -2864,9 +2388,13 @@
         {
           "slug": "widow-in-the-wildflowers",
           "score": 0.7991
+        },
+        {
+          "slug": "graphic-surrealist-collage",
+          "score": 0.7985
         }
       ],
-      "diversityRank": 124,
+      "diversityRank": 106,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -2895,65 +2423,6 @@
         "domcolor": {
           "label": "Orange",
           "conf": 0.577
-        }
-      }
-    },
-    "graphic-surreal-pop": {
-      "related": [
-        {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8353
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.811
-        },
-        {
-          "slug": "mechanical-saint",
-          "score": 0.811
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.801
-        },
-        {
-          "slug": "vibrant-risograph-surrealism",
-          "score": 0.7993
-        },
-        {
-          "slug": "tears-as-currency",
-          "score": 0.799
-        }
-      ],
-      "diversityRank": 44,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.684
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.91
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.827
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.637
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.28
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.503
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.405
         }
       }
     },
@@ -3016,183 +2485,6 @@
         }
       }
     },
-    "graphic-surrealist-minimalism": {
-      "related": [
-        {
-          "slug": "tears-as-currency",
-          "score": 0.7209
-        },
-        {
-          "slug": "liminal-surrealist-distortion",
-          "score": 0.7188
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.6927
-        },
-        {
-          "slug": "surreal-retro-futurist-collage",
-          "score": 0.6901
-        },
-        {
-          "slug": "cassette-veins",
-          "score": 0.6884
-        },
-        {
-          "slug": "coral-beak",
-          "score": 0.6763
-        }
-      ],
-      "diversityRank": 16,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.45
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.921
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.488
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "rainy",
-          "conf": 0.379
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.436
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.557
-        }
-      }
-    },
-    "grief-in-transit": {
-      "related": [
-        {
-          "slug": "surreal-minimalist-waterscapes",
-          "score": 0.8035
-        },
-        {
-          "slug": "parasol-walkers",
-          "score": 0.7709
-        },
-        {
-          "slug": "liminal-surrealist-distortion",
-          "score": 0.7652
-        },
-        {
-          "slug": "minimalist-surrealist-dreamscapes",
-          "score": 0.7601
-        },
-        {
-          "slug": "herald-of-the-orbit-bloom",
-          "score": 0.7557
-        },
-        {
-          "slug": "surreal-retro-futurist-collage",
-          "score": 0.746
-        }
-      ],
-      "diversityRank": 19,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.296
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.643
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.536
-        },
-        "category": {
-          "label": "Biomechanical__Organic-Mechanical_Hybrids",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.55
-        },
-        "colorblend": {
-          "label": "Cool_Oceanic_Winter",
-          "conf": 0.463
-        },
-        "domcolor": {
-          "label": "Blue",
-          "conf": 0.642
-        }
-      }
-    },
-    "gritty-graphic-macabre": {
-      "related": [
-        {
-          "slug": "monochrome-gothic-printmaking",
-          "score": 0.8518
-        },
-        {
-          "slug": "disruptive-analog-grunge",
-          "score": 0.8493
-        },
-        {
-          "slug": "cart-of-hours",
-          "score": 0.8393
-        },
-        {
-          "slug": "the-brass-halo",
-          "score": 0.8365
-        },
-        {
-          "slug": "tactile-organic-opulence",
-          "score": 0.8286
-        },
-        {
-          "slug": "surreal-retro-cosmic-collage",
-          "score": 0.7914
-        }
-      ],
-      "diversityRank": 120,
-      "labels": {
-        "style": {
-          "label": "Baroque",
-          "conf": 0.334
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.777
-        },
-        "mood": {
-          "label": "Eerie__Dark",
-          "conf": 0.664
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.637
-        },
-        "weather": {
-          "label": "rainy",
-          "conf": 0.379
-        },
-        "colorblend": {
-          "label": "Accent_Noir_Orange",
-          "conf": 0.425
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.666
-        }
-      }
-    },
     "halftone-skull-in-red": {
       "related": [
         {
@@ -3220,7 +2512,7 @@
           "score": 0.7988
         }
       ],
-      "diversityRank": 108,
+      "diversityRank": 94,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -3279,7 +2571,7 @@
           "score": 0.7751
         }
       ],
-      "diversityRank": 62,
+      "diversityRank": 91,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -3338,7 +2630,7 @@
           "score": 0.7085
         }
       ],
-      "diversityRank": 18,
+      "diversityRank": 32,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -3397,7 +2689,7 @@
           "score": 0.7888
         }
       ],
-      "diversityRank": 71,
+      "diversityRank": 84,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -3436,10 +2728,6 @@
           "score": 0.8492
         },
         {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.8264
-        },
-        {
           "slug": "luminous-thermal-expressionism",
           "score": 0.8097
         },
@@ -3454,9 +2742,13 @@
         {
           "slug": "unsaid-things",
           "score": 0.7646
+        },
+        {
+          "slug": "cross-in-the-red",
+          "score": 0.7566
         }
       ],
-      "diversityRank": 117,
+      "diversityRank": 103,
       "labels": {
         "style": {
           "label": "Expressionism",
@@ -3488,65 +2780,6 @@
         }
       }
     },
-    "hyper-saturated-surreal-pop": {
-      "related": [
-        {
-          "slug": "high-contrast-fauvist-glitch",
-          "score": 0.8264
-        },
-        {
-          "slug": "luminous-thermal-expressionism",
-          "score": 0.811
-        },
-        {
-          "slug": "vigil-at-the-golden-cross",
-          "score": 0.7893
-        },
-        {
-          "slug": "bold-graphic-neon-surrealism",
-          "score": 0.788
-        },
-        {
-          "slug": "desert-broadcast-saint",
-          "score": 0.7635
-        },
-        {
-          "slug": "magenta-eclipse",
-          "score": 0.7496
-        }
-      ],
-      "diversityRank": 88,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.608
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.459
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.833
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.425
-        },
-        "weather": {
-          "label": "cloudy",
-          "conf": 0.275
-        },
-        "colorblend": {
-          "label": "Royal_Opulent",
-          "conf": 0.47
-        },
-        "domcolor": {
-          "label": "Purple",
-          "conf": 0.277
-        }
-      }
-    },
     "ice-procession": {
       "related": [
         {
@@ -3562,19 +2795,19 @@
           "score": 0.779
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7672
-        },
-        {
           "slug": "cinematic-surreal-sci-fi",
           "score": 0.7511
         },
         {
           "slug": "buried-clocks",
           "score": 0.7483
+        },
+        {
+          "slug": "liminal-surrealist-distortion",
+          "score": 0.7461
         }
       ],
-      "diversityRank": 81,
+      "diversityRank": 76,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -3606,65 +2839,6 @@
         }
       }
     },
-    "ink-bear-bloom": {
-      "related": [
-        {
-          "slug": "unopened-staircase",
-          "score": 0.7983
-        },
-        {
-          "slug": "unsaid-things",
-          "score": 0.7902
-        },
-        {
-          "slug": "mouth-full-of-coins",
-          "score": 0.7678
-        },
-        {
-          "slug": "graphic-retro-printmaker",
-          "score": 0.7535
-        },
-        {
-          "slug": "celestial-paper-bag",
-          "score": 0.751
-        },
-        {
-          "slug": "surreal-retro-futurist-collage",
-          "score": 0.7358
-        }
-      ],
-      "diversityRank": 43,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.275
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.57
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.31
-        },
-        "category": {
-          "label": "Architectural__Spatial_Paradox",
-          "conf": 0.275
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.514
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.444
-        }
-      }
-    },
     "key-to-the-threshold": {
       "related": [
         {
@@ -3680,19 +2854,19 @@
           "score": 0.8385
         },
         {
-          "slug": "cassette-veins",
-          "score": 0.8367
-        },
-        {
           "slug": "portrait-in-slippage",
           "score": 0.83
         },
         {
           "slug": "graphic-surrealist-collage",
           "score": 0.8182
+        },
+        {
+          "slug": "unsaid-things",
+          "score": 0.8127
         }
       ],
-      "diversityRank": 94,
+      "diversityRank": 83,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -3731,16 +2905,12 @@
           "score": 0.7557
         },
         {
-          "slug": "ocean-in-the-bath",
-          "score": 0.7415
-        },
-        {
-          "slug": "mirror-box",
-          "score": 0.7165
-        },
-        {
           "slug": "buried-clocks",
           "score": 0.6617
+        },
+        {
+          "slug": "bioluminescent-abyssal-biomech",
+          "score": 0.6443
         },
         {
           "slug": "mouth-in-the-floor",
@@ -3749,6 +2919,10 @@
         {
           "slug": "coffee-for-the-skeleton",
           "score": 0.6302
+        },
+        {
+          "slug": "monochrome-glitch-abstraction",
+          "score": 0.6271
         }
       ],
       "diversityRank": 4,
@@ -3810,7 +2984,7 @@
           "score": 0.8096
         }
       ],
-      "diversityRank": 99,
+      "diversityRank": 87,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -3842,65 +3016,6 @@
         }
       }
     },
-    "last-sock-on-the-line": {
-      "related": [
-        {
-          "slug": "azure-threshold",
-          "score": 0.723
-        },
-        {
-          "slug": "transit-diagram",
-          "score": 0.7199
-        },
-        {
-          "slug": "storm-in-a-fishbowl",
-          "score": 0.7158
-        },
-        {
-          "slug": "vibrant-risograph-surrealism",
-          "score": 0.7089
-        },
-        {
-          "slug": "cyan-passage",
-          "score": 0.7052
-        },
-        {
-          "slug": "tower-of-smoke",
-          "score": 0.6937
-        }
-      ],
-      "diversityRank": 7,
-      "labels": {
-        "style": {
-          "label": "Minimalism",
-          "conf": 0.46
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.671
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.55
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.7
-        },
-        "colorblend": {
-          "label": "Cool_Oceanic_Winter",
-          "conf": 0.574
-        },
-        "domcolor": {
-          "label": "Blue",
-          "conf": 0.739
-        }
-      }
-    },
     "liminal-surrealist-distortion": {
       "related": [
         {
@@ -3928,7 +3043,7 @@
           "score": 0.7762
         }
       ],
-      "diversityRank": 57,
+      "diversityRank": 52,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -3967,10 +3082,6 @@
           "score": 0.8276
         },
         {
-          "slug": "tactile-organic-opulence",
-          "score": 0.8189
-        },
-        {
           "slug": "cosmic-pilgrim",
           "score": 0.8164
         },
@@ -3985,9 +3096,13 @@
         {
           "slug": "the-stitched-icon",
           "score": 0.8104
+        },
+        {
+          "slug": "surreal-retro-cosmic-collage",
+          "score": 0.7996
         }
       ],
-      "diversityRank": 95,
+      "diversityRank": 81,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -4019,12 +3134,126 @@
         }
       }
     },
-    "luminous-thermal-expressionism": {
+    "luminous-emerald-chiaroscuro": {
       "related": [
         {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.811
+          "slug": "the-lives-not-chosen",
+          "score": 0.775
         },
+        {
+          "slug": "emerald-colonnade",
+          "score": 0.7556
+        },
+        {
+          "slug": "the-brass-halo",
+          "score": 0.6968
+        },
+        {
+          "slug": "celestial-paper-bag",
+          "score": 0.6885
+        },
+        {
+          "slug": "stars-in-a-takeout-bag",
+          "score": 0.688
+        },
+        {
+          "slug": "motel-in-teal-night",
+          "score": 0.6862
+        }
+      ],
+      "diversityRank": 19,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.601
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.53
+        },
+        "mood": {
+          "label": "Mysterious__Dreamy",
+          "conf": 0.323
+        },
+        "category": {
+          "label": "Light__Shadow_Paradox",
+          "conf": 0.407
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.4
+        },
+        "colorblend": {
+          "label": "Accent_Noir_Green",
+          "conf": 0.542
+        },
+        "domcolor": {
+          "label": "Black",
+          "conf": 0.724
+        }
+      }
+    },
+    "luminous-nocturnal-abyss": {
+      "related": [
+        {
+          "slug": "bioluminescent-abyssal-biomech",
+          "score": 0.773
+        },
+        {
+          "slug": "luminous-emerald-chiaroscuro",
+          "score": 0.6057
+        },
+        {
+          "slug": "white-eyes-in-the-rain",
+          "score": 0.5834
+        },
+        {
+          "slug": "the-stitched-icon",
+          "score": 0.5833
+        },
+        {
+          "slug": "luminous-cosmic-folklore",
+          "score": 0.5688
+        },
+        {
+          "slug": "emerald-colonnade",
+          "score": 0.5577
+        }
+      ],
+      "diversityRank": 1,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.591
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.523
+        },
+        "mood": {
+          "label": "Vibrant__Energetic",
+          "conf": 0.283
+        },
+        "category": {
+          "label": "Light__Shadow_Paradox",
+          "conf": 0.407
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.313
+        },
+        "colorblend": {
+          "label": "Accent_Noir_Blue",
+          "conf": 0.482
+        },
+        "domcolor": {
+          "label": "Black",
+          "conf": 0.799
+        }
+      }
+    },
+    "luminous-thermal-expressionism": {
+      "related": [
         {
           "slug": "high-contrast-fauvist-glitch",
           "score": 0.8097
@@ -4038,15 +3267,19 @@
           "score": 0.745
         },
         {
-          "slug": "bold-graphic-neon-surrealism",
-          "score": 0.7417
-        },
-        {
           "slug": "sherbet-orbits",
           "score": 0.731
+        },
+        {
+          "slug": "surreal-pastoral-technicolor",
+          "score": 0.7265
+        },
+        {
+          "slug": "desert-broadcast-saint",
+          "score": 0.709
         }
       ],
-      "diversityRank": 49,
+      "diversityRank": 48,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -4081,10 +3314,6 @@
     "magenta-eclipse": {
       "related": [
         {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.7496
-        },
-        {
           "slug": "luminous-thermal-expressionism",
           "score": 0.7453
         },
@@ -4097,15 +3326,19 @@
           "score": 0.7069
         },
         {
-          "slug": "bold-graphic-neon-surrealism",
-          "score": 0.7049
+          "slug": "crimson-grain-surrealism",
+          "score": 0.7067
         },
         {
           "slug": "two-dancers-in-linen",
           "score": 0.6898
+        },
+        {
+          "slug": "surreal-pastoral-technicolor",
+          "score": 0.6836
         }
       ],
-      "diversityRank": 14,
+      "diversityRank": 10,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -4164,7 +3397,7 @@
           "score": 0.7425
         }
       ],
-      "diversityRank": 58,
+      "diversityRank": 53,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -4215,15 +3448,15 @@
           "score": 0.8013
         },
         {
-          "slug": "microwave-bloom",
-          "score": 0.7959
+          "slug": "subway-of-apologies",
+          "score": 0.8008
         },
         {
-          "slug": "transit-diagram",
-          "score": 0.7911
+          "slug": "microwave-bloom",
+          "score": 0.7959
         }
       ],
-      "diversityRank": 112,
+      "diversityRank": 98,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4258,31 +3491,31 @@
     "mechanical-saint": {
       "related": [
         {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.911
-        },
-        {
-          "slug": "cassette-veins",
-          "score": 0.8962
-        },
-        {
           "slug": "microwave-bloom",
           "score": 0.8942
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.893
         },
         {
           "slug": "tears-as-currency",
           "score": 0.8798
         },
         {
-          "slug": "camera-tears",
-          "score": 0.8745
+          "slug": "transit-diagram",
+          "score": 0.8671
+        },
+        {
+          "slug": "door-on-a-plate",
+          "score": 0.8611
+        },
+        {
+          "slug": "playing-the-stapler",
+          "score": 0.8583
+        },
+        {
+          "slug": "key-to-the-threshold",
+          "score": 0.8396
         }
       ],
-      "diversityRank": 137,
+      "diversityRank": 117,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4321,27 +3554,27 @@
           "score": 0.8942
         },
         {
-          "slug": "second-sunrise",
-          "score": 0.882
-        },
-        {
           "slug": "tears-as-currency",
           "score": 0.8699
         },
         {
-          "slug": "filing-cathedral",
-          "score": 0.8566
+          "slug": "surrealist-sky-collage",
+          "score": 0.8481
         },
         {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8534
+          "slug": "key-to-the-threshold",
+          "score": 0.8458
         },
         {
-          "slug": "cassette-veins",
-          "score": 0.8497
+          "slug": "mouth-full-of-coins",
+          "score": 0.8399
+        },
+        {
+          "slug": "unsaid-things",
+          "score": 0.8377
         }
       ],
-      "diversityRank": 132,
+      "diversityRank": 110,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4432,65 +3665,6 @@
         }
       }
     },
-    "mirror-box": {
-      "related": [
-        {
-          "slug": "the-brass-halo",
-          "score": 0.7796
-        },
-        {
-          "slug": "ocean-in-the-bath",
-          "score": 0.7462
-        },
-        {
-          "slug": "reverse-rain",
-          "score": 0.738
-        },
-        {
-          "slug": "cart-of-hours",
-          "score": 0.7368
-        },
-        {
-          "slug": "celestial-paper-bag",
-          "score": 0.7357
-        },
-        {
-          "slug": "unsaid-things",
-          "score": 0.7267
-        }
-      ],
-      "diversityRank": 38,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.774
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.301
-        },
-        "mood": {
-          "label": "Mysterious__Dreamy",
-          "conf": 0.373
-        },
-        "category": {
-          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "cloudy",
-          "conf": 0.289
-        },
-        "colorblend": {
-          "label": "Accent_Noir_Blue",
-          "conf": 0.425
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.615
-        }
-      }
-    },
     "monochrome-glitch-abstraction": {
       "related": [
         {
@@ -4502,23 +3676,23 @@
           "score": 0.7708
         },
         {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.7477
-        },
-        {
-          "slug": "cart-of-hours",
-          "score": 0.7154
-        },
-        {
           "slug": "mouth-full-of-coins",
           "score": 0.7016
         },
         {
           "slug": "the-brass-halo",
           "score": 0.7009
+        },
+        {
+          "slug": "surreal-retro-cosmic-collage",
+          "score": 0.6946
+        },
+        {
+          "slug": "graphic-surrealist-collage",
+          "score": 0.6918
         }
       ],
-      "diversityRank": 31,
+      "diversityRank": 26,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -4557,10 +3731,6 @@
           "score": 0.8589
         },
         {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.8518
-        },
-        {
           "slug": "barcode-moon",
           "score": 0.8039
         },
@@ -4575,9 +3745,13 @@
         {
           "slug": "monochrome-glitch-abstraction",
           "score": 0.7892
+        },
+        {
+          "slug": "ramen-with-my-skeleton",
+          "score": 0.7843
         }
       ],
-      "diversityRank": 80,
+      "diversityRank": 75,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -4632,11 +3806,11 @@
           "score": 0.7057
         },
         {
-          "slug": "last-sock-on-the-line",
-          "score": 0.6528
+          "slug": "bioluminescent-abyssal-biomech",
+          "score": 0.6764
         }
       ],
-      "diversityRank": 87,
+      "diversityRank": 80,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4691,8 +3865,8 @@
           "score": 0.6775
         },
         {
-          "slug": "grief-in-transit",
-          "score": 0.6768
+          "slug": "surreal-minimalist-waterscapes",
+          "score": 0.672
         }
       ],
       "diversityRank": 2,
@@ -4734,12 +3908,16 @@
           "score": 0.806
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7517
+          "slug": "stars-in-a-takeout-bag",
+          "score": 0.743
         },
         {
           "slug": "celestial-paper-bag",
           "score": 0.7427
+        },
+        {
+          "slug": "orange-door-encounter",
+          "score": 0.7418
         },
         {
           "slug": "cathedral-of-washers",
@@ -4748,10 +3926,6 @@
         {
           "slug": "barcode-moon",
           "score": 0.7124
-        },
-        {
-          "slug": "tower-of-smoke",
-          "score": 0.7019
         }
       ],
       "diversityRank": 5,
@@ -4793,10 +3967,6 @@
           "score": 0.8757
         },
         {
-          "slug": "reverse-rain",
-          "score": 0.864
-        },
-        {
           "slug": "disruptive-analog-grunge",
           "score": 0.8568
         },
@@ -4811,9 +3981,13 @@
         {
           "slug": "mouth-in-the-floor",
           "score": 0.8395
+        },
+        {
+          "slug": "key-to-the-threshold",
+          "score": 0.8385
         }
       ],
-      "diversityRank": 129,
+      "diversityRank": 111,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4856,10 +4030,6 @@
           "score": 0.8324
         },
         {
-          "slug": "reverse-rain",
-          "score": 0.8143
-        },
-        {
           "slug": "unsaid-things",
           "score": 0.8097
         },
@@ -4868,11 +4038,15 @@
           "score": 0.8005
         },
         {
-          "slug": "cassette-veins",
-          "score": 0.7996
+          "slug": "microwave-bloom",
+          "score": 0.7943
+        },
+        {
+          "slug": "graphic-surrealist-collage",
+          "score": 0.794
         }
       ],
-      "diversityRank": 76,
+      "diversityRank": 71,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4931,7 +4105,7 @@
           "score": 0.788
         }
       ],
-      "diversityRank": 73,
+      "diversityRank": 68,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -4963,65 +4137,6 @@
         }
       }
     },
-    "ocean-in-the-bath": {
-      "related": [
-        {
-          "slug": "buried-clocks",
-          "score": 0.7601
-        },
-        {
-          "slug": "mirror-box",
-          "score": 0.7462
-        },
-        {
-          "slug": "unsaid-things",
-          "score": 0.7442
-        },
-        {
-          "slug": "fishing-the-reflected-sky",
-          "score": 0.7431
-        },
-        {
-          "slug": "kinetic-ghost-minimalism",
-          "score": 0.7415
-        },
-        {
-          "slug": "the-boating-afternoon",
-          "score": 0.7208
-        }
-      ],
-      "diversityRank": 50,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.65
-        },
-        "medium": {
-          "label": "Photograph",
-          "conf": 0.481
-        },
-        "mood": {
-          "label": "Melancholic__Solitary",
-          "conf": 0.306
-        },
-        "category": {
-          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.588
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.422
-        }
-      }
-    },
     "ochre-orbits": {
       "related": [
         {
@@ -5045,11 +4160,11 @@
           "score": 0.7778
         },
         {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.7724
+          "slug": "graphic-retro-printmaker",
+          "score": 0.7709
         }
       ],
-      "diversityRank": 115,
+      "diversityRank": 101,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -5108,7 +4223,7 @@
           "score": 0.7308
         }
       ],
-      "diversityRank": 111,
+      "diversityRank": 35,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5147,6 +4262,10 @@
           "score": 0.825
         },
         {
+          "slug": "subway-of-apologies",
+          "score": 0.8085
+        },
+        {
           "slug": "cyan-passage",
           "score": 0.8082
         },
@@ -5161,13 +4280,9 @@
         {
           "slug": "exit-in-fragments",
           "score": 0.7701
-        },
-        {
-          "slug": "mailbox-garden",
-          "score": 0.7606
         }
       ],
-      "diversityRank": 100,
+      "diversityRank": 88,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -5199,6 +4314,65 @@
         }
       }
     },
+    "orange-door-encounter": {
+      "related": [
+        {
+          "slug": "stars-in-a-takeout-bag",
+          "score": 0.7799
+        },
+        {
+          "slug": "celestial-paper-bag",
+          "score": 0.7773
+        },
+        {
+          "slug": "the-lives-not-chosen",
+          "score": 0.7684
+        },
+        {
+          "slug": "luminous-cosmic-folklore",
+          "score": 0.7579
+        },
+        {
+          "slug": "motel-in-teal-night",
+          "score": 0.7418
+        },
+        {
+          "slug": "surreal-retro-cosmic-collage",
+          "score": 0.7237
+        }
+      ],
+      "diversityRank": 44,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.744
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.422
+        },
+        "mood": {
+          "label": "Mysterious__Dreamy",
+          "conf": 0.346
+        },
+        "category": {
+          "label": "Architectural__Spatial_Paradox",
+          "conf": 0.407
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.4
+        },
+        "colorblend": {
+          "label": "Warm_Autumnal_Sunset",
+          "conf": 0.475
+        },
+        "domcolor": {
+          "label": "Black",
+          "conf": 0.588
+        }
+      }
+    },
     "parasol-walkers": {
       "related": [
         {
@@ -5226,7 +4400,7 @@
           "score": 0.8296
         }
       ],
-      "diversityRank": 127,
+      "diversityRank": 109,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5317,183 +4491,6 @@
         }
       }
     },
-    "payphone-for-forgiveness": {
-      "related": [
-        {
-          "slug": "mechanical-saint",
-          "score": 0.911
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.8816
-        },
-        {
-          "slug": "cassette-veins",
-          "score": 0.8768
-        },
-        {
-          "slug": "transit-diagram",
-          "score": 0.8712
-        },
-        {
-          "slug": "tears-as-currency",
-          "score": 0.8655
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.8534
-        }
-      ],
-      "diversityRank": 131,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.287
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.594
-        },
-        "mood": {
-          "label": "Melancholic__Solitary",
-          "conf": 0.467
-        },
-        "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.275
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.427
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.64
-        }
-      }
-    },
-    "pilgrim-of-the-prism-dawn": {
-      "related": [
-        {
-          "slug": "desert-broadcast-saint",
-          "score": 0.8702
-        },
-        {
-          "slug": "surreal-retro-futurist-collage",
-          "score": 0.8578
-        },
-        {
-          "slug": "graphic-retro-printmaker",
-          "score": 0.8441
-        },
-        {
-          "slug": "coral-beak",
-          "score": 0.825
-        },
-        {
-          "slug": "widow-in-the-wildflowers",
-          "score": 0.8234
-        },
-        {
-          "slug": "crown-of-black-spikes",
-          "score": 0.7956
-        }
-      ],
-      "diversityRank": 128,
-      "labels": {
-        "style": {
-          "label": "Impressionism",
-          "conf": 0.49
-        },
-        "medium": {
-          "label": "Oil_Painting",
-          "conf": 0.441
-        },
-        "mood": {
-          "label": "Serene__Peaceful",
-          "conf": 0.467
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.425
-        },
-        "weather": {
-          "label": "rainy",
-          "conf": 0.379
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.642
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.5
-        }
-      }
-    },
-    "pinned-cloud": {
-      "related": [
-        {
-          "slug": "escalator-to-nowhere",
-          "score": 0.7096
-        },
-        {
-          "slug": "narrative-surrealist-synthesis",
-          "score": 0.7007
-        },
-        {
-          "slug": "the-crumbling-colossus",
-          "score": 0.6966
-        },
-        {
-          "slug": "mailbox-garden",
-          "score": 0.6883
-        },
-        {
-          "slug": "surrealist-sky-collage",
-          "score": 0.685
-        },
-        {
-          "slug": "red-thread",
-          "score": 0.6753
-        }
-      ],
-      "diversityRank": 13,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.393
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.694
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.55
-        },
-        "category": {
-          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
-          "conf": 0.596
-        },
-        "weather": {
-          "label": "cloudy",
-          "conf": 0.289
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.624
-        },
-        "domcolor": {
-          "label": "Green",
-          "conf": 0.397
-        }
-      }
-    },
     "playing-the-stapler": {
       "related": [
         {
@@ -5521,7 +4518,7 @@
           "score": 0.8391
         }
       ],
-      "diversityRank": 130,
+      "diversityRank": 112,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5572,15 +4569,15 @@
           "score": 0.8343
         },
         {
-          "slug": "camera-tears",
-          "score": 0.8314
-        },
-        {
           "slug": "key-to-the-threshold",
           "score": 0.83
+        },
+        {
+          "slug": "mouth-full-of-coins",
+          "score": 0.8117
         }
       ],
-      "diversityRank": 110,
+      "diversityRank": 96,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -5639,7 +4636,7 @@
           "score": 0.8009
         }
       ],
-      "diversityRank": 107,
+      "diversityRank": 93,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -5671,6 +4668,65 @@
         }
       }
     },
+    "red-door-black-water": {
+      "related": [
+        {
+          "slug": "the-brass-halo",
+          "score": 0.7837
+        },
+        {
+          "slug": "unsaid-things",
+          "score": 0.7647
+        },
+        {
+          "slug": "red-thread",
+          "score": 0.7645
+        },
+        {
+          "slug": "mouth-full-of-coins",
+          "score": 0.7629
+        },
+        {
+          "slug": "stars-in-a-takeout-bag",
+          "score": 0.7467
+        },
+        {
+          "slug": "mouth-in-the-floor",
+          "score": 0.7466
+        }
+      ],
+      "diversityRank": 62,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.748
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.489
+        },
+        "mood": {
+          "label": "Mysterious__Dreamy",
+          "conf": 0.398
+        },
+        "category": {
+          "label": "Architectural__Spatial_Paradox",
+          "conf": 0.407
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.4
+        },
+        "colorblend": {
+          "label": "Teal__Orange_Cinematic",
+          "conf": 0.515
+        },
+        "domcolor": {
+          "label": "Black",
+          "conf": 0.511
+        }
+      }
+    },
     "red-thread": {
       "related": [
         {
@@ -5678,16 +4734,12 @@
           "score": 0.7972
         },
         {
-          "slug": "reverse-rain",
-          "score": 0.7639
+          "slug": "red-door-black-water",
+          "score": 0.7645
         },
         {
           "slug": "surreal-retro-cosmic-collage",
           "score": 0.76
-        },
-        {
-          "slug": "days-almost-here",
-          "score": 0.7501
         },
         {
           "slug": "escalator-to-nowhere",
@@ -5696,9 +4748,13 @@
         {
           "slug": "unsaid-things",
           "score": 0.7447
+        },
+        {
+          "slug": "surreal-retro-futurist-collage",
+          "score": 0.737
         }
       ],
-      "diversityRank": 39,
+      "diversityRank": 34,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -5730,65 +4786,6 @@
         }
       }
     },
-    "reverse-rain": {
-      "related": [
-        {
-          "slug": "mouth-full-of-coins",
-          "score": 0.864
-        },
-        {
-          "slug": "mouth-in-the-floor",
-          "score": 0.8143
-        },
-        {
-          "slug": "key-to-the-threshold",
-          "score": 0.8013
-        },
-        {
-          "slug": "graphic-surrealist-collage",
-          "score": 0.8012
-        },
-        {
-          "slug": "playing-the-stapler",
-          "score": 0.7973
-        },
-        {
-          "slug": "surreal-retro-cosmic-collage",
-          "score": 0.7928
-        }
-      ],
-      "diversityRank": 91,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.316
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.786
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.459
-        },
-        "category": {
-          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
-          "conf": 0.92
-        },
-        "weather": {
-          "label": "rainy",
-          "conf": 0.467
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.516
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.301
-        }
-      }
-    },
     "sail-cathedral": {
       "related": [
         {
@@ -5816,7 +4813,7 @@
           "score": 0.7622
         }
       ],
-      "diversityRank": 34,
+      "diversityRank": 25,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -5855,14 +4852,6 @@
           "score": 0.7333
         },
         {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.7225
-        },
-        {
-          "slug": "bold-graphic-neon-surrealism",
-          "score": 0.6867
-        },
-        {
           "slug": "high-contrast-fauvist-glitch",
           "score": 0.6786
         },
@@ -5873,6 +4862,14 @@
         {
           "slug": "boy-and-the-ant",
           "score": 0.6597
+        },
+        {
+          "slug": "vigil-at-the-golden-cross",
+          "score": 0.6471
+        },
+        {
+          "slug": "sherbet-orbits",
+          "score": 0.6432
         }
       ],
       "diversityRank": 6,
@@ -5907,74 +4904,11 @@
         }
       }
     },
-    "second-sunrise": {
-      "related": [
-        {
-          "slug": "microwave-bloom",
-          "score": 0.882
-        },
-        {
-          "slug": "mechanical-saint",
-          "score": 0.8681
-        },
-        {
-          "slug": "tears-as-currency",
-          "score": 0.8502
-        },
-        {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8457
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.829
-        },
-        {
-          "slug": "cassette-veins",
-          "score": 0.8164
-        }
-      ],
-      "diversityRank": 67,
-      "labels": {
-        "style": {
-          "label": "Abstract",
-          "conf": 0.319
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.529
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.28
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.55
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.53
-        },
-        "domcolor": {
-          "label": "Orange",
-          "conf": 0.811
-        }
-      }
-    },
     "serene-pastel-surrealism": {
       "related": [
         {
           "slug": "glass-stair-in-the-clouds",
           "score": 0.8842
-        },
-        {
-          "slug": "camera-tears",
-          "score": 0.7522
         },
         {
           "slug": "mechanical-saint",
@@ -5985,15 +4919,19 @@
           "score": 0.7365
         },
         {
-          "slug": "second-sunrise",
-          "score": 0.7362
-        },
-        {
           "slug": "birthday-spark",
           "score": 0.7288
+        },
+        {
+          "slug": "microwave-bloom",
+          "score": 0.7255
+        },
+        {
+          "slug": "parking-meter-garden",
+          "score": 0.7177
         }
       ],
-      "diversityRank": 134,
+      "diversityRank": 16,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -6028,10 +4966,6 @@
     "sherbet-orbits": {
       "related": [
         {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.7488
-        },
-        {
           "slug": "magenta-eclipse",
           "score": 0.7445
         },
@@ -6044,15 +4978,19 @@
           "score": 0.731
         },
         {
-          "slug": "graphic-surreal-pop",
-          "score": 0.7308
+          "slug": "disruptive-analog-grunge",
+          "score": 0.7
         },
         {
-          "slug": "filing-cathedral",
-          "score": 0.7267
+          "slug": "two-dancers-in-linen",
+          "score": 0.6993
+        },
+        {
+          "slug": "vigil-at-the-golden-cross",
+          "score": 0.6961
         }
       ],
-      "diversityRank": 48,
+      "diversityRank": 47,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -6111,7 +5049,7 @@
           "score": 0.7662
         }
       ],
-      "diversityRank": 46,
+      "diversityRank": 41,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -6143,50 +5081,50 @@
         }
       }
     },
-    "sleeping-cart": {
+    "stars-in-a-takeout-bag": {
       "related": [
         {
-          "slug": "cathedral-of-washers",
-          "score": 0.8546
+          "slug": "celestial-paper-bag",
+          "score": 0.9992
         },
         {
-          "slug": "buried-clocks",
-          "score": 0.8112
+          "slug": "luminous-cosmic-folklore",
+          "score": 0.7844
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7893
+          "slug": "emerald-colonnade",
+          "score": 0.7844
         },
         {
-          "slug": "fishing-the-reflected-sky",
-          "score": 0.7847
+          "slug": "orange-door-encounter",
+          "score": 0.7799
         },
         {
-          "slug": "coffee-for-the-skeleton",
-          "score": 0.7817
+          "slug": "the-lives-not-chosen",
+          "score": 0.7755
         },
         {
-          "slug": "surreal-retro-cosmic-collage",
-          "score": 0.7765
+          "slug": "mailbox-garden",
+          "score": 0.7718
         }
       ],
-      "diversityRank": 122,
+      "diversityRank": 119,
       "labels": {
         "style": {
           "label": "Surrealism",
-          "conf": 0.645
+          "conf": 0.805
         },
         "medium": {
-          "label": "Photograph",
-          "conf": 0.242
+          "label": "Digital_Art",
+          "conf": 0.491
         },
         "mood": {
-          "label": "Melancholic__Solitary",
-          "conf": 0.329
+          "label": "Mysterious__Dreamy",
+          "conf": 0.457
         },
         "category": {
-          "label": "Animate_Objects__Objects_with_Consciousness",
-          "conf": 0.596
+          "label": "General_Generation",
+          "conf": 0.4
         },
         "weather": {
           "label": "clear",
@@ -6194,11 +5132,11 @@
         },
         "colorblend": {
           "label": "Teal__Orange_Cinematic",
-          "conf": 0.664
+          "conf": 0.642
         },
         "domcolor": {
-          "label": "Orange",
-          "conf": 0.339
+          "label": "Black",
+          "conf": 0.474
         }
       }
     },
@@ -6207,6 +5145,10 @@
         {
           "slug": "transit-diagram",
           "score": 0.8448
+        },
+        {
+          "slug": "subway-of-apologies",
+          "score": 0.8282
         },
         {
           "slug": "cyan-passage",
@@ -6221,15 +5163,11 @@
           "score": 0.7774
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7773
-        },
-        {
           "slug": "halftone-skull-in-red",
           "score": 0.7645
         }
       ],
-      "diversityRank": 37,
+      "diversityRank": 13,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6261,6 +5199,65 @@
         }
       }
     },
+    "subway-of-apologies": {
+      "related": [
+        {
+          "slug": "cyan-passage",
+          "score": 0.9997
+        },
+        {
+          "slug": "storm-in-a-fishbowl",
+          "score": 0.8282
+        },
+        {
+          "slug": "transit-diagram",
+          "score": 0.8117
+        },
+        {
+          "slug": "exit-in-fragments",
+          "score": 0.8115
+        },
+        {
+          "slug": "open-circle",
+          "score": 0.8085
+        },
+        {
+          "slug": "approved-horizon",
+          "score": 0.8018
+        }
+      ],
+      "diversityRank": 120,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.779
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.348
+        },
+        "mood": {
+          "label": "Mysterious__Dreamy",
+          "conf": 0.482
+        },
+        "category": {
+          "label": "General_Generation",
+          "conf": 0.4
+        },
+        "weather": {
+          "label": "clear",
+          "conf": 0.257
+        },
+        "colorblend": {
+          "label": "Teal__Orange_Cinematic",
+          "conf": 0.607
+        },
+        "domcolor": {
+          "label": "Gray",
+          "conf": 0.558
+        }
+      }
+    },
     "surreal-graphic-minimalism": {
       "related": [
         {
@@ -6288,7 +5285,7 @@
           "score": 0.7206
         }
       ],
-      "diversityRank": 36,
+      "diversityRank": 23,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6347,7 +5344,7 @@
           "score": 0.7709
         }
       ],
-      "diversityRank": 53,
+      "diversityRank": 43,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -6398,15 +5395,15 @@
           "score": 0.8183
         },
         {
-          "slug": "grief-in-transit",
-          "score": 0.8035
-        },
-        {
           "slug": "approved-horizon",
           "score": 0.7911
+        },
+        {
+          "slug": "kinetic-liminal-reflections",
+          "score": 0.7898
         }
       ],
-      "diversityRank": 97,
+      "diversityRank": 49,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6445,10 +5442,6 @@
           "score": 0.792
         },
         {
-          "slug": "vibrant-risograph-surrealism",
-          "score": 0.7494
-        },
-        {
           "slug": "two-dancers-in-linen",
           "score": 0.7398
         },
@@ -6461,11 +5454,15 @@
           "score": 0.7265
         },
         {
-          "slug": "graphic-surreal-pop",
-          "score": 0.7087
+          "slug": "monolithic-cobalt-liminality",
+          "score": 0.7057
+        },
+        {
+          "slug": "herald-of-the-orbit-bloom",
+          "score": 0.7057
         }
       ],
-      "diversityRank": 74,
+      "diversityRank": 69,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6524,7 +5521,7 @@
           "score": 0.8031
         }
       ],
-      "diversityRank": 133,
+      "diversityRank": 113,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6559,10 +5556,6 @@
     "surreal-retro-futurist-collage": {
       "related": [
         {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.8578
-        },
-        {
           "slug": "graphic-retro-printmaker",
           "score": 0.8527
         },
@@ -6581,9 +5574,13 @@
         {
           "slug": "surreal-retro-cosmic-collage",
           "score": 0.827
+        },
+        {
+          "slug": "herald-of-the-orbit-bloom",
+          "score": 0.8206
         }
       ],
-      "diversityRank": 106,
+      "diversityRank": 92,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6642,7 +5639,7 @@
           "score": 0.6807
         }
       ],
-      "diversityRank": 11,
+      "diversityRank": 17,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6701,7 +5698,7 @@
           "score": 0.8087
         }
       ],
-      "diversityRank": 125,
+      "diversityRank": 107,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6733,65 +5730,6 @@
         }
       }
     },
-    "tactile-organic-opulence": {
-      "related": [
-        {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.8286
-        },
-        {
-          "slug": "luminous-cosmic-folklore",
-          "score": 0.8189
-        },
-        {
-          "slug": "disruptive-analog-grunge",
-          "score": 0.7767
-        },
-        {
-          "slug": "surreal-retro-cosmic-collage",
-          "score": 0.7649
-        },
-        {
-          "slug": "crown-of-black-spikes",
-          "score": 0.7584
-        },
-        {
-          "slug": "widow-in-the-wildflowers",
-          "score": 0.7563
-        }
-      ],
-      "diversityRank": 52,
-      "labels": {
-        "style": {
-          "label": "Baroque",
-          "conf": 0.528
-        },
-        "medium": {
-          "label": "Oil_Painting",
-          "conf": 0.52
-        },
-        "mood": {
-          "label": "Eerie__Dark",
-          "conf": 0.439
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.425
-        },
-        "weather": {
-          "label": "clear",
-          "conf": 0.4
-        },
-        "colorblend": {
-          "label": "Warm_Autumnal_Sunset",
-          "conf": 0.506
-        },
-        "domcolor": {
-          "label": "Black",
-          "conf": 0.592
-        }
-      }
-    },
     "tears-as-currency": {
       "related": [
         {
@@ -6803,23 +5741,23 @@
           "score": 0.8699
         },
         {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8655
-        },
-        {
-          "slug": "second-sunrise",
-          "score": 0.8502
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.8496
-        },
-        {
           "slug": "playing-the-stapler",
           "score": 0.8266
+        },
+        {
+          "slug": "portrait-in-slippage",
+          "score": 0.8082
+        },
+        {
+          "slug": "key-to-the-threshold",
+          "score": 0.8044
+        },
+        {
+          "slug": "door-on-a-plate",
+          "score": 0.8041
         }
       ],
-      "diversityRank": 119,
+      "diversityRank": 74,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -6878,7 +5816,7 @@
           "score": 0.7547
         }
       ],
-      "diversityRank": 104,
+      "diversityRank": 37,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -6917,10 +5855,6 @@
           "score": 0.8256
         },
         {
-          "slug": "camera-tears",
-          "score": 0.8083
-        },
-        {
           "slug": "birthday-spark",
           "score": 0.8081
         },
@@ -6935,9 +5869,13 @@
         {
           "slug": "mechanical-saint",
           "score": 0.7735
+        },
+        {
+          "slug": "the-xerox-scream",
+          "score": 0.7702
         }
       ],
-      "diversityRank": 70,
+      "diversityRank": 63,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -6972,14 +5910,6 @@
     "the-brass-halo": {
       "related": [
         {
-          "slug": "gritty-graphic-macabre",
-          "score": 0.8365
-        },
-        {
-          "slug": "cart-of-hours",
-          "score": 0.835
-        },
-        {
           "slug": "wheel-of-quiet-relics",
           "score": 0.8074
         },
@@ -6988,15 +5918,23 @@
           "score": 0.7977
         },
         {
-          "slug": "mirror-box",
-          "score": 0.7796
+          "slug": "red-door-black-water",
+          "score": 0.7837
         },
         {
-          "slug": "chair-after-midnight",
-          "score": 0.7709
+          "slug": "disruptive-analog-grunge",
+          "score": 0.75
+        },
+        {
+          "slug": "widow-in-the-wildflowers",
+          "score": 0.7343
+        },
+        {
+          "slug": "the-stitched-icon",
+          "score": 0.7342
         }
       ],
-      "diversityRank": 66,
+      "diversityRank": 38,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7055,7 +5993,7 @@
           "score": 0.7354
         }
       ],
-      "diversityRank": 54,
+      "diversityRank": 14,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7114,7 +6052,7 @@
           "score": 0.7243
         }
       ],
-      "diversityRank": 42,
+      "diversityRank": 15,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7157,23 +6095,23 @@
           "score": 0.779
         },
         {
+          "slug": "stars-in-a-takeout-bag",
+          "score": 0.7755
+        },
+        {
+          "slug": "luminous-emerald-chiaroscuro",
+          "score": 0.775
+        },
+        {
           "slug": "celestial-paper-bag",
           "score": 0.7746
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.7644
-        },
-        {
-          "slug": "escalator-to-nowhere",
-          "score": 0.7623
-        },
-        {
-          "slug": "crown-of-black-spikes",
-          "score": 0.733
+          "slug": "orange-door-encounter",
+          "score": 0.7684
         }
       ],
-      "diversityRank": 25,
+      "diversityRank": 57,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7232,7 +6170,7 @@
           "score": 0.7615
         }
       ],
-      "diversityRank": 23,
+      "diversityRank": 22,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -7291,7 +6229,7 @@
           "score": 0.8196
         }
       ],
-      "diversityRank": 114,
+      "diversityRank": 100,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7350,7 +6288,7 @@
           "score": 0.6918
         }
       ],
-      "diversityRank": 12,
+      "diversityRank": 11,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7385,10 +6323,6 @@
     "the-waiting-bench": {
       "related": [
         {
-          "slug": "vibrant-risograph-surrealism",
-          "score": 0.7515
-        },
-        {
           "slug": "family-circuit",
           "score": 0.7301
         },
@@ -7407,9 +6341,13 @@
         {
           "slug": "unsaid-things",
           "score": 0.7163
+        },
+        {
+          "slug": "mailbox-garden",
+          "score": 0.7147
         }
       ],
-      "diversityRank": 22,
+      "diversityRank": 21,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7464,11 +6402,11 @@
           "score": 0.8115
         },
         {
-          "slug": "cassette-veins",
-          "score": 0.8056
+          "slug": "mouth-full-of-coins",
+          "score": 0.8015
         }
       ],
-      "diversityRank": 101,
+      "diversityRank": 89,
       "labels": {
         "style": {
           "label": "Impressionism",
@@ -7511,10 +6449,6 @@
           "score": 0.8245
         },
         {
-          "slug": "cold-cabinet",
-          "score": 0.8001
-        },
-        {
           "slug": "buried-clocks",
           "score": 0.7818
         },
@@ -7523,11 +6457,15 @@
           "score": 0.7774
         },
         {
-          "slug": "sleeping-cart",
-          "score": 0.7705
+          "slug": "coffee-for-the-skeleton",
+          "score": 0.7676
+        },
+        {
+          "slug": "transit-diagram",
+          "score": 0.7558
         }
       ],
-      "diversityRank": 118,
+      "diversityRank": 104,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7562,16 +6500,8 @@
     "transit-diagram": {
       "related": [
         {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8712
-        },
-        {
           "slug": "mechanical-saint",
           "score": 0.8671
-        },
-        {
-          "slug": "cassette-veins",
-          "score": 0.8617
         },
         {
           "slug": "storm-in-a-fishbowl",
@@ -7584,9 +6514,17 @@
         {
           "slug": "microwave-bloom",
           "score": 0.8266
+        },
+        {
+          "slug": "subway-of-apologies",
+          "score": 0.8117
+        },
+        {
+          "slug": "cyan-passage",
+          "score": 0.8101
         }
       ],
-      "diversityRank": 113,
+      "diversityRank": 99,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7621,6 +6559,10 @@
     "two-dancers-in-linen": {
       "related": [
         {
+          "slug": "crimson-grain-surrealism",
+          "score": 0.7523
+        },
+        {
           "slug": "surreal-retro-futurist-collage",
           "score": 0.7441
         },
@@ -7639,13 +6581,9 @@
         {
           "slug": "sherbet-orbits",
           "score": 0.6993
-        },
-        {
-          "slug": "herald-of-the-orbit-bloom",
-          "score": 0.6916
         }
       ],
-      "diversityRank": 27,
+      "diversityRank": 24,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7688,10 +6626,6 @@
           "score": 0.8018
         },
         {
-          "slug": "ink-bear-bloom",
-          "score": 0.7983
-        },
-        {
           "slug": "widow-in-the-wildflowers",
           "score": 0.7906
         },
@@ -7702,9 +6636,13 @@
         {
           "slug": "coffee-for-the-skeleton",
           "score": 0.7859
+        },
+        {
+          "slug": "narrative-surrealist-synthesis",
+          "score": 0.785
         }
       ],
-      "diversityRank": 78,
+      "diversityRank": 64,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7763,7 +6701,7 @@
           "score": 0.8097
         }
       ],
-      "diversityRank": 98,
+      "diversityRank": 86,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -7822,7 +6760,7 @@
           "score": 0.7483
         }
       ],
-      "diversityRank": 29,
+      "diversityRank": 31,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -7869,19 +6807,19 @@
           "score": 0.7484
         },
         {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.7376
-        },
-        {
           "slug": "halftone-skull-in-red",
           "score": 0.7357
         },
         {
           "slug": "herald-of-the-orbit-bloom",
           "score": 0.7329
+        },
+        {
+          "slug": "parasol-walkers",
+          "score": 0.7251
         }
       ],
-      "diversityRank": 26,
+      "diversityRank": 20,
       "labels": {
         "style": {
           "label": "Surrealism",
@@ -7913,65 +6851,6 @@
         }
       }
     },
-    "vibrant-risograph-surrealism": {
-      "related": [
-        {
-          "slug": "payphone-for-forgiveness",
-          "score": 0.8215
-        },
-        {
-          "slug": "mechanical-saint",
-          "score": 0.8151
-        },
-        {
-          "slug": "cassette-veins",
-          "score": 0.8036
-        },
-        {
-          "slug": "filing-cathedral",
-          "score": 0.8018
-        },
-        {
-          "slug": "graphic-surreal-pop",
-          "score": 0.7993
-        },
-        {
-          "slug": "microwave-bloom",
-          "score": 0.7976
-        }
-      ],
-      "diversityRank": 79,
-      "labels": {
-        "style": {
-          "label": "Surrealism",
-          "conf": 0.48
-        },
-        "medium": {
-          "label": "Digital_Art",
-          "conf": 0.805
-        },
-        "mood": {
-          "label": "Vibrant__Energetic",
-          "conf": 0.659
-        },
-        "category": {
-          "label": "Light__Shadow_Paradox",
-          "conf": 0.467
-        },
-        "weather": {
-          "label": "rainy",
-          "conf": 0.379
-        },
-        "colorblend": {
-          "label": "Teal__Orange_Cinematic",
-          "conf": 0.606
-        },
-        "domcolor": {
-          "label": "Blue",
-          "conf": 0.359
-        }
-      }
-    },
     "vigil-at-the-golden-cross": {
       "related": [
         {
@@ -7987,19 +6866,19 @@
           "score": 0.7948
         },
         {
-          "slug": "hyper-saturated-surreal-pop",
-          "score": 0.7893
+          "slug": "coral-beak",
+          "score": 0.7536
         },
         {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.7728
+          "slug": "luminous-thermal-expressionism",
+          "score": 0.745
         },
         {
-          "slug": "graphic-angular-urbanism",
-          "score": 0.7715
+          "slug": "surreal-retro-futurist-collage",
+          "score": 0.7276
         }
       ],
-      "diversityRank": 35,
+      "diversityRank": 33,
       "labels": {
         "style": {
           "label": "Abstract",
@@ -8031,6 +6910,65 @@
         }
       }
     },
+    "weather-under-the-umbrella": {
+      "related": [
+        {
+          "slug": "coral-beak",
+          "score": 0.789
+        },
+        {
+          "slug": "surreal-retro-cosmic-collage",
+          "score": 0.7663
+        },
+        {
+          "slug": "key-to-the-threshold",
+          "score": 0.7589
+        },
+        {
+          "slug": "halftone-skull-in-red",
+          "score": 0.7561
+        },
+        {
+          "slug": "high-contrast-fauvist-glitch",
+          "score": 0.7516
+        },
+        {
+          "slug": "graphic-surrealist-collage",
+          "score": 0.7441
+        }
+      ],
+      "diversityRank": 46,
+      "labels": {
+        "style": {
+          "label": "Surrealism",
+          "conf": 0.798
+        },
+        "medium": {
+          "label": "Digital_Art",
+          "conf": 0.469
+        },
+        "mood": {
+          "label": "Mysterious__Dreamy",
+          "conf": 0.51
+        },
+        "category": {
+          "label": "Environmental_Bleed_Sky_Sea_Forest_Invading",
+          "conf": 0.407
+        },
+        "weather": {
+          "label": "rainy",
+          "conf": 0.379
+        },
+        "colorblend": {
+          "label": "Teal__Orange_Cinematic",
+          "conf": 0.557
+        },
+        "domcolor": {
+          "label": "Red",
+          "conf": 0.338
+        }
+      }
+    },
     "wheel-of-quiet-relics": {
       "related": [
         {
@@ -8058,7 +6996,7 @@
           "score": 0.774
         }
       ],
-      "diversityRank": 83,
+      "diversityRank": 78,
       "labels": {
         "style": {
           "label": "Baroque",
@@ -8101,6 +7039,10 @@
           "score": 0.7489
         },
         {
+          "slug": "bioluminescent-abyssal-biomech",
+          "score": 0.7309
+        },
+        {
           "slug": "luminous-cosmic-folklore",
           "score": 0.7131
         },
@@ -8111,13 +7053,9 @@
         {
           "slug": "azure-threshold",
           "score": 0.6838
-        },
-        {
-          "slug": "ice-procession",
-          "score": 0.6831
         }
       ],
-      "diversityRank": 8,
+      "diversityRank": 18,
       "labels": {
         "style": {
           "label": "Minimalism",
@@ -8152,10 +7090,6 @@
     "widow-in-the-wildflowers": {
       "related": [
         {
-          "slug": "pilgrim-of-the-prism-dawn",
-          "score": 0.8234
-        },
-        {
           "slug": "hands-holding-the-eye",
           "score": 0.8121
         },
@@ -8174,9 +7108,13 @@
         {
           "slug": "cinematic-surreal-sci-fi",
           "score": 0.795
+        },
+        {
+          "slug": "unopened-staircase",
+          "score": 0.7906
         }
       ],
-      "diversityRank": 89,
+      "diversityRank": 66,
       "labels": {
         "style": {
           "label": "Impressionism",

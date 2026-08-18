@@ -12,9 +12,8 @@ export function Header({
   menuOpen?: boolean;
 }) {
    const pathname = usePathname();
-   const archiveSelected = pathname === "/archive" || pathname.startsWith("/product/");
+const archiveSelected = pathname === "/archive" || pathname.startsWith("/product/");
    const accountSelected = pathname === "/my-images";
-   const signInSelected = pathname === "/sign-in";
 
    return (
      <nav
@@ -29,15 +28,12 @@ export function Header({
          <div className="flex items-center gap-3 md:gap-16">
            <ul className="text-md flex items-center gap-6 tracking-tight md:gap-16 md:text-2xl">
              <li>
-               <Link className="link-hover" data-selected={archiveSelected || undefined} aria-current={archiveSelected ? "page" : undefined} href="/archive">Archive</Link>
+               <Link className="link-hover" data-selected={archiveSelected || undefined} aria-current={archiveSelected ? "page" : undefined} href="/archive">archive</Link>
              </li>
              <li>
-               <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">Cart</Link>
+               <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">my cart</Link>
              </li>
-             <li>
-               <Link className="link-hover" data-selected={signInSelected || undefined} aria-current={signInSelected ? "page" : undefined} href="/sign-in">Sign in</Link>
-             </li>
-             <li className="md:hidden">
+              <li className="md:hidden">
                <button
                  type="button"
                  className="min-w-[2.625rem]"

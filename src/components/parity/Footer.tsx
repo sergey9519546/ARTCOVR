@@ -50,7 +50,6 @@ export function Footer() {
         <div className="order-first col-span-16 flex justify-evenly md:order-last md:col-span-5">
           <div className="flex flex-1 flex-col gap-3">
             <Link href="/about" className="link-hover w-fit">About</Link>
-            <Link href="/contact" className="link-hover w-fit">Contact</Link>
           </div>
           <div className="flex flex-1 flex-col gap-3">
             <Link href="/legal/privacy" className="link-hover w-fit">Privacy</Link>

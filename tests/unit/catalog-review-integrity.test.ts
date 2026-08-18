@@ -11,7 +11,7 @@ import {
 } from "../../src/lib/artcovr/catalog-review.ts";
 import { launchSelection } from "../../src/lib/artcovr/launch-selection.ts";
 
-test("the 100-art review catalog has exact ordered identity, metadata, and publication-gate parity", () => {
+test("the review catalog has exact ordered identity, metadata, and publication-gate parity", () => {
   assert.deepEqual(
     validateLaunchReviewIntegrity({
       candidates: curatedCandidates,
@@ -20,7 +20,7 @@ test("the 100-art review catalog has exact ordered identity, metadata, and publi
     }),
     [],
   );
-  assert.equal(curatedCandidates.length, LAUNCH_REVIEW_SIZE);
+  assert.equal(curatedCandidates.length, 100);
   assert.equal(curatedReview.length, LAUNCH_REVIEW_SIZE);
 });
 

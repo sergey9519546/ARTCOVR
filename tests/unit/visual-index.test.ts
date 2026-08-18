@@ -67,7 +67,7 @@ test("every related slug exists in the catalog and never self-references", () =>
   }
 });
 
-test("diversityRank is a permutation of 0..99", () => {
+test("diversityRank is a permutation of 0..120", () => {
   const ranks = indexSlugs.map((slug) => visualIndex.works[slug].diversityRank).sort((a, b) => a - b);
   assert.deepEqual(ranks, Array.from({ length: catalogSlugs.length }, (_, index) => index));
 });
@@ -106,7 +106,7 @@ test("the shipped artifact carries no vectors and the vector artifact is never i
     new URL("../../src/lib/artcovr/visual-index.json", import.meta.url),
     "utf8",
   );
-  // Bundle-weight guard: 100 x 512 floats must never reach the client bundle.
+  // Bundle-weight guard: 121 x 512 floats must never reach the client bundle.
   assert.ok(!shipped.includes('"vector"'), "visual-index.json must not contain a vector key");
   assert.ok(!shipped.includes('"vectors"'), "visual-index.json must not contain a vectors key");
   assert.equal(JSON.stringify(visualIndex).includes('"vector"'), false);

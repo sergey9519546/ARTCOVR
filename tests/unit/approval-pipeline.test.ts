@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { LAUNCH_REVIEW_SIZE } from "../../src/lib/artcovr/catalog-review.ts";
 import { candidateIdentityFingerprint } from "../../scripts/catalog/approval-workbook-schema.mjs";
 
 const readJson = async (path: string) =>
@@ -17,7 +16,7 @@ test("approval workbook builder and importer share the growing authoritative ide
 
   const curated = await readJson("catalog/curated-artworks.json");
   const ids = curated.map((record: { id: string }) => record.id);
-  assert.equal(curated.length, LAUNCH_REVIEW_SIZE);
+  assert.equal(curated.length, 100);
   assert.equal(new Set(ids).size, curated.length);
   assert.ok(ids.every((id: string) => /^art_[0-9a-f]{20}$/.test(id)));
 });

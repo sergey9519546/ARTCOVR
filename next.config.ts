@@ -3,7 +3,11 @@ import type { NextConfig } from "next";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  // Inline JavaScript bootstrap removed in 2026-08-18 cleanup; theme init now
+  // lives in /theme-init.js and JSON-LD uses a non-JavaScript MIME type, so
+  // unsafe-inline is no longer required for script-src in production.
+  // Dev mode retains unsafe-eval for Next.js HMR / React Fast Refresh.
+  `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.supabase.co",
   "font-src 'self' data:",

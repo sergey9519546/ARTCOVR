@@ -15,12 +15,13 @@ import {
   stagingArtworks,
   type Artwork,
 } from "./artworks.ts";
+import { LAUNCH_REVIEW_SIZE } from "./catalog-review.ts";
 
 const reviewCatalog = curatedReview as Artwork[];
 
 describe("artwork helpers", () => {
-  test("keeps 100 owner-review artworks in the private staging source", () => {
-    assert.equal(reviewCatalog.length, 100);
+  test("keeps review catalog in the private staging source", () => {
+    assert.equal(reviewCatalog.length, LAUNCH_REVIEW_SIZE);
     const reviewArtwork = reviewCatalog[0];
     assert.ok(reviewArtwork);
   });

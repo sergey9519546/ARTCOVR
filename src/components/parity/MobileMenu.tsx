@@ -3,10 +3,8 @@
 import { useEffect, useRef } from "react";
 
 const items = [
-  { label: "Home", href: "/" },
-  { label: "Archive", href: "/archive" },
-  { label: "Cart", href: "/my-images" },
-  { label: "Sign in", href: "/sign-in" },
+  { label: "archive", href: "/archive" },
+  { label: "my cart", href: "/my-images" },
 ];
 
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {

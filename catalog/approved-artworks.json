@@ -15049,5 +15049,839 @@
     "priceCents": 3500,
     "currency": "USD",
     "tier": "featured"
+  },
+  {
+    "id": "art_4086f34a938a03692a7e",
+    "position": 170,
+    "slug": "bioluminescent-abyssal-biomech",
+    "title": "Bioluminescent Abyssal Biomech",
+    "description": "bioluminescent abyssal biomech, surreal digital artwork",
+    "alt": "Bioluminescent Abyssal Biomech: bioluminescent abyssal biomech, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 195781,
+    "sha256": "4086f34a938a03692a7e885ca567596e1956fc3953f3cc99a4540f48c4cc9333",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_4086f34a938a03692a7e/base",
+    "displayPath": "/assets/artworks/bioluminescent-abyssal-biomech.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "bioluminescent",
+        "abyssal",
+        "biomech"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Bioluminescent Abyssal Biomech | bioluminescent abyssal biomech, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | bioluminescent abyssal biomech",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_7a40006d0661fe92b815",
+    "position": 171,
+    "slug": "crimson-grain-surrealism",
+    "title": "Crimson Grain Surrealism",
+    "description": "crimson grain surrealism, surreal digital artwork",
+    "alt": "Crimson Grain Surrealism: crimson grain surrealism, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 255522,
+    "sha256": "7a40006d0661fe92b8150c6836cdcfc94783ec74ebc1414c6bfc19ebeeb7dc15",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_7a40006d0661fe92b815/base",
+    "displayPath": "/assets/artworks/crimson-grain-surrealism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "crimson",
+        "grain",
+        "surrealism"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Crimson Grain Surrealism | crimson grain surrealism, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | crimson grain surrealism",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_cb3ddc35dcde34830e04",
+    "position": 172,
+    "slug": "ethereal-cloud-surrealism",
+    "title": "Ethereal Cloud Surrealism",
+    "description": "ethereal cloud surrealism, surreal digital artwork",
+    "alt": "Ethereal Cloud Surrealism: ethereal cloud surrealism, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 164643,
+    "sha256": "cb3ddc35dcde34830e0460d3376616ed2c7f3413f9c1ca89f5b044bb020c8db3",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_cb3ddc35dcde34830e04/base",
+    "displayPath": "/assets/artworks/ethereal-cloud-surrealism.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "ethereal",
+        "cloud",
+        "surrealism"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Ethereal Cloud Surrealism | ethereal cloud surrealism, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | ethereal cloud surrealism",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_0f6cd23cf71ebbb14ac6",
+    "position": 173,
+    "slug": "luminous-emerald-chiaroscuro",
+    "title": "Luminous Emerald Chiaroscuro",
+    "description": "luminous emerald chiaroscuro, surreal digital artwork",
+    "alt": "Luminous Emerald Chiaroscuro: luminous emerald chiaroscuro, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 233595,
+    "sha256": "0f6cd23cf71ebbb14ac69764c080a8d8d5b64674f035c28325a80582df1463d7",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_0f6cd23cf71ebbb14ac6/base",
+    "displayPath": "/assets/artworks/luminous-emerald-chiaroscuro.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "luminous",
+        "emerald",
+        "chiaroscuro"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Luminous Emerald Chiaroscuro | luminous emerald chiaroscuro, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | luminous emerald chiaroscuro",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_8ff72ba0b028fbdf1e11",
+    "position": 174,
+    "slug": "luminous-nocturnal-abyss",
+    "title": "Luminous Nocturnal Abyss",
+    "description": "luminous nocturnal abyss, surreal digital artwork",
+    "alt": "Luminous Nocturnal Abyss: luminous nocturnal abyss, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 98281,
+    "sha256": "8ff72ba0b028fbdf1e11fbf8afa6403c847010a71c58976b988b70dfd3a8898a",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_8ff72ba0b028fbdf1e11/base",
+    "displayPath": "/assets/artworks/luminous-nocturnal-abyss.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "luminous",
+        "nocturnal",
+        "abyss"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Luminous Nocturnal Abyss | luminous nocturnal abyss, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | luminous nocturnal abyss",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_f6404e9e54d62e89e820",
+    "position": 175,
+    "slug": "orange-door-encounter",
+    "title": "Orange Door Encounter",
+    "description": "orange door encounter, surreal digital artwork",
+    "alt": "Orange Door Encounter: orange door encounter, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 209589,
+    "sha256": "f6404e9e54d62e89e820989cae5a6af32b50fe228539235226f59b774f74a5d5",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_f6404e9e54d62e89e820/base",
+    "displayPath": "/assets/artworks/orange-door-encounter.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "orange",
+        "door",
+        "encounter"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Orange Door Encounter | orange door encounter, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | orange door encounter",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_1db3f7422b353d8f7c60",
+    "position": 176,
+    "slug": "red-door-black-water",
+    "title": "Red Door Black Water",
+    "description": "red door black water, surreal digital artwork",
+    "alt": "Red Door Black Water: red door black water, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 192732,
+    "sha256": "1db3f7422b353d8f7c60cdcec7dd33415f448f477a0cc83e82cc31d85e784a42",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_1db3f7422b353d8f7c60/base",
+    "displayPath": "/assets/artworks/red-door-black-water.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "red",
+        "door",
+        "black",
+        "water"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Red Door Black Water | red door black water, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | red door black water",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_a4dec73be45fb5883646",
+    "position": 177,
+    "slug": "stars-in-a-takeout-bag",
+    "title": "Stars In A Takeout Bag",
+    "description": "stars in a takeout bag, surreal digital artwork",
+    "alt": "Stars In A Takeout Bag: stars in a takeout bag, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 285838,
+    "sha256": "a4dec73be45fb588364608b65462aead36dd9c71d799fa8f2d2599ffcaf2dbc9",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a4dec73be45fb5883646/base",
+    "displayPath": "/assets/artworks/stars-in-a-takeout-bag.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "stars",
+        "in",
+        "a",
+        "takeout",
+        "bag"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Stars In A Takeout Bag | stars in a takeout bag, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | stars in a takeout bag",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_642cf0c25717c36166ff",
+    "position": 178,
+    "slug": "subway-of-apologies",
+    "title": "Subway Of Apologies",
+    "description": "subway of apologies, surreal digital artwork",
+    "alt": "Subway Of Apologies: subway of apologies, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 438529,
+    "sha256": "642cf0c25717c36166fff9fa893fb7902c0adde3693020962b125226f4d94871",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_642cf0c25717c36166ff/base",
+    "displayPath": "/assets/artworks/subway-of-apologies.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "subway",
+        "of",
+        "apologies"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Subway Of Apologies | subway of apologies, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | subway of apologies",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_e5ffb2e43ccd57b87273",
+    "position": 179,
+    "slug": "weather-under-the-umbrella",
+    "title": "Weather Under The Umbrella",
+    "description": "weather under the umbrella, surreal digital artwork",
+    "alt": "Weather Under The Umbrella: weather under the umbrella, surreal digital artwork.",
+    "category": "Surreal / Hybrid",
+    "mood": "surreal, dreamlike",
+    "moodTags": [
+      "surreal",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 310189,
+    "sha256": "e5ffb2e43ccd57b872736955bf6b69b4eca8bfd70f4bc3ff716dbd8303d8266b",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_e5ffb2e43ccd57b87273/base",
+    "displayPath": "/assets/artworks/weather-under-the-umbrella.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "weather",
+        "under",
+        "the",
+        "umbrella"
+      ],
+      "avoids": [],
+      "palette": [],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "high",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed"
+        },
+        "linkage": {
+          "join": "exact audit index, path, and SHA-256",
+          "source": "owner_intake_2026-08-18",
+          "classification": "other",
+          "title_source": "owner visual review",
+          "keyword_source": "owner visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Weather Under The Umbrella | weather under the umbrella, surreal digital artwork | Surreal / Hybrid | surreal | dreamlike | weather under the umbrella",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "currency": "USD",
+    "tier": "archive"
   }
 ]

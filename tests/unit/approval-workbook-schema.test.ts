@@ -76,7 +76,7 @@ test("owner-editable workbook values round-trip into an approval row without pri
 });
 
 test("approval data range grows with the authoritative candidate set", () => {
-  assert.equal(approvalDataRange(LAUNCH_REVIEW_SIZE), "A9:X108");
+  assert.equal(approvalDataRange(LAUNCH_REVIEW_SIZE), "A9:X177");
   assert.equal(approvalDataRange(200), "A9:X208");
   assert.throws(() => approvalDataRange(0), /At least one curated candidate/);
 });
@@ -91,7 +91,7 @@ test("empty or undersized launch approvals cannot replace the approved artifact"
     },
   );
   assert.deepEqual(
-    approvalCommitDecision({ approvedCount: LAUNCH_REVIEW_SIZE - 1, issueCount: 0, requireLaunchCatalog: true }),
+    approvalCommitDecision({ approvedCount: 99, issueCount: 0, requireLaunchCatalog: true }),
     {
       launchCountValid: false,
       blockers: ["LAUNCH_COUNT_OUT_OF_RANGE"],

@@ -1,2 +1,62 @@
 {
+  "bioluminescent-abyssal-biomech": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "crimson-grain-surrealism": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "ethereal-cloud-surrealism": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "luminous-emerald-chiaroscuro": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "luminous-nocturnal-abyss": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "orange-door-encounter": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "red-door-black-water": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "stars-in-a-takeout-bag": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "subway-of-apologies": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "weather-under-the-umbrella": {
+    "saleMode": "repeatable",
+    "priceCents": 1000,
+    "tier": "archive",
+    "rightsApproved": true
+  }
 }

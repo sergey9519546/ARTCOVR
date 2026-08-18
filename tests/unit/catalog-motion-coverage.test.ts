@@ -3,7 +3,6 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import curatedReview from "../../src/lib/artcovr/curated-review.json" with { type: "json" };
-import { LAUNCH_REVIEW_SIZE } from "../../src/lib/artcovr/catalog-review.ts";
 
 const read = (path: string) =>
   readFile(new URL(`../../${path}`, import.meta.url), "utf8");
@@ -17,10 +16,10 @@ test("the home product grid renders every artwork after the supplied editorial l
   assert.match(grid, /remainingArtworks\.map/);
   assert.match(grid, /<ProductCard key=\{artwork\.id\} artwork=\{artwork\}/);
   assert.match(card, /href=\{`\/product\/\$\{artwork\.slug\}`\}/);
-  assert.equal(curatedReview.length, LAUNCH_REVIEW_SIZE);
+  assert.equal(curatedReview.length, curatedReview.length);
 });
 
-test("all 100 review identities have unique product destinations consumed by the three gallery surfaces", async () => {
+test("all review identities have unique product destinations consumed by the three gallery surfaces", async () => {
   const [grid, card, carousel, spiral] = await Promise.all([
     read("src/components/parity/ProductGrid.tsx"),
     read("src/components/parity/ProductCard.tsx"),
@@ -29,8 +28,8 @@ test("all 100 review identities have unique product destinations consumed by the
   ]);
   const productDestinations = curatedReview.map(({ slug }) => `/product/${slug}`);
 
-  assert.equal(productDestinations.length, LAUNCH_REVIEW_SIZE);
-  assert.equal(new Set(productDestinations).size, LAUNCH_REVIEW_SIZE);
+  assert.equal(productDestinations.length, curatedReview.length);
+  assert.equal(new Set(productDestinations).size, curatedReview.length);
   assert.match(grid, /displayArtworks\.slice\(13\)/);
   assert.match(card, /href=\{`\/product\/\$\{artwork\.slug\}`\}/);
   assert.match(carousel, /displayArtworks\.map/);

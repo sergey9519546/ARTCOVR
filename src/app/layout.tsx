@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import localFont from "next/font/local";
 import {
   buildOrganizationStructuredData,
@@ -91,12 +92,7 @@ export default function RootLayout({
           in the browsers of anyone who selected it — falls back to light rather
           than painting a palette that no longer exists.
         */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=t==='light'||t==='dark'?t:'light'}catch(e){document.documentElement.dataset.theme='light'}",
-          }}
-        />
+        <Script src="/theme-init.js" strategy="beforeInteractive" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(organization) }}

@@ -21,11 +21,11 @@ import {
 } from "../../src/lib/artcovr/source-exclusions.ts";
 
 test("launch selection contains exactly 100 surviving unique visual-review slots", () => {
-  assert.equal(launchSelection.length, LAUNCH_REVIEW_SIZE);
+  assert.equal(launchSelection.length, 100);
   const identities = launchSelection.map(({ sourcePool, sourceOrdinal, sourceSha256 }) =>
     `${sourcePool}:${sourceOrdinal ?? sourceSha256}`,
   );
-  assert.equal(new Set(identities).size, LAUNCH_REVIEW_SIZE);
+  assert.equal(new Set(identities).size, launchSelection.length);
   assert.ok(launchSelection.every(({ moodTags }) => moodTags.length >= 3));
   assert.ok(
     launchSelection.every(({ sourceOrdinal, sourceSha256 }) =>
@@ -312,13 +312,14 @@ test("the approved artifact has no stale rights-contradiction flags once the own
   const report = JSON.parse(
     await readFile(new URL("../../catalog/approval-import-report.json", import.meta.url), "utf8"),
   ) as {
+    candidates: number;
     approved: number;
     rejectedOrPending: number;
     blockers: string[];
     launchCountValid: boolean;
   };
 
-  assert.equal(report.approved, LAUNCH_REVIEW_SIZE, "report.approved must reflect the 100 confirmed rows");
+  assert.equal(report.approved, report.candidates, "report.approved must equal report.candidates (all candidates approved post ADR-018)");
   assert.equal(report.rejectedOrPending, 0);
   assert.equal(report.launchCountValid, true);
   assert.deepEqual(report.blockers, [], "EMPTY_APPROVAL_SET blocker must be cleared post ADR-018");
@@ -362,11 +363,11 @@ test("the approved catalog carries the owner-confirmed four-tier pricing distrib
     if (row.tier) displayTiers.set(row.tier, (displayTiers.get(row.tier) ?? 0) + 1);
   }
 
-  assert.equal(rows.length, 169, "approved-artworks.json: 169 rows (100 launch + 69 expansion)");
+  assert.equal(rows.length, 179, "approved-artworks.json: 179 rows (100 launch + 69 expansion + 10 owner intake)");
   assert.equal(priceTiers.get("exclusive|20000"), 17, "exclusive @ $20000 ($200): 17 rows");
   assert.equal(priceTiers.get("exclusive|8000"), 34, "exclusive @ $8000 ($80): 34 rows");
   assert.equal(priceTiers.get("repeatable|3500"), 51, "repeatable @ $3500 ($35): 51 rows");
-  assert.equal(priceTiers.get("repeatable|1000"), 67, "repeatable @ $1000 ($10): 67 rows");
+  assert.equal(priceTiers.get("repeatable|1000"), 77, "repeatable @ $1000 ($10): 77 rows");
   assert.equal(priceTiers.size, 4, "exactly four price-tier combinations");
 
   assert.equal(
@@ -374,10 +375,10 @@ test("the approved catalog carries the owner-confirmed four-tier pricing distrib
     51,
     "51 exclusive rows (17 + 34)",
   );
-  assert.equal(
+assert.equal(
     rows.filter((r) => r.saleMode === "repeatable").length,
-    118,
-    "118 repeatable rows (51 + 67)",
+    128,
+    "128 repeatable rows (51 + 77)"
   );
 
   // Per-work exclusivity snapshot (ADR-019): the redistribution silently
@@ -413,7 +414,7 @@ test("the approved catalog carries the owner-confirmed four-tier pricing distrib
   );
 
   assert.equal(displayTiers.get("featured"), 92, "92 featured display rows");
-  assert.equal(displayTiers.get("archive"), 47, "47 archive display rows");
+  assert.equal(displayTiers.get("archive"), 57, "57 archive display rows");
   assert.equal(displayTiers.get("delete"), 30, "30 delete display rows");
 });
 

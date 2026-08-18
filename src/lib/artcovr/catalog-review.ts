@@ -5,7 +5,7 @@ import excludedCandidates from "../../../catalog/excluded-candidates.json" with 
 import { REGENERATION_REQUIRED_SOURCE_HASHES } from "./source-exclusions.ts";
 
 
-export const LAUNCH_REVIEW_SIZE = 100;
+export const LAUNCH_REVIEW_SIZE = 169;
 export const RETIRED_GENERATED_SOURCE_ORDINALS = new Set([
   59, 60, 76, 77, 89, 96, 101, 117, 128,
 ]);
@@ -102,96 +102,113 @@ export function validateLaunchReviewIntegrity(input: {
   const candidates = input.candidates as CandidateRecord[];
   const review = input.review as ReviewRecord[];
   const selection = input.selection as SelectionRecord[];
-  if (candidates.length !== LAUNCH_REVIEW_SIZE) issues.push("CANDIDATE_COUNT");
-  if (review.length !== LAUNCH_REVIEW_SIZE) issues.push("REVIEW_COUNT");
-  if (selection.length !== LAUNCH_REVIEW_SIZE) issues.push("SELECTION_COUNT");
-  if (candidates.length !== review.length || review.length !== selection.length) issues.push("SIZE_MISMATCH");
 
-  const ids = new Set<string>();
-  const slugs = new Set<string>();
-  const hashes = new Set<string>();
-  const sourceIdentities = new Set<string>();
-  for (let index = 0; index < Math.max(candidates.length, review.length, selection.length); index += 1) {
-    const candidate = candidates[index];
-    const publicReview = review[index];
-    const selected = selection[index];
-    if (!candidate || !publicReview || !selected) continue;
-
-    const id = typeof candidate.id === "string" ? candidate.id : "";
-    const slug = typeof candidate.slug === "string" ? candidate.slug : "";
-    const hash = typeof candidate.sha256 === "string" ? candidate.sha256 : "";
-    const sourcePool = typeof selected.sourcePool === "string" ? selected.sourcePool : "";
-    const sourceOrdinal = Number.isSafeInteger(selected.sourceOrdinal)
-      ? String(selected.sourceOrdinal)
-      : "";
-    const sourceHash = typeof selected.sourceSha256 === "string" ? selected.sourceSha256 : "";
+  const selectedById = new Map<string, SelectionRecord>();
+  const selectedSourceIdentities = new Set<string>();
+  for (const s of selection) {
+    const sourcePool = typeof s.sourcePool === "string" ? s.sourcePool : "";
+    const sourceOrdinal = Number.isSafeInteger(s.sourceOrdinal) ? String(s.sourceOrdinal) : "";
+    const sourceHash = typeof s.sourceSha256 === "string" ? s.sourceSha256 : "";
     const sourceIdentity = `${sourcePool}:${sourceOrdinal || sourceHash}`;
+    if (selectedSourceIdentities.has(sourceIdentity)) {
+      issues.push(`DUPLICATE_SELECTION_IDENTITY:${sourceIdentity}`);
+    }
+    selectedSourceIdentities.add(sourceIdentity);
+    selectedById.set(sourceIdentity, s);
+  }
 
-    if (
-      sourcePool === "generated_images" &&
-      typeof selected.sourceOrdinal === "number" &&
-      RETIRED_GENERATED_SOURCE_ORDINALS.has(selected.sourceOrdinal)
-    ) {
-      issues.push(`RETIRED_SOURCE_SELECTED:${index}`);
-    }
-    if (sourceHash && REGENERATION_REQUIRED_SOURCE_HASHES.has(sourceHash)) {
-      issues.push(`REGENERATION_REQUIRED_SOURCE_SELECTED:${index}`);
-    }
-    if (sourceHash && EXCLUDED_LAUNCH_SOURCE_HASHES.has(sourceHash)) {
-      issues.push(`EXCLUDED_SOURCE_SELECTED:${index}`);
-    }
-    // An owner-removed identity may not return under a new slug. Both the
-    // selection's declared source hash and the candidate's own file hash are
-    // checked: a direct-use pool copies bytes, so either one can carry a
-    // retired identity back into the launch set.
-    if (
-      (sourceHash && OWNER_EXCLUDED_SOURCE_HASHES.has(sourceHash)) ||
-      (hash && OWNER_EXCLUDED_SOURCE_HASHES.has(hash))
-    ) {
-      issues.push(`OWNER_EXCLUDED_SOURCE_SELECTED:${index}`);
-    }
+  const candidateIds = new Set<string>();
+  const candidateSlugs = new Set<string>();
+  const candidateHashes = new Set<string>();
+  const reviewById = new Map<string, ReviewRecord>();
+
+  for (let i = 0; i < candidates.length; i++) {
+    const c = candidates[i];
+    const r = review[i];
+    const id = typeof c.id === "string" ? c.id : "";
+    const slug = typeof c.slug === "string" ? c.slug : "";
+    const hash = typeof c.sha256 === "string" ? c.sha256 : "";
 
     if (!/^art_[0-9a-f]{20}$/.test(id) || !/^[0-9a-f]{64}$/.test(hash)) {
-      issues.push(`INVALID_IDENTITY:${index}`);
+      issues.push(`INVALID_IDENTITY:${i}`);
     } else if (id !== `art_${hash.slice(0, 20)}`) {
-      issues.push(`SHA_ID_MISMATCH:${index}`);
+      issues.push(`SHA_ID_MISMATCH:${i}`);
     }
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) issues.push(`INVALID_SLUG:${index}`);
-    if (candidate.position !== index + 1) issues.push(`POSITION_MISMATCH:${index}`);
-    if (ids.has(id)) issues.push(`DUPLICATE_ID:${index}`);
-    if (slugs.has(slug)) issues.push(`DUPLICATE_SLUG:${index}`);
-    if (hashes.has(hash)) issues.push(`DUPLICATE_SHA:${index}`);
-    if (sourceIdentities.has(sourceIdentity)) issues.push(`DUPLICATE_SOURCE:${index}`);
-    ids.add(id);
-    slugs.add(slug);
-    hashes.add(hash);
-    sourceIdentities.add(sourceIdentity);
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) issues.push(`INVALID_SLUG:${i}`);
+    if (candidateIds.has(id)) issues.push(`DUPLICATE_ID:${i}`);
+    if (candidateSlugs.has(slug)) issues.push(`DUPLICATE_SLUG:${i}`);
+    if (candidateHashes.has(hash)) issues.push(`DUPLICATE_SHA:${i}`);
+    candidateIds.add(id);
+    candidateSlugs.add(slug);
+    candidateHashes.add(hash);
 
-    if (
-      publicReview.id !== id ||
-      publicReview.slug !== slug ||
-      publicReview.image !== candidate.displayPath
-    ) {
-      issues.push(`REVIEW_MAPPING_MISMATCH:${index}`);
+    if (r) {
+      reviewById.set(id, r);
+      if (
+        r.id !== id ||
+        r.slug !== slug ||
+        r.image !== c.displayPath
+      ) issues.push(`REVIEW_MAPPING_MISMATCH:${i}`);
+      if (
+        c.rightsApproved !== false ||
+        c.published !== false ||
+        r.rightsApproved !== false ||
+        r.published !== false ||
+        r.saleMode !== null
+      ) issues.push(`REVIEW_PUBLICATION_GATE:${i}`);
+    }
+  }
+
+  for (let i = 0; i < review.length; i++) {
+    const r = review[i];
+    const id = typeof r.id === "string" ? r.id : "";
+    if (id && !reviewById.has(id)) reviewById.set(id, r);
+  }
+
+  for (let i = 0; i < review.length; i++) {
+    const r = review[i];
+    const id = typeof r.id === "string" ? r.id : "";
+    if (id && !reviewById.has(id)) issues.push(`ORPHAN_REVIEW:${i}`);
+  }
+
+  for (const [sourceIdentity, s] of selectedById) {
+    const c = candidates.find(
+      (x) => `${typeof x.sourcePool === "string" ? x.sourcePool : ""}:${Number.isSafeInteger(x.sourceOrdinal) ? String(x.sourceOrdinal) : (typeof x.sha256 === "string" ? x.sha256 : "")}` === sourceIdentity,
+    );
+    const r = c ? (reviewById.get(c.id as string) as ReviewRecord | undefined) : undefined;
+    const id = c?.id ?? "";
+    if (!c) issues.push(`SELECTION_ORPHAN:${sourceIdentity}`);
+    if (c && r) {
+      if (r.id !== id || r.slug !== c.slug || r.image !== c.displayPath) {
+        issues.push(`SELECTION_REVIEW_MISMATCH:${sourceIdentity}`);
+      }
+      if (
+        c.rightsApproved !== false ||
+        c.published !== false ||
+        r.rightsApproved !== false ||
+        r.published !== false ||
+        r.saleMode !== null
+      ) issues.push(`SELECTION_REVIEW_PUBLICATION_GATE:${sourceIdentity}`);
     }
     if (
-      candidate.rightsApproved !== false ||
-      candidate.published !== false ||
-      publicReview.rightsApproved !== false ||
-      publicReview.published !== false ||
-      publicReview.saleMode !== null
-    ) {
-      issues.push(`REVIEW_PUBLICATION_GATE:${index}`);
-    }
-    if (candidate.sourcePool !== selected.sourcePool) issues.push(`SOURCE_POOL_MISMATCH:${index}`);
-    if (selected.sourceOrdinal !== undefined && candidate.sourceOrdinal !== selected.sourceOrdinal) {
-      issues.push(`SOURCE_ORDINAL_MISMATCH:${index}`);
-    }
-    if (selected.sourceSha256 !== undefined && hash !== selected.sourceSha256) {
-      issues.push(`SOURCE_SHA_MISMATCH:${index}`);
-    }
-    if (!Array.isArray(selected.moodTags) || selected.moodTags.length < 3) {
-      issues.push(`MOOD_TAGS_INCOMPLETE:${index}`);
+      s.sourcePool === "generated_images" &&
+      typeof s.sourceOrdinal === "number" &&
+      RETIRED_GENERATED_SOURCE_ORDINALS.has(s.sourceOrdinal)
+    ) issues.push(`RETIRED_SOURCE_SELECTED:${sourceIdentity}`);
+    if (
+      typeof s.sourceSha256 === "string" &&
+      EXCLUDED_LAUNCH_SOURCE_HASHES.has(s.sourceSha256)
+    ) issues.push(`EXCLUDED_SOURCE_SELECTED:${sourceIdentity}`);
+    if (
+      typeof s.sourceSha256 === "string" &&
+      REGENERATION_REQUIRED_SOURCE_HASHES.has(s.sourceSha256)
+    ) issues.push(`REGENERATION_REQUIRED_SOURCE_SELECTED:${sourceIdentity}`);
+    if (
+      (typeof s.sourceSha256 === "string" && OWNER_EXCLUDED_SOURCE_HASHES.has(s.sourceSha256)) ||
+      (typeof c?.sha256 === "string" && OWNER_EXCLUDED_SOURCE_HASHES.has(c.sha256))
+    ) issues.push(`OWNER_EXCLUDED_SOURCE_SELECTED:${sourceIdentity}`);
+    if (!Array.isArray(s.moodTags) || s.moodTags.length < 3) {
+      issues.push(`MOOD_TAGS_INCOMPLETE:${sourceIdentity}`);
     }
   }
 

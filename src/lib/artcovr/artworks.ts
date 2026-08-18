@@ -22,14 +22,14 @@ export type Artwork = {
   description: string;
   category: string;
   moodTags: string[];
-  editionAvailable: number | null;
-  editionTotal: number | null;
-  licenseLabel: string | null;
+  editionAvailable?: number | null;
+  editionTotal?: number | null;
+  licenseLabel?: string | null;
   saleMode: "exclusive" | "repeatable" | null;
   priceCents: number | null;
   rightsApproved: boolean;
   published: boolean;
-  accentColor: string;
+  accentColor?: string;
   /**
    * Owner display tier. Only "featured" works may appear on the home page;
    * "archive" works live on the archive page. Optional because the private
