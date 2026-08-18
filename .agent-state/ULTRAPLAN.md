@@ -105,25 +105,25 @@ Fixed in `0f7aec8`: `page.tsx` now registers the artwork-click listener with `ca
 
 ---
 
-## 8. Decide the lint/type strictness posture — **OPEN** (design decision)
+## 8. Lint/type strictness posture — **PARTIALLY COMPLETE** (design decision, staged)
 
-Deliberately untouched; blast radius is large.
+Blast radius is large; changes are applied one rule at a time with fallout fixed before proceeding.
 
-- `eslint.config.mjs` disables ~30 rules including `no-undef`, `no-unreachable`, `no-unused-vars`, `no-fallthrough`, `@typescript-eslint/ban-ts-comment`, `react-hooks/exhaustive-deps`. The `--max-warnings=0` gate passes on code containing undefined identifiers and broken hook deps.
-- `tsconfig.json` sets `noImplicitAny: false` directly under `strict: true`.
+Completed:
+- `@typescript-eslint/no-unused-vars` enabled (commit `4d7c228`). Configured with `varsIgnorePattern: "^_"` and `argsIgnorePattern: "^_"` so unused diagnostic variables prefixed with `_` do not fail lint. `no-unused-vars` (base JS rule) intentionally remains `off` because it flags generic TypeScript type parameters (`t`, `o`, `progress`) that are part of interface contracts but never read in implementation bodies.
+- Dead diagnostic variables removed: `dismiss` in `Preloader.tsx`, `track`/`sec` in `scripts/diag-*.mjs`, `sourcePool` in `catalog-curation.test.ts`.
 
-`ban-ts-comment` being off is the sharpest one — a stray `@ts-ignore` silently defeats the typecheck gate too.
+Remaining deferred rules (written reasons preserved):
+- **`no-unreachable`** — low blast radius but not yet exercised; defer to avoid churn while the catalog + pricing work is still landing.
+- **`no-fallthrough`** — low blast radius; defer for the same reason.
+- **`react-hooks/exhaustive-deps`** — moderate blast radius. Enable in a dedicated follow-up commit and fix missing deps; the verify suite will catch regressions.
+- **`@typescript-eslint/ban-ts-comment`** — high blast radius. Requires a sweep for `@ts-ignore`/`@ts-expect-error`. Keep off until a dedicated pass can add missing type declarations or justify each suppression.
+- **`no-undef`** (base JS) — high blast radius. The build uses ambient globals (`gsap`/`ScrollTrigger`/`Bun`) that are not in `@types/*`. Keep off until ambient declarations are added.
+- **`tsconfig.noImplicitAny: false`** under `strict: true` — defer to last, after all explicit types are in place.
 
-Re-enable in stages, one rule per commit, fixing fallout as it appears. Do not flip them all at once.
+**Done when:** the six items above are either enabled and green, or off with a written reason recorded here.
 
-**Done when:** each rule is either on, or off with a written reason.
-
-**Recommended posture (2026-08-17):** The current disabled rules fall into three tiers:
-1. **Safe to enable now** (low blast radius, easy fix): `no-unused-vars`, `no-unreachable`, `no-fallthrough` — enable one per commit and fix fallout.
-2. **Enable with test backup** (moderate blast radius): `react-hooks/exhaustive-deps` — enable and fix missing deps; the verify suite will catch regressions.
-3. **Defer or document** (high blast radius): `no-undef` (the build uses ambient globals like `gsap`/`ScrollTrigger`/`Bun` that are not in `@types/*`), `ban-ts-comment` (requires a sweep for `@ts-ignore`/`@ts-expect-error`). Keep these off until a dedicated pass can add the missing type declarations or justify each suppression.
-
-`noImplicitAny: false` under `strict: true` should be flipped to `true` last, after all explicit types are in place.
+**Status (2026-08-18):** `@typescript-eslint/no-unused-vars` is on and green. Five rules remain deferred with documented reasons.
 
 ---
 
