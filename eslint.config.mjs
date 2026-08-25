@@ -17,7 +17,7 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "@typescript-eslint/no-unused-disable-directive": "off",
     
     // React rules
-    "react-hooks/exhaustive-deps": "off",
+    "react-hooks/exhaustive-deps": "error",
     "react-hooks/purity": "off",
     "react-hooks/set-state-in-effect": "off",
     "react/no-unescaped-entities": "off",
@@ -37,11 +37,11 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "no-empty": "off",
     "no-irregular-whitespace": "off",
     "no-case-declarations": "off",
-    "no-fallthrough": "off",
+    "no-fallthrough": "error",
     "no-mixed-spaces-and-tabs": "off",
     "no-redeclare": "off",
     "no-undef": "off",
-    "no-unreachable": "off",
+    "no-unreachable": "error",
     "no-useless-escape": "off",
   },
 }, {

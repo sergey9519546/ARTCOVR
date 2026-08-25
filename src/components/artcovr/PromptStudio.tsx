@@ -91,7 +91,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     return () => {
       active = false;
     };
-  }, [selectedPreviewKey]);
+  }, [selectedPreviewKey, artwork.id]);
 
   useEffect(() => {
     if (phase !== "generating") return;
