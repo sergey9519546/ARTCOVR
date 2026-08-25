@@ -18,11 +18,11 @@ if (unknownArguments.length > 0) throw new Error(`Unknown arguments: ${unknownAr
 
 const approved = JSON.parse(await readFile(approvedPath, "utf8")) as unknown;
 if (!Array.isArray(approved)) throw new Error("Approved catalog must be a JSON array.");
-const launchCountValid = approved.length >= 100 && approved.length <= 200;
-if (requireLaunchCatalog && !launchCountValid) {
-  throw new Error(`Launch requires 100–200 approved artworks; received ${approved.length}.`);
-}
 const projected = approved.length === 0 ? [] : projectApprovedCatalog(approved);
+const launchCountValid = projected.length >= 100 && projected.length <= 200;
+if (requireLaunchCatalog && !launchCountValid) {
+  throw new Error(`Launch requires 100–200 publishable artworks; received ${projected.length}.`);
+}
 for (const artwork of projected) {
   const displayPath = path.resolve(projectRoot, "public", artwork.image.replace(/^\/+/, ""));
   const publicRoot = `${path.resolve(projectRoot, "public")}${path.sep}`;
@@ -54,5 +54,6 @@ console.log(JSON.stringify({
   projectionPath,
   checkOnly,
   approvedRows: approved.length,
+  publishableRows: projected.length,
   launchCountValid,
 }, null, 2));

@@ -366,7 +366,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/clocktower-vespers.jpg"
   },
   {
@@ -627,7 +627,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/approved-horizon.jpg"
   },
   {
@@ -714,7 +714,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/cyan-passage.jpg"
   },
   {
@@ -801,7 +801,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/transit-diagram.jpg"
   },
   {
@@ -975,7 +975,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/open-circle.jpg"
   },
   {
@@ -1149,7 +1149,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/tears-as-currency.jpg"
   },
   {
@@ -1431,7 +1431,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/wheel-of-quiet-relics.jpg"
   },
   {
@@ -1518,7 +1518,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/escalator-to-nowhere.jpg"
   },
   {
@@ -1779,7 +1779,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/door-on-a-plate.jpg"
   },
   {
@@ -1887,7 +1887,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-stitched-icon.jpg"
   },
   {
@@ -1974,7 +1974,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/parking-meter-garden.jpg"
   },
   {
@@ -2148,7 +2148,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/birthday-spark.jpg"
   },
   {
@@ -2235,7 +2235,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/family-circuit.jpg"
   },
   {
@@ -2322,7 +2322,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/celestial-paper-bag.jpg"
   },
   {
@@ -2496,7 +2496,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/microwave-bloom.jpg"
   },
   {
@@ -2670,7 +2670,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/storm-in-a-fishbowl.jpg"
   },
   {
@@ -2757,7 +2757,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/buried-clocks.jpg"
   },
   {
@@ -3105,7 +3105,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/red-thread.jpg"
   },
   {
@@ -3279,7 +3279,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/unopened-staircase.jpg"
   },
   {
@@ -3453,7 +3453,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/end-of-takeout.jpg"
   },
   {
@@ -4062,7 +4062,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/barcode-moon.jpg"
   },
   {
@@ -4366,7 +4366,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/coral-beak.jpg"
   },
   {
@@ -4453,7 +4453,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/key-to-the-threshold.jpg"
   },
   {
@@ -4802,7 +4802,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/mechanical-saint.jpg"
   },
   {
@@ -5172,7 +5172,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-dune-observatory.jpg"
   },
   {
@@ -5520,7 +5520,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/mailbox-garden.jpg"
   },
   {
@@ -5694,7 +5694,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/unsaid-things.jpg"
   },
   {
@@ -5868,7 +5868,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/tower-of-smoke.jpg"
   },
   {
@@ -6016,7 +6016,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/azure-threshold.jpg"
   },
   {
@@ -6164,7 +6164,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/ochre-orbits.jpg"
   },
   {
@@ -6386,7 +6386,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/ice-procession.jpg"
   },
   {
@@ -6460,7 +6460,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/sail-cathedral.jpg"
   },
   {
@@ -6534,7 +6534,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/emerald-colonnade.jpg"
   },
   {
@@ -6608,7 +6608,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/parasol-walkers.jpg"
   },
   {
@@ -6682,7 +6682,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/cosmic-pilgrim.jpg"
   },
   {
@@ -7982,7 +7982,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/monochrome-glitch-abstraction.jpg"
   },
   {
@@ -8462,7 +8462,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/kinetic-ghost-minimalism.jpg"
   },
   {
@@ -9877,7 +9877,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/luminous-cosmic-folklore.jpg"
   },
   {
@@ -9985,7 +9985,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/cloud-chamber-communion.jpg"
   },
   {
@@ -10206,7 +10206,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/ethereal-painterly-botanica.jpg"
   },
   {
@@ -10422,7 +10422,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/monochrome-gothic-printmaking.jpg"
   },
   {
@@ -11199,7 +11199,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/herald-of-the-orbit-bloom.jpg"
   },
   {
@@ -11498,7 +11498,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/magi-in-grey.jpg"
   },
   {
@@ -11552,7 +11552,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/desert-broadcast-saint.jpg"
   },
   {
@@ -11606,7 +11606,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/crown-of-black-spikes.jpg"
   },
   {
@@ -11662,7 +11662,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/veil-in-red-wind.jpg"
   },
   {
@@ -11716,7 +11716,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/widow-in-the-wildflowers.jpg"
   },
   {
@@ -11770,7 +11770,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/cross-in-the-red.jpg"
   },
   {
@@ -11826,7 +11826,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/white-eyes-in-the-rain.jpg"
   },
   {
@@ -11882,7 +11882,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/portrait-in-slippage.jpg"
   },
   {
@@ -11936,7 +11936,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/apparition-over-the-gorge.jpg"
   },
   {
@@ -11990,7 +11990,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/magenta-eclipse.jpg"
   },
   {
@@ -12044,7 +12044,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/sherbet-orbits.jpg"
   },
   {
@@ -12100,7 +12100,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/sleeper-on-the-rainbow.jpg"
   },
   {
@@ -12154,7 +12154,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/fishing-the-reflected-sky.jpg"
   },
   {
@@ -12210,7 +12210,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-boating-afternoon.jpg"
   },
   {
@@ -12264,7 +12264,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-crumbling-colossus.jpg"
   },
   {
@@ -12318,7 +12318,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/vigil-at-the-golden-cross.jpg"
   },
   {
@@ -12372,7 +12372,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-verdigris-skull.jpg"
   },
   {
@@ -12428,7 +12428,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/boy-and-the-ant.jpg"
   },
   {
@@ -12482,7 +12482,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/hands-holding-the-eye.jpg"
   },
   {
@@ -12536,7 +12536,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/head-in-the-rapeseed.jpg"
   },
   {
@@ -12590,7 +12590,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/two-dancers-in-linen.jpg"
   },
   {
@@ -12644,7 +12644,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-brass-halo.jpg"
   },
   {
@@ -12698,7 +12698,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/basin-for-a-head.jpg"
   },
   {
@@ -12754,7 +12754,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/exit-in-fragments.jpg"
   },
   {
@@ -12808,7 +12808,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/playing-the-stapler.jpg"
   },
   {
@@ -12864,7 +12864,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/halftone-skull-in-red.jpg"
   },
   {
@@ -12920,7 +12920,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/motel-in-teal-night.jpg"
   },
   {
@@ -12974,7 +12974,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/mouth-in-the-floor.jpg"
   },
   {
@@ -13030,7 +13030,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-lives-not-chosen.jpg"
   },
   {
@@ -13084,7 +13084,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/mouth-full-of-coins.jpg"
   },
   {
@@ -13140,7 +13140,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-waiting-bench.jpg"
   },
   {
@@ -13196,7 +13196,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-xerox-scream.jpg"
   },
   {
@@ -13252,7 +13252,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/ramen-with-my-skeleton.jpg"
   },
   {
@@ -13306,7 +13306,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/coffee-for-the-skeleton.jpg"
   },
   {
@@ -13360,7 +13360,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-uplifted-face.jpg"
   },
   {
@@ -13414,7 +13414,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/ethereal-muted-minimalism.jpg"
   },
   {
@@ -13468,7 +13468,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/oneiric-geometric-surrealism.jpg"
   },
   {
@@ -13522,7 +13522,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surrealist-liminal-pastoralism.jpg"
   },
   {
@@ -13578,7 +13578,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/ethereal-pastel-surrealism.jpg"
   },
   {
@@ -13634,7 +13634,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/narrative-surrealist-synthesis.jpg"
   },
   {
@@ -13688,7 +13688,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/cinematic-surreal-sci-fi.jpg"
   },
   {
@@ -13742,7 +13742,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surrealist-sky-collage.jpg"
   },
   {
@@ -13796,7 +13796,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/minimalist-surrealist-dreamscapes.jpg"
   },
   {
@@ -13850,7 +13850,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/atmospheric-surrealist-nostalgia.jpg"
   },
   {
@@ -13904,7 +13904,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surreal-minimalist-waterscapes.jpg"
   },
   {
@@ -13958,7 +13958,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/moody-ethereal-minimalism.jpg"
   },
   {
@@ -14012,7 +14012,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/monolithic-cobalt-liminality.jpg"
   },
   {
@@ -14066,7 +14066,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/liminal-surrealist-distortion.jpg"
   },
   {
@@ -14120,7 +14120,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surreal-liminal-minimalism.jpg"
   },
   {
@@ -14177,7 +14177,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/disruptive-analog-grunge.jpg"
   },
   {
@@ -14234,7 +14234,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surreal-retro-futurist-collage.jpg"
   },
   {
@@ -14290,7 +14290,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/high-contrast-fauvist-glitch.jpg"
   },
   {
@@ -14344,7 +14344,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/serene-pastel-surrealism.jpg"
   },
   {
@@ -14400,7 +14400,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/graphic-surrealist-collage.jpg"
   },
   {
@@ -14456,7 +14456,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surreal-retro-cosmic-collage.jpg"
   },
   {
@@ -14510,7 +14510,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/glass-stair-in-the-clouds.jpg"
   },
   {
@@ -14564,7 +14564,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/luminous-thermal-expressionism.jpg"
   },
   {
@@ -14620,7 +14620,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/graphic-retro-printmaker.jpg"
   },
   {
@@ -14674,7 +14674,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/ethereal-monochrome-motion.jpg"
   },
   {
@@ -14728,7 +14728,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/saturated-surrealist-minimalism.jpg"
   },
   {
@@ -14782,7 +14782,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surreal-graphic-minimalism.jpg"
   },
   {
@@ -14836,7 +14836,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/surreal-pastoral-technicolor.jpg"
   },
   {
@@ -14890,7 +14890,7 @@
     "saleMode": null,
     "priceCents": 1000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/kinetic-liminal-reflections.jpg"
   },
   {
@@ -14944,7 +14944,7 @@
     "saleMode": null,
     "priceCents": 20000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/crimson-tactile-surrealism.jpg"
   },
   {
@@ -15000,7 +15000,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/cathedral-of-washers.jpg"
   },
   {
@@ -15054,7 +15054,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/cube-in-the-wheat.jpg"
   },
   {
@@ -15108,7 +15108,7 @@
     "saleMode": null,
     "priceCents": 8000,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/blue-hour-monolith.jpg"
   },
   {
@@ -15162,7 +15162,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/vase-in-the-mist.jpg"
   },
   {
@@ -15216,7 +15216,7 @@
     "saleMode": null,
     "priceCents": 3500,
     "currency": "USD",
-    "tier": "public",
+    "tier": "featured",
     "image": "/assets/artworks/the-branch-bearer.jpg"
   }
 ]

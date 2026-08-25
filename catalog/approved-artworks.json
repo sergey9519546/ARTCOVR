@@ -15883,5 +15883,3425 @@
     "priceCents": 1000,
     "currency": "USD",
     "tier": "archive"
+  },
+  {
+    "id": "art_a4aef1c3b58cb44a8a8d",
+    "position": 180,
+    "slug": "signal-garden",
+    "title": "Signal Garden",
+    "description": "A solitary figure presses an iron across a board as coral static breaks into turquoise.",
+    "alt": "A solitary figure presses an iron across a board as coral static breaks into turquoise.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "electric, solitary, expressive",
+    "moodTags": [
+      "electric",
+      "solitary",
+      "expressive"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 1203216,
+    "sha256": "a4aef1c3b58cb44a8a8d77463f406c3e6f4bf29df17286ad9c9c2be9f0bb1c10",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a4aef1c3b58cb44a8a8d/base",
+    "displayPath": "/assets/artworks/signal-garden.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "figure",
+        "iron",
+        "ironing board",
+        "turquoise",
+        "coral pigment",
+        "silhouette"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Signal Garden | A solitary figure presses an iron across a board as coral static breaks into turquoise. | Graphic / Illustration / Print | electric | solitary | expressive | figure | iron | ironing board | turquoise | coral pigment | silhouette",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_a020be38cec4584030b2",
+    "position": 181,
+    "slug": "floating-gambit",
+    "title": "The Floating Gambit",
+    "description": "A purple chessboard floats above still water beneath a lavender sky.",
+    "alt": "A purple chessboard floats above still water beneath a lavender sky.",
+    "category": "Surreal / Hybrid",
+    "mood": "strategic, suspended, dreamlike",
+    "moodTags": [
+      "strategic",
+      "suspended",
+      "dreamlike"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2488621,
+    "sha256": "a020be38cec4584030b2960296e21e4c727fa617a9865f53b8a09966a30a776b",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a020be38cec4584030b2/base",
+    "displayPath": "/assets/artworks/floating-gambit.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "chessboard",
+        "chess pieces",
+        "floating platform",
+        "lavender sky",
+        "still water",
+        "surreal game"
+      ],
+      "avoids": [],
+      "palette": [
+        "purple",
+        "royal opulent"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "The Floating Gambit | A purple chessboard floats above still water beneath a lavender sky. | Surreal / Hybrid | strategic | suspended | dreamlike | chessboard | chess pieces | floating platform | lavender sky | still water | surreal game",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_01ecba3251649629ae80",
+    "position": 182,
+    "slug": "last-light-market",
+    "title": "Last Light Market",
+    "description": "A lit roadside market holds the final human presence in a dark empty street.",
+    "alt": "A lit roadside market holds the final human presence in a dark empty street.",
+    "category": "Painterly / Illustrative",
+    "mood": "nocturnal, cinematic, solitary",
+    "moodTags": [
+      "nocturnal",
+      "cinematic",
+      "solitary"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 1209472,
+    "sha256": "01ecba3251649629ae801e5d513256cddc0e32595d48cda9e642807c57e91efe",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_01ecba3251649629ae80/base",
+    "displayPath": "/assets/artworks/last-light-market.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "roadside market",
+        "night street",
+        "storefront light",
+        "lone figure",
+        "urban stillness",
+        "teal shadows"
+      ],
+      "avoids": [],
+      "palette": [
+        "black",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Last Light Market | A lit roadside market holds the final human presence in a dark empty street. | Painterly / Illustrative | nocturnal | cinematic | solitary | roadside market | night street | storefront light | lone figure | urban stillness | teal shadows",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_47c84bef0a518c40c4f3",
+    "position": 183,
+    "slug": "stem-in-the-quiet",
+    "title": "Stem in the Quiet",
+    "description": "One flowering stem rests on a rough table inside a pale gray room.",
+    "alt": "One flowering stem rests on a rough table inside a pale gray room.",
+    "category": "Minimal / Abstract",
+    "mood": "quiet, sparse, contemplative",
+    "moodTags": [
+      "quiet",
+      "sparse",
+      "contemplative"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1893464,
+    "sha256": "47c84bef0a518c40c4f3503e25a332c95afb3f6416ac7cef03317365911792f2",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_47c84bef0a518c40c4f3/base",
+    "displayPath": "/assets/artworks/stem-in-the-quiet.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "flowering stem",
+        "ceramic vase",
+        "rough table",
+        "gray room",
+        "still life",
+        "negative space"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "balanced neutral"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "generated_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Stem in the Quiet | One flowering stem rests on a rough table inside a pale gray room. | Minimal / Abstract | quiet | sparse | contemplative | flowering stem | ceramic vase | rough table | gray room | still life | negative space",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_13e294842fc075b56534",
+    "position": 184,
+    "slug": "cloud-aperture",
+    "title": "Cloud Aperture",
+    "description": "A rectangular doorway formed from clouds opens against a deep blue sky.",
+    "alt": "A rectangular doorway formed from clouds opens against a deep blue sky.",
+    "category": "Surreal / Hybrid",
+    "mood": "luminous, minimal, celestial",
+    "moodTags": [
+      "luminous",
+      "minimal",
+      "celestial"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1913725,
+    "sha256": "13e294842fc075b565344e9228e61c316a5df6bbeeaa43a8a2a6c4fe804933c4",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_13e294842fc075b56534/base",
+    "displayPath": "/assets/artworks/cloud-aperture.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "cloud doorway",
+        "blue sky",
+        "rectangular void",
+        "portal",
+        "white cloud",
+        "minimal surrealism"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "generated_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Cloud Aperture | A rectangular doorway formed from clouds opens against a deep blue sky. | Surreal / Hybrid | luminous | minimal | celestial | cloud doorway | blue sky | rectangular void | portal | white cloud | minimal surrealism",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_d2f4868c8242a4cdbbc8",
+    "position": 185,
+    "slug": "signal-over-the-shore",
+    "title": "Signal Over the Shore",
+    "description": "Black digital bars interrupt a monochrome coastline and its solitary observer.",
+    "alt": "Black digital bars interrupt a monochrome coastline and its solitary observer.",
+    "category": "Mixed Media / Collage",
+    "mood": "fractured, coastal, ominous",
+    "moodTags": [
+      "fractured",
+      "coastal",
+      "ominous"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2661568,
+    "sha256": "d2f4868c8242a4cdbbc813d178e4ef5d8d65973c2c940000385f1d042c08f2e2",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_d2f4868c8242a4cdbbc8/base",
+    "displayPath": "/assets/artworks/signal-over-the-shore.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "coastline",
+        "glitch bars",
+        "monochrome landscape",
+        "solitary figure",
+        "signal loss",
+        "collage"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "balanced neutral"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "generated_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Signal Over the Shore | Black digital bars interrupt a monochrome coastline and its solitary observer. | Mixed Media / Collage | fractured | coastal | ominous | coastline | glitch bars | monochrome landscape | solitary figure | signal loss | collage",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_61dfcdf527d8473be666",
+    "position": 186,
+    "slug": "procession-in-fog",
+    "title": "Procession in Fog",
+    "description": "A distant procession disappears into dense gray fog across an empty field.",
+    "alt": "A distant procession disappears into dense gray fog across an empty field.",
+    "category": "Painterly / Illustrative",
+    "mood": "fogbound, solemn, mysterious",
+    "moodTags": [
+      "fogbound",
+      "solemn",
+      "mysterious"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2603172,
+    "sha256": "61dfcdf527d8473be666d59fea7edf7e4670eae5394e701c24ecafba6a830230",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_61dfcdf527d8473be666/base",
+    "displayPath": "/assets/artworks/procession-in-fog.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "procession",
+        "gray fog",
+        "silhouettes",
+        "empty field",
+        "atmospheric landscape",
+        "distant figures"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "balanced neutral"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "regenerated_originals",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Procession in Fog | A distant procession disappears into dense gray fog across an empty field. | Painterly / Illustrative | fogbound | solemn | mysterious | procession | gray fog | silhouettes | empty field | atmospheric landscape | distant figures",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_ac88bfeb496a027fd513",
+    "position": 187,
+    "slug": "eyes-in-the-wiring",
+    "title": "Eyes in the Wiring",
+    "description": "Red and green eyes surface inside a tangled field of electric fibers.",
+    "alt": "Red and green eyes surface inside a tangled field of electric fibers.",
+    "category": "Digital / Computational",
+    "mood": "watchful, electric, uncanny",
+    "moodTags": [
+      "watchful",
+      "electric",
+      "uncanny"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3334831,
+    "sha256": "ac88bfeb496a027fd5135d7eee45c7f2b3b64c511890727f3a7254266fb509b6",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_ac88bfeb496a027fd513/base",
+    "displayPath": "/assets/artworks/eyes-in-the-wiring.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Digital / Computational",
+      "keywords": [
+        "eyes",
+        "neural fibers",
+        "red and green",
+        "network",
+        "surveillance",
+        "digital texture"
+      ],
+      "avoids": [],
+      "palette": [
+        "red",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Eyes in the Wiring | Red and green eyes surface inside a tangled field of electric fibers. | Digital / Computational | watchful | electric | uncanny | eyes | neural fibers | red and green | network | surveillance | digital texture",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_a35f10c78389d4167866",
+    "position": 188,
+    "slug": "red-silo",
+    "title": "The Red Silo",
+    "description": "A narrow red tower casts a long shadow across an orange plain.",
+    "alt": "A narrow red tower casts a long shadow across an orange plain.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "arid, minimal, monumental",
+    "moodTags": [
+      "arid",
+      "minimal",
+      "monumental"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3083563,
+    "sha256": "a35f10c78389d4167866b910f2b4a5153e4a643ef1647007738ff2f244153b67",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a35f10c78389d4167866/base",
+    "displayPath": "/assets/artworks/red-silo.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "red tower",
+        "orange plain",
+        "long shadow",
+        "turquoise sky",
+        "geometric landscape",
+        "solitary architecture"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "The Red Silo | A narrow red tower casts a long shadow across an orange plain. | Graphic / Illustration / Print | arid | minimal | monumental | red tower | orange plain | long shadow | turquoise sky | geometric landscape | solitary architecture",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_8aecc6fbbb68c7706955",
+    "position": 189,
+    "slug": "violet-archivist",
+    "title": "The Violet Archivist",
+    "description": "A violet archivist reads among floating books clocks and mechanical fragments.",
+    "alt": "A violet archivist reads among floating books clocks and mechanical fragments.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "scholarly, cosmic, playful",
+    "moodTags": [
+      "scholarly",
+      "cosmic",
+      "playful"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3051018,
+    "sha256": "8aecc6fbbb68c7706955e2ec62cbc833cedb49c770fc175aa69e060f114e16b1",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_8aecc6fbbb68c7706955/base",
+    "displayPath": "/assets/artworks/violet-archivist.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "archivist",
+        "floating books",
+        "clocks",
+        "violet",
+        "mechanical fragments",
+        "illustrated fantasy"
+      ],
+      "avoids": [],
+      "palette": [
+        "purple",
+        "royal opulent"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "The Violet Archivist | A violet archivist reads among floating books clocks and mechanical fragments. | Graphic / Illustration / Print | scholarly | cosmic | playful | archivist | floating books | clocks | violet | mechanical fragments | illustrated fantasy",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_54d5a5303c964810c253",
+    "position": 190,
+    "slug": "three-registers-of-silence",
+    "title": "Three Registers of Silence",
+    "description": "One portrait divides into blue red and amber states of attention.",
+    "alt": "One portrait divides into blue red and amber states of attention.",
+    "category": "Mixed Media / Collage",
+    "mood": "devotional, divided, introspective",
+    "moodTags": [
+      "devotional",
+      "divided",
+      "introspective"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1024,
+    "height": 1024,
+    "bytes": 384964,
+    "sha256": "54d5a5303c964810c2530d250e1d842c98bbb51f764bd4230551ac373084e309",
+    "sourcePool": "new_download",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/jpeg",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_54d5a5303c964810c253/base",
+    "displayPath": "/assets/artworks/three-registers-of-silence.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "triptych portrait",
+        "blue red amber",
+        "layered figure",
+        "silence",
+        "collage",
+        "divided attention"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "warm autumnal sunset"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_download",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Three Registers of Silence | One portrait divides into blue red and amber states of attention. | Mixed Media / Collage | devotional | divided | introspective | triptych portrait | blue red amber | layered figure | silence | collage | divided attention",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_549812bb787149800204",
+    "position": 191,
+    "slug": "night-shift-draftsman",
+    "title": "Night Shift Draftsman",
+    "description": "A solitary draftsman works beneath hard light in a dark studio.",
+    "alt": "A solitary draftsman works beneath hard light in a dark studio.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "focused, nocturnal, analog",
+    "moodTags": [
+      "focused",
+      "nocturnal",
+      "analog"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 1906030,
+    "sha256": "549812bb7871498002048e8f52b5dd2b6a87aec320fb57d06447c9202142dee7",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_549812bb787149800204/base",
+    "displayPath": "/assets/artworks/night-shift-draftsman.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "draftsman",
+        "workbench",
+        "hard light",
+        "dark studio",
+        "technical drawing",
+        "solitary worker"
+      ],
+      "avoids": [],
+      "palette": [
+        "black",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Night Shift Draftsman | A solitary draftsman works beneath hard light in a dark studio. | Graphic / Illustration / Print | focused | nocturnal | analog | draftsman | workbench | hard light | dark studio | technical drawing | solitary worker",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_73a2d38d35a1b927ab63",
+    "position": 192,
+    "slug": "dream-receiver",
+    "title": "The Dream Receiver",
+    "description": "A sleeper lies beneath a suspended red signal and trailing cable.",
+    "alt": "A sleeper lies beneath a suspended red signal and trailing cable.",
+    "category": "Surreal / Hybrid",
+    "mood": "somnolent, charged, mysterious",
+    "moodTags": [
+      "somnolent",
+      "charged",
+      "mysterious"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2908541,
+    "sha256": "73a2d38d35a1b927ab636449d898922b127a2f44ab3b4fa867bdf2a9482c1023",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_73a2d38d35a1b927ab63/base",
+    "displayPath": "/assets/artworks/dream-receiver.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "sleeper",
+        "red signal",
+        "trailing cable",
+        "dark room",
+        "suspended light",
+        "dream apparatus"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "The Dream Receiver | A sleeper lies beneath a suspended red signal and trailing cable. | Surreal / Hybrid | somnolent | charged | mysterious | sleeper | red signal | trailing cable | dark room | suspended light | dream apparatus",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_5457dcbe0ab5d8035143",
+    "position": 193,
+    "slug": "door-in-the-red-orchard",
+    "title": "Door in the Red Orchard",
+    "description": "A woman in red faces a white door beneath a flowering tree.",
+    "alt": "A woman in red faces a white door beneath a flowering tree.",
+    "category": "Surreal / Hybrid",
+    "mood": "theatrical, solitary, expectant",
+    "moodTags": [
+      "theatrical",
+      "solitary",
+      "expectant"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2564370,
+    "sha256": "5457dcbe0ab5d8035143d916a2622e3806ab9b0acd2b4d418511cb0ef7997bb3",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_5457dcbe0ab5d8035143/base",
+    "displayPath": "/assets/artworks/door-in-the-red-orchard.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "woman in red",
+        "white door",
+        "flowering tree",
+        "red landscape",
+        "threshold",
+        "surreal scene"
+      ],
+      "avoids": [],
+      "palette": [
+        "red",
+        "warm autumnal sunset"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "generated_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Door in the Red Orchard | A woman in red faces a white door beneath a flowering tree. | Surreal / Hybrid | theatrical | solitary | expectant | woman in red | white door | flowering tree | red landscape | threshold | surreal scene",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_63f3ce58468bc2a73bf5",
+    "position": 194,
+    "slug": "afternoon-across-the-water",
+    "title": "Afternoon Across the Water",
+    "description": "A seated figure watches sunlight spread across a quiet riverbank.",
+    "alt": "A seated figure watches sunlight spread across a quiet riverbank.",
+    "category": "Painterly / Illustrative",
+    "mood": "reflective, pastoral, quiet",
+    "moodTags": [
+      "reflective",
+      "pastoral",
+      "quiet"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2746838,
+    "sha256": "63f3ce58468bc2a73bf5eac5699f935b2d02494c35d87c1a930a09f6b59c57cd",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_63f3ce58468bc2a73bf5/base",
+    "displayPath": "/assets/artworks/afternoon-across-the-water.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "riverbank",
+        "seated figure",
+        "sunlight",
+        "landscape painting",
+        "afternoon",
+        "reflective water"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Afternoon Across the Water | A seated figure watches sunlight spread across a quiet riverbank. | Painterly / Illustrative | reflective | pastoral | quiet | riverbank | seated figure | sunlight | landscape painting | afternoon | reflective water",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_0610f906d4591498579a",
+    "position": 195,
+    "slug": "rooms-above-weather",
+    "title": "Rooms Above Weather",
+    "description": "White arches open into layered rooms built entirely from clouds.",
+    "alt": "White arches open into layered rooms built entirely from clouds.",
+    "category": "Surreal / Hybrid",
+    "mood": "ethereal, luminous, serene",
+    "moodTags": [
+      "ethereal",
+      "luminous",
+      "serene"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1817649,
+    "sha256": "0610f906d4591498579a478b10c0a74250c0e8abb0589860d9b5e72934c66dc9",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_0610f906d4591498579a/base",
+    "displayPath": "/assets/artworks/rooms-above-weather.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "cloud rooms",
+        "white arches",
+        "sky interior",
+        "portal",
+        "pastel light",
+        "dream architecture"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "generated_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Rooms Above Weather | White arches open into layered rooms built entirely from clouds. | Surreal / Hybrid | ethereal | luminous | serene | cloud rooms | white arches | sky interior | portal | pastel light | dream architecture",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_b880e45f4ca61bdd1e81",
+    "position": 196,
+    "slug": "rain-keeps-the-house",
+    "title": "Rain Keeps the House",
+    "description": "Rain turns a neighborhood house and empty street into a nocturnal refuge.",
+    "alt": "Rain turns a neighborhood house and empty street into a nocturnal refuge.",
+    "category": "Painterly / Illustrative",
+    "mood": "nocturnal, intimate, reflective",
+    "moodTags": [
+      "nocturnal",
+      "intimate",
+      "reflective"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2637576,
+    "sha256": "b880e45f4ca61bdd1e81a6e738e8bf1674102333162d1e9af7e6729571123f94",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_b880e45f4ca61bdd1e81/base",
+    "displayPath": "/assets/artworks/rain-keeps-the-house.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "rainy street",
+        "neighborhood house",
+        "night",
+        "wet pavement",
+        "warm windows",
+        "urban solitude"
+      ],
+      "avoids": [],
+      "palette": [
+        "black",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "generated_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Rain Keeps the House | Rain turns a neighborhood house and empty street into a nocturnal refuge. | Painterly / Illustrative | nocturnal | intimate | reflective | rainy street | neighborhood house | night | wet pavement | warm windows | urban solitude",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_f0e906ca4b9166039556",
+    "position": 197,
+    "slug": "memory-in-blue-plaster",
+    "title": "Memory in Blue Plaster",
+    "description": "A monumental blue head dissolves into thin streams above an empty ground.",
+    "alt": "A monumental blue head dissolves into thin streams above an empty ground.",
+    "category": "Material / Sculptural / Organic",
+    "mood": "monumental, dissolving, contemplative",
+    "moodTags": [
+      "monumental",
+      "dissolving",
+      "contemplative"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2743916,
+    "sha256": "f0e906ca4b91660395567a37175b7b3b6a690c3544e3c599c5472f4fe6f7416f",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_f0e906ca4b9166039556/base",
+    "displayPath": "/assets/artworks/memory-in-blue-plaster.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Material / Sculptural / Organic",
+      "keywords": [
+        "blue sculpture",
+        "monumental head",
+        "dripping plaster",
+        "empty ground",
+        "memory",
+        "material portrait"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Memory in Blue Plaster | A monumental blue head dissolves into thin streams above an empty ground. | Material / Sculptural / Organic | monumental | dissolving | contemplative | blue sculpture | monumental head | dripping plaster | empty ground | memory | material portrait",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_69254c48b5031868ff9c",
+    "position": 198,
+    "slug": "yellow-field-interruption",
+    "title": "Yellow Field Interruption",
+    "description": "Yellow purple and green fragments collide across a dense textured field.",
+    "alt": "Yellow purple and green fragments collide across a dense textured field.",
+    "category": "Minimal / Abstract",
+    "mood": "chromatic, textured, kinetic",
+    "moodTags": [
+      "chromatic",
+      "textured",
+      "kinetic"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3704392,
+    "sha256": "69254c48b5031868ff9c78c2d27b697d7defe9420f3bfde2777d69a9ed8843ed",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_69254c48b5031868ff9c/base",
+    "displayPath": "/assets/artworks/yellow-field-interruption.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "yellow purple green",
+        "abstract field",
+        "layered fragments",
+        "texture",
+        "color collision",
+        "graphic composition"
+      ],
+      "avoids": [],
+      "palette": [
+        "yellow",
+        "warm autumnal sunset"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Yellow Field Interruption | Yellow purple and green fragments collide across a dense textured field. | Minimal / Abstract | chromatic | textured | kinetic | yellow purple green | abstract field | layered fragments | texture | color collision | graphic composition",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_69ab5ff47b2ce5ad2e41",
+    "position": 199,
+    "slug": "chair-at-the-color-boundary",
+    "title": "Chair at the Color Boundary",
+    "description": "An empty chair waits where teal and coral planes meet.",
+    "alt": "An empty chair waits where teal and coral planes meet.",
+    "category": "Minimal / Abstract",
+    "mood": "graphic, spare, poised",
+    "moodTags": [
+      "graphic",
+      "spare",
+      "poised"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 1280631,
+    "sha256": "69ab5ff47b2ce5ad2e413b716836f945889f8204a866f278d377bd28b47a78bc",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_69ab5ff47b2ce5ad2e41/base",
+    "displayPath": "/assets/artworks/chair-at-the-color-boundary.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "empty chair",
+        "teal field",
+        "coral plane",
+        "color boundary",
+        "minimal interior",
+        "geometric composition"
+      ],
+      "avoids": [],
+      "palette": [
+        "orange",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Chair at the Color Boundary | An empty chair waits where teal and coral planes meet. | Minimal / Abstract | graphic | spare | poised | empty chair | teal field | coral plane | color boundary | minimal interior | geometric composition",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_52773312df63657f22d9",
+    "position": 200,
+    "slug": "dinner-after-the-alarm",
+    "title": "Dinner After the Alarm",
+    "description": "Two chairs face an abandoned table beneath a ceiling of smoke.",
+    "alt": "Two chairs face an abandoned table beneath a ceiling of smoke.",
+    "category": "Painterly / Illustrative",
+    "mood": "abandoned, smoky, tense",
+    "moodTags": [
+      "abandoned",
+      "smoky",
+      "tense"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2366032,
+    "sha256": "52773312df63657f22d900dfa8f61ddf8b7e1b7b417f03ecff515a84a569e256",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_52773312df63657f22d9/base",
+    "displayPath": "/assets/artworks/dinner-after-the-alarm.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "dinner table",
+        "two chairs",
+        "smoke",
+        "green room",
+        "abandoned meal",
+        "domestic tension"
+      ],
+      "avoids": [],
+      "palette": [
+        "green",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Dinner After the Alarm | Two chairs face an abandoned table beneath a ceiling of smoke. | Painterly / Illustrative | abandoned | smoky | tense | dinner table | two chairs | smoke | green room | abandoned meal | domestic tension",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_63e91a3f2b69aa8e6974",
+    "position": 201,
+    "slug": "face-between-frequencies",
+    "title": "Face Between Frequencies",
+    "description": "A face splits across blue violet and black graphic planes.",
+    "alt": "A face splits across blue violet and black graphic planes.",
+    "category": "Mixed Media / Collage",
+    "mood": "fragmented, intimate, nocturnal",
+    "moodTags": [
+      "fragmented",
+      "intimate",
+      "nocturnal"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2925034,
+    "sha256": "63e91a3f2b69aa8e6974d01d0a8fafb1c144066160d79b74bf4464995445dee1",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_63e91a3f2b69aa8e6974/base",
+    "displayPath": "/assets/artworks/face-between-frequencies.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "fragmented face",
+        "blue violet black",
+        "portrait collage",
+        "graphic planes",
+        "frequencies",
+        "close-up"
+      ],
+      "avoids": [],
+      "palette": [
+        "black",
+        "royal opulent"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Face Between Frequencies | A face splits across blue violet and black graphic planes. | Mixed Media / Collage | fragmented | intimate | nocturnal | fragmented face | blue violet black | portrait collage | graphic planes | frequencies | close-up",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_ce2eea2cc3ca89f06e10",
+    "position": 202,
+    "slug": "red-measure",
+    "title": "Red Measure",
+    "description": "A vertical red slab rises above two dark architectural ramps.",
+    "alt": "A vertical red slab rises above two dark architectural ramps.",
+    "category": "Minimal / Abstract",
+    "mood": "severe, architectural, tense",
+    "moodTags": [
+      "severe",
+      "architectural",
+      "tense"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2816967,
+    "sha256": "ce2eea2cc3ca89f06e10d152444c15a32ba202ca74bf4b1d741477a370953641",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_ce2eea2cc3ca89f06e10/base",
+    "displayPath": "/assets/artworks/red-measure.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "red slab",
+        "black ramps",
+        "geometric structure",
+        "vertical form",
+        "minimal architecture",
+        "dark field"
+      ],
+      "avoids": [],
+      "palette": [
+        "black",
+        "warm autumnal sunset"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "regenerated_originals",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Red Measure | A vertical red slab rises above two dark architectural ramps. | Minimal / Abstract | severe | architectural | tense | red slab | black ramps | geometric structure | vertical form | minimal architecture | dark field",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_c121d6e4e87e15a1a0aa",
+    "position": 203,
+    "slug": "black-mineral-weather",
+    "title": "Black Mineral Weather",
+    "description": "A black crystalline mountain cuts into a dense bank of storm clouds.",
+    "alt": "A black crystalline mountain cuts into a dense bank of storm clouds.",
+    "category": "Material / Sculptural / Organic",
+    "mood": "monumental, stormy, austere",
+    "moodTags": [
+      "monumental",
+      "stormy",
+      "austere"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2640377,
+    "sha256": "c121d6e4e87e15a1a0aaa2a4f759243e81daf19d54ec864042e9386203cbc770",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_c121d6e4e87e15a1a0aa/base",
+    "displayPath": "/assets/artworks/black-mineral-weather.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Material / Sculptural / Organic",
+      "keywords": [
+        "black mountain",
+        "crystal formation",
+        "storm clouds",
+        "mineral landscape",
+        "sharp geometry",
+        "monochrome"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Black Mineral Weather | A black crystalline mountain cuts into a dense bank of storm clouds. | Material / Sculptural / Organic | monumental | stormy | austere | black mountain | crystal formation | storm clouds | mineral landscape | sharp geometry | monochrome",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_9648abe858bfd7afa724",
+    "position": 204,
+    "slug": "green-bell-towers",
+    "title": "Green Bell Towers",
+    "description": "Weathered green bell towers rise through a field of cracked texture.",
+    "alt": "Weathered green bell towers rise through a field of cracked texture.",
+    "category": "Painterly / Illustrative",
+    "mood": "historic, vertical, weathered",
+    "moodTags": [
+      "historic",
+      "vertical",
+      "weathered"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3709918,
+    "sha256": "9648abe858bfd7afa724dc92d8739bc531e8bc493b5b50816f82d506bd965164",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_9648abe858bfd7afa724/base",
+    "displayPath": "/assets/artworks/green-bell-towers.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "bell towers",
+        "green stone",
+        "cracked texture",
+        "historic architecture",
+        "vertical city",
+        "aged surface"
+      ],
+      "avoids": [],
+      "palette": [
+        "green",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Green Bell Towers | Weathered green bell towers rise through a field of cracked texture. | Painterly / Illustrative | historic | vertical | weathered | bell towers | green stone | cracked texture | historic architecture | vertical city | aged surface",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_91543d2642cc5f4639d8",
+    "position": 205,
+    "slug": "no-exit-agrees",
+    "title": "No Exit Agrees",
+    "description": "Conflicting red exit signs point through a fractured turquoise surface.",
+    "alt": "Conflicting red exit signs point through a fractured turquoise surface.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "urgent, fractured, urban",
+    "moodTags": [
+      "urgent",
+      "fractured",
+      "urban"
+    ],
+    "reviewFlags": [
+      "watermark_or_text"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2036094,
+    "sha256": "91543d2642cc5f4639d8b1828367e976efef241ff7673325eeaa62c0afee2ab0",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_91543d2642cc5f4639d8/base",
+    "displayPath": "/assets/artworks/no-exit-agrees.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "exit signs",
+        "red arrows",
+        "turquoise wall",
+        "conflicting directions",
+        "street graphic",
+        "distressed texture"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "No Exit Agrees | Conflicting red exit signs point through a fractured turquoise surface. | Graphic / Illustration / Print | urgent | fractured | urban | exit signs | red arrows | turquoise wall | conflicting directions | street graphic | distressed texture",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_a41243db6eaf5197167e",
+    "position": 206,
+    "slug": "city-of-copper-facades",
+    "title": "City of Copper Facades",
+    "description": "Copper facades gather into an impossible city beneath an ochre sky.",
+    "alt": "Copper facades gather into an impossible city beneath an ochre sky.",
+    "category": "Painterly / Illustrative",
+    "mood": "monumental, urban, warm",
+    "moodTags": [
+      "monumental",
+      "urban",
+      "warm"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2026252,
+    "sha256": "a41243db6eaf5197167ed076e0e313b01edab263c3088dfbce476fde6fcba603",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_a41243db6eaf5197167e/base",
+    "displayPath": "/assets/artworks/city-of-copper-facades.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "copper facades",
+        "impossible city",
+        "ochre sky",
+        "ornate architecture",
+        "dense skyline",
+        "urban fantasy"
+      ],
+      "avoids": [],
+      "palette": [
+        "orange",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "City of Copper Facades | Copper facades gather into an impossible city beneath an ochre sky. | Painterly / Illustrative | monumental | urban | warm | copper facades | impossible city | ochre sky | ornate architecture | dense skyline | urban fantasy",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_79047465542952b77696",
+    "position": 207,
+    "slug": "midnight-inventory",
+    "title": "Midnight Inventory",
+    "description": "A vending machine glows alone against a broad turquoise wall.",
+    "alt": "A vending machine glows alone against a broad turquoise wall.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "nocturnal, commercial, solitary",
+    "moodTags": [
+      "nocturnal",
+      "commercial",
+      "solitary"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2380075,
+    "sha256": "79047465542952b77696f7b17e64f817afb75ecf60b2b6e0f3dabb08cc6dcb72",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_79047465542952b77696/base",
+    "displayPath": "/assets/artworks/midnight-inventory.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "vending machine",
+        "turquoise wall",
+        "midnight",
+        "long shadow",
+        "urban object",
+        "illuminated display"
+      ],
+      "avoids": [],
+      "palette": [
+        "green",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Midnight Inventory | A vending machine glows alone against a broad turquoise wall. | Graphic / Illustration / Print | nocturnal | commercial | solitary | vending machine | turquoise wall | midnight | long shadow | urban object | illuminated display",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_3e7e85cb513a69aeca55",
+    "position": 208,
+    "slug": "pastel-threshold",
+    "title": "Pastel Threshold",
+    "description": "A luminous pink doorway stands in a pale landscape of mist and snow.",
+    "alt": "A luminous pink doorway stands in a pale landscape of mist and snow.",
+    "category": "Surreal / Hybrid",
+    "mood": "ethereal, quiet, liminal",
+    "moodTags": [
+      "ethereal",
+      "quiet",
+      "liminal"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2537078,
+    "sha256": "3e7e85cb513a69aeca55385773440c4d8b1fe60af4d3e58933651b9327171d83",
+    "sourcePool": "generated_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_3e7e85cb513a69aeca55/base",
+    "displayPath": "/assets/artworks/pastel-threshold.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "pink doorway",
+        "pale landscape",
+        "mist",
+        "snow",
+        "threshold",
+        "pastel surrealism"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "balanced neutral"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "generated_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Pastel Threshold | A luminous pink doorway stands in a pale landscape of mist and snow. | Surreal / Hybrid | ethereal | quiet | liminal | pink doorway | pale landscape | mist | snow | threshold | pastel surrealism",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_eb61883ef45dcded3e06",
+    "position": 209,
+    "slug": "last-transaction",
+    "title": "The Last Transaction",
+    "description": "Two figures meet across a service counter beneath restrained blue light.",
+    "alt": "Two figures meet across a service counter beneath restrained blue light.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "narrative, restrained, bureaucratic",
+    "moodTags": [
+      "narrative",
+      "restrained",
+      "bureaucratic"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2767247,
+    "sha256": "eb61883ef45dcded3e06f03f3805ef57cfec58a1d434b9dbd360617852c417fb",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_eb61883ef45dcded3e06/base",
+    "displayPath": "/assets/artworks/last-transaction.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "service counter",
+        "briefcase",
+        "two figures",
+        "blue light",
+        "transaction",
+        "illustrated scene"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "The Last Transaction | Two figures meet across a service counter beneath restrained blue light. | Graphic / Illustration / Print | narrative | restrained | bureaucratic | service counter | briefcase | two figures | blue light | transaction | illustrated scene",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_15dc5bdf61949f7a05b0",
+    "position": 210,
+    "slug": "machine-with-a-red-thought",
+    "title": "Machine with a Red Thought",
+    "description": "A pale machine hangs inside black smoke and a red electrical bloom.",
+    "alt": "A pale machine hangs inside black smoke and a red electrical bloom.",
+    "category": "Mixed Media / Collage",
+    "mood": "mechanical, ominous, tactile",
+    "moodTags": [
+      "mechanical",
+      "ominous",
+      "tactile"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2939829,
+    "sha256": "15dc5bdf61949f7a05b02a23937f98341ac9144fe4d0b77ccdda6cd293cda502",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_15dc5bdf61949f7a05b0/base",
+    "displayPath": "/assets/artworks/machine-with-a-red-thought.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Mixed Media / Collage",
+      "keywords": [
+        "pale machine",
+        "red bloom",
+        "black smoke",
+        "suspended object",
+        "electrical form",
+        "collage"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "teal / orange cinematic"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Machine with a Red Thought | A pale machine hangs inside black smoke and a red electrical bloom. | Mixed Media / Collage | mechanical | ominous | tactile | pale machine | red bloom | black smoke | suspended object | electrical form | collage",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_73a0bde582bc1e28346a",
+    "position": 211,
+    "slug": "cloudwell-stair",
+    "title": "Cloudwell Stair",
+    "description": "A spiral staircase climbs through clouds toward drifting industrial balloons.",
+    "alt": "A spiral staircase climbs through clouds toward drifting industrial balloons.",
+    "category": "Surreal / Hybrid",
+    "mood": "buoyant, architectural, fantastical",
+    "moodTags": [
+      "buoyant",
+      "architectural",
+      "fantastical"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3167221,
+    "sha256": "73a0bde582bc1e28346a31abfccd40859457afe8eae10690e191022e5495a25f",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_73a0bde582bc1e28346a/base",
+    "displayPath": "/assets/artworks/cloudwell-stair.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "spiral staircase",
+        "clouds",
+        "industrial balloons",
+        "dream architecture",
+        "ascent",
+        "floating city"
+      ],
+      "avoids": [],
+      "palette": [
+        "red",
+        "royal opulent"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Cloudwell Stair | A spiral staircase climbs through clouds toward drifting industrial balloons. | Surreal / Hybrid | buoyant | architectural | fantastical | spiral staircase | clouds | industrial balloons | dream architecture | ascent | floating city",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_58260ef3a72649a05bce",
+    "position": 212,
+    "slug": "night-collected-in-a-bag",
+    "title": "Night Collected in a Bag",
+    "description": "A tied blue bag rests between a tiled wall and a field of stars.",
+    "alt": "A tied blue bag rests between a tiled wall and a field of stars.",
+    "category": "Surreal / Hybrid",
+    "mood": "mundane, cosmic, melancholy",
+    "moodTags": [
+      "mundane",
+      "cosmic",
+      "melancholy"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3882215,
+    "sha256": "58260ef3a72649a05bce38c145a6f6607bab1279bad48a5399930bbbb7dc12d8",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_58260ef3a72649a05bce/base",
+    "displayPath": "/assets/artworks/night-collected-in-a-bag.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Surreal / Hybrid",
+      "keywords": [
+        "blue bag",
+        "tiled wall",
+        "stars",
+        "tied object",
+        "cosmic ground",
+        "surreal still life"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Night Collected in a Bag | A tied blue bag rests between a tiled wall and a field of stars. | Surreal / Hybrid | mundane | cosmic | melancholy | blue bag | tiled wall | stars | tied object | cosmic ground | surreal still life",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_de804f64326858395bf9",
+    "position": 213,
+    "slug": "offering-at-the-narrow-door",
+    "title": "Offering at the Narrow Door",
+    "description": "A white bowl waits above a narrow doorway inside a gray room.",
+    "alt": "A white bowl waits above a narrow doorway inside a gray room.",
+    "category": "Minimal / Abstract",
+    "mood": "ritual, spare, enigmatic",
+    "moodTags": [
+      "ritual",
+      "spare",
+      "enigmatic"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2192474,
+    "sha256": "de804f64326858395bf9c19f3d31ef6733a0c54c75042ee38728da25aeda526b",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_de804f64326858395bf9/base",
+    "displayPath": "/assets/artworks/offering-at-the-narrow-door.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Minimal / Abstract",
+      "keywords": [
+        "white bowl",
+        "narrow doorway",
+        "gray room",
+        "offering",
+        "pedestal",
+        "minimal interior"
+      ],
+      "avoids": [],
+      "palette": [
+        "orange",
+        "warm autumnal sunset"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Offering at the Narrow Door | A white bowl waits above a narrow doorway inside a gray room. | Minimal / Abstract | ritual | spare | enigmatic | white bowl | narrow doorway | gray room | offering | pedestal | minimal interior",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_1b2fada847fa28702c07",
+    "position": 214,
+    "slug": "keeper-of-the-white-lantern",
+    "title": "Keeper of the White Lantern",
+    "description": "An elderly keeper carries a lantern through a white windswept landscape.",
+    "alt": "An elderly keeper carries a lantern through a white windswept landscape.",
+    "category": "Painterly / Illustrative",
+    "mood": "wintry, watchful, solemn",
+    "moodTags": [
+      "wintry",
+      "watchful",
+      "solemn"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2724337,
+    "sha256": "1b2fada847fa28702c0749036a4238c6c9a2728e099e9a481b37508e805e0710",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_1b2fada847fa28702c07/base",
+    "displayPath": "/assets/artworks/keeper-of-the-white-lantern.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "elderly keeper",
+        "white coat",
+        "lantern",
+        "windswept landscape",
+        "winter",
+        "solitary figure"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "warm autumnal sunset"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Keeper of the White Lantern | An elderly keeper carries a lantern through a white windswept landscape. | Painterly / Illustrative | wintry | watchful | solemn | elderly keeper | white coat | lantern | windswept landscape | winter | solitary figure",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_fe9682929d24b0521dad",
+    "position": 215,
+    "slug": "pilgrim-of-the-inner-light",
+    "title": "Pilgrim of the Inner Light",
+    "description": "A hooded pilgrim sits beside the sea with light glowing from within.",
+    "alt": "A hooded pilgrim sits beside the sea with light glowing from within.",
+    "category": "Painterly / Illustrative",
+    "mood": "devotional, meditative, somber",
+    "moodTags": [
+      "devotional",
+      "meditative",
+      "somber"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2756712,
+    "sha256": "fe9682929d24b0521dad18153b8f6ecea55afea106fb9bd584219d37cd10fcd3",
+    "sourcePool": "regenerated_originals",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_fe9682929d24b0521dad/base",
+    "displayPath": "/assets/artworks/pilgrim-of-the-inner-light.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "hooded pilgrim",
+        "inner light",
+        "sea",
+        "seated figure",
+        "ritual",
+        "gray landscape"
+      ],
+      "avoids": [],
+      "palette": [
+        "gray",
+        "balanced neutral"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "regenerated_originals",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Pilgrim of the Inner Light | A hooded pilgrim sits beside the sea with light glowing from within. | Painterly / Illustrative | devotional | meditative | somber | hooded pilgrim | inner light | sea | seated figure | ritual | gray landscape",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_38aae50bb76911d36a4a",
+    "position": 216,
+    "slug": "flowers-at-the-cash-machine",
+    "title": "Flowers at the Cash Machine",
+    "description": "Flowers overtake a small cash machine set against a coral frame.",
+    "alt": "Flowers overtake a small cash machine set against a coral frame.",
+    "category": "Graphic / Illustration / Print",
+    "mood": "nostalgic, urban, tender",
+    "moodTags": [
+      "nostalgic",
+      "urban",
+      "tender"
+    ],
+    "reviewFlags": [
+      "no_obvious_logo_text_watermark_likeness_or_protected_character_in_visual_review"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 2543874,
+    "sha256": "38aae50bb76911d36a4ad8bd94c90eb2b520daee15914bbdc732e975956d2da5",
+    "sourcePool": "concept_reference_art",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_38aae50bb76911d36a4a/base",
+    "displayPath": "/assets/artworks/flowers-at-the-cash-machine.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Graphic / Illustration / Print",
+      "keywords": [
+        "cash machine",
+        "flowers",
+        "coral frame",
+        "retro kiosk",
+        "urban object",
+        "botanical growth"
+      ],
+      "avoids": [],
+      "palette": [
+        "yellow",
+        "warm autumnal sunset"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "concept_reference_art",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "Flowers at the Cash Machine | Flowers overtake a small cash machine set against a coral frame. | Graphic / Illustration / Print | nostalgic | urban | tender | cash machine | flowers | coral frame | retro kiosk | urban object | botanical growth",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "currency": "USD",
+    "tier": "archive"
+  },
+  {
+    "id": "art_b6e5f8f22ffd48e215bd",
+    "position": 217,
+    "slug": "letter-carriers-blue-hour",
+    "title": "The Letter Carrier’s Blue Hour",
+    "description": "A blue-coated letter carrier looks outward beneath a field of restless yellow.",
+    "alt": "A blue-coated letter carrier looks outward beneath a field of restless yellow.",
+    "category": "Painterly / Illustrative",
+    "mood": "nostalgic, earnest, nocturnal",
+    "moodTags": [
+      "nostalgic",
+      "earnest",
+      "nocturnal"
+    ],
+    "reviewFlags": [
+      "identifiable_person"
+    ],
+    "width": 1280,
+    "height": 1280,
+    "bytes": 3356589,
+    "sha256": "b6e5f8f22ffd48e215bd4746715dff76f8005f218826acef2dae42f1426a5135",
+    "sourcePool": "new_meta_images",
+    "sourceOrdinal": null,
+    "sourceMimeType": "image/png",
+    "sourcePrompt": null,
+    "privateBasePath": "artworks/art_b6e5f8f22ffd48e215bd/base",
+    "displayPath": "/assets/artworks/letter-carriers-blue-hour.jpg",
+    "validationStatus": "technical-pass",
+    "validationIssues": [],
+    "rightsApproved": true,
+    "published": true,
+    "metadata": {
+      "styleId": null,
+      "styleFamily": "Painterly / Illustrative",
+      "keywords": [
+        "letter carrier",
+        "blue coat",
+        "yellow field",
+        "portrait",
+        "restless brushwork",
+        "postal figure"
+      ],
+      "avoids": [],
+      "palette": [
+        "blue",
+        "cool oceanic winter"
+      ],
+      "lighting": "",
+      "lineworkAndEdges": "",
+      "mediumAndTexture": "",
+      "compositionAndMotion": "",
+      "promptTemplates": {},
+      "qualityFlags": [],
+      "styleProfile": null,
+      "provenance": {
+        "confidence": {
+          "identity_dimensions_hash": "high",
+          "title_keywords": "owner-delegated editorial approval",
+          "prompt": "unavailable",
+          "rights": "owner_confirmed_2026-08-20"
+        },
+        "linkage": {
+          "join": "recomputed SHA-256 of the private owner-selected source",
+          "source": "new_meta_images",
+          "classification": "owner_selected_expansion_2026-08-20",
+          "title_source": "owner-delegated ARTCOVR editorial review",
+          "keyword_source": "editorial visual review of the exact SHA-locked image",
+          "prompt_source": "unavailable; not reconstructed"
+        },
+        "promptStatus": "unavailable; not reconstructed",
+        "provider": null,
+        "model": null
+      },
+      "searchText": "The Letter Carrier’s Blue Hour | A blue-coated letter carrier looks outward beneath a field of restless yellow. | Painterly / Illustrative | nostalgic | earnest | nocturnal | letter carrier | blue coat | yellow field | portrait | restless brushwork | postal figure",
+      "searchVector": {
+        "status": "derived_on_database_import",
+        "type": "postgres_tsvector"
+      },
+      "semanticEmbedding": {
+        "status": "not_generated",
+        "model": null,
+        "dimensions": null,
+        "vector": null
+      }
+    },
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "currency": "USD",
+    "tier": "archive"
   }
 ]
