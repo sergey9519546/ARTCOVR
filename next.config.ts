@@ -3,11 +3,12 @@ import type { NextConfig } from "next";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const contentSecurityPolicy = [
   "default-src 'self'",
-  // Inline JavaScript bootstrap removed in 2026-08-18 cleanup; theme init now
-  // lives in /theme-init.js and JSON-LD uses a non-JavaScript MIME type, so
-  // unsafe-inline is no longer required for script-src in production.
-  // Dev mode retains unsafe-eval for Next.js HMR / React Fast Refresh.
-  `script-src 'self'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  // Next's App Router emits inline bootstrap/Flight scripts even for a static
+  // export. Without unsafe-inline the browser never hydrates and the preloader
+  // remains blocking. A nonce cannot be generated per request for static HTML;
+  // replace this with build-time SHA-256 hashes when that pipeline exists.
+  // Dev mode additionally needs unsafe-eval for HMR / React Fast Refresh.
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.supabase.co",
   "font-src 'self' data:",
@@ -45,6 +46,10 @@ const privateRouteHeaders = [
 
 const nextConfig: NextConfig = {
   output: "export",
+  // Next 16.1.3/Turbopack on Windows rejects the bare default `.next` as a
+  // distDirRoot that could escape projectPath. A plain in-project directory
+  // keeps the Rust and Node build phases on the same rooted path.
+  distDir: "next-build",
   reactStrictMode: true,
   devIndicators: false,
   poweredByHeader: false,
@@ -71,24 +76,28 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   staticPageGenerationTimeout: 120,
-  async redirects() {
-    return [
-      { source: "/bag", destination: "/archive", permanent: true },
-      {
-        source: "/shipping-and-return",
-        destination: "/refunds",
-        permanent: true,
-      },
-    ];
-  },
-  async headers() {
-    return [
-      { source: "/(.*)", headers: securityHeaders },
-      { source: "/auth/:path*", headers: privateRouteHeaders },
-      { source: "/checkout/:path*", headers: privateRouteHeaders },
-      { source: "/my-images", headers: privateRouteHeaders },
-      { source: "/sign-in", headers: privateRouteHeaders },
-    ];
-  },
+  ...(isDevelopment
+    ? {
+        async redirects() {
+          return [
+            { source: "/bag", destination: "/archive", permanent: true },
+            {
+              source: "/shipping-and-return",
+              destination: "/refunds",
+              permanent: true,
+            },
+          ];
+        },
+        async headers() {
+          return [
+            { source: "/(.*)", headers: securityHeaders },
+            { source: "/auth/:path*", headers: privateRouteHeaders },
+            { source: "/checkout/:path*", headers: privateRouteHeaders },
+            { source: "/my-images", headers: privateRouteHeaders },
+            { source: "/sign-in", headers: privateRouteHeaders },
+          ];
+        },
+      }
+    : {}),
 };
 export default nextConfig;
