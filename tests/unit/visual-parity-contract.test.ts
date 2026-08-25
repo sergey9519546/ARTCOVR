@@ -61,3 +61,31 @@ test("mobile and hidden controls leave no invisible keyboard traps", async () =>
   assert.match(cursor, /if \(!rafId\) rafId = requestAnimationFrame\(tick\)/);
   assert.doesNotMatch(cursor, /rafId = requestAnimationFrame\(tick\);\s*};\s*rafId = requestAnimationFrame\(tick\)/);
 });
+
+test("home editorial corrections preserve the shared grid and type system", async () => {
+  const [footer, header, snap, runway] = await Promise.all([
+    source("src/components/parity/Footer.tsx"),
+    source("src/components/parity/Header.tsx"),
+    source("src/components/parity/FullScreenSnap.tsx"),
+    source("src/components/parity/GridRunway.tsx"),
+  ]);
+
+  assert.doesNotMatch(footer, /opacity-70[^>]*>Start with art/);
+  for (const label of [
+    "my images",
+    "custom inquiry",
+    "license",
+    "refunds",
+    "faq",
+    "about",
+    "privacy",
+    "terms",
+  ]) {
+    assert.match(footer, new RegExp(`>${label}<`));
+  }
+  assert.match(header, /min-h-11 items-center text-2xl/);
+  assert.doesNotMatch(snap, /Any change|layout: "split"/);
+  assert.match(snap, /layout: "left-image"/);
+  assert.match(runway, /<ProductCard/);
+  assert.doesNotMatch(runway, /rotate:|translateY/);
+});

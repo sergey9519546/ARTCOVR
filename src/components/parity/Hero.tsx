@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <div className="px-4 lg:px-6">
+    <div className="px-4 lg:px-6" id="home-hero">
       <div className="mt-26 mb-6">
         <div className="relative overflow-hidden pt-[0.08em]">
           <p
@@ -27,31 +27,31 @@ export function Hero() {
             </p>
           </div>
           <div className="col-span-3 flex h-full flex-col justify-between md:col-span-3">
-            <div className="flex flex-wrap gap-2">
+            <div>
               <Link
+                className="link-hover max-w-fit uppercase"
                 id="hero-link"
                 href="/archive"
-                className="rounded-full border border-current/30 px-4 py-2 text-[11px] font-bold uppercase tracking-[.08em] transition-colors hover:border-current"
               >
                 Explore archive
               </Link>
               <Link
+                className="link-hover hidden max-w-fit uppercase md:inline-block"
                 id="hero-license-link"
                 href="/license"
-                className="rounded-full border border-current/30 px-4 py-2 text-[11px] font-bold uppercase tracking-[.08em] transition-colors hover:border-current"
               >
                 Commercial license
               </Link>
+              <p className="mt-4 text-[11px] font-bold uppercase tracking-[.12em] opacity-60">
+                Secure Stripe checkout · Commercial license included · 30-day download access
+              </p>
             </div>
-            <p className="mt-4 text-[11px] font-bold uppercase tracking-[.12em] opacity-60">
-              Secure Stripe checkout · Commercial license included · 30-day download access
-            </p>
           </div>
           <div className="col-span-5 flex justify-end md:col-span-1" id="hero-copyright">© 2026</div>
           <div className="col-span-8 inline-block md:hidden" id="hero-license-link-mobile">
             <Link
+              className="link-hover max-w-fit uppercase"
               href="/license"
-              className="rounded-full border border-current/30 px-4 py-2 text-[11px] font-bold uppercase tracking-[.08em] transition-colors hover:border-current"
             >
               Commercial license
             </Link>

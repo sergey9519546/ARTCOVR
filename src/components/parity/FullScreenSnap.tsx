@@ -25,7 +25,7 @@ const SECTIONS = [
     bg: "bg-black",
     fg: "text-cream",
     title: "Prompt",
-    sub: "Any change",
+    sub: "",
     desc: "Describe what you want to add, remove, or transform in one freeform prompt.",
     artworkIndex: 4,
     layout: "left-image",
@@ -47,7 +47,7 @@ const SECTIONS = [
     sub: "One checkout",
     desc: "Review the artwork and your chosen result before purchasing through a focused checkout.",
     artworkIndex: 7,
-    layout: "split",
+    layout: "left-image",
   },
   {
     id: "library",
@@ -171,12 +171,6 @@ export function FullScreenSnap() {
                     <div className="order-1 md:order-2"><SnapCopy section={section} /></div>
                   </div>
                 )}
-                {section.layout === "split" && (
-                  <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-3">
-                    {artwork && <SnapImage artwork={artwork} />}
-                    <div className="md:col-span-2"><SnapCopy section={section} split /></div>
-                  </div>
-                )}
               </div>
             </section>
           );
@@ -188,15 +182,15 @@ export function FullScreenSnap() {
 
 function SnapCopy({
   section,
-  split = false,
 }: {
   section: (typeof SECTIONS)[number];
-  split?: boolean;
 }) {
   return (
     <div>
-      <h2 className={`${split ? "md:text-[7vw]" : "md:text-[8vw]"} text-[12vw] leading-[0.9] font-[900] tracking-tighter`}>{section.title}</h2>
-      <p className="mt-4 text-xl font-bold tracking-tight opacity-80 md:text-2xl">{section.sub}</p>
+      <h2 className="text-[12vw] leading-[0.9] font-[900] tracking-tighter md:text-[8vw]">{section.title}</h2>
+      {section.sub && (
+        <p className="mt-4 text-xl font-bold tracking-tight opacity-80 md:text-2xl">{section.sub}</p>
+      )}
       <p className="mt-6 max-w-md text-sm opacity-60 md:text-base">{section.desc}</p>
     </div>
   );
@@ -207,7 +201,7 @@ function SnapImage({ artwork }: { artwork: (typeof displayArtworks)[number] }) {
     <Link
       href={`/product/${artwork.slug}`}
       data-artwork="true"
-      className="relative block aspect-square w-full overflow-hidden rounded-lg"
+      className="relative block aspect-square w-full overflow-hidden"
     >
       <Image
         src={artwork.image}

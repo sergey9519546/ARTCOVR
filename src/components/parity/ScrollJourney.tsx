@@ -22,6 +22,7 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
   const updatersRef = useRef<Set<(progress: number) => void>>(new Set());
   const currentPRef = useRef(0);
   const [staticMode, setStaticMode] = useState(false);
+  const [motionFailed, setMotionFailed] = useState(false);
   const [consts] = useState<JourneyConsts>(() =>
     makeJourneyConsts(featuredArtworks.length),
   );
@@ -49,7 +50,7 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
   );
 
   useEffect(() => {
-    if (!enabled || staticMode || !rootRef.current) return;
+    if (!enabled || staticMode || motionFailed || !rootRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
     const root = rootRef.current;
@@ -64,23 +65,27 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
       onUpdate: (self) => {
         const P = self.progress;
         currentPRef.current = P;
-        updatersRef.current.forEach((updater) => {
+        for (const updater of updatersRef.current) {
           try {
             updater(P);
-          } catch {
-            /* ignore */
+          } catch (error) {
+            console.error("ARTCOVR archive journey entered its static fallback", error);
+            setMotionFailed(true);
+            break;
           }
-        });
+        }
       },
       onLeaveBack: () => {
         currentPRef.current = 0;
-        updatersRef.current.forEach((updater) => {
+        for (const updater of updatersRef.current) {
           try {
             updater(0);
-          } catch {
-            /* ignore */
+          } catch (error) {
+            console.error("ARTCOVR archive journey entered its static fallback", error);
+            setMotionFailed(true);
+            break;
           }
-        });
+        }
       },
     });
 
@@ -88,9 +93,9 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
       triggerRef.current?.kill();
       triggerRef.current = null;
     };
-  }, [enabled, staticMode, consts.total]);
+  }, [enabled, staticMode, motionFailed, consts.total]);
 
-  if (staticMode) {
+  if (staticMode || motionFailed) {
     return (
       <>
         <TiltedCarousel />

@@ -11,7 +11,7 @@ import visualIndexJson from "./visual-index.json" with { type: "json" };
  *
  * Only the light artifact is imported by site code. The 512-d vectors live in
  * src/lib/artcovr/visual-vectors.json and are deliberately NOT imported
- * anywhere in src/: 100 x 512 floats would ship in the client bundle for no
+ * anywhere in src/: the full catalog's 512-d vectors would ship in the client bundle for no
  * user-visible gain (tests/unit/visual-index.test.ts guards both facts).
  */
 export const VISUAL_TASKS = [

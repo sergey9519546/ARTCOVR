@@ -4,6 +4,9 @@ import { describe, test } from "node:test";
 import curatedReview from "../../src/lib/artcovr/curated-review.json" with {
   type: "json",
 };
+import approvedCatalog from "../../catalog/approved-artworks.json" with {
+  type: "json",
+};
 import {
   artworks,
   featuredArtworks,
@@ -22,11 +25,11 @@ const reviewSlugSet = new Set(
 const publicSlugs = artworks.map((art) => art.slug);
 
 describe("catalog coherence", () => {
-  test("delete-tier review items never leak into the public catalog", () => {
-    for (const artwork of curatedReview as any[]) {
+  test("delete-tier owner approvals never leak into the public catalog", () => {
+    for (const artwork of approvedCatalog as Array<{ slug: string; tier: string }>) {
       if (artwork.tier === "delete") assert.ok(
         !publicSlugSet.has(artwork.slug),
-        `delete-tier review item leaked into public catalog: ${artwork.slug}`,
+        `delete-tier approved item leaked into public catalog: ${artwork.slug}`,
       );
     }
   });

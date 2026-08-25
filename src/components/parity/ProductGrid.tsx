@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProductCard } from "./ProductCard";
+import { GRID_RUNWAY_END, GridRunway } from "./GridRunway";
 // The home grid renders the featured tier only (owner rule: green works on the
 // front page, archive works on /archive). Aliased to the historical name so the
 // motion/parity source contracts keep matching.
@@ -57,8 +58,8 @@ export function ProductGrid() {
 
   if (displayArtworks.length === 0) return null;
   const isPartialCatalog = hasRange(4, 7);
-  const remainingArtworks = displayArtworks.slice(13);
-  const firstRow = displayArtworks.slice(0, 13);
+  const remainingArtworks = displayArtworks.slice(GRID_RUNWAY_END);
+  const firstRow = displayArtworks.slice(0, 12);
   const uniformRowClass = "grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-y-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16";
   const firstRowSpacing = isPartialCatalog ? "mb-6 md:mb-8" : "mb-10 md:mb-12";
   const canReveal = remainingArtworks.length > CLAMPED_TRAILING_CARDS;
@@ -76,6 +77,7 @@ export function ProductGrid() {
         {firstRow.map((artwork, index) => (
           <ProductCard key={artwork.id} artwork={artwork} priority={index === 0} />
         ))}
+        <GridRunway />
       </div>
 
       {remainingArtworks.length > 0 && (

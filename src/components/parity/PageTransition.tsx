@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 
 export function PageTransition({ active, onComplete }: { active: boolean; onComplete?: () => void }) {
   const [phase, setPhase] = useState<"idle" | "holding" | "exiting" | "done">("idle");
@@ -9,7 +10,7 @@ export function PageTransition({ active, onComplete }: { active: boolean; onComp
       setPhase("idle");
       return;
     }
-    if (window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)").matches) {
+    if (window.matchMedia(STATIC_MEDIA_QUERY).matches) {
       setPhase("done");
       onComplete?.();
       return;

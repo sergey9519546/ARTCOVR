@@ -21,8 +21,8 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
        aria-label="Primary navigation"
        className="fixed top-0 left-0 z-[3] flex w-full items-center justify-between text-[var(--foreground)]"
      >
-       <div className="mx-auto flex w-full items-center justify-between px-4 py-8 lg:px-6">
-         <Link className="artcovr-wordmark artcovr-wordmark-optical mr-2 text-xl lg:mr-6" href="/" aria-label="ARTCOVR home">
+       <div className="mx-auto flex w-full items-center justify-between px-4 py-6 lg:px-6 lg:py-8">
+         <Link className="artcovr-wordmark artcovr-wordmark-optical mr-2 inline-flex min-h-11 items-center text-2xl lg:mr-6" href="/" aria-label="ARTCOVR home">
            ARTCOVR
          </Link>
          <div className="flex items-center gap-3 md:gap-16">

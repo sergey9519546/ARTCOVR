@@ -17,11 +17,27 @@
 
 export const JOURNEY_PX_PER_CARD = 170;
 export const JOURNEY_CAROUSEL_MIN_SCROLL = 6000;
-export const JOURNEY_SPIRAL_SPAN = 6000;
+// Forty sampled covers need enough physical wheel travel to be read rather
+// than flashed past. At 12,000px the spiral advances about 300px per cover.
+export const JOURNEY_SPIRAL_SPAN = 12000;
 // Master scroll pixels shared by both phases during the hand-off. Small enough
 // that the two motions co-exist (a real momentum hand-off), large enough that
 // no single frame reads as a cut.
 export const JOURNEY_BLEND = 900;
+export const SHARED_HANDOFF_SWITCH = 0.5;
+
+const CAROUSEL_CARD_MIN = 320;
+const CAROUSEL_CARD_MAX = 880;
+const CAROUSEL_CARD_VIEWPORT_RATIO = 0.66;
+
+export function carouselCardSizeForViewport(viewportHeight: number) {
+  return Math.round(
+    Math.min(
+      Math.max(viewportHeight * CAROUSEL_CARD_VIEWPORT_RATIO, CAROUSEL_CARD_MIN),
+      CAROUSEL_CARD_MAX,
+    ),
+  );
+}
 
 /**
  * The handle the pinned {@link ScrollJourney} wrapper hands to each layer.
@@ -99,6 +115,8 @@ export interface JourneyPhases {
   spiralOpacity: number;
   /** 0..1 weight used to tilt the flat outrun back into the screen plane. */
   carouselPlunge: number;
+  /** Shared-element transfer progress across the overlap window. */
+  handoff: number;
 }
 
 export function journeyPhases(P: number, k: JourneyConsts): JourneyPhases {
@@ -121,5 +139,6 @@ export function journeyPhases(P: number, k: JourneyConsts): JourneyPhases {
     carouselOpacity: 1 - smoothstep(fadeLocal),
     spiralOpacity: smoothstep(fadeLocal),
     carouselPlunge: smoothstep(plungeLocal),
+    handoff: smoothstep(fadeLocal),
   };
 }
