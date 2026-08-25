@@ -133,7 +133,28 @@ Already fixed before this session: `start.sh` serves `./next-service-dist/public
 
 ---
 
-## 10. Bring in the new artwork variety — **OPEN** (blocked by owner)
+## 10. Bring in the new artwork variety — **CLOSED** ✅ (intake landed; 2026-08-25 verification)
+
+**The intake happened.** The catalog grew from the 100-work launch set to **217 approved rows / 187 published works** — 117 works appended at approved positions 101–217. Verified by sha256 set arithmetic on 2026-08-25 (see ADR-023 for the full artifact invariant):
+
+| Evidence | Result |
+|---|---|
+| `diversify-2026-08-14-shortlist.json` entries | 60 |
+| shortlist sha256 present in `approved-artworks.json` | **53 / 60** |
+| of those, in the 117 post-launch expansion | **53 / 53** (0 in the launch 100 — the shortlist is genuinely new material) |
+| shortlist works at approved positions 180–217 | **38** — exactly the ADR-021 owner-delegated batch |
+| shortlist works at approved positions 101–179 | 15 (117, 118, 120, 121, 123, 131, 137, 138, 139, 146, 160, 161, 164, 167, 168) |
+| shortlist entries never approved | 7 — 0-based ranks **{7, 25, 30, 34, 35, 46, 52}** |
+
+That unused set is a **verbatim match** for ADR-021's record: the owner rejected candidates 007, 025, 030, 034, 035 and 046, and 052 was independently excluded as a near-exact duplicate of the published `orange-door-encounter`. ADR-021's candidate numbering is therefore the 0-based `rank` field in `diversify-2026-08-14-shortlist.json`. The shortlist was consumed exactly as planned, with no silent substitutions.
+
+**The shortlist is not the whole story.** It accounts for 53 of the 117 new works; the remaining **64** came from other pools in the same curation tree (sha256 hits in `diversify-2026-08-14-fresh-universe.json` ×32, `concept-square1024-audit.json` ×9, `codex-generated-batches/inventory.json` ×7, `final-100/final-100-id-title-map.json` ×6, `meta_sources/*` ×5, and others). New-work source pools: `generated_images` 41, `concept_reference_art` 35, `new_meta_images` 23, `regenerated_originals` 5, `modern_surrealism` 4, plus singles. Note the pre-intake advice below to prefer `new_meta_images` over `concept_reference_art` was **not** followed — 35 of the 117 are `concept_reference_art`; whether that reintroduced the teal/orange monotone is a visual-diversity question that `catalog:visual-index` can answer and this task did not.
+
+Remaining follow-ups (not blockers on this task):
+- The IP-pastiche cut listed below was never recorded as executed — confirm none of the 117 is a recognisable pastiche of a specific famous painting.
+- Re-run `bun run catalog:visual-index` if palette spread over the 187 works has not been re-measured since the expansion.
+
+Original plan text, retained as history:
 
 The sourcing work is done and waiting. From 357k files, only **322** are genuinely fresh and clear the square-1024 gate. A 60-work shortlist is selected by farthest-point traversal against the live catalog's own 512-d vectors:
 
@@ -151,7 +172,7 @@ Before intake:
 - Intake must run through the approval workbook. `swap-launch-works.ts` no longer auto-approves, so it will stop and demand it — that is intended.
 - A swap rewrites display assets but does **not** invalidate `visual-index.json` / `visual-vectors.json`. Re-run `catalog:visual-index` after (now fixed to use `python` on Windows).
 
-**Blocked by:** owner source tree + service-role creds. Tasks 2 and 5 (launch-selection canonicalization and rights reconciliation) are now CLOSED, so the catalog identity and rights posture are stable. The remaining blocker is the owner-directed artwork selection from the 322-file fresh universe and the 60-work shortlist.
+~~**Blocked by:** owner source tree + service-role creds. Tasks 2 and 5 (launch-selection canonicalization and rights reconciliation) are now CLOSED, so the catalog identity and rights posture are stable. The remaining blocker is the owner-directed artwork selection from the 322-file fresh universe and the 60-work shortlist.~~ — resolved: the owner made the selection (ADR-021), 53 of the 60 shortlist works are approved, and the catalog is at 187 published works.
 
 ---
 
