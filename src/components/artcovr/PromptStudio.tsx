@@ -34,6 +34,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const pendingPrompt = useRef("");
   const ready = isPromptReady(prompt) && !restoring;
   const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
+  const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
+  const armedUploadRef = useRef<string | undefined>(undefined);
   const { coverType, updateCoverType } = useCoverType(artwork.id, artwork.title);
 
   useEffect(() => {
@@ -116,12 +118,24 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     const run = async () => {
       try {
         if (!jobId.current) {
+          // An armed upload and a chained result are mutually exclusive on the
+          // server (dual_reference_conflict): the upload applies its style to
+          // the ORIGINAL artwork, so it wins and the chain id is omitted.
+          const referenceUploadId = armedUploadRef.current;
           const created = await createGeneration({
             artworkId: artwork.id,
             prompt: pendingPrompt.current,
-            referenceGenerationId: currentResultId.current,
+            ...(referenceUploadId
+              ? { referenceUploadId }
+              : { referenceGenerationId: currentResultId.current }),
             resetToBase: resetToBase.current,
           });
+          // Admission consumed the upload (single-use); a request rejected
+          // BEFORE admission threw above and keeps the reference armed.
+          if (referenceUploadId) {
+            armedUploadRef.current = undefined;
+            setArmedUploadId(undefined);
+          }
           jobId.current = created.generationId;
         }
 
@@ -303,7 +317,18 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             </span>
           </div>
 
-          <UploadCard artworkId={artwork.id} />
+          <UploadCard
+            artworkId={artwork.id}
+            armedUploadId={armedUploadId}
+            onArm={(id) => {
+              armedUploadRef.current = id;
+              setArmedUploadId(id);
+            }}
+            onDisarm={() => {
+              armedUploadRef.current = undefined;
+              setArmedUploadId(undefined);
+            }}
+          />
         </div>
 
         <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">

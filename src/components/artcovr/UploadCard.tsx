@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { uploadReference } from "@/lib/artcovr/functions";
 
 /**
- * Style-reference upload — UI seam only.
+ * Style-reference upload.
  *
- * The transport (`uploadReference(file, artworkId) -> { referenceUploadId }`)
- * is being added to src/lib/artcovr/functions.ts by a separate change. Until
- * that export exists and the server-side reference-resolution contract is
- * wired, this card MUST NOT make a network call: an unresolved client file is
- * not an authoritative reference source. The flag below is the single switch.
+ * The card never names a bucket, path or URL: `uploadReference` posts the raw
+ * bytes and returns an opaque single-use id that only the server can resolve
+ * (decode, bounds, re-encode; original bytes never persist). The parent studio
+ * owns the armed id and sends it as `referenceUploadId` on the next
+ * generation, which consumes it.
  */
-const REFERENCE_UPLOAD_ENABLED: boolean = false;
 
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"] as const;
 const ACCEPT_ATTR = ACCEPTED.join(",");
@@ -25,11 +25,22 @@ function rejectionFor(file: File) {
   return "";
 }
 
-export function UploadCard({ artworkId }: { artworkId: string }) {
+export function UploadCard({
+  artworkId,
+  armedUploadId,
+  onArm,
+  onDisarm,
+}: {
+  artworkId: string;
+  armedUploadId?: string;
+  onArm: (referenceUploadId: string) => void;
+  onDisarm: () => void;
+}) {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
   const [error, setError] = useState("");
   const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -58,20 +69,25 @@ export function UploadCard({ artworkId }: { artworkId: string }) {
     setFile(undefined);
     setError("");
     if (inputRef.current) inputRef.current.value = "";
+    onDisarm();
   }
 
-  function useAsReference() {
-    if (!REFERENCE_UPLOAD_ENABLED || !file) return;
-    // === SEAM ===
-    // When `uploadReference` ships, this is the only place it is called:
-    //
-    //   const { referenceUploadId } = await uploadReference(file, artworkId);
-    //
-    // and `referenceUploadId` is then handed to the studio so the next
-    // createGeneration({ artworkId, prompt, referenceGenerationId }) call can
-    // carry it. Nothing else in this component talks to the network, and the
-    // server stays the authority on what a reference may resolve to.
-    void artworkId;
+  async function armReference() {
+    if (!file || uploading) return;
+    setUploading(true);
+    setError("");
+    try {
+      const { referenceUploadId } = await uploadReference(file, artworkId);
+      onArm(referenceUploadId);
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The reference could not be uploaded. Try again.",
+      );
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
@@ -152,14 +168,17 @@ export function UploadCard({ artworkId }: { artworkId: string }) {
       <div className="mt-3 flex flex-wrap items-center gap-4">
         <button
           type="button"
-          onClick={useAsReference}
-          disabled={!REFERENCE_UPLOAD_ENABLED || !file}
+          onClick={() => void armReference()}
+          disabled={!file || uploading || Boolean(armedUploadId)}
           className="artcovr-button px-4 py-2 text-[11px] font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Use as reference
+          {uploading ? "Uploading…" : "Use as reference"}
         </button>
         <span role="status" className="text-[11px] opacity-60">
-          {error || (REFERENCE_UPLOAD_ENABLED ? "" : "Coming online shortly.")}
+          {error ||
+            (armedUploadId
+              ? "Style reference armed — it applies to your next generation, then it is used up."
+              : "")}
         </span>
       </div>
     </section>
