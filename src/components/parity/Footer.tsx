@@ -7,7 +7,7 @@ export function Footer() {
       <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:gap-8">
         <div className="flex-1 text-[2.75rem] leading-[1] font-[900] tracking-tighter text-balance md:text-[6vw]">
           <p>Cover art, made yours.</p>
-          <p className="opacity-70">Start with art. Prompt what comes next.</p>
+          <p>Start with art. Prompt what comes next.</p>
         </div>
         <p className="text-[45vw] leading-[1] font-[900] tracking-tighter md:text-[12.75vw]">©26</p>
       </div>
@@ -39,21 +39,21 @@ export function Footer() {
         </div>
         <div className="col-span-8 md:col-span-3">
           <Link href="/archive" className="link-hover block w-fit">archive</Link>
-          <Link href="/my-images" className="link-hover block w-fit">My Images</Link>
-          <Link href="/contact" className="link-hover block w-fit">Custom inquiry</Link>
+          <Link href="/my-images" className="link-hover block w-fit">my images</Link>
+          <Link href="/contact" className="link-hover block w-fit">custom inquiry</Link>
         </div>
         <div className="col-span-8 md:col-span-4">
-          <Link href="/license" className="link-hover block w-fit">License</Link>
-          <Link href="/refunds" className="link-hover block w-fit">Refunds</Link>
-          <Link href="/faq" className="link-hover block w-fit">FAQ</Link>
+          <Link href="/license" className="link-hover block w-fit">license</Link>
+          <Link href="/refunds" className="link-hover block w-fit">refunds</Link>
+          <Link href="/faq" className="link-hover block w-fit">faq</Link>
         </div>
         <div className="order-first col-span-16 flex justify-evenly md:order-last md:col-span-5">
           <div className="flex flex-1 flex-col gap-3">
-            <Link href="/about" className="link-hover w-fit">About</Link>
+            <Link href="/about" className="link-hover w-fit">about</Link>
           </div>
           <div className="flex flex-1 flex-col gap-3">
-            <Link href="/legal/privacy" className="link-hover w-fit">Privacy</Link>
-            <Link href="/legal/terms" className="link-hover w-fit">Terms</Link>
+            <Link href="/legal/privacy" className="link-hover w-fit">privacy</Link>
+            <Link href="/legal/terms" className="link-hover w-fit">terms</Link>
           </div>
         </div>
       </div>

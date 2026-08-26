@@ -125,6 +125,7 @@ test("the deployed Vercel config enforces baseline browser security headers", as
   const csp = headerValue(globalRule, "Content-Security-Policy");
   assert.ok(csp, "the deployed config must ship a Content-Security-Policy");
   for (const directive of [
+    "script-src 'self' 'unsafe-inline'",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -139,6 +140,15 @@ test("the deployed Vercel config enforces baseline browser security headers", as
   );
   assert.equal(headerValue(globalRule, "X-Content-Type-Options"), "nosniff");
   assert.equal(headerValue(globalRule, "X-Frame-Options"), "DENY");
+});
+
+test("the Next dev CSP permits the App Router hydration bootstrap", async () => {
+  const source = await read("next.config.ts");
+  assert.match(
+    source,
+    /script-src 'self' 'unsafe-inline'/,
+    "Next App Router inline bootstrap scripts must execute until build-time CSP hashes are implemented",
+  );
 });
 
 test("the deployed Vercel config keeps every private route uncacheable and unindexed", async () => {

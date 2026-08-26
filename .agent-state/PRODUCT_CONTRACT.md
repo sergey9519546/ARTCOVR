@@ -1,7 +1,7 @@
 # PRODUCT CONTRACT & BUSINESS INVARIANTS
 
 ## 1. Catalog & Publishing
-- **Launch Review Catalog**: At least 100 owner-curated cover artworks are staged for launch review (currently **139 published / 169 approved**, including 30 delete-tier excluded from publication; ADR-019 permits growth past the 100-review launch set).
+- **Launch Review Catalog**: At least 100 owner-curated cover artworks are staged for launch review (currently **187 published / 217 approved**, including 30 delete-tier excluded from publication; ADR-019 and ADR-021 permit growth past the 100-review launch set).
 - **Explicit Approval Gate**: An artwork becomes purchasable and publicly indexed ONLY when `rights_approved = true`, `published = true`, and valid `price_cents` are assigned in `approved-artworks.json`.
 - **Sale Modes**: Exactly two sale modes: `exclusive` (delisted on purchase) and `repeatable` (multi-license).
 - **Zero Pad / Zero Fake**: Never invent or pad artworks; never publish unapproved candidate assets.
@@ -15,7 +15,7 @@
 ## 3. Generative Pipeline
 - **Raster Dimensions & Formats**: Valid generated images must be structurally valid WebP at 1024x1024 (previews) or 2048x2048 (master deliverables).
 - **Rate Limits**:
-  - Global: Maximum 4 generations per minute across the platform.
+  - Dual-Lane Global: Independent 4/min free lane and 4/min purchased lane (migration `202608140010`; independent advisory locks, up to 8/min combined).
   - User: Maximum 6 generations per 10 minutes, 24 generations per 24 hours.
 - **Failure Clean-up**: If image generation or validation fails, intermediate storage objects are removed and active attempt slots are released.
 

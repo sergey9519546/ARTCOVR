@@ -153,19 +153,27 @@ export function orderForDisplay(items: readonly Artwork[]) {
   return [...spreadForDisplay(leading), ...spreadForDisplay(trailing)];
 }
 
+/** Keep the cobalt cover in the fourth desktop row instead of the opening row. */
+function deferCobaltCover(ordered: Artwork[]) {
+  const cobaltIndex = ordered.findIndex(
+    (artwork) => artwork.slug === "electric-cobalt-minimalist",
+  );
+  const destinationIndex = 14;
+  if (cobaltIndex >= 0 && ordered.length > destinationIndex) {
+    const swapped = [...ordered];
+    const temp = swapped[cobaltIndex];
+    swapped[cobaltIndex] = swapped[destinationIndex];
+    swapped[destinationIndex] = temp;
+    return swapped;
+  }
+  return ordered;
+}
+
 export const displayArtworks = (() => {
   const ordered = orderForDisplay(
     isPrivateStaging ? stagingArtworks : artworks,
   );
-  // Artwork grid swap: 2nd and 15th positions (owner directive)
-  if (ordered.length >= 15) {
-    const swapped = [...ordered];
-    const temp = swapped[1];
-    swapped[1] = swapped[14];
-    swapped[14] = temp;
-    return swapped;
-  }
-  return ordered;
+  return deferCobaltCover(ordered);
 })();
 
 /**
@@ -175,9 +183,11 @@ export const displayArtworks = (() => {
  * published tier — the owner's rule is that archive works stay reachable and
  * searchable, just never on the front page.
  */
-export const featuredArtworks = orderForDisplay(
-  (isPrivateStaging ? stagingArtworks : artworks).filter(
-    (artwork) => artworkTier(artwork) === "featured",
+export const featuredArtworks = deferCobaltCover(
+  orderForDisplay(
+    (isPrivateStaging ? stagingArtworks : artworks).filter(
+      (artwork) => artworkTier(artwork) === "featured",
+    ),
   ),
 );
 

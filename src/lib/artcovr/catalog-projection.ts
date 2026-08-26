@@ -4,28 +4,75 @@ import { fileURLToPath } from "node:url";
 import { buildCatalogImport } from "./catalog-import.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PRICING_OVERRIDES_PATH = path.resolve(__dirname, "..", "..", "catalog", "pricing-overrides.json");
+const PRICING_OVERRIDES_PATH = path.resolve(
+  __dirname,
+  "..",
+  "..",
+  "..",
+  "catalog",
+  "pricing-overrides.json",
+);
 
 type PricingOverride = {
   saleMode?: "exclusive" | "repeatable";
   priceCents?: number;
+  tier?: "featured" | "archive" | "delete";
+  rightsApproved?: true;
 };
 
-function loadPricingOverrides(): Map<string, PricingOverride> {
-  try {
-    const data = JSON.parse(readFileSync(PRICING_OVERRIDES_PATH, "utf8")) as Record<string, PricingOverride>;
-    const map = new Map<string, PricingOverride>();
-    for (const [slug, value] of Object.entries(data)) {
-      if (typeof slug !== "string" || !slug) continue;
-      if (value && typeof value === "object") map.set(slug, value);
-    }
-    return map;
-  } catch {
-    return new Map();
+const PRICING_OVERRIDE_FIELDS = new Set([
+  "saleMode",
+  "priceCents",
+  "tier",
+  "rightsApproved",
+]);
+
+export function parsePricingOverrides(value: unknown): Map<string, PricingOverride> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error("Pricing overrides must be a JSON object keyed by catalog slug.");
   }
+  const map = new Map<string, PricingOverride>();
+  for (const [slug, entry] of Object.entries(value)) {
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      throw new Error(`Invalid pricing override slug: ${slug}.`);
+    }
+    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+      throw new Error(`Pricing override ${slug} must be an object.`);
+    }
+    const unknownFields = Object.keys(entry).filter((field) => !PRICING_OVERRIDE_FIELDS.has(field));
+    if (unknownFields.length > 0) {
+      throw new Error(`Pricing override ${slug} contains unknown fields: ${unknownFields.join(", ")}.`);
+    }
+    const override = entry as Record<string, unknown>;
+    if (override.saleMode !== "exclusive" && override.saleMode !== "repeatable") {
+      throw new Error(`Pricing override ${slug} must specify an exclusive or repeatable saleMode.`);
+    }
+    if (
+      typeof override.priceCents !== "number" ||
+      !Number.isSafeInteger(override.priceCents) ||
+      override.priceCents <= 0
+    ) {
+      throw new Error(`Pricing override ${slug} must specify a positive integer priceCents.`);
+    }
+    if (
+      override.tier !== undefined &&
+      override.tier !== "featured" &&
+      override.tier !== "archive" &&
+      override.tier !== "delete"
+    ) {
+      throw new Error(`Pricing override ${slug} has an invalid tier.`);
+    }
+    if (override.rightsApproved !== undefined && override.rightsApproved !== true) {
+      throw new Error(`Pricing override ${slug} may only record rightsApproved=true.`);
+    }
+    map.set(slug, override as PricingOverride);
+  }
+  return map;
 }
 
-
+function loadPricingOverrides(): Map<string, PricingOverride> {
+  return parsePricingOverrides(JSON.parse(readFileSync(PRICING_OVERRIDES_PATH, "utf8")) as unknown);
+}
 
 export type PublicArtworkProjection = {
   id: string;
@@ -64,7 +111,10 @@ function tierOf(entry: ApprovedProjectionSource): "featured" | "archive" | "dele
   return entry.tier === "featured" || entry.tier === "delete" ? entry.tier : "archive";
 }
 
-export function projectApprovedCatalog(value: unknown): PublicArtworkProjection[] {
+export function projectApprovedCatalog(
+  value: unknown,
+  pricingOverrides: Map<string, PricingOverride> = loadPricingOverrides(),
+): PublicArtworkProjection[] {
   const build = buildCatalogImport(value);
   if (build.issues.length > 0) {
     throw new Error(
@@ -86,7 +136,21 @@ export function projectApprovedCatalog(value: unknown): PublicArtworkProjection[
     }
   }
 
-  const pricingOverrides = loadPricingOverrides();
+  const approvedSources = new Map(
+    (value as Array<Record<string, unknown>>)
+      .filter((entry) => typeof entry.slug === "string")
+      .map((entry) => [entry.slug as string, entry]),
+  );
+  for (const [slug, override] of pricingOverrides) {
+    const approvedSource = approvedSources.get(slug);
+    if (!approvedSource) throw new Error(`Pricing override references an unknown approved slug: ${slug}.`);
+    if (override.tier !== undefined && override.tier !== tierOf(approvedSource)) {
+      throw new Error(`Pricing override tier disagrees with the approved catalog for ${slug}.`);
+    }
+    if (override.rightsApproved === true && approvedSource.rightsApproved !== true) {
+      throw new Error(`Pricing override rights approval disagrees with the approved catalog for ${slug}.`);
+    }
+  }
 
   const projected = build.rows
     .filter((row) => tiers.get(row.catalogId) !== "delete")
@@ -130,6 +194,9 @@ export function projectApprovedCatalog(value: unknown): PublicArtworkProjection[
   return projected;
 }
 
-export function serializePublicCatalog(value: unknown): string {
-  return `${JSON.stringify(projectApprovedCatalog(value), null, 2)}\n`;
+export function serializePublicCatalog(
+  value: unknown,
+  pricingOverrides?: Map<string, PricingOverride>,
+): string {
+  return `${JSON.stringify(projectApprovedCatalog(value, pricingOverrides), null, 2)}\n`;
 }

@@ -225,6 +225,25 @@ export function inspectJpeg(bytes: Uint8Array): RasterInfo {
 // grok-imagine) while preserving the catalog's square + exact-size + 20 MB
 // storage safety invariant. The watermarked preview path keeps using
 // `validateSquareWebp` so previews remain WebP end to end.
+// Dispatches on the leading magic bytes rather than on any caller-declared
+// media type, so a mislabelled or hostile Content-Type cannot pick the parser.
+export function inspectRaster(bytes: Uint8Array): RasterInfo {
+  if (bytes.byteLength >= 12 && ascii(bytes, 0, 4) === "RIFF" && ascii(bytes, 8, 4) === "WEBP") {
+    return inspectWebp(bytes);
+  }
+  if (
+    bytes.byteLength >= 8
+    && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
+    && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a
+  ) {
+    return inspectPng(bytes);
+  }
+  if (bytes.byteLength >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return inspectJpeg(bytes);
+  }
+  throw new RasterValidationError("invalid_magic", "Output is not a supported raster format (WebP, PNG, or JPEG).");
+}
+
 export function validateSquareRaster(
   bytes: Uint8Array,
   expectedSize: 1024 | 2048,
@@ -233,24 +252,75 @@ export function validateSquareRaster(
   if (bytes.byteLength > maximumBytes) {
     throw new RasterValidationError("output_too_large", "Generated raster exceeds the storage safety limit.");
   }
-  let info: RasterInfo;
-  if (bytes.byteLength >= 12 && ascii(bytes, 0, 4) === "RIFF" && ascii(bytes, 8, 4) === "WEBP") {
-    info = inspectWebp(bytes);
-  } else if (
-    bytes.byteLength >= 8
-    && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
-    && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a
-  ) {
-    info = inspectPng(bytes);
-  } else if (bytes.byteLength >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
-    info = inspectJpeg(bytes);
-  } else {
-    throw new RasterValidationError("invalid_magic", "Output is not a supported raster format (WebP, PNG, or JPEG).");
-  }
+  const info = inspectRaster(bytes);
   if (info.width !== expectedSize || info.height !== expectedSize) {
     throw new RasterValidationError(
       "unexpected_dimensions",
       `Expected ${expectedSize}x${expectedSize} output.`,
+    );
+  }
+  return info;
+}
+
+// Bounds for a signed-in user's uploaded style reference. The byte ceiling is
+// mirrored by the browser client so an oversized file is refused before it is
+// sent, but the server never trusts that check: it re-applies every bound to
+// the bytes it actually received.
+export const MAXIMUM_REFERENCE_UPLOAD_BYTES = 8 * 1024 * 1024;
+export const MAXIMUM_REFERENCE_PIXELS = 16_000_000;
+export const MINIMUM_REFERENCE_SIDE = 256;
+export const REFERENCE_LONG_SIDE = 1024;
+
+export const REFERENCE_MEDIA_TYPES: Record<RasterInfo["format"], string> = {
+  webp: "image/webp",
+  png: "image/png",
+  jpeg: "image/jpeg",
+};
+
+// Structural gate on the bytes a client uploaded, before any of them are
+// re-encoded or stored. Anything whose header cannot be parsed, whose frame is
+// smaller than the model can use, or whose declared canvas is large enough to
+// make decoding expensive is refused here. The re-encoder performs the real
+// pixel decode; this only ensures it is asked to decode something plausible.
+export function validateReferenceSource(bytes: Uint8Array): RasterInfo {
+  if (bytes.byteLength === 0) {
+    throw new RasterValidationError("reference_empty", "The uploaded reference image is empty.");
+  }
+  if (bytes.byteLength > MAXIMUM_REFERENCE_UPLOAD_BYTES) {
+    throw new RasterValidationError("reference_too_large", "The uploaded reference image exceeds the upload size limit.");
+  }
+  const info = inspectRaster(bytes);
+  if (info.width < MINIMUM_REFERENCE_SIDE || info.height < MINIMUM_REFERENCE_SIDE) {
+    throw new RasterValidationError(
+      "reference_too_small",
+      `Reference images must be at least ${MINIMUM_REFERENCE_SIDE}px on every side.`,
+    );
+  }
+  if (info.width * info.height > MAXIMUM_REFERENCE_PIXELS) {
+    throw new RasterValidationError(
+      "reference_too_many_pixels",
+      `Reference images must be at most ${MAXIMUM_REFERENCE_PIXELS} pixels.`,
+    );
+  }
+  return info;
+}
+
+// The re-encoded reference is not square and not a fixed size, so the exact
+// dimension gate above does not apply; what must hold is that it really is a
+// static WebP whose long side was actually reduced to the configured bound.
+export function validateBoundedWebp(
+  bytes: Uint8Array,
+  maximumLongSide: number,
+  maximumBytes = MAXIMUM_REFERENCE_UPLOAD_BYTES,
+): RasterInfo {
+  if (bytes.byteLength > maximumBytes) {
+    throw new RasterValidationError("output_too_large", "Re-encoded raster exceeds the storage safety limit.");
+  }
+  const info = inspectWebp(bytes);
+  if (Math.max(info.width, info.height) > maximumLongSide) {
+    throw new RasterValidationError(
+      "unexpected_dimensions",
+      `Expected a WebP no larger than ${maximumLongSide}px on its long side.`,
     );
   }
   return info;

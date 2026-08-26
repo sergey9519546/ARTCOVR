@@ -5,13 +5,18 @@ import path from "node:path";
 import curatedReview from "../../src/lib/artcovr/curated-review.json" with { type: "json" };
 
 // The Playwright suite runs with NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING=1 (see
-// playwright.config.ts), so the app renders curated-review.json — 100 works
-// that carry no tier and therefore all default to the "featured" tier. Assert
-// against that catalog, which is what this build actually surfaces, rather than
-// curated-public (139), which only the production build uses.
-type ReviewRow = { slug: string; tier?: "featured" | "archive" };
+// playwright.config.ts), so the app renders curated-review.json. The homepage
+// still respects its featured-only presentation tier; the archive intentionally
+// retains every review identity, including owner-marked deletion candidates.
+type ReviewRow = {
+  slug: string;
+  image: string;
+  tier?: "featured" | "archive" | "delete";
+};
 const catalog = curatedReview as ReviewRow[];
-const featuredCount = catalog.length;
+const featuredCount = catalog.filter(
+  (row) => (row.tier ?? "featured") === "featured",
+).length;
 const archiveCount = catalog.length;
 const SPIRAL_CAP = 40;
 
@@ -89,6 +94,19 @@ test("the archive lists every published tier and each product destination render
   const uniqueDestinations = [...new Set(destinations)];
   expect(uniqueDestinations).toHaveLength(archiveCount);
 
-  const responses = await Promise.all(uniqueDestinations.map((destination) => request.get(destination)));
-  expect(responses.filter((response) => response.status() !== 200)).toHaveLength(0);
+  const failedDestinations: string[] = [];
+  // Avoid asking the dev compiler to materialize the entire dynamic catalog at
+  // once. That thundering herd can race Next's incremental JSON cache and emit
+  // spurious `Unexpected end of JSON input` responses unrelated to a route.
+  for (const destination of uniqueDestinations) {
+    let response = await request.get(destination);
+    if (response.status() >= 500) {
+      // A cold Next dev route can lose an incremental-cache read while the
+      // compiler is materializing its first JSON payload. Confirm the route
+      // itself, not that transient dev-server race.
+      response = await request.get(destination);
+    }
+    if (response.status() !== 200) failedDestinations.push(destination);
+  }
+  expect(failedDestinations).toEqual([]);
 });

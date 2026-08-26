@@ -3,9 +3,35 @@ import { HttpError } from "./errors.ts";
 
 export const ASSET_BUCKET = "art-assets";
 
-export function outputKeys(artworkId: string, generationId: string) {
+/**
+ * Formats a provider can return for the CLEAN output. The preview is always the
+ * watermark renderer's WebP regardless of provider.
+ */
+export type GeneratedImageFormat = "webp" | "png" | "jpeg";
+
+export function mimeTypeFor(format: GeneratedImageFormat): string {
+  return format === "png" ? "image/png" : format === "jpeg" ? "image/jpeg" : "image/webp";
+}
+
+export function outputKeys(artworkId: string, generationId: string, cleanFormat: GeneratedImageFormat = "webp") {
   const root = `generated/${artworkId}/${generationId}`;
-  return { preview: `${root}/preview-watermarked.webp`, clean: `${root}/clean.webp` };
+  return { preview: `${root}/preview-watermarked.webp`, clean: `${root}/clean.${cleanFormat}` };
+}
+
+/**
+ * Every object key a generation could have written, across all clean formats.
+ * Cleanup paths that cannot know which format the provider returned (the
+ * watchdog reaps rows whose worker died before recording anything) must sweep
+ * all of them; removePrivate tolerates keys that never existed.
+ */
+export function allOutputKeys(artworkId: string, generationId: string): string[] {
+  const root = `generated/${artworkId}/${generationId}`;
+  return [
+    `${root}/preview-watermarked.webp`,
+    `${root}/clean.webp`,
+    `${root}/clean.png`,
+    `${root}/clean.jpeg`,
+  ];
 }
 
 export async function downloadPrivate(path: string): Promise<Blob> {

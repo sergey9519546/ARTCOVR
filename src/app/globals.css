@@ -229,3 +229,33 @@ html.lenis, html.lenis body { height: auto; }
   .artwork-grid-clamp > * { display: block !important; }
   .artwork-grid-reveal { display: none !important; }
 }
+
+/*
+ * Image plate: the ground an artwork sits on before its bytes arrive, and the
+ * matte around any image that does not fill its frame.
+ *
+ * Derived from the theme tokens rather than a fixed hex. The product and studio
+ * frames previously hard-coded #e9e2d7 / #d2cac3, which is a light-theme cream:
+ * in the dark theme those plates flashed a bright rectangle before every image
+ * painted. Mixing the foreground into the background keeps the plate one step
+ * off the page in whichever theme is active.
+ */
+/*
+ * Prompt bar: an elevated surface one step further off the page than the
+ * plate, with a soft focus glow driven by the theme's own --ring token so it
+ * reads correctly on both grounds. backdrop-filter is deliberately absent —
+ * the bar sits over the page background, not over imagery.
+ */
+.artcovr-promptbar {
+  background: color-mix(in srgb, var(--foreground) 10%, var(--background));
+  transition: border-color .2s var(--motion-ease), box-shadow .2s var(--motion-ease);
+}
+.artcovr-promptbar:focus-within {
+  border-color: currentColor;
+  box-shadow: 0 0 0 1px var(--ring), 0 0 14px color-mix(in srgb, var(--ring) 55%, transparent);
+}
+
+.artcovr-plate {
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+}
+

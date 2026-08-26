@@ -74,7 +74,7 @@ bun run build
 # selects output: "export", which emits a static site under out/ and can never
 # produce a standalone server bundle, so the gate verifies the artifact that
 # mode actually writes.
-if [ ! -s "out/index.html" ]; then
+if [ ! -s "next-build/index.html" ]; then
     echo "❌ 构建未产出非空的 out/index.html。请确认 next.config 中的 output: \"export\" 配置。"
     exit 1
 fi
@@ -105,7 +105,7 @@ echo "📦 收集构建产物到 $BUILD_DIR..."
 # 落点保持为 next-service-dist/public，这样下面的部署期修剪路径不变。
 echo "  - 复制 out（静态导出站点根目录）"
 mkdir -p "$BUILD_DIR/next-service-dist/public"
-cp -r out/. "$BUILD_DIR/next-service-dist/public/"
+cp -r next-build/. "$BUILD_DIR/next-service-dist/public/"
 
 if [ "${NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING:-0}" != "1" ]; then
     echo "🧹 从公共包中移除未批准的审核图像..."

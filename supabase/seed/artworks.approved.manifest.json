@@ -1,0 +1,3312 @@
+{
+  "rowCount": 187,
+  "rows": [
+    {
+      "baseObjectKey": "artworks/art_01ecba3251649629ae80/base",
+      "catalogId": "art_01ecba3251649629ae80",
+      "catalogObjectKey": "assets/artworks/last-light-market.jpg",
+      "description": "A lit roadside market holds the final human presence in a dark empty street.",
+      "keywords": [
+        "roadside market",
+        "night street",
+        "storefront light",
+        "lone figure",
+        "urban stillness",
+        "teal shadows"
+      ],
+      "sourceSha256": "01ecba3251649629ae801e5d513256cddc0e32595d48cda9e642807c57e91efe",
+      "styleId": null,
+      "styleMetadataSha256": "651a903b70aeef91162343b5213f398cd5b7226f5c56aaf5d71cb831dbed685c",
+      "title": "Last Light Market"
+    },
+    {
+      "baseObjectKey": "artworks/art_03f778b0a48c953089da/base",
+      "catalogId": "art_03f778b0a48c953089da",
+      "catalogObjectKey": "assets/artworks/blue-hour-monolith.jpg",
+      "description": "A cobalt cube sits on arches over shallow water, spheres and smaller cubes suspended around it. A staircase runs down into the water and one figure stands on the rocks at the left.",
+      "keywords": [
+        "cobalt",
+        "monumental",
+        "still",
+        "surreal"
+      ],
+      "sourceSha256": "03f778b0a48c953089da6f8b7538f9cf2f9aca7b7ce18ade83a1240d3a84ae74",
+      "styleId": "blue-hour-monolith",
+      "styleMetadataSha256": "b9c905a070cff27857132b2dc482447466932e13637c87da9972ce15da4e0d14",
+      "title": "Blue Hour Monolith"
+    },
+    {
+      "baseObjectKey": "artworks/art_0610f906d4591498579a/base",
+      "catalogId": "art_0610f906d4591498579a",
+      "catalogObjectKey": "assets/artworks/rooms-above-weather.jpg",
+      "description": "White arches open into layered rooms built entirely from clouds.",
+      "keywords": [
+        "cloud rooms",
+        "white arches",
+        "sky interior",
+        "portal",
+        "pastel light",
+        "dream architecture"
+      ],
+      "sourceSha256": "0610f906d4591498579a478b10c0a74250c0e8abb0589860d9b5e72934c66dc9",
+      "styleId": null,
+      "styleMetadataSha256": "015997caeb4948df8460b399f1bb8fabe55ab5218cbc333b91ea091c543889ec",
+      "title": "Rooms Above Weather"
+    },
+    {
+      "baseObjectKey": "artworks/art_07bdf5aba1e72db9acd7/base",
+      "catalogId": "art_07bdf5aba1e72db9acd7",
+      "catalogObjectKey": "assets/artworks/emerald-colonnade.jpg",
+      "description": "Monumental green stone faces form a symmetrical corridor around a distant classical tower.",
+      "keywords": [
+        "emerald",
+        "monumental faces",
+        "symmetry",
+        "surreal corridor",
+        "classical tower",
+        "stone texture",
+        "dark fantasy"
+      ],
+      "sourceSha256": "07bdf5aba1e72db9acd78836ef8489fb96b5e4c656ccf931ecf8dc421da2474a",
+      "styleId": null,
+      "styleMetadataSha256": "f763a97c56fbf78e58e9274199beaf069434e313a3c0828389975d41279860db",
+      "title": "Emerald Colonnade"
+    },
+    {
+      "baseObjectKey": "artworks/art_094d0c33efc13f8c0b3d/base",
+      "catalogId": "art_094d0c33efc13f8c0b3d",
+      "catalogObjectKey": "assets/artworks/hyper-saturated-surreal-pop.jpg",
+      "description": "Vibrant surreal pop art composition of giant floating strawberries and neon rainbow clouds over a checkerboard plane",
+      "keywords": [
+        "hyper-saturated surrealism",
+        "pop art palette",
+        "absurdist scale",
+        "bold color blocking",
+        "graphic shadows",
+        "playful dream logic",
+        "glossy object",
+        "clean composition",
+        "contemporary editorial illustration"
+      ],
+      "sourceSha256": "094d0c33efc13f8c0b3d367ab4c8cfc2c56d0b0cd4263442044fafdb47cdb898",
+      "styleId": "hyper-saturated-surreal-pop",
+      "styleMetadataSha256": "44aade4b3fe35742d4b7cd6edc56f7d58f4a048f455e1e149d61cb41b54a6418",
+      "title": "Hyper-Saturated Surreal Pop"
+    },
+    {
+      "baseObjectKey": "artworks/art_09792071af253ce5ced7/base",
+      "catalogId": "art_09792071af253ce5ced7",
+      "catalogObjectKey": "assets/artworks/end-of-takeout.jpg",
+      "description": "takeout box, open container, red interior, minimal shadow, surreal still life",
+      "keywords": [
+        "takeout box",
+        "open container",
+        "red interior",
+        "minimal shadow",
+        "surreal still life"
+      ],
+      "sourceSha256": "09792071af253ce5ced717a2bab7fcb367fd38485f0d1be668b2bcea03be79fa",
+      "styleId": null,
+      "styleMetadataSha256": "76deb569266a0391eb8d2e62f1507d73dd95a4edaa53196a1bdf258d48b73b6a",
+      "title": "End of Takeout"
+    },
+    {
+      "baseObjectKey": "artworks/art_0a89082cf7ea6fdc8053/base",
+      "catalogId": "art_0a89082cf7ea6fdc8053",
+      "catalogObjectKey": "assets/artworks/barcode-moon.jpg",
+      "description": "moon, barcode, lunar, distressed collage, black",
+      "keywords": [
+        "moon",
+        "barcode",
+        "lunar",
+        "distressed collage",
+        "black"
+      ],
+      "sourceSha256": "0a89082cf7ea6fdc8053405363a009b783578e9e191db0a72983a9ea7a727a03",
+      "styleId": null,
+      "styleMetadataSha256": "bf056cb4384eefa159272a36595cfba3c8c331f43ac3a20c7294dd3be0212a64",
+      "title": "Barcode Moon"
+    },
+    {
+      "baseObjectKey": "artworks/art_0b48225357aba4d54e73/base",
+      "catalogId": "art_0b48225357aba4d54e73",
+      "catalogObjectKey": "assets/artworks/halftone-skull-in-red.jpg",
+      "description": "A skull in coarse black halftone fills the sheet, red spatter caught in the eye socket and along the jaw. Thin registration lines, a red vertical panel of reversed type and rows of tiny printed microtext frame it like a damaged record sleeve.",
+      "keywords": [
+        "macabre",
+        "distressed",
+        "high-contrast",
+        "graphic"
+      ],
+      "sourceSha256": "0b48225357aba4d54e730f3ba398700dd4888a6e1bec8ced75bb8bc5733fcde3",
+      "styleId": "halftone-skull-in-red",
+      "styleMetadataSha256": "78c0b52c7a046148fde60cca0a71066c05f51afdde047c7c257dae3bbb4a2472",
+      "title": "Halftone Skull in Red"
+    },
+    {
+      "baseObjectKey": "artworks/art_0e872f93a29287069ecd/base",
+      "catalogId": "art_0e872f93a29287069ecd",
+      "catalogObjectKey": "assets/artworks/grief-in-transit.jpg",
+      "description": "airplane, floating machine, coral sun, technical collage, flight",
+      "keywords": [
+        "airplane",
+        "floating machine",
+        "coral sun",
+        "technical collage",
+        "flight"
+      ],
+      "sourceSha256": "0e872f93a29287069ecd0b034eb0b39f194b0fdb79b6580a2faa24f187d5927f",
+      "styleId": null,
+      "styleMetadataSha256": "e36ae57309c9168f2ce9187f7fecb11f632b0d607f3c94f483b447bb13cac3a9",
+      "title": "Grief in Transit"
+    },
+    {
+      "baseObjectKey": "artworks/art_0f35c7c5c3ddc2eec9eb/base",
+      "catalogId": "art_0f35c7c5c3ddc2eec9eb",
+      "catalogObjectKey": "assets/artworks/chair-after-midnight.jpg",
+      "description": "single red chair, black room, long shadow, minimal stage, graphic print",
+      "keywords": [
+        "single red chair",
+        "black room",
+        "long shadow",
+        "minimal stage",
+        "graphic print"
+      ],
+      "sourceSha256": "0f35c7c5c3ddc2eec9eb669133ddcf8da66fb1c62cd09b48ca99b1b659bf65d4",
+      "styleId": null,
+      "styleMetadataSha256": "2230c9ace3427b1efb82c1c5514a0b9a050cef2c1e6ae9e03975f64b71e706f2",
+      "title": "Chair After Midnight"
+    },
+    {
+      "baseObjectKey": "artworks/art_0f6cd23cf71ebbb14ac6/base",
+      "catalogId": "art_0f6cd23cf71ebbb14ac6",
+      "catalogObjectKey": "assets/artworks/luminous-emerald-chiaroscuro.jpg",
+      "description": "luminous emerald chiaroscuro, surreal digital artwork",
+      "keywords": [
+        "luminous",
+        "emerald",
+        "chiaroscuro"
+      ],
+      "sourceSha256": "0f6cd23cf71ebbb14ac69764c080a8d8d5b64674f035c28325a80582df1463d7",
+      "styleId": null,
+      "styleMetadataSha256": "cb91ede9fc946ccd764d4b70d1ba179b22fb5b61fff4b57131b8b843fa6af2fc",
+      "title": "Luminous Emerald Chiaroscuro"
+    },
+    {
+      "baseObjectKey": "artworks/art_0f9bd0b056f799756e83/base",
+      "catalogId": "art_0f9bd0b056f799756e83",
+      "catalogObjectKey": "assets/artworks/monochrome-gothic-printmaking.jpg",
+      "description": "Detailed linocut print of a gothic cathedral cathedral facade with dramatic black ink shading and linework",
+      "keywords": [
+        "gothic printmaking",
+        "monochrome woodcut",
+        "linocut texture",
+        "cross-hatching",
+        "medieval darkness",
+        "stark chiaroscuro",
+        "haunted forest",
+        "carved linework",
+        "antique paper"
+      ],
+      "sourceSha256": "0f9bd0b056f799756e83be85788b224e1070179af17c9b6969613952f3051977",
+      "styleId": "monochrome-gothic-printmaking",
+      "styleMetadataSha256": "1aeb6bfc76ec3841dadb5a14c0e06290f10d0785b9f490f58fa84ed90bb29142",
+      "title": "Monochrome Gothic Printmaking"
+    },
+    {
+      "baseObjectKey": "artworks/art_0fd601a7160d4f9facfd/base",
+      "catalogId": "art_0fd601a7160d4f9facfd",
+      "catalogObjectKey": "assets/artworks/motel-in-teal-night.jpg",
+      "description": "A roadside motel sign burns orange against a wall of teal night, its second panel already half dead. Below it only a dark roofline and the pole, nothing else awake on the block.",
+      "keywords": [
+        "nocturnal",
+        "nostalgic",
+        "cinematic",
+        "painterly"
+      ],
+      "sourceSha256": "0fd601a7160d4f9facfdad26c7d93b89ed9be867a560681f226d21ba3515c493",
+      "styleId": "motel-in-teal-night",
+      "styleMetadataSha256": "9b5b7fe9f3599a727191335e152b75b04f8e43cd31f20cfb6d01099a364c3667",
+      "title": "Motel in Teal Night"
+    },
+    {
+      "baseObjectKey": "artworks/art_13e294842fc075b56534/base",
+      "catalogId": "art_13e294842fc075b56534",
+      "catalogObjectKey": "assets/artworks/cloud-aperture.jpg",
+      "description": "A rectangular doorway formed from clouds opens against a deep blue sky.",
+      "keywords": [
+        "cloud doorway",
+        "blue sky",
+        "rectangular void",
+        "portal",
+        "white cloud",
+        "minimal surrealism"
+      ],
+      "sourceSha256": "13e294842fc075b565344e9228e61c316a5df6bbeeaa43a8a2a6c4fe804933c4",
+      "styleId": null,
+      "styleMetadataSha256": "34c05e6b2dbaad9ac242d984ec6024320cf0db6e03a8b5d6e77841e8e719375e",
+      "title": "Cloud Aperture"
+    },
+    {
+      "baseObjectKey": "artworks/art_158cd9e2058a1ff19994/base",
+      "catalogId": "art_158cd9e2058a1ff19994",
+      "catalogObjectKey": "assets/artworks/crown-of-black-spikes.jpg",
+      "description": "A masked figure in a heavy mustard robe sits cross-legged inside a cracked stone niche, skeletal hands folded, ribs showing through the fabric. A halo of long black spikes tipped with dark discs fans out behind the blank white face.",
+      "keywords": [
+        "macabre",
+        "ritual",
+        "high-contrast",
+        "graphic"
+      ],
+      "sourceSha256": "158cd9e2058a1ff19994fdb466971e7633fd8058444184fb28a62355adc91470",
+      "styleId": "crown-of-black-spikes",
+      "styleMetadataSha256": "047839c62904d1f8220e69734a814aa5216172d1859391c528a9a392f74c9327",
+      "title": "Crown of Black Spikes"
+    },
+    {
+      "baseObjectKey": "artworks/art_15dc5bdf61949f7a05b0/base",
+      "catalogId": "art_15dc5bdf61949f7a05b0",
+      "catalogObjectKey": "assets/artworks/machine-with-a-red-thought.jpg",
+      "description": "A pale machine hangs inside black smoke and a red electrical bloom.",
+      "keywords": [
+        "pale machine",
+        "red bloom",
+        "black smoke",
+        "suspended object",
+        "electrical form",
+        "collage"
+      ],
+      "sourceSha256": "15dc5bdf61949f7a05b02a23937f98341ac9144fe4d0b77ccdda6cd293cda502",
+      "styleId": null,
+      "styleMetadataSha256": "e41858fad70334a866d18312356b245e875a51329e585e2fa009d0889cc74765",
+      "title": "Machine with a Red Thought"
+    },
+    {
+      "baseObjectKey": "artworks/art_1867ad4d47f6cf118096/base",
+      "catalogId": "art_1867ad4d47f6cf118096",
+      "catalogObjectKey": "assets/artworks/days-almost-here.jpg",
+      "description": "empty chair, red suns, forest edge, calendar metaphor, graphic landscape",
+      "keywords": [
+        "empty chair",
+        "red suns",
+        "forest edge",
+        "calendar metaphor",
+        "graphic landscape"
+      ],
+      "sourceSha256": "1867ad4d47f6cf11809651b528449ce535ace742d3b8a5282c87dd1029ed352b",
+      "styleId": null,
+      "styleMetadataSha256": "7c863818e95be1af3c6244f7fd289a2b79f1a99577237898d19330da564980f8",
+      "title": "Days Almost Here"
+    },
+    {
+      "baseObjectKey": "artworks/art_18cbf168a4cb315e911b/base",
+      "catalogId": "art_18cbf168a4cb315e911b",
+      "catalogObjectKey": "assets/artworks/mechanical-saint.jpg",
+      "description": "cybernetic figure, mechanical form, halo, technical collage, red",
+      "keywords": [
+        "cybernetic figure",
+        "mechanical form",
+        "halo",
+        "technical collage",
+        "red"
+      ],
+      "sourceSha256": "18cbf168a4cb315e911bfda723ba5e2be0012623b58e5ba2d8946e59c7b58ab6",
+      "styleId": null,
+      "styleMetadataSha256": "7aaf6f945e44167604e4a9f58e08f5565a023806fe8b215a3f2471300178f4a9",
+      "title": "Mechanical Saint"
+    },
+    {
+      "baseObjectKey": "artworks/art_18fee4bf2eaa9f2ce1a5/base",
+      "catalogId": "art_18fee4bf2eaa9f2ce1a5",
+      "catalogObjectKey": "assets/artworks/luminous-cosmic-folklore.jpg",
+      "description": "Luminous folklore illustration of a magical glowing spirit stag surrounded by starry celestial constellations",
+      "keywords": [
+        "cosmic folklore",
+        "luminous mythology",
+        "folk-art symbolism",
+        "celestial animals",
+        "painted night sky",
+        "handcrafted texture",
+        "radiant halo",
+        "storybook mysticism",
+        "decorative constellation"
+      ],
+      "sourceSha256": "18fee4bf2eaa9f2ce1a5859de020efa46ece71f59c516b6f6a74307ad11bca22",
+      "styleId": "luminous-cosmic-folklore",
+      "styleMetadataSha256": "18b9964157a9b9bd425f9f337fee48f09ba0d7463257513e9b454cde9c8d5241",
+      "title": "Luminous Cosmic Folklore"
+    },
+    {
+      "baseObjectKey": "artworks/art_1aecac512099c480b7d5/base",
+      "catalogId": "art_1aecac512099c480b7d5",
+      "catalogObjectKey": "assets/artworks/the-branch-bearer.jpg",
+      "description": "A woman in a white dress stands in profile holding a slender budding branch. The ground behind her is worked in dry washes of grey, blue and dusty rose that stop just short of a room.",
+      "keywords": [
+        "quiet",
+        "delicate",
+        "meditative",
+        "painterly"
+      ],
+      "sourceSha256": "1aecac512099c480b7d54f402873a719d0f677cc453317c7d8f8be8bbdb889b7",
+      "styleId": "the-branch-bearer",
+      "styleMetadataSha256": "e86776f15c886813ce00aeb2894b2eac6fcfd2cf87af563b16ef484dacb6a630",
+      "title": "The Branch Bearer"
+    },
+    {
+      "baseObjectKey": "artworks/art_1b2fada847fa28702c07/base",
+      "catalogId": "art_1b2fada847fa28702c07",
+      "catalogObjectKey": "assets/artworks/keeper-of-the-white-lantern.jpg",
+      "description": "An elderly keeper carries a lantern through a white windswept landscape.",
+      "keywords": [
+        "elderly keeper",
+        "white coat",
+        "lantern",
+        "windswept landscape",
+        "winter",
+        "solitary figure"
+      ],
+      "sourceSha256": "1b2fada847fa28702c0749036a4238c6c9a2728e099e9a481b37508e805e0710",
+      "styleId": null,
+      "styleMetadataSha256": "5c89faf98d1a3b803c72244f397cb4e18877ea9a84346b11536b4738a63dc7fc",
+      "title": "Keeper of the White Lantern"
+    },
+    {
+      "baseObjectKey": "artworks/art_1db3f7422b353d8f7c60/base",
+      "catalogId": "art_1db3f7422b353d8f7c60",
+      "catalogObjectKey": "assets/artworks/red-door-black-water.jpg",
+      "description": "red door black water, surreal digital artwork",
+      "keywords": [
+        "red",
+        "door",
+        "black",
+        "water"
+      ],
+      "sourceSha256": "1db3f7422b353d8f7c60cdcec7dd33415f448f477a0cc83e82cc31d85e784a42",
+      "styleId": null,
+      "styleMetadataSha256": "7282285c1e0c73e854acf95763730013ffbecc7dbbaf975900d27856bb7edf74",
+      "title": "Red Door Black Water"
+    },
+    {
+      "baseObjectKey": "artworks/art_27b45d92929e0a9165af/base",
+      "catalogId": "art_27b45d92929e0a9165af",
+      "catalogObjectKey": "assets/artworks/surreal-pastoral-technicolor.jpg",
+      "description": "A pink monolith opens on a staircase and stands alone in fields of magenta and yellow, doubled in the pond below. The clouds pass behind it at full scale.",
+      "keywords": [
+        "saturated",
+        "monumental",
+        "vast",
+        "surreal"
+      ],
+      "sourceSha256": "27b45d92929e0a9165afe0bde5644bbd9aab8fb704c0efce39e08ff4e0c3041b",
+      "styleId": "surreal-pastoral-technicolor",
+      "styleMetadataSha256": "898a640cc51479cbf64da5a3da2ab1eb261f08f71b8a27cf9fefd27d24836533",
+      "title": "Surreal Pastoral Technicolor"
+    },
+    {
+      "baseObjectKey": "artworks/art_28045b4e171c65b43e14/base",
+      "catalogId": "art_28045b4e171c65b43e14",
+      "catalogObjectKey": "assets/artworks/veil-in-red-wind.jpg",
+      "description": "A figure in a pale blouse turns away as a length of fabric sweeps across the head and erases the face entirely. Everything drowns in a saturated red field, the grain thick enough to feel like dust.",
+      "keywords": [
+        "haunting",
+        "melancholic",
+        "tactile",
+        "surreal"
+      ],
+      "sourceSha256": "28045b4e171c65b43e1499acaacf431abc4d3429e8c096456f77e23322fa9ee9",
+      "styleId": "veil-in-red-wind",
+      "styleMetadataSha256": "32762c1ae0bbf105aadf6803a58078ec83291a010a7c730e64b0ea178b830f29",
+      "title": "Veil in Red Wind"
+    },
+    {
+      "baseObjectKey": "artworks/art_2aca37845311e7be668f/base",
+      "catalogId": "art_2aca37845311e7be668f",
+      "catalogObjectKey": "assets/artworks/ethereal-muted-minimalism.jpg",
+      "description": "A single bare branch, still carrying a few dried blossoms, stands in a chalky ceramic vase on a rough plank table. Light comes through one paned window and fills the room with a soft grey haze.",
+      "keywords": [
+        "ethereal",
+        "minimal",
+        "quiet",
+        "minimal"
+      ],
+      "sourceSha256": "2aca37845311e7be668f9878e419258d5a5dcfee88e804951d00d96fcf960109",
+      "styleId": "ethereal-muted-minimalism",
+      "styleMetadataSha256": "fb0bad3758ad3a40117f9700f212a776105dc9612f035b9b252b8f04df7cba36",
+      "title": "Ethereal Muted Minimalism"
+    },
+    {
+      "baseObjectKey": "artworks/art_2ba4375af85a094747a9/base",
+      "catalogId": "art_2ba4375af85a094747a9",
+      "catalogObjectKey": "assets/artworks/cold-cabinet.jpg",
+      "description": "open refrigerator, shelves, domestic object, cyan interior, surreal still life",
+      "keywords": [
+        "open refrigerator",
+        "shelves",
+        "domestic object",
+        "cyan interior",
+        "surreal still life"
+      ],
+      "sourceSha256": "2ba4375af85a094747a99474c07882b1c767a490eaea57087d57f871cbaeef4d",
+      "styleId": null,
+      "styleMetadataSha256": "36a7818b3a6c81782ae3ceedb5f997913c8fa5b0945e3337701f4ec31c68eda4",
+      "title": "Cold Cabinet"
+    },
+    {
+      "baseObjectKey": "artworks/art_2c760cd64cd7ebc22d17/base",
+      "catalogId": "art_2c760cd64cd7ebc22d17",
+      "catalogObjectKey": "assets/artworks/cinematic-surreal-sci-fi.jpg",
+      "description": "A weathered rocket leans out of its geodesic hangar while a full moon rises over the dry valley. A single robed figure watches from the near bank of a shallow stream.",
+      "keywords": [
+        "monumental",
+        "solitary",
+        "otherworldly",
+        "surreal"
+      ],
+      "sourceSha256": "2c760cd64cd7ebc22d17124596b16f8c3d532648d639c6ac945e5ec7d788caf3",
+      "styleId": "cinematic-surreal-sci-fi",
+      "styleMetadataSha256": "5cf58433c65f74e8c245fa6a79846d538f143803e3d3c45c7b8fc489bd49d742",
+      "title": "Cinematic Surreal Sci-Fi"
+    },
+    {
+      "baseObjectKey": "artworks/art_2cff56d7104f3ed540c0/base",
+      "catalogId": "art_2cff56d7104f3ed540c0",
+      "catalogObjectKey": "assets/artworks/electric-cobalt-minimalist.jpg",
+      "description": "A sharp geometric architectural blue wall casting long minimal shadows under intense cobalt sunlight",
+      "keywords": [
+        "electric cobalt",
+        "minimalist graphic composition",
+        "saturated blue field",
+        "sharp silhouette",
+        "negative space",
+        "hard-edged geometry",
+        "cyan rim light",
+        "high contrast",
+        "modern editorial"
+      ],
+      "sourceSha256": "2cff56d7104f3ed540c0678bb6a3f9272bf678c5e6c56288163d9052668ab12b",
+      "styleId": "electric-cobalt-minimalist",
+      "styleMetadataSha256": "233fb0d16acbd3f8663e5a48cc9f7abe2b854be4ec2d84c58f7360c915cc8b97",
+      "title": "Electric Cobalt Minimalist"
+    },
+    {
+      "baseObjectKey": "artworks/art_2d16865a147ad01f193c/base",
+      "catalogId": "art_2d16865a147ad01f193c",
+      "catalogObjectKey": "assets/artworks/minimalist-surrealist-dreamscapes.jpg",
+      "description": "A coral door has come to rest on a cloud, a ladder set against it and nothing on the other side. A man in a long coat stands on the flat sand and takes his time deciding.",
+      "keywords": [
+        "dreamlike",
+        "spare",
+        "quiet",
+        "surreal"
+      ],
+      "sourceSha256": "2d16865a147ad01f193cd341db5fac4218316dd782e210dc6e4f60ee9b7fb9b7",
+      "styleId": "minimalist-surrealist-dreamscapes",
+      "styleMetadataSha256": "b012a8968bce5b2dd6d92219f0ed7dd6efba8842f26ebf810dd2fd43e3238f04",
+      "title": "Minimalist Surrealist Dreamscapes"
+    },
+    {
+      "baseObjectKey": "artworks/art_2d7942bf9e266b0b7f7f/base",
+      "catalogId": "art_2d7942bf9e266b0b7f7f",
+      "catalogObjectKey": "assets/artworks/ramen-with-my-skeleton.jpg",
+      "description": "A man in a suit lifts noodles from his bowl while the skeleton beside him works an identical bowl with the same patience. A red banner of katakana runs across the top of the aged cream sheet, ink already breaking up.",
+      "keywords": [
+        "deadpan",
+        "macabre",
+        "print",
+        "graphic"
+      ],
+      "sourceSha256": "2d7942bf9e266b0b7f7f38f753d8a6d4dcb26a39dfc7b024bab66b59fbd9bd8e",
+      "styleId": "ramen-with-my-skeleton",
+      "styleMetadataSha256": "b310202e5eb9af44a68e4f131623c9a3fcb76feb7ff5ed74e8900b1eeb3fda6e",
+      "title": "Ramen with My Skeleton"
+    },
+    {
+      "baseObjectKey": "artworks/art_2e4631f9b7a43cfee00c/base",
+      "catalogId": "art_2e4631f9b7a43cfee00c",
+      "catalogObjectKey": "assets/artworks/magi-in-grey.jpg",
+      "description": "Three grey-robed magi lean forward with cupped offerings while a crimson-mantled figure on the adjoining panel cradles a pale disc holding a small dark child. Flat tempera colour, gold-lettered plaque and a dry brick-red ground keep the whole thing hushed and liturgical.",
+      "keywords": [
+        "devotional",
+        "solemn",
+        "austere",
+        "painterly"
+      ],
+      "sourceSha256": "2e4631f9b7a43cfee00cbac7d67610505db2d2f755dd10482de829dc2188387b",
+      "styleId": "magi-in-grey",
+      "styleMetadataSha256": "8299ce2f9b5789a7286911da6d947d2f104ebfb1057859054dfa7f100a9cac68",
+      "title": "Magi in Grey"
+    },
+    {
+      "baseObjectKey": "artworks/art_2f7d9263e8d7433c7097/base",
+      "catalogId": "art_2f7d9263e8d7433c7097",
+      "catalogObjectKey": "assets/artworks/surreal-liminal-minimalism.jpg",
+      "description": "A single door stands open on the sand with nothing on either side of it. A pink cloud banks over the headland while a man walks the last few steps toward the threshold.",
+      "keywords": [
+        "spare",
+        "quiet",
+        "enigmatic",
+        "surreal"
+      ],
+      "sourceSha256": "2f7d9263e8d7433c7097fc6555e9c915c860a9344eed9ac1f7db7025fef47239",
+      "styleId": "surreal-liminal-minimalism",
+      "styleMetadataSha256": "fbadd483a75bb175fcfecfc623bf90a49a6df3a231512259ba5f1f2296aedcac",
+      "title": "Surreal Liminal Minimalism"
+    },
+    {
+      "baseObjectKey": "artworks/art_33adf63fdc4cff78989d/base",
+      "catalogId": "art_33adf63fdc4cff78989d",
+      "catalogObjectKey": "assets/artworks/ochre-orbits.jpg",
+      "description": "Black orbital forms and radiating line systems move across a weathered ochre field.",
+      "keywords": [
+        "ochre",
+        "orbital diagram",
+        "black linework",
+        "abstract cosmology",
+        "weathered surface",
+        "modernist",
+        "graphic abstraction"
+      ],
+      "sourceSha256": "33adf63fdc4cff78989d3762fca982ebcdb2b4c37b0d226d623a00f807e0ac4f",
+      "styleId": null,
+      "styleMetadataSha256": "5a597d08ac887c18f9717b68a0bc663397a09b304363848aeae4b9d3fcc5f902",
+      "title": "Ochre Orbits"
+    },
+    {
+      "baseObjectKey": "artworks/art_34484601883fc0dafcdf/base",
+      "catalogId": "art_34484601883fc0dafcdf",
+      "catalogObjectKey": "assets/artworks/ethereal-monochrome-motion.jpg",
+      "description": "A single ribbon of black smoke turns in on itself and dissolves toward the edges of a white field. Nothing else enters the frame.",
+      "keywords": [
+        "monochrome",
+        "kinetic",
+        "minimal",
+        "minimal"
+      ],
+      "sourceSha256": "34484601883fc0dafcdfec7d24412a991a2e41b58f57ed536ccf7a76596c4e96",
+      "styleId": "ethereal-monochrome-motion",
+      "styleMetadataSha256": "c35836cab99fe01d3db316b0bb27f8d781eacd0d7f9fa2485f2115e4f281ff55",
+      "title": "Ethereal Monochrome Motion"
+    },
+    {
+      "baseObjectKey": "artworks/art_359bd0a10815d29b69f5/base",
+      "catalogId": "art_359bd0a10815d29b69f5",
+      "catalogObjectKey": "assets/artworks/parasol-walkers.jpg",
+      "description": "A procession of intricate brass walking machines carries faded coral parasols beneath a turquoise sky.",
+      "keywords": [
+        "walking machines",
+        "parasols",
+        "brass",
+        "coral and turquoise",
+        "surreal procession",
+        "retro futurism",
+        "mechanical illustration"
+      ],
+      "sourceSha256": "359bd0a10815d29b69f5fb017bf8ef70aa9418c0b58638c832cc0594d00fb2aa",
+      "styleId": null,
+      "styleMetadataSha256": "db00d7b5b3368cdd530dd6ce4b5c72dcffefd0f5628ef4fee1f71b1e8c88d93d",
+      "title": "Parasol Walkers"
+    },
+    {
+      "baseObjectKey": "artworks/art_36ff0ac7ef6f1644c861/base",
+      "catalogId": "art_36ff0ac7ef6f1644c861",
+      "catalogObjectKey": "assets/artworks/head-in-the-rapeseed.jpg",
+      "description": "A bald head in profile closes its eyes and lets its neck become the field, the same hatching carrying skin into yellow flower. Pink hills stack behind it under a sky ruled in fine horizontal lines.",
+      "keywords": [
+        "contemplative",
+        "rooted",
+        "print",
+        "graphic"
+      ],
+      "sourceSha256": "36ff0ac7ef6f1644c86173966078273931f60036707e9255792b92841dce2d35",
+      "styleId": "head-in-the-rapeseed",
+      "styleMetadataSha256": "c8316245d86c2e9fde53ba4aef7e7c6463e993a6e5435132582600a15125ffe8",
+      "title": "Head in the Rapeseed"
+    },
+    {
+      "baseObjectKey": "artworks/art_382f017ddadad8dcd971/base",
+      "catalogId": "art_382f017ddadad8dcd971",
+      "catalogObjectKey": "assets/artworks/buried-clocks.jpg",
+      "description": "spoon, clock faces, soup bowl, time, surreal object",
+      "keywords": [
+        "spoon",
+        "clock faces",
+        "soup bowl",
+        "time",
+        "surreal object"
+      ],
+      "sourceSha256": "382f017ddadad8dcd971a8b0e6e0afaad4c3628c5b4e3ec55ad6f8ef1bcc1eec",
+      "styleId": null,
+      "styleMetadataSha256": "f8d76214ec539aab659723e923aae4d4b59d34bb898a1c68a7bf7b2962411184",
+      "title": "Buried Clocks"
+    },
+    {
+      "baseObjectKey": "artworks/art_38aae50bb76911d36a4a/base",
+      "catalogId": "art_38aae50bb76911d36a4a",
+      "catalogObjectKey": "assets/artworks/flowers-at-the-cash-machine.jpg",
+      "description": "Flowers overtake a small cash machine set against a coral frame.",
+      "keywords": [
+        "cash machine",
+        "flowers",
+        "coral frame",
+        "retro kiosk",
+        "urban object",
+        "botanical growth"
+      ],
+      "sourceSha256": "38aae50bb76911d36a4ad8bd94c90eb2b520daee15914bbdc732e975956d2da5",
+      "styleId": null,
+      "styleMetadataSha256": "a19a4f4612365b4d7352811edc6d51e116a8370eccb00e5dea5e11eb45cb4455",
+      "title": "Flowers at the Cash Machine"
+    },
+    {
+      "baseObjectKey": "artworks/art_38bbfbb3cd7d931b2271/base",
+      "catalogId": "art_38bbfbb3cd7d931b2271",
+      "catalogObjectKey": "assets/artworks/boy-and-the-ant.jpg",
+      "description": "A curly-haired youth lies flat on the ground, chin propped on one hand, chewing the end of a twig while an ant works past his elbow. The whole plate is printed in a single hot yellow, the hatching fine as thread.",
+      "keywords": [
+        "sunlit",
+        "still",
+        "print",
+        "graphic"
+      ],
+      "sourceSha256": "38bbfbb3cd7d931b2271c6330178fe4d0f65ade3cf7cc75b15fac0f92f56bb07",
+      "styleId": "boy-and-the-ant",
+      "styleMetadataSha256": "c181e3f78ebc7149f28ba27591aa31337e56d532f3955be380778874e7157bed",
+      "title": "Boy and the Ant"
+    },
+    {
+      "baseObjectKey": "artworks/art_3e7e85cb513a69aeca55/base",
+      "catalogId": "art_3e7e85cb513a69aeca55",
+      "catalogObjectKey": "assets/artworks/pastel-threshold.jpg",
+      "description": "A luminous pink doorway stands in a pale landscape of mist and snow.",
+      "keywords": [
+        "pink doorway",
+        "pale landscape",
+        "mist",
+        "snow",
+        "threshold",
+        "pastel surrealism"
+      ],
+      "sourceSha256": "3e7e85cb513a69aeca55385773440c4d8b1fe60af4d3e58933651b9327171d83",
+      "styleId": null,
+      "styleMetadataSha256": "a5da80a7d61605d96651a6485f40df33355af8bd6440eaac990d13ae8346450d",
+      "title": "Pastel Threshold"
+    },
+    {
+      "baseObjectKey": "artworks/art_4086f34a938a03692a7e/base",
+      "catalogId": "art_4086f34a938a03692a7e",
+      "catalogObjectKey": "assets/artworks/bioluminescent-abyssal-biomech.jpg",
+      "description": "bioluminescent abyssal biomech, surreal digital artwork",
+      "keywords": [
+        "bioluminescent",
+        "abyssal",
+        "biomech"
+      ],
+      "sourceSha256": "4086f34a938a03692a7e885ca567596e1956fc3953f3cc99a4540f48c4cc9333",
+      "styleId": null,
+      "styleMetadataSha256": "5a3f4b54bb0033afd4e3c71b7490a77bd65e2c2ceb6f4065b561cfa38df38db8",
+      "title": "Bioluminescent Abyssal Biomech"
+    },
+    {
+      "baseObjectKey": "artworks/art_423e62c842945cd16cc6/base",
+      "catalogId": "art_423e62c842945cd16cc6",
+      "catalogObjectKey": "assets/artworks/ethereal-pastel-surrealism.jpg",
+      "description": "A small pink house holds the edge of a floating clifftop, its fence and blossom tree catching the last of the light. Thick palette-knife cloud piles up in lavender and cream below the grass line.",
+      "keywords": [
+        "ethereal",
+        "dreamlike",
+        "airy",
+        "painterly"
+      ],
+      "sourceSha256": "423e62c842945cd16cc6230ee7fdefd27a8b70106dc34cb8517155f8d2dedc65",
+      "styleId": "ethereal-pastel-surrealism",
+      "styleMetadataSha256": "4e43700fa1713cbcfe09f78ddaeec26bb7ab84daf01dfa7bb57ed486d8276306",
+      "title": "Ethereal Pastel Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_45891424ab079d2ec6fc/base",
+      "catalogId": "art_45891424ab079d2ec6fc",
+      "catalogObjectKey": "assets/artworks/surreal-graphic-minimalism.jpg",
+      "description": "A ladder leans up from the dune to a door that opens on nothing at all. A man stands at its base in flat evening light with a coral sun setting behind him.",
+      "keywords": [
+        "minimal",
+        "spare",
+        "enigmatic",
+        "graphic"
+      ],
+      "sourceSha256": "45891424ab079d2ec6fc310f90c02b1d01b8e98b049958f616f1a8c123bb9f17",
+      "styleId": "surreal-graphic-minimalism",
+      "styleMetadataSha256": "1439baade7bcf22c91cf7c6b23141a07117316c990d99f665818b33311cce428",
+      "title": "Surreal Graphic Minimalism"
+    },
+    {
+      "baseObjectKey": "artworks/art_47c84bef0a518c40c4f3/base",
+      "catalogId": "art_47c84bef0a518c40c4f3",
+      "catalogObjectKey": "assets/artworks/stem-in-the-quiet.jpg",
+      "description": "One flowering stem rests on a rough table inside a pale gray room.",
+      "keywords": [
+        "flowering stem",
+        "ceramic vase",
+        "rough table",
+        "gray room",
+        "still life",
+        "negative space"
+      ],
+      "sourceSha256": "47c84bef0a518c40c4f3503e25a332c95afb3f6416ac7cef03317365911792f2",
+      "styleId": null,
+      "styleMetadataSha256": "570386a08c141186b40e7792978a7638d36d12bc3b9c21471277fc704f411d1e",
+      "title": "Stem in the Quiet"
+    },
+    {
+      "baseObjectKey": "artworks/art_47e67393b1e125a04578/base",
+      "catalogId": "art_47e67393b1e125a04578",
+      "catalogObjectKey": "assets/artworks/the-crumbling-colossus.jpg",
+      "description": "An enormous yellow head hangs in a teal sky above a flat desert, the back of the skull dissolving into a trail of drifting fragments. Far below, a single figure in red walks on as if nothing unusual is overhead.",
+      "keywords": [
+        "monumental",
+        "vast",
+        "uncanny",
+        "surreal"
+      ],
+      "sourceSha256": "47e67393b1e125a045789c5b3e5dcb9815bdc241824cabc13ad54cf6ff471274",
+      "styleId": "the-crumbling-colossus",
+      "styleMetadataSha256": "d87ac338f16261b2e9d83011affd2377d7f47aecf86f4593daf717aa07d0a327",
+      "title": "The Crumbling Colossus"
+    },
+    {
+      "baseObjectKey": "artworks/art_48a2493500437e9354ed/base",
+      "catalogId": "art_48a2493500437e9354ed",
+      "catalogObjectKey": "assets/artworks/graphic-retro-printmaker.jpg",
+      "description": "A classic motorcycle holds the middle of the frame on a rutted ochre road, its chrome spokes picked out in ink. A red sun rises behind the mountains inside a worn poster border.",
+      "keywords": [
+        "graphic",
+        "weathered",
+        "bold",
+        "graphic"
+      ],
+      "sourceSha256": "48a2493500437e9354ed382e1ce95dbcf587f94d5e3c614c49c3189b20d80569",
+      "styleId": "graphic-retro-printmaker",
+      "styleMetadataSha256": "c21a1ee18b634f46021ec4c6e084d4130ee4d9ab68365f2f45e9c7dcb530b893",
+      "title": "Graphic Retro Printmaker"
+    },
+    {
+      "baseObjectKey": "artworks/art_4a75bfcdf2490e7a4b83/base",
+      "catalogId": "art_4a75bfcdf2490e7a4b83",
+      "catalogObjectKey": "assets/artworks/microwave-bloom.jpg",
+      "description": "microwave, bursting flowers, domestic object, surreal flame, cyan wall",
+      "keywords": [
+        "microwave",
+        "bursting flowers",
+        "domestic object",
+        "surreal flame",
+        "cyan wall"
+      ],
+      "sourceSha256": "4a75bfcdf2490e7a4b8375ab848e94ef57409107f8f196e68a54e96eb69be0e8",
+      "styleId": null,
+      "styleMetadataSha256": "98ad60e861ea471547e37e1d0e1c851929280e6a89780b3c3fff2a5ca47db838",
+      "title": "Microwave Bloom"
+    },
+    {
+      "baseObjectKey": "artworks/art_4d603e11105c86408382/base",
+      "catalogId": "art_4d603e11105c86408382",
+      "catalogObjectKey": "assets/artworks/ethereal-painterly-botanica.jpg",
+      "description": "Soft impressionistic oil painting of lush white peonies and eucalyptus leaves in gentle morning light",
+      "keywords": [
+        "ethereal botanica",
+        "painterly flowers",
+        "translucent petals",
+        "soft-focus atmosphere",
+        "dappled light",
+        "muted pastel palette",
+        "visible brushwork",
+        "botanical dreamscape",
+        "luminous nature"
+      ],
+      "sourceSha256": "4d603e11105c8640838274ed6aeb883fe80adf1b778e5a4b644f04303a4f0e2f",
+      "styleId": "ethereal-painterly-botanica",
+      "styleMetadataSha256": "63e8badb4288e460683f9c3c3ef738a3cab9b8519019a2ef84e3c4de9f948d1d",
+      "title": "Ethereal Painterly Botanica"
+    },
+    {
+      "baseObjectKey": "artworks/art_52773312df63657f22d9/base",
+      "catalogId": "art_52773312df63657f22d9",
+      "catalogObjectKey": "assets/artworks/dinner-after-the-alarm.jpg",
+      "description": "Two chairs face an abandoned table beneath a ceiling of smoke.",
+      "keywords": [
+        "dinner table",
+        "two chairs",
+        "smoke",
+        "green room",
+        "abandoned meal",
+        "domestic tension"
+      ],
+      "sourceSha256": "52773312df63657f22d900dfa8f61ddf8b7e1b7b417f03ecff515a84a569e256",
+      "styleId": null,
+      "styleMetadataSha256": "5f69e4a3b6ce26470f6231f43d27023746827de57d31e08e2cb4c893b5f02291",
+      "title": "Dinner After the Alarm"
+    },
+    {
+      "baseObjectKey": "artworks/art_53767393a9005016922a/base",
+      "catalogId": "art_53767393a9005016922a",
+      "catalogObjectKey": "assets/artworks/the-brass-halo.jpg",
+      "description": "A veiled figure gathers a spray of red leaves against her chest, pale hands the only bright thing in the fabric. Behind her hangs a broken brass ring strung with small weights, floating in a room with no walls.",
+      "keywords": [
+        "nocturnal",
+        "devotional",
+        "haunting",
+        "painterly"
+      ],
+      "sourceSha256": "53767393a9005016922a26005e89b61746254e460f7c19d17816d4c0df47a372",
+      "styleId": "the-brass-halo",
+      "styleMetadataSha256": "247294ca9bb35c1cd656a14bf0b1baed4b1f29c9e3b799e88fba5cc471bed854",
+      "title": "The Brass Halo"
+    },
+    {
+      "baseObjectKey": "artworks/art_5457dcbe0ab5d8035143/base",
+      "catalogId": "art_5457dcbe0ab5d8035143",
+      "catalogObjectKey": "assets/artworks/door-in-the-red-orchard.jpg",
+      "description": "A woman in red faces a white door beneath a flowering tree.",
+      "keywords": [
+        "woman in red",
+        "white door",
+        "flowering tree",
+        "red landscape",
+        "threshold",
+        "surreal scene"
+      ],
+      "sourceSha256": "5457dcbe0ab5d8035143d916a2622e3806ab9b0acd2b4d418511cb0ef7997bb3",
+      "styleId": null,
+      "styleMetadataSha256": "0b98c4f478a2b176b1b8ae3bbef9b915c2738b32e3d517ab1ab9333f754eecd2",
+      "title": "Door in the Red Orchard"
+    },
+    {
+      "baseObjectKey": "artworks/art_549812bb787149800204/base",
+      "catalogId": "art_549812bb787149800204",
+      "catalogObjectKey": "assets/artworks/night-shift-draftsman.jpg",
+      "description": "A solitary draftsman works beneath hard light in a dark studio.",
+      "keywords": [
+        "draftsman",
+        "workbench",
+        "hard light",
+        "dark studio",
+        "technical drawing",
+        "solitary worker"
+      ],
+      "sourceSha256": "549812bb7871498002048e8f52b5dd2b6a87aec320fb57d06447c9202142dee7",
+      "styleId": null,
+      "styleMetadataSha256": "301b24ca45fce42bf3e8025dbac5850e1555dc1721708ccf5e27cb12e6d22c17",
+      "title": "Night Shift Draftsman"
+    },
+    {
+      "baseObjectKey": "artworks/art_54d5a5303c964810c253/base",
+      "catalogId": "art_54d5a5303c964810c253",
+      "catalogObjectKey": "assets/artworks/three-registers-of-silence.jpg",
+      "description": "One portrait divides into blue red and amber states of attention.",
+      "keywords": [
+        "triptych portrait",
+        "blue red amber",
+        "layered figure",
+        "silence",
+        "collage",
+        "divided attention"
+      ],
+      "sourceSha256": "54d5a5303c964810c2530d250e1d842c98bbb51f764bd4230551ac373084e309",
+      "styleId": null,
+      "styleMetadataSha256": "e39c61fa7a9e08b8f636828b7eccd9525c0dee58ec445b251571eff28851ece7",
+      "title": "Three Registers of Silence"
+    },
+    {
+      "baseObjectKey": "artworks/art_57e77b3c104fad05c99a/base",
+      "catalogId": "art_57e77b3c104fad05c99a",
+      "catalogObjectKey": "assets/artworks/glass-stair-in-the-clouds.jpg",
+      "description": "A staircase of pale glass climbs out of the clouds toward an arch that opens on nothing. A large moon sits close in the pink sky, one iridescent sphere resting at the top step.",
+      "keywords": [
+        "ethereal",
+        "ascending",
+        "dreamlike",
+        "digital"
+      ],
+      "sourceSha256": "57e77b3c104fad05c99a43a6ce2ce5ee3e989964053827c35a70e07245f9f29b",
+      "styleId": "glass-stair-in-the-clouds",
+      "styleMetadataSha256": "7c1830e103dfb3432ba5b15261f30f40b46a624ab285c1140f4b7db5a110e23d",
+      "title": "Glass Stair in the Clouds"
+    },
+    {
+      "baseObjectKey": "artworks/art_58260ef3a72649a05bce/base",
+      "catalogId": "art_58260ef3a72649a05bce",
+      "catalogObjectKey": "assets/artworks/night-collected-in-a-bag.jpg",
+      "description": "A tied blue bag rests between a tiled wall and a field of stars.",
+      "keywords": [
+        "blue bag",
+        "tiled wall",
+        "stars",
+        "tied object",
+        "cosmic ground",
+        "surreal still life"
+      ],
+      "sourceSha256": "58260ef3a72649a05bce38c145a6f6607bab1279bad48a5399930bbbb7dc12d8",
+      "styleId": null,
+      "styleMetadataSha256": "daa528ce9bfc24dd1e4571eb32d33ef5ea89166b6cc4dbd55c7268473213ea2b",
+      "title": "Night Collected in a Bag"
+    },
+    {
+      "baseObjectKey": "artworks/art_5f394c1df8412dec9646/base",
+      "catalogId": "art_5f394c1df8412dec9646",
+      "catalogObjectKey": "assets/artworks/white-eyes-in-the-rain.jpg",
+      "description": "Rain streams down a woman with long white hair, blank luminous eyes and a studded choker, her blue top slick against the dark. Behind her a concrete wall carries pale graffiti marks, half-dissolved in the downpour.",
+      "keywords": [
+        "nocturnal",
+        "electric",
+        "haunting",
+        "graphic"
+      ],
+      "sourceSha256": "5f394c1df8412dec964674c39abe7849de241594f01291acf3464c4de47b6792",
+      "styleId": "white-eyes-in-the-rain",
+      "styleMetadataSha256": "417f50dced4c6be9bdcc7908af66a0b3cc0fcdcac542b12f5ce69f241d779f03",
+      "title": "White Eyes in the Rain"
+    },
+    {
+      "baseObjectKey": "artworks/art_6016a8ebb5d3f5a9f23d/base",
+      "catalogId": "art_6016a8ebb5d3f5a9f23d",
+      "catalogObjectKey": "assets/artworks/the-verdigris-skull.jpg",
+      "description": "A vast green skull lies half-sunk among pale pink blocks and broken towers, its surface pitted like old bronze. Violet smoke rises behind the ruins in fine engraved hatching.",
+      "keywords": [
+        "macabre",
+        "monumental",
+        "weathered",
+        "surreal"
+      ],
+      "sourceSha256": "6016a8ebb5d3f5a9f23d22294dc7fd62924c4a2169ab2ec38263441eeb2446e9",
+      "styleId": "the-verdigris-skull",
+      "styleMetadataSha256": "bc87d834650d5eadb9f4d09d8240f8f6046afa14cbaf9661e647e0578f131dc0",
+      "title": "The Verdigris Skull"
+    },
+    {
+      "baseObjectKey": "artworks/art_61dfcdf527d8473be666/base",
+      "catalogId": "art_61dfcdf527d8473be666",
+      "catalogObjectKey": "assets/artworks/procession-in-fog.jpg",
+      "description": "A distant procession disappears into dense gray fog across an empty field.",
+      "keywords": [
+        "procession",
+        "gray fog",
+        "silhouettes",
+        "empty field",
+        "atmospheric landscape",
+        "distant figures"
+      ],
+      "sourceSha256": "61dfcdf527d8473be666d59fea7edf7e4670eae5394e701c24ecafba6a830230",
+      "styleId": null,
+      "styleMetadataSha256": "33f3794bbdf855d84693d14716989c6f1093db6a8c3a21b11ac08551888045d1",
+      "title": "Procession in Fog"
+    },
+    {
+      "baseObjectKey": "artworks/art_627f08639fb16e987934/base",
+      "catalogId": "art_627f08639fb16e987934",
+      "catalogObjectKey": "assets/artworks/red-thread.jpg",
+      "description": "red thread, fortune cookie, cloudscape, minimal landscape, surreal symbol",
+      "keywords": [
+        "red thread",
+        "fortune cookie",
+        "cloudscape",
+        "minimal landscape",
+        "surreal symbol"
+      ],
+      "sourceSha256": "627f08639fb16e98793409fc11a584596e012541f117aa5a423fde9e67d01a1c",
+      "styleId": null,
+      "styleMetadataSha256": "e28de9ff97f40d18dcae0152778626da31e9ee0e16510945c06551af60444863",
+      "title": "Red Thread"
+    },
+    {
+      "baseObjectKey": "artworks/art_6300243b12de93e8b568/base",
+      "catalogId": "art_6300243b12de93e8b568",
+      "catalogObjectKey": "assets/artworks/two-dancers-in-linen.jpg",
+      "description": "Two dancers made of nothing but wound linen and teal cloth twist mid-leap, hands flung out, no faces anywhere in the knots. Behind them the red ground is troweled on thick and scarred with the palette knife.",
+      "keywords": [
+        "tactile",
+        "kinetic",
+        "sculptural",
+        "material"
+      ],
+      "sourceSha256": "6300243b12de93e8b5684405c36c5b5110ea264ded278981a59377fce57f9019",
+      "styleId": "two-dancers-in-linen",
+      "styleMetadataSha256": "9b3b9fe64dcf7280f786ffb2f747ee4fd7cf30608962aa8f0847d7c539f01eac",
+      "title": "Two Dancers in Linen"
+    },
+    {
+      "baseObjectKey": "artworks/art_63e91a3f2b69aa8e6974/base",
+      "catalogId": "art_63e91a3f2b69aa8e6974",
+      "catalogObjectKey": "assets/artworks/face-between-frequencies.jpg",
+      "description": "A face splits across blue violet and black graphic planes.",
+      "keywords": [
+        "fragmented face",
+        "blue violet black",
+        "portrait collage",
+        "graphic planes",
+        "frequencies",
+        "close-up"
+      ],
+      "sourceSha256": "63e91a3f2b69aa8e6974d01d0a8fafb1c144066160d79b74bf4464995445dee1",
+      "styleId": null,
+      "styleMetadataSha256": "10944811cc700faa5a0594d5ab4d9c424446d7120afd360283a9b19cab7a6bbf",
+      "title": "Face Between Frequencies"
+    },
+    {
+      "baseObjectKey": "artworks/art_63f3ce58468bc2a73bf5/base",
+      "catalogId": "art_63f3ce58468bc2a73bf5",
+      "catalogObjectKey": "assets/artworks/afternoon-across-the-water.jpg",
+      "description": "A seated figure watches sunlight spread across a quiet riverbank.",
+      "keywords": [
+        "riverbank",
+        "seated figure",
+        "sunlight",
+        "landscape painting",
+        "afternoon",
+        "reflective water"
+      ],
+      "sourceSha256": "63f3ce58468bc2a73bf5eac5699f935b2d02494c35d87c1a930a09f6b59c57cd",
+      "styleId": null,
+      "styleMetadataSha256": "c0b5492b1a30468b6b3f35cb9cfaacab4ce8ea0baf81cb0df93b683d11da4c4a",
+      "title": "Afternoon Across the Water"
+    },
+    {
+      "baseObjectKey": "artworks/art_642cf0c25717c36166ff/base",
+      "catalogId": "art_642cf0c25717c36166ff",
+      "catalogObjectKey": "assets/artworks/subway-of-apologies.jpg",
+      "description": "subway of apologies, surreal digital artwork",
+      "keywords": [
+        "subway",
+        "of",
+        "apologies"
+      ],
+      "sourceSha256": "642cf0c25717c36166fff9fa893fb7902c0adde3693020962b125226f4d94871",
+      "styleId": null,
+      "styleMetadataSha256": "fddfe8ee5ecbc80b3b0406a4c3cdbd04efb97c455ff6ec55c7a4e7b583188f31",
+      "title": "Subway Of Apologies"
+    },
+    {
+      "baseObjectKey": "artworks/art_6599fbe3361287679cff/base",
+      "catalogId": "art_6599fbe3361287679cff",
+      "catalogObjectKey": "assets/artworks/portrait-in-slippage.jpg",
+      "description": "One head holds three or four faces at once, features dragged sideways in dense black stipple across warm cream paper. Black circles orbit the silhouette and a single red thread drips from the jaw.",
+      "keywords": [
+        "monochrome",
+        "fragmented",
+        "uncanny",
+        "graphic"
+      ],
+      "sourceSha256": "6599fbe3361287679cff888b39604ed88d9b75fb77018c25af41391701486edf",
+      "styleId": "portrait-in-slippage",
+      "styleMetadataSha256": "e8af59d44b395c88a17439326de1c175fb3585e1d786fb8b90ee6a5b7c9936b8",
+      "title": "Portrait in Slippage"
+    },
+    {
+      "baseObjectKey": "artworks/art_67b7593dec53d1f531d4/base",
+      "catalogId": "art_67b7593dec53d1f531d4",
+      "catalogObjectKey": "assets/artworks/sail-cathedral.jpg",
+      "description": "A monumental ivory sailing structure rises above a cracked ochre plain beneath a quiet gray sky.",
+      "keywords": [
+        "sail architecture",
+        "ivory",
+        "cracked earth",
+        "monumental vessel",
+        "desert",
+        "speculative design",
+        "minimal landscape"
+      ],
+      "sourceSha256": "67b7593dec53d1f531d4b002098cfc394b9de61f93ddc5c9ae25ce74a1150a6f",
+      "styleId": null,
+      "styleMetadataSha256": "3754fda64b4f819ff3d9cd07b8ed029df0be9e50a8413693a3523f9ee4ed9e64",
+      "title": "Sail Cathedral"
+    },
+    {
+      "baseObjectKey": "artworks/art_67d248b99bfb86f75ebf/base",
+      "catalogId": "art_67d248b99bfb86f75ebf",
+      "catalogObjectKey": "assets/artworks/exit-in-fragments.jpg",
+      "description": "A red EXIT sign hangs at an angle on bare cream, its last letter already lost, red and teal shrapnel bursting away from it. The whole thing reads like a print pulled a half-second after the impact.",
+      "keywords": [
+        "stark",
+        "graphic",
+        "urban",
+        "graphic"
+      ],
+      "sourceSha256": "67d248b99bfb86f75ebf611cde17456653d9da4264dd27da165fb28bd784714e",
+      "styleId": "exit-in-fragments",
+      "styleMetadataSha256": "e7966a80fae89c7f0d1b3d54ff162323bb519a41e85d82740d84588bc7c5803c",
+      "title": "Exit in Fragments"
+    },
+    {
+      "baseObjectKey": "artworks/art_69254c48b5031868ff9c/base",
+      "catalogId": "art_69254c48b5031868ff9c",
+      "catalogObjectKey": "assets/artworks/yellow-field-interruption.jpg",
+      "description": "Yellow purple and green fragments collide across a dense textured field.",
+      "keywords": [
+        "yellow purple green",
+        "abstract field",
+        "layered fragments",
+        "texture",
+        "color collision",
+        "graphic composition"
+      ],
+      "sourceSha256": "69254c48b5031868ff9c78c2d27b697d7defe9420f3bfde2777d69a9ed8843ed",
+      "styleId": null,
+      "styleMetadataSha256": "266d402d1773ff23b8efd237b60b112363d1bf76ea31606b88b8c2daaaa83c02",
+      "title": "Yellow Field Interruption"
+    },
+    {
+      "baseObjectKey": "artworks/art_69ab5ff47b2ce5ad2e41/base",
+      "catalogId": "art_69ab5ff47b2ce5ad2e41",
+      "catalogObjectKey": "assets/artworks/chair-at-the-color-boundary.jpg",
+      "description": "An empty chair waits where teal and coral planes meet.",
+      "keywords": [
+        "empty chair",
+        "teal field",
+        "coral plane",
+        "color boundary",
+        "minimal interior",
+        "geometric composition"
+      ],
+      "sourceSha256": "69ab5ff47b2ce5ad2e413b716836f945889f8204a866f278d377bd28b47a78bc",
+      "styleId": null,
+      "styleMetadataSha256": "d15d68d965d054cc73118366fb0e2325221bd9f5eadafe08be6293ff6c4df699",
+      "title": "Chair at the Color Boundary"
+    },
+    {
+      "baseObjectKey": "artworks/art_6abeb3afbb63aeb37067/base",
+      "catalogId": "art_6abeb3afbb63aeb37067",
+      "catalogObjectKey": "assets/artworks/the-dune-observatory.jpg",
+      "description": "cracked dome observatory, orange dune sea, winding causeway, twin moons",
+      "keywords": [
+        "cracked dome observatory",
+        "orange dune sea",
+        "winding causeway",
+        "twin moons",
+        "subject:architectural_form",
+        "subject:landscape",
+        "motif:moon_or_orb",
+        "motif:vast_scale",
+        "category:architectural_surrealism",
+        "category:speculative_surrealism",
+        "mood:dreamlike",
+        "mood:contemplative",
+        "palette:sepia_ochre",
+        "lighting:high_key",
+        "medium_texture:smooth_render",
+        "composition:tiny_figure_vast_space",
+        "composition:deep_perspective",
+        "era_aesthetic:midcentury_surreal"
+      ],
+      "sourceSha256": "6abeb3afbb63aeb3706728d3332a501201904847245f89b315be2028530f7e82",
+      "styleId": null,
+      "styleMetadataSha256": "1284f0d5762339349d2e30e3d159709588326dbfd24d9a83e8b6b52bf25bdcbb",
+      "title": "The Dune Observatory"
+    },
+    {
+      "baseObjectKey": "artworks/art_6af16f35b34d60d12e74/base",
+      "catalogId": "art_6af16f35b34d60d12e74",
+      "catalogObjectKey": "assets/artworks/playing-the-stapler.jpg",
+      "description": "A gaunt man in a suit tips his head back and plays a small boxy office object like a harmonica, a red drip running from his mouth to the floor. A red disc sits behind his skull and black blocks stack around him on aged cream paper.",
+      "keywords": [
+        "absurd",
+        "deadpan",
+        "graphic",
+        "mixed media"
+      ],
+      "sourceSha256": "6af16f35b34d60d12e7433d1f0dd8aa924132a62396a157ce07fdec7d4ad8c32",
+      "styleId": "playing-the-stapler",
+      "styleMetadataSha256": "03ff93f25bc18f1445de74d17fd328dd8807d7b1511a436abd9983d4dd1b7a53",
+      "title": "Playing the Stapler"
+    },
+    {
+      "baseObjectKey": "artworks/art_6d03883de9c56418de8b/base",
+      "catalogId": "art_6d03883de9c56418de8b",
+      "catalogObjectKey": "assets/artworks/the-boating-afternoon.jpg",
+      "description": "Figures in pale summer dress cluster on a small wooded island while rowing boats slide across the blue water around it. The paint is laid on thick, every leaf and ripple a separate loaded stroke.",
+      "keywords": [
+        "sunlit",
+        "painterly",
+        "tranquil",
+        "painterly"
+      ],
+      "sourceSha256": "6d03883de9c56418de8bcfa943742140aa9202fd1745971d51ee790fc6f850ff",
+      "styleId": "the-boating-afternoon",
+      "styleMetadataSha256": "c150f6874cb427a532cb6eb154de30e28d59a80e9a7eff0cfd305f404b033e89",
+      "title": "The Boating Afternoon"
+    },
+    {
+      "baseObjectKey": "artworks/art_6da3a7473dbfdf826e6c/base",
+      "catalogId": "art_6da3a7473dbfdf826e6c",
+      "catalogObjectKey": "assets/artworks/cart-of-hours.jpg",
+      "description": "shopping cart, alarm clocks, time, object collage, black field",
+      "keywords": [
+        "shopping cart",
+        "alarm clocks",
+        "time",
+        "object collage",
+        "black field"
+      ],
+      "sourceSha256": "6da3a7473dbfdf826e6c2b9f6267881bf3280642a84e0b1a98494b3a7b122b1a",
+      "styleId": null,
+      "styleMetadataSha256": "8bf3ebf963e32930d9e435ee3f1093d2f3ea656434d172f21915ac9f3f774dca",
+      "title": "Cart of Hours"
+    },
+    {
+      "baseObjectKey": "artworks/art_6ecb2b7f031cdd95453f/base",
+      "catalogId": "art_6ecb2b7f031cdd95453f",
+      "catalogObjectKey": "assets/artworks/ink-bear-bloom.jpg",
+      "description": "A black bear emerges through dark foliage against an electric coral-red sky in a hand-inked print style.",
+      "keywords": [
+        "black bear",
+        "coral sky",
+        "ink illustration",
+        "botanical",
+        "woodblock texture",
+        "graphic animal",
+        "high contrast"
+      ],
+      "sourceSha256": "6ecb2b7f031cdd95453f7fd5c5888e60414ddd2e6057e8b4faa2589fe41094ce",
+      "styleId": null,
+      "styleMetadataSha256": "f66a1e8fd818072a49fd11f484c20ecedc389bf5e3cfee3329653931634372c3",
+      "title": "Ink Bear Bloom"
+    },
+    {
+      "baseObjectKey": "artworks/art_7042fab38aac05f1101f/base",
+      "catalogId": "art_7042fab38aac05f1101f",
+      "catalogObjectKey": "assets/artworks/sleeping-cart.jpg",
+      "description": "grocery cart, smoldering contents, night, object study, surreal scene",
+      "keywords": [
+        "grocery cart",
+        "smoldering contents",
+        "night",
+        "object study",
+        "surreal scene"
+      ],
+      "sourceSha256": "7042fab38aac05f1101fd6d19918eda41b0426e1d20cfc770c01633841014fcb",
+      "styleId": null,
+      "styleMetadataSha256": "05600d89b621c92b6e8300a2473bc1fa4ec90073403ae7a73b6f499522e7b46a",
+      "title": "Sleeping Cart"
+    },
+    {
+      "baseObjectKey": "artworks/art_70c8cb0d6bd4fb0b7702/base",
+      "catalogId": "art_70c8cb0d6bd4fb0b7702",
+      "catalogObjectKey": "assets/artworks/cross-in-the-red.jpg",
+      "description": "A woman with a blunt black bob tilts her chin, cross earring and pendant catching the light, thin red scratches under one eye. The background is a single flat wall of red with nothing else in it.",
+      "keywords": [
+        "bold",
+        "macabre",
+        "high-contrast",
+        "graphic"
+      ],
+      "sourceSha256": "70c8cb0d6bd4fb0b770226560fd1dcbacc20c0a0e42baa63c71d010ec67a8490",
+      "styleId": "cross-in-the-red",
+      "styleMetadataSha256": "6994e56ef63e81aa7dc0701aaf4d679c93de05265f014fbbd58000552c4bf391",
+      "title": "Cross in the Red"
+    },
+    {
+      "baseObjectKey": "artworks/art_7383709e7f5569768468/base",
+      "catalogId": "art_7383709e7f5569768468",
+      "catalogObjectKey": "assets/artworks/payphone-for-forgiveness.jpg",
+      "description": "payphone, empty wall, coral and cyan, urban object, graphic print",
+      "keywords": [
+        "payphone",
+        "empty wall",
+        "coral and cyan",
+        "urban object",
+        "graphic print"
+      ],
+      "sourceSha256": "7383709e7f556976846865c68cbcf52ec6e8f2326f25b37e85a07dcfb5b168cf",
+      "styleId": null,
+      "styleMetadataSha256": "9cc72f41632ad4125fd3390b2ea1e6d3aa19b3b60cccdd69ca73d301757ac36d",
+      "title": "Payphone for Forgiveness"
+    },
+    {
+      "baseObjectKey": "artworks/art_73a0bde582bc1e28346a/base",
+      "catalogId": "art_73a0bde582bc1e28346a",
+      "catalogObjectKey": "assets/artworks/cloudwell-stair.jpg",
+      "description": "A spiral staircase climbs through clouds toward drifting industrial balloons.",
+      "keywords": [
+        "spiral staircase",
+        "clouds",
+        "industrial balloons",
+        "dream architecture",
+        "ascent",
+        "floating city"
+      ],
+      "sourceSha256": "73a0bde582bc1e28346a31abfccd40859457afe8eae10690e191022e5495a25f",
+      "styleId": null,
+      "styleMetadataSha256": "686d66eef103de51573eb3716dd84d3811b18b1072e752dc86e31e859d11496e",
+      "title": "Cloudwell Stair"
+    },
+    {
+      "baseObjectKey": "artworks/art_73a2d38d35a1b927ab63/base",
+      "catalogId": "art_73a2d38d35a1b927ab63",
+      "catalogObjectKey": "assets/artworks/dream-receiver.jpg",
+      "description": "A sleeper lies beneath a suspended red signal and trailing cable.",
+      "keywords": [
+        "sleeper",
+        "red signal",
+        "trailing cable",
+        "dark room",
+        "suspended light",
+        "dream apparatus"
+      ],
+      "sourceSha256": "73a2d38d35a1b927ab636449d898922b127a2f44ab3b4fa867bdf2a9482c1023",
+      "styleId": null,
+      "styleMetadataSha256": "df51b49d1333e735d71267cb18a713d0857180448345042f2c1efbbe5102f7af",
+      "title": "The Dream Receiver"
+    },
+    {
+      "baseObjectKey": "artworks/art_74de779f9a5094900514/base",
+      "catalogId": "art_74de779f9a5094900514",
+      "catalogObjectKey": "assets/artworks/unopened-staircase.jpg",
+      "description": "stone staircase, blue wall, coral light, architectural fragment, liminal",
+      "keywords": [
+        "stone staircase",
+        "blue wall",
+        "coral light",
+        "architectural fragment",
+        "liminal"
+      ],
+      "sourceSha256": "74de779f9a50949005141f0edc0b0b734ea15df987c6ae7675ebe096ac9184b8",
+      "styleId": null,
+      "styleMetadataSha256": "d0d8a273b6a558d969b734e58a969b2bbbe9c047154abc57e07f4cfe392e42ce",
+      "title": "Unopened Staircase"
+    },
+    {
+      "baseObjectKey": "artworks/art_7665d24d25cbb3d2bb81/base",
+      "catalogId": "art_7665d24d25cbb3d2bb81",
+      "catalogObjectKey": "assets/artworks/crimson-tactile-surrealism.jpg",
+      "description": "An enormous door leans into a cracked red plateau, panels and handle modeled like carved clay. A small figure in a robe stands at the lip of the drop, facing it.",
+      "keywords": [
+        "crimson",
+        "tactile",
+        "monumental",
+        "material"
+      ],
+      "sourceSha256": "7665d24d25cbb3d2bb8108d1a5bb0b1a1b9cdaf9d7e2d432f7b095c925acb9c0",
+      "styleId": "crimson-tactile-surrealism",
+      "styleMetadataSha256": "fbca2fd70fdb1c0bb1ceee313934a169531481718d3c550ca01608ab2ed8870f",
+      "title": "Crimson Tactile Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_77c70ed3ed2d410dbfd5/base",
+      "catalogId": "art_77c70ed3ed2d410dbfd5",
+      "catalogObjectKey": "assets/artworks/open-circle.jpg",
+      "description": "circular void, ink ring, botanical edge, negative space, abstract print",
+      "keywords": [
+        "circular void",
+        "ink ring",
+        "botanical edge",
+        "negative space",
+        "abstract print"
+      ],
+      "sourceSha256": "77c70ed3ed2d410dbfd5d435b47570f9ad7878ad07046b61b412b890d76eaa1f",
+      "styleId": null,
+      "styleMetadataSha256": "4861513dca3768e247e26579b8665fccf71e234aaac9e0a6e4b8cf9690fc50ea",
+      "title": "Open Circle"
+    },
+    {
+      "baseObjectKey": "artworks/art_7883ab1e65e974742396/base",
+      "catalogId": "art_7883ab1e65e974742396",
+      "catalogObjectKey": "assets/artworks/tactile-organic-opulence.jpg",
+      "description": "Rich opulent velvet fabrics, gilded antique gold ornaments, and lush dark botanical florals with deep tactile texture",
+      "keywords": [
+        "tactile opulence",
+        "biomorphic sculpture",
+        "velvet texture",
+        "jewel-toned palette",
+        "organic luxury",
+        "sculptural still life",
+        "rich material contrast",
+        "baroque abundance",
+        "luminous surface detail"
+      ],
+      "sourceSha256": "7883ab1e65e974742396371da391e9667e63122279d46119ae84d02892b7ad84",
+      "styleId": "tactile-organic-opulence",
+      "styleMetadataSha256": "a69543a347402ed026b2e65905299c9fde082a7063e04a301fd738f99df590e0",
+      "title": "Tactile Organic Opulence"
+    },
+    {
+      "baseObjectKey": "artworks/art_78dbbe3b64a54b0969a9/base",
+      "catalogId": "art_78dbbe3b64a54b0969a9",
+      "catalogObjectKey": "assets/artworks/parking-meter-garden.jpg",
+      "description": "parking meter, plants, urban object, geometric circles, surreal print",
+      "keywords": [
+        "parking meter",
+        "plants",
+        "urban object",
+        "geometric circles",
+        "surreal print"
+      ],
+      "sourceSha256": "78dbbe3b64a54b0969a96cdff76f4b4a05c5d3d125f0ab1cab24e2f7a88fd55d",
+      "styleId": null,
+      "styleMetadataSha256": "2493dc7b3601e0690359263105719f31ceb681cd6175fac12d17d771024e97bb",
+      "title": "Parking Meter Garden"
+    },
+    {
+      "baseObjectKey": "artworks/art_79047465542952b77696/base",
+      "catalogId": "art_79047465542952b77696",
+      "catalogObjectKey": "assets/artworks/midnight-inventory.jpg",
+      "description": "A vending machine glows alone against a broad turquoise wall.",
+      "keywords": [
+        "vending machine",
+        "turquoise wall",
+        "midnight",
+        "long shadow",
+        "urban object",
+        "illuminated display"
+      ],
+      "sourceSha256": "79047465542952b77696f7b17e64f817afb75ecf60b2b6e0f3dabb08cc6dcb72",
+      "styleId": null,
+      "styleMetadataSha256": "0db3ccde726433a7ba1319b4bdccc4dc5f231eeb6ddc67a1ee1e606725b53106",
+      "title": "Midnight Inventory"
+    },
+    {
+      "baseObjectKey": "artworks/art_7a40006d0661fe92b815/base",
+      "catalogId": "art_7a40006d0661fe92b815",
+      "catalogObjectKey": "assets/artworks/crimson-grain-surrealism.jpg",
+      "description": "crimson grain surrealism, surreal digital artwork",
+      "keywords": [
+        "crimson",
+        "grain",
+        "surrealism"
+      ],
+      "sourceSha256": "7a40006d0661fe92b8150c6836cdcfc94783ec74ebc1414c6bfc19ebeeb7dc15",
+      "styleId": null,
+      "styleMetadataSha256": "2745cddcf0208f27f9d4f5d221b65d3d081b8744c92a3a3ff6f72b87344faa52",
+      "title": "Crimson Grain Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_7d498d5557e8a66000dc/base",
+      "catalogId": "art_7d498d5557e8a66000dc",
+      "catalogObjectKey": "assets/artworks/graphic-angular-urbanism.jpg",
+      "description": "Bold geometric vector illustration of sharp angular skyscrapers under a golden sun with strong diagonal shadows",
+      "keywords": [
+        "angular urbanism",
+        "graphic architecture",
+        "faceted city forms",
+        "hard-edged shadows",
+        "constructivist composition",
+        "bold color blocking",
+        "low-angle perspective",
+        "screenprint texture",
+        "metropolitan geometry"
+      ],
+      "sourceSha256": "7d498d5557e8a66000dc59ae83d3570013484df5ef28b8fc2d18830c06321065",
+      "styleId": "graphic-angular-urbanism",
+      "styleMetadataSha256": "80fb370d514a22b7325cc3427f0b7fe825181b3365bf800d6611f0f4b17581e6",
+      "title": "Graphic Angular Urbanism"
+    },
+    {
+      "baseObjectKey": "artworks/art_7f2bb229e942291dd292/base",
+      "catalogId": "art_7f2bb229e942291dd292",
+      "catalogObjectKey": "assets/artworks/sleeper-on-the-rainbow.jpg",
+      "description": "A nude figure lies stretched along the curve of a rainbow, one arm folded under her head, hair loose across the band of colour. Below her a bank of clouds catches the last warm light of the day.",
+      "keywords": [
+        "luminous",
+        "serene",
+        "painterly",
+        "painterly"
+      ],
+      "sourceSha256": "7f2bb229e942291dd292503694d7eb7d070759fd700b3e4f0d969666e37514dc",
+      "styleId": "sleeper-on-the-rainbow",
+      "styleMetadataSha256": "921e4bc4f12845b2ca25d65a9ce976e8cb183668a3d5bd43afeb6adf3164b1a3",
+      "title": "Sleeper on the Rainbow"
+    },
+    {
+      "baseObjectKey": "artworks/art_81ef9c04560ca0aeda35/base",
+      "catalogId": "art_81ef9c04560ca0aeda35",
+      "catalogObjectKey": "assets/artworks/coral-beak.jpg",
+      "description": "toucan, coral circle, bird portrait, print texture, graphic animal",
+      "keywords": [
+        "toucan",
+        "coral circle",
+        "bird portrait",
+        "print texture",
+        "graphic animal"
+      ],
+      "sourceSha256": "81ef9c04560ca0aeda35e3937affa90620d5dc3006a6c877132cb9539dcd22ec",
+      "styleId": null,
+      "styleMetadataSha256": "535e51b7d0248e426bfc545a01e0039a0a40796410a2990e7c268497088c69e3",
+      "title": "Coral Beak"
+    },
+    {
+      "baseObjectKey": "artworks/art_82a4a538f5c89565727d/base",
+      "catalogId": "art_82a4a538f5c89565727d",
+      "catalogObjectKey": "assets/artworks/luminous-thermal-expressionism.jpg",
+      "description": "A face tips back into the heat, painted in fluorescent orange and magenta over a blue-black ground. The strokes break apart at the hair and shoulders and keep the light moving.",
+      "keywords": [
+        "luminous",
+        "expressive",
+        "electric",
+        "painterly"
+      ],
+      "sourceSha256": "82a4a538f5c89565727d002a7897a74c1c5f071da586f5d22c0b779daa0f3bd6",
+      "styleId": "luminous-thermal-expressionism",
+      "styleMetadataSha256": "28f7eff2b324cc6f57a32a04800ef4d711d87f7e651ede94cda75a689e7abc96",
+      "title": "Luminous Thermal Expressionism"
+    },
+    {
+      "baseObjectKey": "artworks/art_83117c6ba64fda33e1c8/base",
+      "catalogId": "art_83117c6ba64fda33e1c8",
+      "catalogObjectKey": "assets/artworks/fishing-the-reflected-sky.jpg",
+      "description": "A cracked salt pan holds one shallow pool, and the pool holds the entire star-thick sky. A single seated figure works a line into the reflection while gold light burns along the far horizon.",
+      "keywords": [
+        "celestial",
+        "solitary",
+        "weathered",
+        "painterly"
+      ],
+      "sourceSha256": "83117c6ba64fda33e1c89d7bd056d9043fd7b40bd7e8aba95d740df6b90feaf1",
+      "styleId": "fishing-the-reflected-sky",
+      "styleMetadataSha256": "693ff8474724e12340befab3ad8a11316db9d593c9eedd9871cc20da4d89f47f",
+      "title": "Fishing the Reflected Sky"
+    },
+    {
+      "baseObjectKey": "artworks/art_837796045f0203561622/base",
+      "catalogId": "art_837796045f0203561622",
+      "catalogObjectKey": "assets/artworks/mirror-box.jpg",
+      "description": "shipping box, mirror interior, clouds, contained sky, surreal object",
+      "keywords": [
+        "shipping box",
+        "mirror interior",
+        "clouds",
+        "contained sky",
+        "surreal object"
+      ],
+      "sourceSha256": "837796045f02035616223e459dd057a17fcd2d18a41e94ab013a7cc57cd9d47b",
+      "styleId": null,
+      "styleMetadataSha256": "e7746dc3cb78357d0644cff6a9486df3515f9d91b3debcaafd2fbb6f82a5aeb1",
+      "title": "Mirror Box"
+    },
+    {
+      "baseObjectKey": "artworks/art_86e5f53f908b95d44bc4/base",
+      "catalogId": "art_86e5f53f908b95d44bc4",
+      "catalogObjectKey": "assets/artworks/desert-broadcast-saint.jpg",
+      "description": "A veiled figure sits cross-legged on yellow sand under stacked halo rings, a rainbow sash spilling down her dark robe and a boxy old television glowing at her knee. Two red antenna-crosses stand far off in a pink and green sky.",
+      "keywords": [
+        "devotional",
+        "otherworldly",
+        "saturated",
+        "surreal"
+      ],
+      "sourceSha256": "86e5f53f908b95d44bc427faca7ef95f025a022f2e32c4afb34eef4c563671af",
+      "styleId": "desert-broadcast-saint",
+      "styleMetadataSha256": "24f142b769cfda3f75648bf8c7447f7f644af7ec360911dafb27883442fa3c95",
+      "title": "Desert Broadcast Saint"
+    },
+    {
+      "baseObjectKey": "artworks/art_8aecc6fbbb68c7706955/base",
+      "catalogId": "art_8aecc6fbbb68c7706955",
+      "catalogObjectKey": "assets/artworks/violet-archivist.jpg",
+      "description": "A violet archivist reads among floating books clocks and mechanical fragments.",
+      "keywords": [
+        "archivist",
+        "floating books",
+        "clocks",
+        "violet",
+        "mechanical fragments",
+        "illustrated fantasy"
+      ],
+      "sourceSha256": "8aecc6fbbb68c7706955e2ec62cbc833cedb49c770fc175aa69e060f114e16b1",
+      "styleId": null,
+      "styleMetadataSha256": "b903036d6804b6f4ed062ddccf50017f4b6637b2a8a9a8da415a2fb399590864",
+      "title": "The Violet Archivist"
+    },
+    {
+      "baseObjectKey": "artworks/art_8b65ec9172e4f0395168/base",
+      "catalogId": "art_8b65ec9172e4f0395168",
+      "catalogObjectKey": "assets/artworks/bold-graphic-neon-surrealism.jpg",
+      "description": "Stark graphic artwork of a neon pink flamingo standing in an abstract geometric room with electric blue shadows",
+      "keywords": [
+        "bold neon surrealism",
+        "graphic poster",
+        "fluorescent color blocking",
+        "stark silhouette",
+        "impossible scale",
+        "screenprint grain",
+        "high contrast",
+        "contemporary pop surrealism",
+        "clean composition"
+      ],
+      "sourceSha256": "8b65ec9172e4f03951689d579493bbfc6215a8c500bbe38b5ee966c39b2ebbb3",
+      "styleId": "bold-graphic-neon-surrealism",
+      "styleMetadataSha256": "ca84eda4f201ca6a9195fb7ecd2c4ed528f8a11bc5924f76150a417127935fa7",
+      "title": "Bold Graphic Neon Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_8c4186e8782869560edd/base",
+      "catalogId": "art_8c4186e8782869560edd",
+      "catalogObjectKey": "assets/artworks/surreal-minimalist-waterscapes.jpg",
+      "description": "A concrete cube stands ankle-deep in still water with a pink cup and saucer balanced on its roof. A door in its side opens onto pink stairs, and a man in a hat waits on the beach.",
+      "keywords": [
+        "domestic",
+        "uncanny",
+        "quiet",
+        "surreal"
+      ],
+      "sourceSha256": "8c4186e8782869560edde1ea48bb03f788b3ff4de4b33435ef5d1c2b366e02ed",
+      "styleId": "surreal-minimalist-waterscapes",
+      "styleMetadataSha256": "1bb56b24f4c9bb1944ee2accf67dadde740bc4d55931ed82344315bd0590114c",
+      "title": "Surreal Minimalist Waterscapes"
+    },
+    {
+      "baseObjectKey": "artworks/art_8c7ed40725786b5eb55b/base",
+      "catalogId": "art_8c7ed40725786b5eb55b",
+      "catalogObjectKey": "assets/artworks/mouth-full-of-coins.jpg",
+      "description": "A huge mouth hangs open on cream paper, red lips and blunt teeth pressed against drifts of loose coins piling into the lower jaw. An open book lies abandoned at the edge of the heap.",
+      "keywords": [
+        "absurd",
+        "macabre",
+        "graphic",
+        "graphic"
+      ],
+      "sourceSha256": "8c7ed40725786b5eb55b15ac2ea64568ebb65443d91a847360a57a5579e4f274",
+      "styleId": "mouth-full-of-coins",
+      "styleMetadataSha256": "4e9c59912f6b8387456d14020314e6573bae14f1a912842521125249bfbeb3c2",
+      "title": "Mouth Full of Coins"
+    },
+    {
+      "baseObjectKey": "artworks/art_8c950047fe3756a2a5a4/base",
+      "catalogId": "art_8c950047fe3756a2a5a4",
+      "catalogObjectKey": "assets/artworks/apparition-over-the-gorge.jpg",
+      "description": "A bark-skinned, many-spined apparition hangs above a pale canyon, a burning white orb suspended beneath it and thin triangle lines drawn across the sky. Two small figures stand on the cliff lip, watching it happen.",
+      "keywords": [
+        "mythic",
+        "vast",
+        "arcane",
+        "painterly"
+      ],
+      "sourceSha256": "8c950047fe3756a2a5a4b6c9c9fec6e2f5590e027fc02541b732c6d369c01f90",
+      "styleId": "apparition-over-the-gorge",
+      "styleMetadataSha256": "f9f165114bdd2e4911e7eaa5a269fa0bf8fd9299dd86ec92af306d83497b7aee",
+      "title": "Apparition Over the Gorge"
+    },
+    {
+      "baseObjectKey": "artworks/art_8d7e7164e829ecdb2c96/base",
+      "catalogId": "art_8d7e7164e829ecdb2c96",
+      "catalogObjectKey": "assets/artworks/camera-tears.jpg",
+      "description": "surveillance camera, dripping ink, machine, cyan, surreal object",
+      "keywords": [
+        "surveillance camera",
+        "dripping ink",
+        "machine",
+        "cyan",
+        "surreal object"
+      ],
+      "sourceSha256": "8d7e7164e829ecdb2c960883d749a4b31194f21a5aa43b20f0677a15d7b117fc",
+      "styleId": null,
+      "styleMetadataSha256": "04f7df18498d18402e14a1b5bcb23044ee01c972e85396860d1df937b3a48977",
+      "title": "Camera Tears"
+    },
+    {
+      "baseObjectKey": "artworks/art_8d826a0a155a513e16e9/base",
+      "catalogId": "art_8d826a0a155a513e16e9",
+      "catalogObjectKey": "assets/artworks/second-sunrise.jpg",
+      "description": "sunrise, barcode, architectural silhouette, coral horizon, graphic collage",
+      "keywords": [
+        "sunrise",
+        "barcode",
+        "architectural silhouette",
+        "coral horizon",
+        "graphic collage"
+      ],
+      "sourceSha256": "8d826a0a155a513e16e9785029d6ced017d587c243e8f4d7fb57d35d7f207b1c",
+      "styleId": null,
+      "styleMetadataSha256": "d7d0ea2af65af9fc809eec1018729e50a16ffba0e3bacf6501bb36626c1dd6ba",
+      "title": "Second Sunrise"
+    },
+    {
+      "baseObjectKey": "artworks/art_8e1ed6d367b55c9b8681/base",
+      "catalogId": "art_8e1ed6d367b55c9b8681",
+      "catalogObjectKey": "assets/artworks/atmospheric-surrealist-nostalgia.jpg",
+      "description": "A porcelain cup the size of a boat spills the sea back onto the shore, its painted rose still bright. A woman in a green skirt stands close enough to feel the spray.",
+      "keywords": [
+        "tidal",
+        "quiet",
+        "dreamlike",
+        "painterly"
+      ],
+      "sourceSha256": "8e1ed6d367b55c9b8681f0474f656323a7cd516fea94b47b12778d96d787e10c",
+      "styleId": "atmospheric-surrealist-nostalgia",
+      "styleMetadataSha256": "bdbc2e6371113c37d7d6dce978745aaf3efb0bf3e4a91af5b76422c03929dcc8",
+      "title": "Atmospheric Surrealist Nostalgia"
+    },
+    {
+      "baseObjectKey": "artworks/art_8f367b849037308fa327/base",
+      "catalogId": "art_8f367b849037308fa327",
+      "catalogObjectKey": "assets/artworks/high-contrast-fauvist-glitch.jpg",
+      "description": "Palette-knife strokes build a hillside village down to a blue bay, cypresses standing black against a red sky. The road into town is laid in slabs of pink, yellow and violet.",
+      "keywords": [
+        "expressive",
+        "bold",
+        "warm",
+        "painterly"
+      ],
+      "sourceSha256": "8f367b849037308fa327c2e8ddf23fb4866285fcb1893362a3082c8f970c3cbe",
+      "styleId": "high-contrast-fauvist-glitch",
+      "styleMetadataSha256": "6716ecc1d8b53648405b63816e6b727fa932ac935f0a9a691d2a1c3c81b65bfe",
+      "title": "High-Contrast Fauvist Glitch"
+    },
+    {
+      "baseObjectKey": "artworks/art_8ff72ba0b028fbdf1e11/base",
+      "catalogId": "art_8ff72ba0b028fbdf1e11",
+      "catalogObjectKey": "assets/artworks/luminous-nocturnal-abyss.jpg",
+      "description": "luminous nocturnal abyss, surreal digital artwork",
+      "keywords": [
+        "luminous",
+        "nocturnal",
+        "abyss"
+      ],
+      "sourceSha256": "8ff72ba0b028fbdf1e11fbf8afa6403c847010a71c58976b988b70dfd3a8898a",
+      "styleId": null,
+      "styleMetadataSha256": "439619c9f0f40eb4464e9b26348d029751cdeb1592f0b4e6ef85c3be5b774552",
+      "title": "Luminous Nocturnal Abyss"
+    },
+    {
+      "baseObjectKey": "artworks/art_91543d2642cc5f4639d8/base",
+      "catalogId": "art_91543d2642cc5f4639d8",
+      "catalogObjectKey": "assets/artworks/no-exit-agrees.jpg",
+      "description": "Conflicting red exit signs point through a fractured turquoise surface.",
+      "keywords": [
+        "exit signs",
+        "red arrows",
+        "turquoise wall",
+        "conflicting directions",
+        "street graphic",
+        "distressed texture"
+      ],
+      "sourceSha256": "91543d2642cc5f4639d8b1828367e976efef241ff7673325eeaa62c0afee2ab0",
+      "styleId": null,
+      "styleMetadataSha256": "61cecc972b01cd7e77c2516c73064e77c20e6e2552a50dd5c8d4fb60cfda5928",
+      "title": "No Exit Agrees"
+    },
+    {
+      "baseObjectKey": "artworks/art_923c75d60f779ba3ed30/base",
+      "catalogId": "art_923c75d60f779ba3ed30",
+      "catalogObjectKey": "assets/artworks/mouth-in-the-floor.jpg",
+      "description": "An enormous mouth breaks up through a tiled floor, pink gums and blunt teeth opening onto a black throat with embers in it. Dense ink smoke boils around the hole, threaded with cold teal.",
+      "keywords": [
+        "macabre",
+        "kinetic",
+        "uncanny",
+        "graphic"
+      ],
+      "sourceSha256": "923c75d60f779ba3ed308ccb3a8f7e0d5228a29b5627fd6046b1a73edcbca81f",
+      "styleId": "mouth-in-the-floor",
+      "styleMetadataSha256": "3eaa108fde787a67d061f451aa0dc431c1f6ccf91dff1c90291b3b5296c12813",
+      "title": "Mouth in the Floor"
+    },
+    {
+      "baseObjectKey": "artworks/art_9301fc22a3464cb0d296/base",
+      "catalogId": "art_9301fc22a3464cb0d296",
+      "catalogObjectKey": "assets/artworks/graphic-kinetic-surrealism.jpg",
+      "description": "Bold graphic illustration of abstract geometric shapes exploding with dynamic motion vectors and sharp contrast",
+      "keywords": [
+        "kinetic surrealism",
+        "graphic motion",
+        "repeated silhouette",
+        "elastic distortion",
+        "speed lines",
+        "bold color blocking",
+        "impossible transformation",
+        "screenprint grain",
+        "dynamic composition"
+      ],
+      "sourceSha256": "9301fc22a3464cb0d2969287570d47d407bfab6140173d6be5e8786331a1e395",
+      "styleId": "graphic-kinetic-surrealism",
+      "styleMetadataSha256": "3bd83f22aebd7eb140ca61d9bfa1046da8321579aaaf180be456fe120c425dd6",
+      "title": "Graphic Kinetic Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_9401682d689b745117c1/base",
+      "catalogId": "art_9401682d689b745117c1",
+      "catalogObjectKey": "assets/artworks/celestial-paper-bag.jpg",
+      "description": "paper bag, glowing stars, rocky debris, cosmic night, surreal still life",
+      "keywords": [
+        "paper bag",
+        "glowing stars",
+        "rocky debris",
+        "cosmic night",
+        "surreal still life"
+      ],
+      "sourceSha256": "9401682d689b745117c14a6166ff0147431853476edebf00920065cc200a9e6b",
+      "styleId": null,
+      "styleMetadataSha256": "b84a2aaa6f76ee3ea6281dfd8ab300a7e61f7853237d9f0913517e3784cdeeb6",
+      "title": "Celestial Paper Bag"
+    },
+    {
+      "baseObjectKey": "artworks/art_9423d95f6320303cb2c4/base",
+      "catalogId": "art_9423d95f6320303cb2c4",
+      "catalogObjectKey": "assets/artworks/ice-procession.jpg",
+      "description": "Three luminous ice-like forms move through a dark blue mountain basin beneath flowing etched currents.",
+      "keywords": [
+        "ice forms",
+        "mountain basin",
+        "indigo",
+        "etched currents",
+        "procession",
+        "abstract landscape",
+        "cold atmosphere"
+      ],
+      "sourceSha256": "9423d95f6320303cb2c4056b8f50733c35bdad57f7a7cfe75949c91d8d4c3ba0",
+      "styleId": null,
+      "styleMetadataSha256": "916ed5a0012a00d8a1896199e2626f1abb4e398c7ff19ceff1187b7ed1779a32",
+      "title": "Ice Procession"
+    },
+    {
+      "baseObjectKey": "artworks/art_95b953c39ee6f78c922b/base",
+      "catalogId": "art_95b953c39ee6f78c922b",
+      "catalogObjectKey": "assets/artworks/filing-cathedral.jpg",
+      "description": "tower of drawers, cathedral silhouette, red sun, archive, architectural print",
+      "keywords": [
+        "tower of drawers",
+        "cathedral silhouette",
+        "red sun",
+        "archive",
+        "architectural print"
+      ],
+      "sourceSha256": "95b953c39ee6f78c922b6b8f77600c642b6819b9080d1b2236db8d2bd2977d23",
+      "styleId": null,
+      "styleMetadataSha256": "b1056e19075a9d4fb9be4d799d482dbfdcf042ed55ddc13d4d02784612fd6231",
+      "title": "Filing Cathedral"
+    },
+    {
+      "baseObjectKey": "artworks/art_9648abe858bfd7afa724/base",
+      "catalogId": "art_9648abe858bfd7afa724",
+      "catalogObjectKey": "assets/artworks/green-bell-towers.jpg",
+      "description": "Weathered green bell towers rise through a field of cracked texture.",
+      "keywords": [
+        "bell towers",
+        "green stone",
+        "cracked texture",
+        "historic architecture",
+        "vertical city",
+        "aged surface"
+      ],
+      "sourceSha256": "9648abe858bfd7afa724dc92d8739bc531e8bc493b5b50816f82d506bd965164",
+      "styleId": null,
+      "styleMetadataSha256": "8f506e28d5bebb5f2d5882f622bbd342856646ca12df6597f51cd1e2e02db043",
+      "title": "Green Bell Towers"
+    },
+    {
+      "baseObjectKey": "artworks/art_9747b235c3f40ed5776d/base",
+      "catalogId": "art_9747b235c3f40ed5776d",
+      "catalogObjectKey": "assets/artworks/the-xerox-scream.jpg",
+      "description": "A spike-haired face laughs open-mouthed in blown-out halftone, printed on paper soft and foxed at every corner. Dense columns of tiny type run down both margins and along the top like a sleeve nobody has read in years.",
+      "keywords": [
+        "distressed",
+        "monochrome",
+        "gritty",
+        "mixed media"
+      ],
+      "sourceSha256": "9747b235c3f40ed5776d258d0a755bf1fcf141cb49d1260f37ef9f46371ef5c5",
+      "styleId": "the-xerox-scream",
+      "styleMetadataSha256": "41658315fcd463c6147ea09ec4cca2eae996b598cf02f221472fcf52718762b0",
+      "title": "The Xerox Scream"
+    },
+    {
+      "baseObjectKey": "artworks/art_9acb2bf21ff1f0f4a954/base",
+      "catalogId": "art_9acb2bf21ff1f0f4a954",
+      "catalogObjectKey": "assets/artworks/the-stitched-icon.jpg",
+      "description": "riveted mask visage, stitched shroud, museum patina, quiet menace",
+      "keywords": [
+        "riveted mask visage",
+        "stitched shroud",
+        "museum patina",
+        "quiet menace",
+        "subject:masked_figure",
+        "motif:mask",
+        "category:gothic_surrealism",
+        "category:figurative_surrealism",
+        "mood:austere",
+        "mood:haunting",
+        "palette:muted_neutrals",
+        "lighting:chiaroscuro",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "medium_texture:distressed_surface",
+        "composition:close_portrait",
+        "composition:single_focal",
+        "era_aesthetic:dark_romantic"
+      ],
+      "sourceSha256": "9acb2bf21ff1f0f4a95432e299f0296262745020e3513076493862e11259fde2",
+      "styleId": null,
+      "styleMetadataSha256": "6b9e2cb13d2666ef2ea349b90209ffd701e02311342fc3e60ed2fb4afa2ee998",
+      "title": "The Stitched Icon"
+    },
+    {
+      "baseObjectKey": "artworks/art_9fc168e232a06e37ad41/base",
+      "catalogId": "art_9fc168e232a06e37ad41",
+      "catalogObjectKey": "assets/artworks/storm-in-a-fishbowl.jpg",
+      "description": "fishbowl, storm, goldfish, umbrella, engraving",
+      "keywords": [
+        "fishbowl",
+        "storm",
+        "goldfish",
+        "umbrella",
+        "engraving"
+      ],
+      "sourceSha256": "9fc168e232a06e37ad417a5d253748b7f4e3376a7e4a8a23a9fc0af6cb3d4dd0",
+      "styleId": null,
+      "styleMetadataSha256": "71d604a7cf9fb79b47170ffb5e04fc29b08bdbda24af69f91aa08b987e79321f",
+      "title": "Storm in a Fishbowl"
+    },
+    {
+      "baseObjectKey": "artworks/art_a020be38cec4584030b2/base",
+      "catalogId": "art_a020be38cec4584030b2",
+      "catalogObjectKey": "assets/artworks/floating-gambit.jpg",
+      "description": "A purple chessboard floats above still water beneath a lavender sky.",
+      "keywords": [
+        "chessboard",
+        "chess pieces",
+        "floating platform",
+        "lavender sky",
+        "still water",
+        "surreal game"
+      ],
+      "sourceSha256": "a020be38cec4584030b2960296e21e4c727fa617a9865f53b8a09966a30a776b",
+      "styleId": null,
+      "styleMetadataSha256": "54ddfb87a671c46127c0c98da24067d867abda70c9990a8e2588e3b9880c63d1",
+      "title": "The Floating Gambit"
+    },
+    {
+      "baseObjectKey": "artworks/art_a0fb88023bd8b3f74b72/base",
+      "catalogId": "art_a0fb88023bd8b3f74b72",
+      "catalogObjectKey": "assets/artworks/cube-in-the-wheat.jpg",
+      "description": "A woman walks a worn path through a gold field while a hedge cube, a stone sphere and an empty doorway hold position in the air. The horizon stays low and the light stays even.",
+      "keywords": [
+        "dreamlike",
+        "vast",
+        "quiet",
+        "surreal"
+      ],
+      "sourceSha256": "a0fb88023bd8b3f74b72b7e1928db78745633dc0520ca32440317546fff26903",
+      "styleId": "cube-in-the-wheat",
+      "styleMetadataSha256": "37dcdad21ae94fb123a5533344abcf2cb49c0867ca0394008b564548861c6ee9",
+      "title": "Cube in the Wheat"
+    },
+    {
+      "baseObjectKey": "artworks/art_a22e035c417e6e774d51/base",
+      "catalogId": "art_a22e035c417e6e774d51",
+      "catalogObjectKey": "assets/artworks/tears-as-currency.jpg",
+      "description": "vending machine, tears, currency, deadpan surrealism, cyan",
+      "keywords": [
+        "vending machine",
+        "tears",
+        "currency",
+        "deadpan surrealism",
+        "cyan"
+      ],
+      "sourceSha256": "a22e035c417e6e774d51180bc8517cb33094c32982728b44e535c8ff7b72d373",
+      "styleId": null,
+      "styleMetadataSha256": "d8c30694b4ad7a5ad9aa77da6ce847da792d9f4b2d620376b247d2d1a20e2c1d",
+      "title": "Tears as Currency"
+    },
+    {
+      "baseObjectKey": "artworks/art_a2de27b6021422e09b89/base",
+      "catalogId": "art_a2de27b6021422e09b89",
+      "catalogObjectKey": "assets/artworks/clocktower-vespers.jpg",
+      "description": "crimson clocktower, robed sentinels, gothic city, pale moon dial, evening ritual",
+      "keywords": [
+        "crimson clocktower",
+        "robed sentinels",
+        "gothic city",
+        "pale moon dial",
+        "evening ritual",
+        "subject:architectural_form",
+        "motif:procession",
+        "motif:moon_or_orb",
+        "category:gothic_surrealism",
+        "category:architectural_surrealism",
+        "mood:solemn",
+        "mood:foreboding",
+        "palette:black_red",
+        "lighting:low_key",
+        "medium_texture:oil_like",
+        "composition:centered_iconic",
+        "composition:stacked_vertical",
+        "era_aesthetic:gothic_revival"
+      ],
+      "sourceSha256": "a2de27b6021422e09b8999fe305db3ca2d81b4b85a106d0c726104641fb67db8",
+      "styleId": null,
+      "styleMetadataSha256": "5a665643d0203d4668e59b51dc8c3088e7d260f2bf825d027f8f5b79a0161e6f",
+      "title": "Clocktower Vespers"
+    },
+    {
+      "baseObjectKey": "artworks/art_a3225ad55ea19e838b3f/base",
+      "catalogId": "art_a3225ad55ea19e838b3f",
+      "catalogObjectKey": "assets/artworks/widow-in-the-wildflowers.jpg",
+      "description": "A figure sealed head to hem in black stands motionless in a riot of red, magenta and orange blooms. The sky behind her splits into a smouldering orange break, birds scattering across the grey.",
+      "keywords": [
+        "elegiac",
+        "botanical",
+        "storm-lit",
+        "painterly"
+      ],
+      "sourceSha256": "a3225ad55ea19e838b3f00eb6b95c375a11729dc283b7a82d5833aba6c61fedc",
+      "styleId": "widow-in-the-wildflowers",
+      "styleMetadataSha256": "2dbb3dd49b2b2fcb3bd7ddc2e294418383f76f1462b40a27052872bf2bab4c57",
+      "title": "Widow in the Wildflowers"
+    },
+    {
+      "baseObjectKey": "artworks/art_a35f10c78389d4167866/base",
+      "catalogId": "art_a35f10c78389d4167866",
+      "catalogObjectKey": "assets/artworks/red-silo.jpg",
+      "description": "A narrow red tower casts a long shadow across an orange plain.",
+      "keywords": [
+        "red tower",
+        "orange plain",
+        "long shadow",
+        "turquoise sky",
+        "geometric landscape",
+        "solitary architecture"
+      ],
+      "sourceSha256": "a35f10c78389d4167866b910f2b4a5153e4a643ef1647007738ff2f244153b67",
+      "styleId": null,
+      "styleMetadataSha256": "fdc42cbef57289203091f3344a4a77a79d5a9058673229d1e327f93fb9685fe0",
+      "title": "The Red Silo"
+    },
+    {
+      "baseObjectKey": "artworks/art_a41243db6eaf5197167e/base",
+      "catalogId": "art_a41243db6eaf5197167e",
+      "catalogObjectKey": "assets/artworks/city-of-copper-facades.jpg",
+      "description": "Copper facades gather into an impossible city beneath an ochre sky.",
+      "keywords": [
+        "copper facades",
+        "impossible city",
+        "ochre sky",
+        "ornate architecture",
+        "dense skyline",
+        "urban fantasy"
+      ],
+      "sourceSha256": "a41243db6eaf5197167ed076e0e313b01edab263c3088dfbce476fde6fcba603",
+      "styleId": null,
+      "styleMetadataSha256": "0a3d80b4b9eb08a2b8ea7e5ae02925e6172d86e5797ab5e3e1f3b67443a21cb7",
+      "title": "City of Copper Facades"
+    },
+    {
+      "baseObjectKey": "artworks/art_a4aef1c3b58cb44a8a8d/base",
+      "catalogId": "art_a4aef1c3b58cb44a8a8d",
+      "catalogObjectKey": "assets/artworks/signal-garden.jpg",
+      "description": "A solitary figure presses an iron across a board as coral static breaks into turquoise.",
+      "keywords": [
+        "figure",
+        "iron",
+        "ironing board",
+        "turquoise",
+        "coral pigment",
+        "silhouette"
+      ],
+      "sourceSha256": "a4aef1c3b58cb44a8a8d77463f406c3e6f4bf29df17286ad9c9c2be9f0bb1c10",
+      "styleId": null,
+      "styleMetadataSha256": "1eab8620f74f653f88c99c16781c81fb70f53c0500255f6c33a135caabe2877d",
+      "title": "Signal Garden"
+    },
+    {
+      "baseObjectKey": "artworks/art_a4dec73be45fb5883646/base",
+      "catalogId": "art_a4dec73be45fb5883646",
+      "catalogObjectKey": "assets/artworks/stars-in-a-takeout-bag.jpg",
+      "description": "stars in a takeout bag, surreal digital artwork",
+      "keywords": [
+        "stars",
+        "in",
+        "a",
+        "takeout",
+        "bag"
+      ],
+      "sourceSha256": "a4dec73be45fb588364608b65462aead36dd9c71d799fa8f2d2599ffcaf2dbc9",
+      "styleId": null,
+      "styleMetadataSha256": "72a93add49a9c22cbab6c8dadd9e6925483b61a398f118cf9ba76013dd1833a3",
+      "title": "Stars In A Takeout Bag"
+    },
+    {
+      "baseObjectKey": "artworks/art_a50373a194fc24e48d32/base",
+      "catalogId": "art_a50373a194fc24e48d32",
+      "catalogObjectKey": "assets/artworks/cloud-chamber-communion.jpg",
+      "description": "three lantern-lit figures, blue cloud pool, observatory chamber, shared thread",
+      "keywords": [
+        "three lantern-lit figures",
+        "blue cloud pool",
+        "observatory chamber",
+        "shared thread",
+        "subject:figure_group",
+        "motif:moon_or_orb",
+        "motif:levitation",
+        "category:figurative_surrealism",
+        "category:cosmic_surrealism",
+        "mood:dreamlike",
+        "mood:otherworldly",
+        "palette:high_chroma",
+        "palette:blue_black",
+        "lighting:self_luminous",
+        "lighting:luminous_aura",
+        "medium_texture:painterly",
+        "composition:tableau",
+        "era_aesthetic:psychedelic_graphic"
+      ],
+      "sourceSha256": "a50373a194fc24e48d32690cc13c65ba4952d628966b61f8a119e7d0440b3d55",
+      "styleId": null,
+      "styleMetadataSha256": "1127194278e6d732c0f377d6d219c058ac1b42b211ba3f8c28ac16d0a7b17257",
+      "title": "Cloud Chamber Communion"
+    },
+    {
+      "baseObjectKey": "artworks/art_a75e86bdbba9d20ba692/base",
+      "catalogId": "art_a75e86bdbba9d20ba692",
+      "catalogObjectKey": "assets/artworks/herald-of-the-orbit-bloom.jpg",
+      "description": "coral-robed herald, orbiting bloom mask, released doves, alpine meadow",
+      "keywords": [
+        "coral-robed herald",
+        "orbiting bloom mask",
+        "released doves",
+        "alpine meadow",
+        "subject:masked_figure",
+        "subject:solitary_figure",
+        "motif:mask",
+        "motif:repetition",
+        "category:figurative_surrealism",
+        "category:biomorphic_surrealism",
+        "mood:dreamlike",
+        "mood:uncanny",
+        "palette:high_chroma",
+        "palette:cyan_orange",
+        "lighting:high_key",
+        "medium_texture:oil_like",
+        "composition:centered_iconic",
+        "composition:full_figure",
+        "era_aesthetic:midcentury_surreal"
+      ],
+      "sourceSha256": "a75e86bdbba9d20ba692f79e0b511b3d83c25c3dc0f9127783bccc42693d7abd",
+      "styleId": null,
+      "styleMetadataSha256": "16f007e80736cdc7eb2fc34caba29ce19dab3836dc0b8fcdadae95645e587ea1",
+      "title": "Herald of the Orbit Bloom"
+    },
+    {
+      "baseObjectKey": "artworks/art_a88d3b6f35817a318596/base",
+      "catalogId": "art_a88d3b6f35817a318596",
+      "catalogObjectKey": "assets/artworks/graphic-surrealist-collage.jpg",
+      "description": "A vintage portrait sits at the center while a torn red band, an orange disc and a black circle push in from the edges. A white rose, a hillside house and engraved leaves fill the remaining paper.",
+      "keywords": [
+        "graphic",
+        "layered",
+        "archival",
+        "mixed media"
+      ],
+      "sourceSha256": "a88d3b6f35817a318596d3e1cf938a3b7d9a4bbe4caf27798829b447a3590152",
+      "styleId": "graphic-surrealist-collage",
+      "styleMetadataSha256": "32f5b1d5a822ccff3bfaea4183f75b384f75d15aa716ce3dc2566eb59fa0b8a9",
+      "title": "Graphic Surrealist Collage"
+    },
+    {
+      "baseObjectKey": "artworks/art_a9e192edb2e42460375f/base",
+      "catalogId": "art_a9e192edb2e42460375f",
+      "catalogObjectKey": "assets/artworks/the-lives-not-chosen.jpg",
+      "description": "A girl with a red backpack stands very small before a wall of stacked teal crates, each one hand-labelled and going up past the frame. Red stains bloom across several of the boxes near the middle of the stack.",
+      "keywords": [
+        "melancholic",
+        "archival",
+        "solitary",
+        "graphic"
+      ],
+      "sourceSha256": "a9e192edb2e42460375ffab630d758d89d57a96cea68f394093fa84686cde038",
+      "styleId": "the-lives-not-chosen",
+      "styleMetadataSha256": "6dc26482e467395a859fdc0674fc38585a5b60ed6cf0fab6c6ec8ba3284750cf",
+      "title": "The Lives Not Chosen"
+    },
+    {
+      "baseObjectKey": "artworks/art_aa6471f478e9dbbb275a/base",
+      "catalogId": "art_aa6471f478e9dbbb275a",
+      "catalogObjectKey": "assets/artworks/surrealist-liminal-pastoralism.jpg",
+      "description": "A glass bus shelter waits in a summer meadow, its bench empty and its blue sign still posted. Beside it a colossal white staircase climbs, doubles back and simply stops in the open air.",
+      "keywords": [
+        "surreal",
+        "liminal",
+        "serene",
+        "surreal"
+      ],
+      "sourceSha256": "aa6471f478e9dbbb275a9a6059e7f43f71e3be698e1a6d9667d8966753f18a4d",
+      "styleId": "surrealist-liminal-pastoralism",
+      "styleMetadataSha256": "7bba453011dbcd71605f4a4ef888a741981d6cc127c40f4abb6792507ee76687",
+      "title": "Surrealist Liminal Pastoralism"
+    },
+    {
+      "baseObjectKey": "artworks/art_aa83f38d1426f968d7c2/base",
+      "catalogId": "art_aa83f38d1426f968d7c2",
+      "catalogObjectKey": "assets/artworks/saturated-surrealist-minimalism.jpg",
+      "description": "Pink stairs climb a yellow wall to a blue door too small to matter, and a man in a blue coat stands in the open considering them. One cloud is allowed in the cyan sky.",
+      "keywords": [
+        "saturated",
+        "graphic",
+        "solitary",
+        "graphic"
+      ],
+      "sourceSha256": "aa83f38d1426f968d7c2c84919017a82f14828e9c9afcc645410300a6960faf2",
+      "styleId": "saturated-surrealist-minimalism",
+      "styleMetadataSha256": "25d299acaff9fb7fc310bf31b38a43a8d85f7720eeb33fa5fe402a4221dc953b",
+      "title": "Saturated Surrealist Minimalism"
+    },
+    {
+      "baseObjectKey": "artworks/art_ac88bfeb496a027fd513/base",
+      "catalogId": "art_ac88bfeb496a027fd513",
+      "catalogObjectKey": "assets/artworks/eyes-in-the-wiring.jpg",
+      "description": "Red and green eyes surface inside a tangled field of electric fibers.",
+      "keywords": [
+        "eyes",
+        "neural fibers",
+        "red and green",
+        "network",
+        "surveillance",
+        "digital texture"
+      ],
+      "sourceSha256": "ac88bfeb496a027fd5135d7eee45c7f2b3b64c511890727f3a7254266fb509b6",
+      "styleId": null,
+      "styleMetadataSha256": "04cdb127ccb60666c82a72cc7ce2f2dccddd58c5dbcaef96695c56c8c19bdf4e",
+      "title": "Eyes in the Wiring"
+    },
+    {
+      "baseObjectKey": "artworks/art_ae2326bd33d9ebcccb7a/base",
+      "catalogId": "art_ae2326bd33d9ebcccb7a",
+      "catalogObjectKey": "assets/artworks/vibrant-risograph-surrealism.jpg",
+      "description": "Dual-color risograph print in vibrant fluorescent pink and teal featuring floating surreal geometric shapes",
+      "keywords": [
+        "vibrant risograph",
+        "surrealist print",
+        "spot-color misregistration",
+        "halftone grain",
+        "fluorescent ink",
+        "flat color blocking",
+        "dreamlike juxtaposition",
+        "tactile paper",
+        "retro graphic composition"
+      ],
+      "sourceSha256": "ae2326bd33d9ebcccb7aaa31aa044f7c81a8940903294a7fcaede9ab27769777",
+      "styleId": "vibrant-risograph-surrealism",
+      "styleMetadataSha256": "5ef4766c496b0d9f2d47a2d6acb71caa1cbb009686c6da84d9714b083df88514",
+      "title": "Vibrant Risograph Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_ae8b53c3abeafb10e33d/base",
+      "catalogId": "art_ae8b53c3abeafb10e33d",
+      "catalogObjectKey": "assets/artworks/monochrome-glitch-abstraction.jpg",
+      "description": "A crumbling skyscraper facade fragmenting into digital noise, binary code, and horizontal static scanlines",
+      "keywords": [
+        "monochrome glitch art",
+        "digital corruption",
+        "pixel sorting",
+        "abstract fragmentation",
+        "scanline texture",
+        "high contrast",
+        "data bending",
+        "analog signal decay",
+        "distressed grain"
+      ],
+      "sourceSha256": "ae8b53c3abeafb10e33d618c2e57a376f6d8e0c91c35573e5940a6377f8dbc89",
+      "styleId": "monochrome-glitch-abstraction",
+      "styleMetadataSha256": "4f0186519b95315c58ae6d1177afe2f35b61ab36778a79ec03dae525507f3f83",
+      "title": "Monochrome Glitch Abstraction"
+    },
+    {
+      "baseObjectKey": "artworks/art_af133895ec864914fc62/base",
+      "catalogId": "art_af133895ec864914fc62",
+      "catalogObjectKey": "assets/artworks/ocean-in-the-bath.jpg",
+      "description": "bathtub, ocean waves, key, black water, surreal still life",
+      "keywords": [
+        "bathtub",
+        "ocean waves",
+        "key",
+        "black water",
+        "surreal still life"
+      ],
+      "sourceSha256": "af133895ec864914fc6249774edbc4ff684d1d07aafe4935ff95ecd7eead42b0",
+      "styleId": null,
+      "styleMetadataSha256": "4a236c54a808ac1d78bc59211388ccbca413bd963dc1d14265658384a82509fd",
+      "title": "Ocean in the Bath"
+    },
+    {
+      "baseObjectKey": "artworks/art_b1fbacd89915f78dcc35/base",
+      "catalogId": "art_b1fbacd89915f78dcc35",
+      "catalogObjectKey": "assets/artworks/azure-threshold.jpg",
+      "description": "A lone traveler approaches monumental cobalt arches across a cracked blue channel in a white desert.",
+      "keywords": [
+        "cobalt architecture",
+        "white desert",
+        "lone traveler",
+        "portal",
+        "surreal landscape",
+        "geometric minimalism",
+        "blue and gold"
+      ],
+      "sourceSha256": "b1fbacd89915f78dcc3565d500b9d0df4aac74edf08a00be7829a22b219f5a83",
+      "styleId": null,
+      "styleMetadataSha256": "bd0172fa559dac3cbd92bed194da985c97f51225deab851e5c4f66c5046aef6b",
+      "title": "Azure Threshold"
+    },
+    {
+      "baseObjectKey": "artworks/art_b3f4491ac7965631b3b1/base",
+      "catalogId": "art_b3f4491ac7965631b3b1",
+      "catalogObjectKey": "assets/artworks/last-sock-on-the-line.jpg",
+      "description": "single sock, power line, blue sky, minimal object, graphic print",
+      "keywords": [
+        "single sock",
+        "power line",
+        "blue sky",
+        "minimal object",
+        "graphic print"
+      ],
+      "sourceSha256": "b3f4491ac7965631b3b1a5ffc1481bd435238dc21c41c22b90a5060ba3362e8c",
+      "styleId": null,
+      "styleMetadataSha256": "23d0045c2f050648dc7e069f27c51f7e29507949b3df0609b38286b6fbb518a2",
+      "title": "Last Sock on the Line"
+    },
+    {
+      "baseObjectKey": "artworks/art_b69113075626167281d0/base",
+      "catalogId": "art_b69113075626167281d0",
+      "catalogObjectKey": "assets/artworks/surrealist-sky-collage.jpg",
+      "description": "Cut arches and staircases float over a torn horizon, pinned in place by circles of cloud and coral. A small figure in a green dress stands on the shoreline below, watching the pieces hold.",
+      "keywords": [
+        "layered",
+        "architectural",
+        "dreamlike",
+        "mixed media"
+      ],
+      "sourceSha256": "b69113075626167281d0a32f939587f0dc12f76d57805eb77e4747bdfb82ba9a",
+      "styleId": "surrealist-sky-collage",
+      "styleMetadataSha256": "8ded3c15aaf5100a1063c6d6b9b95dcea2b71ababee6a3ea6434a82900fec408",
+      "title": "Surrealist Sky Collage"
+    },
+    {
+      "baseObjectKey": "artworks/art_b6e5f8f22ffd48e215bd/base",
+      "catalogId": "art_b6e5f8f22ffd48e215bd",
+      "catalogObjectKey": "assets/artworks/letter-carriers-blue-hour.jpg",
+      "description": "A blue-coated letter carrier looks outward beneath a field of restless yellow.",
+      "keywords": [
+        "letter carrier",
+        "blue coat",
+        "yellow field",
+        "portrait",
+        "restless brushwork",
+        "postal figure"
+      ],
+      "sourceSha256": "b6e5f8f22ffd48e215bd4746715dff76f8005f218826acef2dae42f1426a5135",
+      "styleId": null,
+      "styleMetadataSha256": "991b2c55fb2a207bc0413218d00a0695fd5bec31f1aac88f23d5ec906e291fea",
+      "title": "The Letter Carrier’s Blue Hour"
+    },
+    {
+      "baseObjectKey": "artworks/art_b880e45f4ca61bdd1e81/base",
+      "catalogId": "art_b880e45f4ca61bdd1e81",
+      "catalogObjectKey": "assets/artworks/rain-keeps-the-house.jpg",
+      "description": "Rain turns a neighborhood house and empty street into a nocturnal refuge.",
+      "keywords": [
+        "rainy street",
+        "neighborhood house",
+        "night",
+        "wet pavement",
+        "warm windows",
+        "urban solitude"
+      ],
+      "sourceSha256": "b880e45f4ca61bdd1e81a6e738e8bf1674102333162d1e9af7e6729571123f94",
+      "styleId": null,
+      "styleMetadataSha256": "399e5d39dd8aae2d68e27313c1258e65f78f8e3b82277906280c5bc071ab3264",
+      "title": "Rain Keeps the House"
+    },
+    {
+      "baseObjectKey": "artworks/art_bc8268a8e110d051c958/base",
+      "catalogId": "art_bc8268a8e110d051c958",
+      "catalogObjectKey": "assets/artworks/graphic-surreal-pop.jpg",
+      "description": "Graphic pop art illustration featuring a surreal floating eyeball inside a melting ice cream cone against a bold striped background",
+      "keywords": [
+        "graphic surreal pop",
+        "flat vector illustration",
+        "bold color blocking",
+        "playful absurdism",
+        "clean hard-edged shapes",
+        "conceptual composition",
+        "pop-art palette",
+        "minimalist dream logic",
+        "editorial illustration"
+      ],
+      "sourceSha256": "bc8268a8e110d051c958a75b7dcb74765e1d9901bf0da902864ea57df8fe5cb4",
+      "styleId": "graphic-surreal-pop",
+      "styleMetadataSha256": "d295dd0cbeaff8a5787f2bf3f60f95b06d821ef7232d9478421ad8db24aec790",
+      "title": "Graphic Surreal Pop"
+    },
+    {
+      "baseObjectKey": "artworks/art_bd41353a5408921c7d58/base",
+      "catalogId": "art_bd41353a5408921c7d58",
+      "catalogObjectKey": "assets/artworks/cyan-passage.jpg",
+      "description": "architectural passage, geometric forms, fragmented interior, mineral texture, surreal collage",
+      "keywords": [
+        "architectural passage",
+        "geometric forms",
+        "fragmented interior",
+        "mineral texture",
+        "surreal collage"
+      ],
+      "sourceSha256": "bd41353a5408921c7d58f6edc290fff1055449efaf0809ad554330ded0d2cae9",
+      "styleId": null,
+      "styleMetadataSha256": "ebc6569a806fb6b4b7e03302361cbf994da0e1c02bfc9e3769c7472cc8b74423",
+      "title": "Cyan Passage"
+    },
+    {
+      "baseObjectKey": "artworks/art_c121d6e4e87e15a1a0aa/base",
+      "catalogId": "art_c121d6e4e87e15a1a0aa",
+      "catalogObjectKey": "assets/artworks/black-mineral-weather.jpg",
+      "description": "A black crystalline mountain cuts into a dense bank of storm clouds.",
+      "keywords": [
+        "black mountain",
+        "crystal formation",
+        "storm clouds",
+        "mineral landscape",
+        "sharp geometry",
+        "monochrome"
+      ],
+      "sourceSha256": "c121d6e4e87e15a1a0aaa2a4f759243e81daf19d54ec864042e9386203cbc770",
+      "styleId": null,
+      "styleMetadataSha256": "9cb3b50610e57ee891b59c7835c3213daa5a1a0a11b088e91f24b72d6c4cf5b5",
+      "title": "Black Mineral Weather"
+    },
+    {
+      "baseObjectKey": "artworks/art_c427d53e477404b3a91b/base",
+      "catalogId": "art_c427d53e477404b3a91b",
+      "catalogObjectKey": "assets/artworks/gritty-graphic-macabre.jpg",
+      "description": "Dark gothic woodcut engraving of a mysterious raven perched on a skull under a crescent moon",
+      "keywords": [
+        "gritty macabre illustration",
+        "gothic woodcut",
+        "distressed ink",
+        "skeletal silhouette",
+        "halftone texture",
+        "high-contrast graphic horror",
+        "xerox grain",
+        "crimson accent",
+        "raw printmaking"
+      ],
+      "sourceSha256": "c427d53e477404b3a91b42fb8f389ba81ed01b3033ddffffc66376d1d4cb6dc9",
+      "styleId": "gritty-graphic-macabre",
+      "styleMetadataSha256": "d22718b7292ad00c6c8d3b620d9211f97bab797029ae53c1ff76e4dd2842704c",
+      "title": "Gritty Graphic Macabre"
+    },
+    {
+      "baseObjectKey": "artworks/art_c70963dfd83c1b3cd4dc/base",
+      "catalogId": "art_c70963dfd83c1b3cd4dc",
+      "catalogObjectKey": "assets/artworks/cassette-veins.jpg",
+      "description": "cassette tape, unspooling ribbon, branching roots, analog object, surreal print",
+      "keywords": [
+        "cassette tape",
+        "unspooling ribbon",
+        "branching roots",
+        "analog object",
+        "surreal print"
+      ],
+      "sourceSha256": "c70963dfd83c1b3cd4dc760c71e0058b50aa1be1eb4debd584806d2e00cee366",
+      "styleId": null,
+      "styleMetadataSha256": "4e0f3b62cd94593aaef38efc8d955ad30c02c3044e9f3753802b954f78e2a1d8",
+      "title": "Cassette Veins"
+    },
+    {
+      "baseObjectKey": "artworks/art_c757341870883fc1c55d/base",
+      "catalogId": "art_c757341870883fc1c55d",
+      "catalogObjectKey": "assets/artworks/door-on-a-plate.jpg",
+      "description": "plate, tiny door, island, object surrealism, circular composition",
+      "keywords": [
+        "plate",
+        "tiny door",
+        "island",
+        "object surrealism",
+        "circular composition"
+      ],
+      "sourceSha256": "c757341870883fc1c55dff085cfa74c7b072524341062edda29a39d29ece106d",
+      "styleId": null,
+      "styleMetadataSha256": "023710ffe1134eaeea6d08e54cf9f8e2f789138a0889264d9e8b8af2cf4a1d39",
+      "title": "Door on a Plate"
+    },
+    {
+      "baseObjectKey": "artworks/art_c923a7070a4a1b683a96/base",
+      "catalogId": "art_c923a7070a4a1b683a96",
+      "catalogObjectKey": "assets/artworks/surreal-retro-futurist-collage.jpg",
+      "description": "An astronaut steps out of the sky and onto a desert highway lined with finned cars and onlookers. Saturn and a torn red sky sit behind him, clipped magazine headlines still attached.",
+      "keywords": [
+        "cosmic",
+        "layered",
+        "graphic",
+        "mixed media"
+      ],
+      "sourceSha256": "c923a7070a4a1b683a96e9f7404370f459216a82b948acdd8154ed5199e3acc7",
+      "styleId": "surreal-retro-futurist-collage",
+      "styleMetadataSha256": "3715a69d2ee1538026f0381264b264193ddcb15ceb455b54062fcf5f124d3789",
+      "title": "Surreal Retro-Futurist Collage"
+    },
+    {
+      "baseObjectKey": "artworks/art_ca24dc2ffebcfb051043/base",
+      "catalogId": "art_ca24dc2ffebcfb051043",
+      "catalogObjectKey": "assets/artworks/mailbox-garden.jpg",
+      "description": "mailbox, flowers, outdoor object, coral and cyan, surreal illustration",
+      "keywords": [
+        "mailbox",
+        "flowers",
+        "outdoor object",
+        "coral and cyan",
+        "surreal illustration"
+      ],
+      "sourceSha256": "ca24dc2ffebcfb0510430b41e8420d7f8f7a01d219fde0d751ea17c68c362aa1",
+      "styleId": null,
+      "styleMetadataSha256": "4381d88efb5400e3e1de6bf47d0dd361ab950ff16aed80572a48db996cf13872",
+      "title": "Mailbox Garden"
+    },
+    {
+      "baseObjectKey": "artworks/art_cb3ddc35dcde34830e04/base",
+      "catalogId": "art_cb3ddc35dcde34830e04",
+      "catalogObjectKey": "assets/artworks/ethereal-cloud-surrealism.jpg",
+      "description": "ethereal cloud surrealism, surreal digital artwork",
+      "keywords": [
+        "ethereal",
+        "cloud",
+        "surrealism"
+      ],
+      "sourceSha256": "cb3ddc35dcde34830e0460d3376616ed2c7f3413f9c1ca89f5b044bb020c8db3",
+      "styleId": null,
+      "styleMetadataSha256": "15e54ae0f10e7331af1749b4bc437df256bab8bfb0a3001a23ee26c2c35635d5",
+      "title": "Ethereal Cloud Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_cb9ff20aa18143aeeeaf/base",
+      "catalogId": "art_cb9ff20aa18143aeeeaf",
+      "catalogObjectKey": "assets/artworks/basin-for-a-head.jpg",
+      "description": "A man stands squarely in a dark coat, and where his head should be there is a wide shallow basin holding one small pool of light. Thin arcs rise from the rim like water thrown and never landing.",
+      "keywords": [
+        "melancholic",
+        "uncanny",
+        "weathered",
+        "surreal"
+      ],
+      "sourceSha256": "cb9ff20aa18143aeeeaff0b31f2e49fa32ff2188b2f28be7a6d1c2b04e6b6c38",
+      "styleId": "basin-for-a-head",
+      "styleMetadataSha256": "ccef746aba9d702ae1ffaa90e5087298aed0d3e644e0388929acc8c6103ce48d",
+      "title": "Basin for a Head"
+    },
+    {
+      "baseObjectKey": "artworks/art_ce152d06a84cde631f79/base",
+      "catalogId": "art_ce152d06a84cde631f79",
+      "catalogObjectKey": "assets/artworks/vase-in-the-mist.jpg",
+      "description": "A stoneware vase holds one dried branch on a plain wooden bench, the rest of the room lost to mist. Bare trees show faintly through where the wall should be.",
+      "keywords": [
+        "quiet",
+        "meditative",
+        "delicate",
+        "painterly"
+      ],
+      "sourceSha256": "ce152d06a84cde631f79096fd4f64b472a295ddca0c9ef5c703056aea2fc93fd",
+      "styleId": "vase-in-the-mist",
+      "styleMetadataSha256": "ec8c729c40a15caced624b5d4e78a8f6c47f42365753e99e9770f6b20c8e9355",
+      "title": "Vase in the Mist"
+    },
+    {
+      "baseObjectKey": "artworks/art_ce2eea2cc3ca89f06e10/base",
+      "catalogId": "art_ce2eea2cc3ca89f06e10",
+      "catalogObjectKey": "assets/artworks/red-measure.jpg",
+      "description": "A vertical red slab rises above two dark architectural ramps.",
+      "keywords": [
+        "red slab",
+        "black ramps",
+        "geometric structure",
+        "vertical form",
+        "minimal architecture",
+        "dark field"
+      ],
+      "sourceSha256": "ce2eea2cc3ca89f06e10d152444c15a32ba202ca74bf4b1d741477a370953641",
+      "styleId": null,
+      "styleMetadataSha256": "4b5a281d723e41d504ce04fa2cb4bbfdca48f2a0d0dc4147039248312e472422",
+      "title": "Red Measure"
+    },
+    {
+      "baseObjectKey": "artworks/art_d0736315f58b90c27d5a/base",
+      "catalogId": "art_d0736315f58b90c27d5a",
+      "catalogObjectKey": "assets/artworks/oneiric-geometric-surrealism.jpg",
+      "description": "A cube of clipped grass, an open door standing on nothing and a pale stone sphere hang in a cloud-scattered sky. Below them a woman in a long brown dress follows a dirt path across a golden plain without looking up.",
+      "keywords": [
+        "dreamlike",
+        "geometric",
+        "surreal",
+        "surreal"
+      ],
+      "sourceSha256": "d0736315f58b90c27d5af73a2fda1ef07b459f5d2564b2ebac321d3264698587",
+      "styleId": "oneiric-geometric-surrealism",
+      "styleMetadataSha256": "75765fe21d80468bc7cbc17a9afb30033ef57781f17ef3680263f40a2b39bd25",
+      "title": "Oneiric Geometric Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_d1ca9ed8d6c3f8f8337b/base",
+      "catalogId": "art_d1ca9ed8d6c3f8f8337b",
+      "catalogObjectKey": "assets/artworks/cosmic-pilgrim.jpg",
+      "description": "A white-clad traveler stands on a floating grass island before a vast circular blue celestial map.",
+      "keywords": [
+        "cosmic pilgrim",
+        "celestial map",
+        "floating island",
+        "blue circle",
+        "ivory",
+        "symbolic landscape",
+        "mosaic texture"
+      ],
+      "sourceSha256": "d1ca9ed8d6c3f8f8337ba22eae8ce1d9752cf1497d5fc45224ceaf457f16d2cf",
+      "styleId": null,
+      "styleMetadataSha256": "8ecdd35df92d2b3b7009e8fc460a951e161396ad0423021dcf97f0a3151621a5",
+      "title": "Cosmic Pilgrim"
+    },
+    {
+      "baseObjectKey": "artworks/art_d2401d9256807ed95a9f/base",
+      "catalogId": "art_d2401d9256807ed95a9f",
+      "catalogObjectKey": "assets/artworks/disruptive-analog-grunge.jpg",
+      "description": "Torn newsprint, a yellow skull and an anarchy circle stack up around a mohawked smoker in high-contrast black and red. The headlines shout over each other all the way to the margins.",
+      "keywords": [
+        "gritty",
+        "bold",
+        "distressed",
+        "mixed media"
+      ],
+      "sourceSha256": "d2401d9256807ed95a9f9a814fce5be44fd36b76a7a403ed4a41b9fd45a1b253",
+      "styleId": "disruptive-analog-grunge",
+      "styleMetadataSha256": "56afd924bdbd5aa41a606864692334e449c51aaca4f273b2959fcb6e40b9b2e7",
+      "title": "Disruptive Analog Grunge"
+    },
+    {
+      "baseObjectKey": "artworks/art_d27b6457129241d3a6a6/base",
+      "catalogId": "art_d27b6457129241d3a6a6",
+      "catalogObjectKey": "assets/artworks/family-circuit.jpg",
+      "description": "telephone cord, branching network, abstract linework, coral nodes, ink collage",
+      "keywords": [
+        "telephone cord",
+        "branching network",
+        "abstract linework",
+        "coral nodes",
+        "ink collage"
+      ],
+      "sourceSha256": "d27b6457129241d3a6a6772d7b428ad4341986170f9dd146957ecd8c52d8f3d4",
+      "styleId": null,
+      "styleMetadataSha256": "36f4ceea775fd5d715399f31da54038b7b5e5ccfdf66a2b5fcb8eccc3e31835b",
+      "title": "Family Circuit"
+    },
+    {
+      "baseObjectKey": "artworks/art_d2f4868c8242a4cdbbc8/base",
+      "catalogId": "art_d2f4868c8242a4cdbbc8",
+      "catalogObjectKey": "assets/artworks/signal-over-the-shore.jpg",
+      "description": "Black digital bars interrupt a monochrome coastline and its solitary observer.",
+      "keywords": [
+        "coastline",
+        "glitch bars",
+        "monochrome landscape",
+        "solitary figure",
+        "signal loss",
+        "collage"
+      ],
+      "sourceSha256": "d2f4868c8242a4cdbbc813d178e4ef5d8d65973c2c940000385f1d042c08f2e2",
+      "styleId": null,
+      "styleMetadataSha256": "a650060e7a0d2aac63e58b796ce0e9dd5275aac864c3240ab6d9b654e78c1770",
+      "title": "Signal Over the Shore"
+    },
+    {
+      "baseObjectKey": "artworks/art_d59d96a2244e080de51d/base",
+      "catalogId": "art_d59d96a2244e080de51d",
+      "catalogObjectKey": "assets/artworks/unsaid-things.jpg",
+      "description": "red telephone, speech bubbles, graphic object, cream field, communication",
+      "keywords": [
+        "red telephone",
+        "speech bubbles",
+        "graphic object",
+        "cream field",
+        "communication"
+      ],
+      "sourceSha256": "d59d96a2244e080de51dc35fc4c7fefcbde559502869d7f29ed80c7d7c168a6a",
+      "styleId": null,
+      "styleMetadataSha256": "f964c2d30675dcd5d5608485883bd2d15b62f3f258284ac8f9348815f4976598",
+      "title": "Unsaid Things"
+    },
+    {
+      "baseObjectKey": "artworks/art_d63a0b9bf15916cb7661/base",
+      "catalogId": "art_d63a0b9bf15916cb7661",
+      "catalogObjectKey": "assets/artworks/hands-holding-the-eye.jpg",
+      "description": "Two oversized pale hands cup a yellow-green sphere in which a single blue eye stares out, wide open and unblinking. Below them a small dark plinth sits on a banded gold ledge, everything assembled from tesserae.",
+      "keywords": [
+        "watchful",
+        "symbolic",
+        "tactile",
+        "mixed media"
+      ],
+      "sourceSha256": "d63a0b9bf15916cb76619aee62026fc00dd5e37270e000e1128e669d6501ed38",
+      "styleId": "hands-holding-the-eye",
+      "styleMetadataSha256": "d4752dfda0e6db01250d45c9ede70d5d01c53353b7b71be48faa3a7a9920c2b0",
+      "title": "Hands Holding the Eye"
+    },
+    {
+      "baseObjectKey": "artworks/art_d8689878945e344a2a6e/base",
+      "catalogId": "art_d8689878945e344a2a6e",
+      "catalogObjectKey": "assets/artworks/pilgrim-of-the-prism-dawn.jpg",
+      "description": "seated pilgrim, woven gold halo, prismatic sash, desert dusk, small lantern",
+      "keywords": [
+        "seated pilgrim",
+        "woven gold halo",
+        "prismatic sash",
+        "desert dusk",
+        "small lantern",
+        "subject:veiled_figure",
+        "subject:solitary_figure",
+        "motif:aureole",
+        "category:figurative_surrealism",
+        "mood:contemplative",
+        "mood:transcendent",
+        "palette:black_gold",
+        "palette:warm_cool_split",
+        "lighting:luminous_aura",
+        "medium_texture:painterly",
+        "composition:centered_iconic",
+        "composition:symmetrical",
+        "era_aesthetic:symbolist"
+      ],
+      "sourceSha256": "d8689878945e344a2a6e0d7ac79eb574180a0ed7faac311ce82cc301656cbf98",
+      "styleId": null,
+      "styleMetadataSha256": "1a636f129853efd47f6dfd64083795ee829360bca4c635872ed1a1cb3cb6bd18",
+      "title": "Pilgrim of the Prism Dawn"
+    },
+    {
+      "baseObjectKey": "artworks/art_d9d61f5f3d045bb5f072/base",
+      "catalogId": "art_d9d61f5f3d045bb5f072",
+      "catalogObjectKey": "assets/artworks/graphic-surrealist-minimalism.jpg",
+      "description": "A surreal floating red sphere casting a long crisp shadow across a flat cream paper plane",
+      "keywords": [
+        "graphic surrealism",
+        "minimalist composition",
+        "flat color blocking",
+        "impossible juxtaposition",
+        "negative space",
+        "bold silhouette",
+        "clean geometry",
+        "conceptual illustration",
+        "subtle print grain"
+      ],
+      "sourceSha256": "d9d61f5f3d045bb5f07217ccada863b2ac009ac3182f42fec7d00063fc5b0d37",
+      "styleId": "graphic-surrealist-minimalism",
+      "styleMetadataSha256": "2619320d9b1aff02b3326d08b9ca003607b24deed1b2702f041d7302e234f793",
+      "title": "Graphic Surrealist Minimalism"
+    },
+    {
+      "baseObjectKey": "artworks/art_dbbf873c6dbd17155d02/base",
+      "catalogId": "art_dbbf873c6dbd17155d02",
+      "catalogObjectKey": "assets/artworks/the-uplifted-face.jpg",
+      "description": "A face tilts up with eyes closed while the top of the head tears open into layered photographic scraps and cruciform blocks. Two red discs hang at the right like suns that never agreed on a position.",
+      "keywords": [
+        "fragmented",
+        "poetic",
+        "monochrome",
+        "mixed media"
+      ],
+      "sourceSha256": "dbbf873c6dbd17155d02db3ef4056f65652d8536255dd9a4078ca3210292683b",
+      "styleId": "the-uplifted-face",
+      "styleMetadataSha256": "6a069e7756abfa5dc5b8b31fe6ab44ef1906a3ac827c0257ad1fd69bfba32d36",
+      "title": "The Uplifted Face"
+    },
+    {
+      "baseObjectKey": "artworks/art_dc81be5d2327c96efbba/base",
+      "catalogId": "art_dc81be5d2327c96efbba",
+      "catalogObjectKey": "assets/artworks/narrative-surrealist-synthesis.jpg",
+      "description": "A seated figure in a dark suit keeps his composure while a fractured marble head, a ringed planet and two watching eyes crowd the sky behind him. Staircases in pink and sage climb nowhere at the edges of the paper.",
+      "keywords": [
+        "surreal",
+        "layered",
+        "enigmatic",
+        "mixed media"
+      ],
+      "sourceSha256": "dc81be5d2327c96efbbaff60c363ad8df77860127bc1c320458af42e3d6f0ca8",
+      "styleId": "narrative-surrealist-synthesis",
+      "styleMetadataSha256": "6dd1dbdae068af7cf70af415c17b3797a19a638acd17995f755f46ec41a8f9ab",
+      "title": "Narrative Surrealist Synthesis"
+    },
+    {
+      "baseObjectKey": "artworks/art_dcd2ab5ccf1f8cdc6764/base",
+      "catalogId": "art_dcd2ab5ccf1f8cdc6764",
+      "catalogObjectKey": "assets/artworks/monolithic-cobalt-liminality.jpg",
+      "description": "A cobalt monolith stands in the shallows with its stairway lit from within, while cubes and spheres hold still in the air around it. One small figure at the foot of the steps gives the scale away.",
+      "keywords": [
+        "cobalt",
+        "monumental",
+        "architectural",
+        "surreal"
+      ],
+      "sourceSha256": "dcd2ab5ccf1f8cdc676439a46a3b837a179ba86655a0002f426b888acac1b29c",
+      "styleId": "monolithic-cobalt-liminality",
+      "styleMetadataSha256": "a5b148b6e3fd734fac4c71d0ad46a3f510fc6139d8763aa4faa297321625bbae",
+      "title": "Monolithic Cobalt Liminality"
+    },
+    {
+      "baseObjectKey": "artworks/art_dd8e7caad6d74bbe91cc/base",
+      "catalogId": "art_dd8e7caad6d74bbe91cc",
+      "catalogObjectKey": "assets/artworks/serene-pastel-surrealism.jpg",
+      "description": "Nested arches step inward from pink to blue to green on a low circular platform in still water. Pink cloud and a soft sun hold the horizon flat behind them.",
+      "keywords": [
+        "serene",
+        "airy",
+        "quiet",
+        "minimal"
+      ],
+      "sourceSha256": "dd8e7caad6d74bbe91cc4e3b7ceb79e0b9a96970a32e0af1d5bc5fb00b4293fb",
+      "styleId": "serene-pastel-surrealism",
+      "styleMetadataSha256": "580552f5532d13fb7f5812c78f53868429ad4ed28e777ee145514a983639485d",
+      "title": "Serene Pastel Surrealism"
+    },
+    {
+      "baseObjectKey": "artworks/art_de1b7dfed90adeb25868/base",
+      "catalogId": "art_de1b7dfed90adeb25868",
+      "catalogObjectKey": "assets/artworks/pinned-cloud.jpg",
+      "description": "cloud, chopstick, red field, minimal surrealism, graphic sky",
+      "keywords": [
+        "cloud",
+        "chopstick",
+        "red field",
+        "minimal surrealism",
+        "graphic sky"
+      ],
+      "sourceSha256": "de1b7dfed90adeb258684381d707d87bdabf6b4b1d47ee1edac862e71d9d0e4d",
+      "styleId": null,
+      "styleMetadataSha256": "0af7680159ad0a97badee79a54fbe4bd2b1e4b095e311ddc856218de29249810",
+      "title": "Pinned Cloud"
+    },
+    {
+      "baseObjectKey": "artworks/art_de804f64326858395bf9/base",
+      "catalogId": "art_de804f64326858395bf9",
+      "catalogObjectKey": "assets/artworks/offering-at-the-narrow-door.jpg",
+      "description": "A white bowl waits above a narrow doorway inside a gray room.",
+      "keywords": [
+        "white bowl",
+        "narrow doorway",
+        "gray room",
+        "offering",
+        "pedestal",
+        "minimal interior"
+      ],
+      "sourceSha256": "de804f64326858395bf9c19f3d31ef6733a0c54c75042ee38728da25aeda526b",
+      "styleId": null,
+      "styleMetadataSha256": "c6f026aab9530b95e99d7865fb665cae80782431511bb9f8aa0cc8860b8b20fc",
+      "title": "Offering at the Narrow Door"
+    },
+    {
+      "baseObjectKey": "artworks/art_df4cec32854d959802a3/base",
+      "catalogId": "art_df4cec32854d959802a3",
+      "catalogObjectKey": "assets/artworks/kinetic-ghost-minimalism.jpg",
+      "description": "A ghostly white silhouetted figure dissolving into fluid wisps of smoke across a minimalist dark field",
+      "keywords": [
+        "kinetic ghost",
+        "minimalist long exposure",
+        "spectral silhouette",
+        "translucent motion blur",
+        "negative space",
+        "ethereal monochrome",
+        "quiet haunting",
+        "soft diffusion",
+        "temporal smear"
+      ],
+      "sourceSha256": "df4cec32854d959802a3941c434257587805a973020d48fa459a80a7d2629ee4",
+      "styleId": "kinetic-ghost-minimalism",
+      "styleMetadataSha256": "caf96f736808d80953f3ae1aa1fc40517d184025f138429ea9e90553f43af91e",
+      "title": "Kinetic Ghost Minimalism"
+    },
+    {
+      "baseObjectKey": "artworks/art_e114dbcce2588ae7f0b8/base",
+      "catalogId": "art_e114dbcce2588ae7f0b8",
+      "catalogObjectKey": "assets/artworks/wheel-of-quiet-relics.jpg",
+      "description": "aged votive wheel, carved bone figures, teal jewel core, cracked lacquer panel",
+      "keywords": [
+        "aged votive wheel",
+        "carved bone figures",
+        "teal jewel core",
+        "cracked lacquer panel",
+        "subject:abstract_form",
+        "motif:skull_or_bone",
+        "motif:geometric_symbol",
+        "motif:repetition",
+        "category:gothic_surrealism",
+        "mood:austere",
+        "mood:enigmatic",
+        "palette:earth_tones",
+        "lighting:spotlight",
+        "lighting:low_key",
+        "medium_texture:distressed_surface",
+        "composition:centered_iconic",
+        "composition:circular_frame",
+        "era_aesthetic:symbolist"
+      ],
+      "sourceSha256": "e114dbcce2588ae7f0b896096c5932e0b44c37819a03869214dda28b74bb46fc",
+      "styleId": null,
+      "styleMetadataSha256": "51d7e9a90b1b7830ae26444c521ebd1828acc0bdf4d1bd43d68cd743f914b442",
+      "title": "Wheel of Quiet Relics"
+    },
+    {
+      "baseObjectKey": "artworks/art_e30a29929de9f58ef4b5/base",
+      "catalogId": "art_e30a29929de9f58ef4b5",
+      "catalogObjectKey": "assets/artworks/cathedral-of-washers.jpg",
+      "description": "A row of washing machines runs the length of an empty laundromat under flickering strip lights. A young face is printed over the corridor, a second lit room glowing inside the collar.",
+      "keywords": [
+        "distressed",
+        "solitary",
+        "nocturnal",
+        "mixed media"
+      ],
+      "sourceSha256": "e30a29929de9f58ef4b51a93e5d7c6e1828a1681d462be95bdeedff6139acd18",
+      "styleId": "cathedral-of-washers",
+      "styleMetadataSha256": "4068c3a3eaf76e9d769858776e057ab958a740c0797fbb942ff20661395cb397",
+      "title": "Cathedral of Washers"
+    },
+    {
+      "baseObjectKey": "artworks/art_e5ffb2e43ccd57b87273/base",
+      "catalogId": "art_e5ffb2e43ccd57b87273",
+      "catalogObjectKey": "assets/artworks/weather-under-the-umbrella.jpg",
+      "description": "weather under the umbrella, surreal digital artwork",
+      "keywords": [
+        "weather",
+        "under",
+        "the",
+        "umbrella"
+      ],
+      "sourceSha256": "e5ffb2e43ccd57b872736955bf6b69b4eca8bfd70f4bc3ff716dbd8303d8266b",
+      "styleId": null,
+      "styleMetadataSha256": "0a8c29c3a8c0e52a4bf39d752b47fed5d1e9d79295b536b2bcfda09fbcffab40",
+      "title": "Weather Under The Umbrella"
+    },
+    {
+      "baseObjectKey": "artworks/art_eb31a743d1aeba44e9fa/base",
+      "catalogId": "art_eb31a743d1aeba44e9fa",
+      "catalogObjectKey": "assets/artworks/kinetic-liminal-reflections.jpg",
+      "description": "An oval mirror hangs inside a concrete arch and holds a sky slightly different from the one above it. Coral cloud banks at the right while the pool keeps everything twice.",
+      "keywords": [
+        "reflective",
+        "serene",
+        "architectural",
+        "surreal"
+      ],
+      "sourceSha256": "eb31a743d1aeba44e9fa26c969c21207ccc3146d4463b7dff9ba5430156ffe12",
+      "styleId": "kinetic-liminal-reflections",
+      "styleMetadataSha256": "2e27e67b889e52ddb1fe6fc3caac7feb91b65748fc2227647ece6298aa543e35",
+      "title": "Kinetic Liminal Reflections"
+    },
+    {
+      "baseObjectKey": "artworks/art_eb61883ef45dcded3e06/base",
+      "catalogId": "art_eb61883ef45dcded3e06",
+      "catalogObjectKey": "assets/artworks/last-transaction.jpg",
+      "description": "Two figures meet across a service counter beneath restrained blue light.",
+      "keywords": [
+        "service counter",
+        "briefcase",
+        "two figures",
+        "blue light",
+        "transaction",
+        "illustrated scene"
+      ],
+      "sourceSha256": "eb61883ef45dcded3e06f03f3805ef57cfec58a1d434b9dbd360617852c417fb",
+      "styleId": null,
+      "styleMetadataSha256": "8d1fd4cafd09eba598e31e1f6b635057a701a73b381f367994d8fc939122aed5",
+      "title": "The Last Transaction"
+    },
+    {
+      "baseObjectKey": "artworks/art_ec167f53be46f41b5787/base",
+      "catalogId": "art_ec167f53be46f41b5787",
+      "catalogObjectKey": "assets/artworks/tower-of-smoke.jpg",
+      "description": "smoke tower, blue sky, coral ground, vertical landscape, surreal print",
+      "keywords": [
+        "smoke tower",
+        "blue sky",
+        "coral ground",
+        "vertical landscape",
+        "surreal print"
+      ],
+      "sourceSha256": "ec167f53be46f41b5787d57141d90edcd452af0f446f1e1b6daae1075eb2da8b",
+      "styleId": null,
+      "styleMetadataSha256": "2bae2987fa93620c3909160a277ba858fc1efda6b016001d281100acaebefc63",
+      "title": "Tower of Smoke"
+    },
+    {
+      "baseObjectKey": "artworks/art_ee6e7132fe55b92cf922/base",
+      "catalogId": "art_ee6e7132fe55b92cf922",
+      "catalogObjectKey": "assets/artworks/reverse-rain.jpg",
+      "description": "black umbrella, upward rain, coral cloud, graphic collage, weather",
+      "keywords": [
+        "black umbrella",
+        "upward rain",
+        "coral cloud",
+        "graphic collage",
+        "weather"
+      ],
+      "sourceSha256": "ee6e7132fe55b92cf922f3d31ebe1712354f0534ec246f0ba1284f0a2424aac2",
+      "styleId": null,
+      "styleMetadataSha256": "18e9dfb8473317af7d0b19b9223ea69c65979c448065df3359be04b8d49f74d4",
+      "title": "Reverse Rain"
+    },
+    {
+      "baseObjectKey": "artworks/art_eff89ca4454714ce5eda/base",
+      "catalogId": "art_eff89ca4454714ce5eda",
+      "catalogObjectKey": "assets/artworks/surreal-retro-cosmic-collage.jpg",
+      "description": "A wooden-cased television plays a breaking wave on the surface of the moon, a star bursting at its corner. A woman in a red skirt stands on the rubble and watches the tide.",
+      "keywords": [
+        "cosmic",
+        "layered",
+        "uncanny",
+        "mixed media"
+      ],
+      "sourceSha256": "eff89ca4454714ce5edaaeeadac2a0046f1750bdd90c6e1b99583fb50d5ab442",
+      "styleId": "surreal-retro-cosmic-collage",
+      "styleMetadataSha256": "7bfb757cb8d7df4bcdd029c842d1b5c959c8e4f27733356243188d470cb2cff9",
+      "title": "Surreal Retro Cosmic Collage"
+    },
+    {
+      "baseObjectKey": "artworks/art_f0e906ca4b9166039556/base",
+      "catalogId": "art_f0e906ca4b9166039556",
+      "catalogObjectKey": "assets/artworks/memory-in-blue-plaster.jpg",
+      "description": "A monumental blue head dissolves into thin streams above an empty ground.",
+      "keywords": [
+        "blue sculpture",
+        "monumental head",
+        "dripping plaster",
+        "empty ground",
+        "memory",
+        "material portrait"
+      ],
+      "sourceSha256": "f0e906ca4b91660395567a37175b7b3b6a690c3544e3c599c5472f4fe6f7416f",
+      "styleId": null,
+      "styleMetadataSha256": "d0d30fffacd6e8955c21ebd5636bcb869856c4041c384b960899ae89b324a0dc",
+      "title": "Memory in Blue Plaster"
+    },
+    {
+      "baseObjectKey": "artworks/art_f271bff03a4a8bf3660c/base",
+      "catalogId": "art_f271bff03a4a8bf3660c",
+      "catalogObjectKey": "assets/artworks/escalator-to-nowhere.jpg",
+      "description": "broken escalator, empty architecture, coral steps, industrial, graphic print",
+      "keywords": [
+        "broken escalator",
+        "empty architecture",
+        "coral steps",
+        "industrial",
+        "graphic print"
+      ],
+      "sourceSha256": "f271bff03a4a8bf3660cd120cbee569e37284a34c8248436a4b282418d9e0496",
+      "styleId": null,
+      "styleMetadataSha256": "379b1d5ea6e774aa78cfe1e2edaf09bf331deaebabc97265200f8d2e357518d6",
+      "title": "Escalator to Nowhere"
+    },
+    {
+      "baseObjectKey": "artworks/art_f2835117b4c4ae98b6e2/base",
+      "catalogId": "art_f2835117b4c4ae98b6e2",
+      "catalogObjectKey": "assets/artworks/approved-horizon.jpg",
+      "description": "modern house, red sun, reflective water, architectural collage, landscape",
+      "keywords": [
+        "modern house",
+        "red sun",
+        "reflective water",
+        "architectural collage",
+        "landscape"
+      ],
+      "sourceSha256": "f2835117b4c4ae98b6e20bb13297363112b37b146113fa20fb8463aca82d944a",
+      "styleId": null,
+      "styleMetadataSha256": "e4564f6c71fde380c673fc89b34133b324b864331506a0e554e9192241716977",
+      "title": "Approved Horizon"
+    },
+    {
+      "baseObjectKey": "artworks/art_f602e6a079a278f92200/base",
+      "catalogId": "art_f602e6a079a278f92200",
+      "catalogObjectKey": "assets/artworks/moody-ethereal-minimalism.jpg",
+      "description": "A pale door hangs in the fog above the water, its reflection almost complete. A figure in a long coat stands at the edge of the concrete and does not move.",
+      "keywords": [
+        "solitary",
+        "quiet",
+        "ethereal",
+        "minimal"
+      ],
+      "sourceSha256": "f602e6a079a278f92200e338b51b3f2a2c265285e503e7e6ea6a3694002b9ac0",
+      "styleId": "moody-ethereal-minimalism",
+      "styleMetadataSha256": "45aa09005c8e35ac7c98af54a2f89615327883ff4e3a1f26d5f18471c3f04ad0",
+      "title": "Moody Ethereal Minimalism"
+    },
+    {
+      "baseObjectKey": "artworks/art_f6404e9e54d62e89e820/base",
+      "catalogId": "art_f6404e9e54d62e89e820",
+      "catalogObjectKey": "assets/artworks/orange-door-encounter.jpg",
+      "description": "orange door encounter, surreal digital artwork",
+      "keywords": [
+        "orange",
+        "door",
+        "encounter"
+      ],
+      "sourceSha256": "f6404e9e54d62e89e820989cae5a6af32b50fe228539235226f59b774f74a5d5",
+      "styleId": null,
+      "styleMetadataSha256": "2debf9dd7627ebf0717549b59096b1a2b181ad4f659c2d8548714103bcb47118",
+      "title": "Orange Door Encounter"
+    },
+    {
+      "baseObjectKey": "artworks/art_f7be9c4c9b5a04d554c8/base",
+      "catalogId": "art_f7be9c4c9b5a04d554c8",
+      "catalogObjectKey": "assets/artworks/sherbet-orbits.jpg",
+      "description": "Soft-edged spheres in pink, cream, orange and green slide over one another against black, each one grained like risograph ink. Where they overlap the colour turns and a new fruit-coloured body appears.",
+      "keywords": [
+        "abstract",
+        "vivid",
+        "layered",
+        "minimal"
+      ],
+      "sourceSha256": "f7be9c4c9b5a04d554c8f5f54186d2ea71fc1a5fcfeb9b9d969ecb8be02d5439",
+      "styleId": "sherbet-orbits",
+      "styleMetadataSha256": "1aebc7aa3b61f3f687c6ddeb6a2da760c5a8a65afe70bc3c18dab8cfbba5a373",
+      "title": "Sherbet Orbits"
+    },
+    {
+      "baseObjectKey": "artworks/art_f942e5b6d543fcd04fc0/base",
+      "catalogId": "art_f942e5b6d543fcd04fc0",
+      "catalogObjectKey": "assets/artworks/magenta-eclipse.jpg",
+      "description": "Three grainy discs overlap on a black field, magenta bleeding into red and a green rim surfacing at the edges. The noise is heavy enough to read as printed dust rather than light.",
+      "keywords": [
+        "abstract",
+        "saturated",
+        "vibrant",
+        "minimal"
+      ],
+      "sourceSha256": "f942e5b6d543fcd04fc0583f82a56011298d8f04995e828fa3a53ff57b4d474a",
+      "styleId": "magenta-eclipse",
+      "styleMetadataSha256": "514b389baf5c2e0301240a1e24fe13b39874888e458ffdf02acc48ad687bef58",
+      "title": "Magenta Eclipse"
+    },
+    {
+      "baseObjectKey": "artworks/art_fa434ce71985f9d2d728/base",
+      "catalogId": "art_fa434ce71985f9d2d728",
+      "catalogObjectKey": "assets/artworks/key-to-the-threshold.jpg",
+      "description": "door handle, hanging key, architectural detail, coral circle, graphic print",
+      "keywords": [
+        "door handle",
+        "hanging key",
+        "architectural detail",
+        "coral circle",
+        "graphic print"
+      ],
+      "sourceSha256": "fa434ce71985f9d2d728f4d804075f2df8d75bedce39b9b5f7c9c686feea217f",
+      "styleId": null,
+      "styleMetadataSha256": "c0b1a9c4045d80f55d6429934ce145e3dba1e2092268f327353a32132c6b162f",
+      "title": "Key to the Threshold"
+    },
+    {
+      "baseObjectKey": "artworks/art_fb656ab44a3ebb1ea66c/base",
+      "catalogId": "art_fb656ab44a3ebb1ea66c",
+      "catalogObjectKey": "assets/artworks/liminal-surrealist-distortion.jpg",
+      "description": "A house comes apart into horizontal streaks of teal and rust, dragging its own sky with it. Below, a single figure stands in the shallows facing the smear.",
+      "keywords": [
+        "glitch",
+        "kinetic",
+        "dreamlike",
+        "digital"
+      ],
+      "sourceSha256": "fb656ab44a3ebb1ea66cc08d5e10fa7e9bdb5cb4f0cc7c825f2d9c483abd6b76",
+      "styleId": "liminal-surrealist-distortion",
+      "styleMetadataSha256": "4403d2ea07fd07b80ac9478b40d991ae43b6632ddff2a7d483e9c6c9f7a1a90c",
+      "title": "Liminal Surrealist Distortion"
+    },
+    {
+      "baseObjectKey": "artworks/art_fcffcb30926fd696e35e/base",
+      "catalogId": "art_fcffcb30926fd696e35e",
+      "catalogObjectKey": "assets/artworks/vigil-at-the-golden-cross.jpg",
+      "description": "Four figures in deep blue kneel in the grass before a plain cross set against a burning gold disc, the whole scene built from small tesserae. Orange and vermilion fields roll away behind them to a low horizon.",
+      "keywords": [
+        "devotional",
+        "radiant",
+        "sacred",
+        "mixed media"
+      ],
+      "sourceSha256": "fcffcb30926fd696e35e50f1571ce319fc3c75c09be7af41268a97a6a4985e2d",
+      "styleId": "vigil-at-the-golden-cross",
+      "styleMetadataSha256": "4a766c420c570d3331e43ed3b5e99be6d05f1cd75a1ed46147c9edaba77b44b0",
+      "title": "Vigil at the Golden Cross"
+    },
+    {
+      "baseObjectKey": "artworks/art_fd6312bbd6441c9e025a/base",
+      "catalogId": "art_fd6312bbd6441c9e025a",
+      "catalogObjectKey": "assets/artworks/birthday-spark.jpg",
+      "description": "single candle, water surface, flame, dark field, surreal minimalism",
+      "keywords": [
+        "single candle",
+        "water surface",
+        "flame",
+        "dark field",
+        "surreal minimalism"
+      ],
+      "sourceSha256": "fd6312bbd6441c9e025a2cb534c11c863bf72fa3a5f4b18aa5b66bb0d96124e2",
+      "styleId": null,
+      "styleMetadataSha256": "a8cdaad8ff45f076f75feaa04ccfbcd283d7f361813659b93c094945a7b32796",
+      "title": "Birthday Spark"
+    },
+    {
+      "baseObjectKey": "artworks/art_fd84809ef1554e0a7869/base",
+      "catalogId": "art_fd84809ef1554e0a7869",
+      "catalogObjectKey": "assets/artworks/transit-diagram.jpg",
+      "description": "abstract transit map, line network, coral nodes, paper texture, graphic system",
+      "keywords": [
+        "abstract transit map",
+        "line network",
+        "coral nodes",
+        "paper texture",
+        "graphic system"
+      ],
+      "sourceSha256": "fd84809ef1554e0a786922a02e1c9c2a0a9ab8d6d012389c92d82e40940f8c43",
+      "styleId": null,
+      "styleMetadataSha256": "1ff9a94ed74f4bd9d58f02cd21046163a0715393220b8eaa4818167f6bbb6cc8",
+      "title": "Transit Diagram"
+    },
+    {
+      "baseObjectKey": "artworks/art_fe5ff95ceff9c926a109/base",
+      "catalogId": "art_fe5ff95ceff9c926a109",
+      "catalogObjectKey": "assets/artworks/coffee-for-the-skeleton.jpg",
+      "description": "A skeleton leans over a red desk piled with books and loose paper, one hand resting near a cup that has clearly gone cold. The teal ground behind it is scraped and worked until the board shows through.",
+      "keywords": [
+        "deadpan",
+        "macabre",
+        "textured",
+        "graphic"
+      ],
+      "sourceSha256": "fe5ff95ceff9c926a109053cefb2f06b087cf34c4101563456cc699c560aacbd",
+      "styleId": "coffee-for-the-skeleton",
+      "styleMetadataSha256": "4ccaf95d4975e531b0a2003129103a22624dff50271a97328c1b04a78c45bb78",
+      "title": "Coffee for the Skeleton"
+    },
+    {
+      "baseObjectKey": "artworks/art_fe656bad878235933f3e/base",
+      "catalogId": "art_fe656bad878235933f3e",
+      "catalogObjectKey": "assets/artworks/the-waiting-bench.jpg",
+      "description": "A dozen near-identical men in grey-blue coats sit shoulder to shoulder, heads bowed over the small papers in their hands. The floor is flat pink, the wall is bare except for one small placard, and nobody is being called.",
+      "keywords": [
+        "deadpan",
+        "systemic",
+        "melancholic",
+        "graphic"
+      ],
+      "sourceSha256": "fe656bad878235933f3e81da7cc6eb51223637f7442dd1e3e733d6264e37bd87",
+      "styleId": "the-waiting-bench",
+      "styleMetadataSha256": "0f3d6b3769bd6c7a895248c89911c41fedf36bb3e496d5014d06a6e48fef97e8",
+      "title": "The Waiting Bench"
+    },
+    {
+      "baseObjectKey": "artworks/art_fe9682929d24b0521dad/base",
+      "catalogId": "art_fe9682929d24b0521dad",
+      "catalogObjectKey": "assets/artworks/pilgrim-of-the-inner-light.jpg",
+      "description": "A hooded pilgrim sits beside the sea with light glowing from within.",
+      "keywords": [
+        "hooded pilgrim",
+        "inner light",
+        "sea",
+        "seated figure",
+        "ritual",
+        "gray landscape"
+      ],
+      "sourceSha256": "fe9682929d24b0521dad18153b8f6ecea55afea106fb9bd584219d37cd10fcd3",
+      "styleId": null,
+      "styleMetadataSha256": "bb7949d57d48b5d4e1bf645104911619cbf0d1ec9baba338798eb7c8066fcb8d",
+      "title": "Pilgrim of the Inner Light"
+    }
+  ],
+  "schemaVersion": 1,
+  "searchVector": {
+    "column": "public.artworks.search_vector",
+    "strategy": "database-generated-postgres-tsvector"
+  },
+  "source": "catalog/approved-artworks.json",
+  "sourceSha256": "e3a679c37b36416ea0b81eef931e586cd660ecd995ea8e8a7c60ee287fc35a24"
+}

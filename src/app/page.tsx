@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import gsap from "gsap";
+import { CustomEase } from "gsap/CustomEase";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomCursor } from "@/components/parity/CustomCursor";
 import { ErrorBoundary } from "@/components/parity/ErrorBoundary";
@@ -19,7 +20,10 @@ import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { ScrollProgress } from "@/components/parity/ScrollProgress";
 import { useLenis } from "@/hooks/artcovr/useLenis";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
-import { STATIC_MEDIA_QUERY, REDUCED_MOTION_QUERY } from "@/lib/artcovr/motion";
+import {
+  PRELOADER_FAILSAFE_TIME_MS,
+  STATIC_MEDIA_QUERY,
+} from "@/lib/artcovr/motion";
 
 export default function Home() {
   const router = useRouter();
@@ -33,15 +37,10 @@ export default function Home() {
   useEffect(() => {
     setHydrated(true);
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
-    const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY);
     const updateMode = () => {
       const allowed = !mediaQuery.matches;
       setMotionAllowed(allowed);
-      // The scroll journey stays static for coarse-pointer and narrow screens
-      // (`allowed` is false), but the intro still plays on those devices. Only
-      // reduced-motion bypasses the intro here; touch and narrow viewports wait
-      // for the Preloader's own completion callback (and the failsafe below).
-      if (reducedMotion.matches) {
+      if (!allowed) {
         setPreloaderDone(true);
       }
     };
@@ -56,7 +55,7 @@ export default function Home() {
     if (!preloaderDone) return;
 
     document.documentElement.classList.add("loaded");
-    gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger, CustomEase);
     const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 100);
     const refreshOnLoad = () => ScrollTrigger.refresh();
     if (document.readyState !== "complete") {
@@ -69,6 +68,53 @@ export default function Home() {
       document.documentElement.classList.remove("loaded");
     };
   }, [preloaderDone]);
+
+  useEffect(() => {
+    if (!preloaderDone || !motionAllowed) return;
+    const hero = document.querySelector<HTMLElement>("#home-hero");
+    if (!hero) return;
+
+    CustomEase.create("artcovr-entrance", "0.19,1,0.22,1");
+    const context = gsap.context(() => {
+      const timeline = gsap.timeline({
+        defaults: { ease: "artcovr-entrance" },
+      });
+      timeline
+        .fromTo(
+          ".artcovr-wordmark",
+          { yPercent: 105 },
+          { yPercent: 0, duration: 0.8, clearProps: "transform" },
+        )
+        .fromTo(
+          "#hero-line",
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.65, clearProps: "transform" },
+          "-=0.52",
+        )
+        .fromTo(
+          [
+            "#hero-title",
+            "#hero-subtitle",
+            "#hero-paragraph",
+            "#hero-link",
+            "#hero-license-link",
+            "#hero-copyright",
+            "#hero-license-link-mobile",
+          ],
+          { autoAlpha: 0, y: 20 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.55,
+            stagger: 0.06,
+            clearProps: "opacity,visibility,transform",
+          },
+          "-=0.4",
+        );
+    }, hero);
+
+    return () => context.revert();
+  }, [motionAllowed, preloaderDone]);
 
   useEffect(() => {
     if (!preloaderDone || !motionAllowed) return;
@@ -132,8 +178,10 @@ export default function Home() {
   // callback lands, so the intro is untouched when nothing goes wrong.
   useEffect(() => {
     if (preloaderDone) return;
-    // Preloader calls onComplete at 3500ms.
-    const failsafe = window.setTimeout(openPreloaderGate, 6000);
+    const failsafe = window.setTimeout(
+      openPreloaderGate,
+      PRELOADER_FAILSAFE_TIME_MS,
+    );
     return () => window.clearTimeout(failsafe);
   }, [openPreloaderGate, preloaderDone]);
 

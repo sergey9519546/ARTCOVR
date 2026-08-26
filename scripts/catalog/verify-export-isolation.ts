@@ -116,7 +116,10 @@ if (allowedSlugs.size + forbiddenSlugs.length !== knownSlugs.size) {
 }
 
 const forbiddenSlugSet = new Set(forbiddenSlugs);
-const exportRoot = path.join(projectRoot, "out");
+// next.config.ts sets distDir "next-build"; with output:"export" the static
+// site is emitted THERE, not to the historical out/. Vercel proved the drift:
+// a clean clone has no out/ at all and the prune gate correctly refused.
+const exportRoot = path.join(projectRoot, "next-build");
 const scannableExtensions = new Set([
   ".html", ".js", ".mjs", ".txt", ".json", ".xml", ".css", ".map", ".webmanifest",
 ]);

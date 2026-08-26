@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  parsePricingOverrides,
   projectApprovedCatalog,
   serializePublicCatalog,
 } from "../../src/lib/artcovr/catalog-projection.ts";
@@ -43,7 +44,7 @@ const approvedArtwork = {
 };
 
 test("approved artifact projects deterministically into sale-ready storefront data", () => {
-  const projected = projectApprovedCatalog([{ ...approvedArtwork, tier: "featured" }]);
+  const projected = projectApprovedCatalog([{ ...approvedArtwork, tier: "featured" }], new Map());
 
   assert.deepEqual(projected, [
     {
@@ -67,7 +68,7 @@ test("approved artifact projects deterministically into sale-ready storefront da
     },
   ]);
   assert.equal(
-    serializePublicCatalog([{ ...approvedArtwork, tier: "featured" }]),
+    serializePublicCatalog([{ ...approvedArtwork, tier: "featured" }], new Map()),
     `${JSON.stringify(projected, null, 2)}\n`,
   );
 });
@@ -95,7 +96,7 @@ test("tier gates the projection: deletes drop out, unknown tiers fail safe to ar
       position: 9,
       // no tier at all — must never be promoted to featured by accident
     },
-  ]);
+  ], new Map());
   assert.deepEqual(
     kept.map(({ slug, tier }) => ({ slug, tier })),
     [
@@ -106,13 +107,39 @@ test("tier gates the projection: deletes drop out, unknown tiers fail safe to ar
 });
 
 test("empty and invalid approval artifacts cannot become public projections", () => {
-  assert.throws(() => projectApprovedCatalog([]), /EMPTY_APPROVED_CATALOG/);
+  assert.throws(() => projectApprovedCatalog([], new Map()), /EMPTY_APPROVED_CATALOG/);
   assert.throws(
-    () => projectApprovedCatalog([{ ...approvedArtwork, rightsApproved: false }]),
+    () => projectApprovedCatalog([{ ...approvedArtwork, rightsApproved: false }], new Map()),
     /NOT_APPROVED/,
   );
   assert.throws(
-    () => projectApprovedCatalog([{ ...approvedArtwork, tier: "delete" }]),
+    () => projectApprovedCatalog([{ ...approvedArtwork, tier: "delete" }], new Map()),
     /EMPTY_APPROVED_CATALOG/,
+  );
+});
+
+test("pricing overrides fail closed on malformed money or unknown fields", () => {
+  assert.throws(() => parsePricingOverrides(null), /JSON object/);
+  assert.throws(
+    () => parsePricingOverrides({ "copper-sky": { saleMode: "repeatable", priceCents: 0 } }),
+    /positive integer/,
+  );
+  assert.throws(
+    () => parsePricingOverrides({ "copper-sky": { saleMode: "repeatable", priceCents: 2500, note: "ignored" } }),
+    /unknown fields/,
+  );
+  assert.deepEqual(
+    [...parsePricingOverrides({
+      "copper-sky": {
+        saleMode: "repeatable",
+        priceCents: 2500,
+        tier: "archive",
+        rightsApproved: true,
+      },
+    })],
+    [[
+      "copper-sky",
+      { saleMode: "repeatable", priceCents: 2500, tier: "archive", rightsApproved: true },
+    ]],
   );
 });

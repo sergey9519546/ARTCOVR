@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
+import {
+  PRELOADER_COMPLETE_TIME_MS,
+  STATIC_MEDIA_QUERY,
+} from "@/lib/artcovr/motion";
 
 const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 6);
 const ROTATIONS = [9.98, -12.43, -2.99, -6.51, 17.67, -1.09];
@@ -17,7 +21,6 @@ const COUNTER_STEPS = [
 const IMAGE_START = 840;
 const IMAGE_INTERVAL = 168;
 const EXIT_TIME = 4060;
-const COMPLETE_TIME = 4900;
 const DISMISS_TIME = 5180;
 
 export function Preloader({ onComplete }: { onComplete?: () => void }) {
@@ -33,14 +36,9 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
 
   useEffect(() => {
     document.documentElement.classList.add("ready");
-    // The intro plays on touch and narrow screens too. Only reduced-motion
-    // users skip it — coarse pointer and a small viewport keep the experience
-    // and reach the static scroll journey through the home-page gate instead.
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const staticExperience = window.matchMedia(STATIC_MEDIA_QUERY).matches;
 
-    if (reducedMotion) {
+    if (staticExperience) {
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
@@ -60,7 +58,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
       timers.push(setTimeout(() => setVisibleImages(index + 1), IMAGE_START + index * IMAGE_INTERVAL));
     }
     timers.push(setTimeout(() => setExited(true), EXIT_TIME));
-    timers.push(setTimeout(() => onCompleteRef.current?.(), COMPLETE_TIME));
+    timers.push(setTimeout(() => onCompleteRef.current?.(), PRELOADER_COMPLETE_TIME_MS));
     timers.push(setTimeout(() => setDismissed(true), DISMISS_TIME));
 
     // Keyboard users must never be locked out of the page by the intro:
@@ -68,13 +66,16 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
     // preloader immediately so the inert main content becomes reachable.
     const skipIntro = (e: KeyboardEvent) => {
       if (e.key !== "Escape" && e.key !== "Tab" && e.key !== "Enter") return;
+      clearTimeout(safetyTimer);
+      timers.forEach((timer) => clearTimeout(timer));
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
       setDismissed(true);
       onCompleteRef.current?.();
+      window.removeEventListener("keydown", skipIntro);
     };
-    window.addEventListener("keydown", skipIntro, { once: true });
+    window.addEventListener("keydown", skipIntro);
 
     return () => {
       clearTimeout(safetyTimer);

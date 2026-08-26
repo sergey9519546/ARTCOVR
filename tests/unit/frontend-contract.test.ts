@@ -16,7 +16,7 @@ test("prompt editing chains from the current result and labels outputs as genera
   const source = await read("src/components/artcovr/PromptStudio.tsx");
   assert.match(source, /referenceGenerationId: currentResultId\.current/);
   assert.match(source, /Generated image/);
-  assert.match(source, />Describe the change you want<\/label>/);
+  assert.match(source, />Describe the image you want<\/label>/);
   assert.doesNotMatch(source, /Generated review|Owner source review/);
 });
 

@@ -17,9 +17,17 @@ const approvedPath = path.join(projectRoot, "catalog", "approved-artworks.json")
 const planPath = path.join(projectRoot, "outputs", "catalog", "storage-upload-plan.private.json");
 const writePlan = process.argv.includes("--write-plan");
 const applyArgument = process.argv.slice(2).find((argument) => argument.startsWith("--apply="));
+const catalogIdFileArgument = process.argv
+  .slice(2)
+  .find((argument) => argument.startsWith("--catalog-id-file="));
 const unknownArguments = process.argv
   .slice(2)
-  .filter((argument) => argument !== "--write-plan" && !argument.startsWith("--apply="));
+  .filter(
+    (argument) =>
+      argument !== "--write-plan" &&
+      !argument.startsWith("--apply=") &&
+      !argument.startsWith("--catalog-id-file="),
+  );
 if (unknownArguments.length > 0) {
   throw new Error(`Unknown arguments: ${unknownArguments.join(", ")}.`);
 }
@@ -67,9 +75,31 @@ const sourceMap = JSON.parse(await readFile(sourceMapPath, "utf8")) as Array<{
 const sourceById = new Map(sourceMap.map((entry) => [entry.id, entry]));
 if (sourceById.size !== sourceMap.length) throw new Error("Private source map contains duplicate ids.");
 
+let selectedCatalogIds: Set<string> | null = null;
+if (catalogIdFileArgument) {
+  const catalogIdFile = path.resolve(catalogIdFileArgument.slice("--catalog-id-file=".length));
+  const selected = JSON.parse(await readFile(catalogIdFile, "utf8")) as unknown;
+  if (
+    !Array.isArray(selected) ||
+    selected.length === 0 ||
+    selected.some((id) => typeof id !== "string" || !/^art_[0-9a-f]{20}$/.test(id))
+  ) {
+    throw new Error("Catalog id file must be a non-empty JSON array of canonical catalog ids.");
+  }
+  selectedCatalogIds = new Set(selected);
+  if (selectedCatalogIds.size !== selected.length) throw new Error("Catalog id file contains duplicate ids.");
+  const approvedIds = new Set(build.rows.map((row) => row.catalogId));
+  for (const id of selectedCatalogIds) {
+    if (!approvedIds.has(id) || deleteTierIds.has(id)) {
+      throw new Error(`Catalog id selection is not a publishable approved row: ${id}.`);
+    }
+  }
+}
+
 const entries: PlannedArtwork[] = [];
 for (const row of build.rows) {
   if (deleteTierIds.has(row.catalogId)) continue;
+  if (selectedCatalogIds && !selectedCatalogIds.has(row.catalogId)) continue;
   const source = sourceById.get(row.catalogId);
   if (!source || source.sha256 !== row.sourceSha256) {
     throw new Error(`Private source identity mismatch for ${row.catalogId}.`);
@@ -188,6 +218,7 @@ console.log(JSON.stringify({
   mode: applied ? "applied-and-verified" : "dry-run",
   bucket: BUCKET,
   approvedRows: entries.length,
+  selectedCatalogIds: selectedCatalogIds?.size ?? null,
   objects: entries.length * 2,
   planSha256,
   planWritten: writePlan ? planPath : null,

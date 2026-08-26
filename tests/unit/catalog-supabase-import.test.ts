@@ -124,6 +124,19 @@ test("unapproved input emits zero SQL and zero seed rows", () => {
   assert.ok(build.issues.some(({ code }) => code === "NOT_APPROVED"));
 });
 
+test("delete-tier audit rows never become Supabase publication rows", () => {
+  const published = { ...approvedArtwork("a"), tier: "featured" };
+  const removed = { ...approvedArtwork("b"), tier: "delete" };
+  const build = buildCatalogImport([removed, published]);
+
+  assert.deepEqual(build.issues, []);
+  assert.deepEqual(build.rows.map(({ catalogId }) => catalogId), [published.id]);
+  assert.equal(build.manifest.rowCount, 1);
+  assert.deepEqual(build.manifest.rows.map(({ catalogId }) => catalogId), [published.id]);
+  assert.match(build.sql, new RegExp(published.id));
+  assert.doesNotMatch(build.sql, new RegExp(removed.id));
+});
+
 test("rejects a catalog id that does not derive from the same full source SHA", () => {
   const mismatched = { ...approvedArtwork("a"), id: `art_${"b".repeat(20)}` };
   const build = buildCatalogImport([mismatched]);
@@ -143,11 +156,22 @@ test("the real approved artifact is the only CLI input and maps without joins", 
     "utf8",
   );
   const build = buildCatalogImport(source);
+  const expectedPublicationIds = source
+    .filter(
+      (entry): entry is Record<string, unknown> =>
+        typeof entry === "object" &&
+        entry !== null &&
+        !Array.isArray(entry) &&
+        (entry as { tier?: unknown }).tier !== "delete",
+    )
+    .map((entry) => String(entry.id))
+    .sort((left, right) => left.localeCompare(right, "en"));
 
   assert.match(cli, /APPROVED_CATALOG_SOURCE/);
   assert.doesNotMatch(cli, /curated-artworks|candidates\.json|createClient|SUPABASE_URL|fetch\(/);
   assert.deepEqual(build.issues, []);
-  assert.equal(build.rows.length, source.length);
+  assert.equal(build.rows.length, expectedPublicationIds.length);
+  assert.deepEqual(build.rows.map(({ catalogId }) => catalogId), expectedPublicationIds);
   assert.equal(new Set(build.rows.map(({ catalogId }) => catalogId)).size, build.rows.length);
   assert.equal(new Set(build.rows.map(({ sourceSha256 }) => sourceSha256)).size, build.rows.length);
 });

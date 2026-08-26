@@ -67,7 +67,7 @@ test("every related slug exists in the catalog and never self-references", () =>
   }
 });
 
-test("diversityRank is a permutation of 0..120", () => {
+test("diversityRank is a permutation of the public catalog range", () => {
   const ranks = indexSlugs.map((slug) => visualIndex.works[slug].diversityRank).sort((a, b) => a - b);
   assert.deepEqual(ranks, Array.from({ length: catalogSlugs.length }, (_, index) => index));
 });

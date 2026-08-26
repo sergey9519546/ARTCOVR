@@ -5,6 +5,7 @@ import curatedReview from "./curated-review.json" with { type: "json" };
 import {
   artworks,
   displayArtworks,
+  featuredArtworks,
   getArtworkBySlug,
   getCheckoutTotal,
   isCheckoutReady,
@@ -54,6 +55,19 @@ describe("artwork helpers", () => {
         assert.equal(artwork.rightsApproved && artwork.published, true);
       }
     }
+  });
+
+  test("the owner picks lead while the cobalt cover stays in row four", () => {
+    if (isPrivateStaging) return;
+    assert.deepEqual(
+      featuredArtworks.slice(0, 3).map(({ slug }) => slug),
+      [
+        "graphic-surrealist-minimalism",
+        "graphic-surrealist-collage",
+        "graphic-surreal-pop",
+      ],
+    );
+    assert.equal(featuredArtworks[14]?.slug, "electric-cobalt-minimalist");
   });
 
   test("picks a diverse intro-art set with category and mood spread", () => {

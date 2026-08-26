@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
-import { clamp01, journeyPhases, type JourneyStore } from "./journey";
+import {
+  carouselCardSizeForViewport,
+  clamp01,
+  journeyPhases,
+  SHARED_HANDOFF_SWITCH,
+  type JourneyStore,
+} from "./journey";
 
 const ITEMS = displayArtworks.map((artwork, index) => ({
   id: artwork.id,
@@ -19,16 +25,7 @@ const ITEMS = displayArtworks.map((artwork, index) => ({
  * a card fills roughly two thirds of the screen height so a single cover reads
  * as the subject of the section rather than as a thumbnail in a filmstrip.
  */
-const CARD_MIN = 320;
-const CARD_MAX = 880;
-const CARD_VIEWPORT_RATIO = 0.66;
 const CARD_GAP_RATIO = 0.06;
-
-function computeCardSize(viewportHeight: number) {
-  return Math.round(
-    Math.min(Math.max(viewportHeight * CARD_VIEWPORT_RATIO, CARD_MIN), CARD_MAX),
-  );
-}
 
 const SCROLL_PIXELS_PER_CARD = 170;
 
@@ -38,7 +35,9 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
   const convergeRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [staticMode, setStaticMode] = useState(false);
-  const [cardSize, setCardSize] = useState(CARD_MIN);
+  const [cardSize, setCardSize] = useState(() =>
+    carouselCardSizeForViewport(0),
+  );
   // Card size follows viewport HEIGHT, but the pin's travel distance and the
   // active-card window are both functions of viewport WIDTH, so width has to be
   // tracked separately or a width-only resize leaves the mapping stale and the
@@ -79,7 +78,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
 
   useEffect(() => {
     const updateSize = () => {
-      setCardSize(computeCardSize(window.innerHeight));
+      setCardSize(carouselCardSizeForViewport(window.innerHeight));
       setViewportWidth(window.innerWidth);
     };
     updateSize();
@@ -118,41 +117,37 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
       const ph = journeyPhases(P, journey.consts);
       const translate = ph.c * maxTravel;
 
-      try {
-        if (track) track.style.transform = `translateX(${-translate}px)`;
+      if (track) track.style.transform = `translateX(${-translate}px)`;
 
-        if (converge) {
-          // The flat outrun pivots back into the screen through the blend: a
-          // real spatial reason for the cards to disappear, not a UI cut.
-          const plunge = ph.carouselPlunge;
-          converge.style.transform =
-            `perspective(1200px) rotateX(${-plunge * 22}deg) scale(${1 - plunge * 0.16})`;
-          converge.style.opacity = String(ph.carouselOpacity);
-          // Once the outrun has given way to the tunnel the cards stop being a
-          // click target so the spiral's covers take the pointer.
-          converge.style.pointerEvents =
-            ph.carouselOpacity > 0.4 ? "auto" : "none";
-        }
-
-        // Chrome opens with the journey and steps out through the blend.
-        const head = clamp01(P / 0.025);
-        const chromeOpacity = head * ph.carouselOpacity;
-        chrome.forEach((el) => {
-          el.style.opacity = String(chromeOpacity);
-        });
-
-        const index = Math.max(
-          0,
-          Math.min(ITEMS.length - 1, Math.round((translate - CW / 2) / (CW + CG))),
-        );
-        if (index !== activeIndexRef.current) {
-          activeIndexRef.current = index;
-          setActiveIndex(index);
-        }
-        syncFocusWindow(translate);
-      } catch {
-        /* keep inert — the ErrorBoundary above renders the failing layer null */
+      if (converge) {
+        // At carouselEndP the final card is exactly centred. The spiral claims
+        // that same image and pose on one deterministic frame; there is no
+        // crossfade and therefore no translucent double exposure.
+        const spiralOwnsLead = ph.handoff >= SHARED_HANDOFF_SWITCH;
+        converge.style.opacity = spiralOwnsLead ? "0" : "1";
+        converge.style.visibility = spiralOwnsLead ? "hidden" : "visible";
+        converge.style.pointerEvents = spiralOwnsLead ? "none" : "auto";
       }
+
+      // Chrome opens with the journey and steps out through the blend.
+      const head = clamp01(P / 0.025);
+      const chromeExit = clamp01(
+        (SHARED_HANDOFF_SWITCH - ph.handoff) / 0.18,
+      );
+      const chromeOpacity = head * chromeExit;
+      chrome.forEach((el) => {
+        el.style.opacity = String(chromeOpacity);
+      });
+
+      const index = Math.max(
+        0,
+        Math.min(ITEMS.length - 1, Math.round((translate - CW / 2) / (CW + CG))),
+      );
+      if (index !== activeIndexRef.current) {
+        activeIndexRef.current = index;
+        setActiveIndex(index);
+      }
+      syncFocusWindow(translate);
     };
 
     const unregister = journey.register(update);
@@ -168,6 +163,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
       if (converge) {
         converge.style.transform = "perspective(1200px) rotateX(0deg) scale(1)";
         converge.style.removeProperty("opacity");
+        converge.style.removeProperty("visibility");
         converge.style.removeProperty("pointer-events");
       }
       chrome.forEach((el) => el.style.removeProperty("opacity"));
@@ -357,6 +353,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
 
       <div
         ref={convergeRef}
+        data-carousel-converge
         className="absolute inset-0 flex items-center will-change-transform"
         style={{ transform: "perspective(1200px) rotateX(0deg) scale(1)" }}
       >

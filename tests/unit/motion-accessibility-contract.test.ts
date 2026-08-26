@@ -4,26 +4,32 @@ import test from "node:test";
 
 const read = (path: string) => readFile(new URL(`../../${path}`, import.meta.url), "utf8");
 
-test("intro bypasses instantly for reduced-motion but still plays on touch and narrow screens", async () => {
-  const [preloader, transition, page] = await Promise.all([
+test("all blocking motion shares the static eligibility contract", async () => {
+  const [preloader, transition, page, motion] = await Promise.all([
     read("src/components/parity/Preloader.tsx"),
     read("src/components/parity/PageTransition.tsx"),
     read("src/app/page.tsx"),
+    read("src/lib/artcovr/motion.ts"),
   ]);
-  // The intro (Preloader) must skip instantly for reduced-motion users and must
-  // NOT bail on a coarse pointer or a narrow viewport — those still get the
-  // experience and reach the static scroll journey through the home-page gate.
-  assert.match(preloader, /\(prefers-reduced-motion: reduce\)/);
-  assert.doesNotMatch(preloader, /pointer: coarse/);
-  assert.doesNotMatch(preloader, /max-width: 767px/);
-  // The page-to-page transition still bypasses for reduced-motion, coarse
-  // pointer, and narrow screens: it only ever activates on a fine-pointer
-  // desktop, so the full gate stays inline for the contract scan.
-  assert.match(transition, /prefers-reduced-motion: reduce\), \(pointer: coarse/);
-  // The home page keeps main content blocked (inert) while the intro holds,
-  // and decouples the intro bypass from the journey gate via REDUCED_MOTION_QUERY.
+  assert.match(motion, /prefers-reduced-motion: reduce/);
+  assert.match(motion, /pointer: coarse/);
+  assert.match(motion, /max-width: 767px/);
+  assert.match(preloader, /STATIC_MEDIA_QUERY/);
+  assert.match(preloader, /window\.addEventListener\("keydown", skipIntro\)/);
+  assert.doesNotMatch(preloader, /keydown[^\n]*once: true/);
+  assert.match(transition, /STATIC_MEDIA_QUERY/);
+  assert.match(page, /STATIC_MEDIA_QUERY/);
+  assert.match(page, /if \(!allowed\) \{\s*setPreloaderDone\(true\)/);
   assert.match(page, /inert=\{pageBlocked \? true : undefined\}/);
-  assert.match(page, /REDUCED_MOTION_QUERY/);
+  assert.doesNotMatch(page, /REDUCED_MOTION_QUERY/);
+});
+
+test("hero entrance uses a scoped GSAP timeline and exact easing curve", async () => {
+  const page = await read("src/app/page.tsx");
+  assert.match(page, /gsap\.timeline/);
+  assert.match(page, /CustomEase\.create\("artcovr-entrance", "0\.19,1,0\.22,1"\)/);
+  assert.match(page, /gsap\.context/);
+  assert.match(page, /context\.revert\(\)/);
 });
 
 test("carousel links to artwork and owns keyboard handling only while focused", async () => {

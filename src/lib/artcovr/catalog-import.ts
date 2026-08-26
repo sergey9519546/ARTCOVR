@@ -88,6 +88,9 @@ export type CatalogImportBuild = {
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
+const isRemovedAuditRow = (value: unknown): boolean =>
+  isObject(value) && value.tier === "delete";
+
 const asNonEmptyString = (value: unknown): string | null =>
   typeof value === "string" && value.trim().length > 0 ? value : null;
 
@@ -504,6 +507,11 @@ export function buildCatalogImport(value: unknown): CatalogImportBuild {
   const ids = new Set<string>();
   const hashes = new Set<string>();
   for (const [index, entry] of value.entries()) {
+    // Delete-tier entries remain in the owner-approved artifact as immutable
+    // audit history. They are not publication inputs and must never become
+    // listed database rows merely because their historical rights/publication
+    // booleans remain true.
+    if (isRemovedAuditRow(entry)) continue;
     const result = validateRow(entry, index);
     issues.push(...result.issues);
     if (!result.row) continue;

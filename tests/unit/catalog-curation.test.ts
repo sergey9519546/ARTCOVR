@@ -20,6 +20,22 @@ import {
   REGENERATION_REQUIRED_SOURCE_HASHES,
 } from "../../src/lib/artcovr/source-exclusions.ts";
 
+test("the restored featured catalog sequence remains intact", async () => {
+  const publicCatalog = JSON.parse(
+    await readFile(
+      new URL("../../src/lib/artcovr/curated-public.json", import.meta.url),
+      "utf8",
+    ),
+  ) as Array<{ slug: string; tier: string }>;
+  assert.deepEqual(
+    publicCatalog
+      .filter(({ tier }) => tier === "featured")
+      .slice(0, 3)
+      .map(({ slug }) => slug),
+    ["last-sock-on-the-line", "filing-cathedral", "grief-in-transit"],
+  );
+});
+
 test("launch selection contains exactly 100 surviving unique visual-review slots", () => {
   assert.equal(launchSelection.length, 100);
   const identities = launchSelection.map(({ sourcePool, sourceOrdinal, sourceSha256 }) =>
@@ -325,16 +341,7 @@ test("the approved artifact has no stale rights-contradiction flags once the own
   assert.deepEqual(report.blockers, [], "EMPTY_APPROVAL_SET blocker must be cleared post ADR-018");
 });
 
-test("the approved catalog carries the owner-confirmed four-tier pricing distribution (ADR-019)", async () => {
-  // ADR-019 supersedes ADR-017: the four-tier pricing structure is owner-approved.
-  // The launch catalog grew from 100 -> 169 rows (commit 12bbcd9 added 69 works);
-  // the four price tiers scale proportionally across the full 169-row set:
-  //   $200 x17 exclusive, $80 x34 exclusive, $35 x51 repeatable, $10 x67 repeatable
-  //   (51 exclusive / 118 repeatable). A display `tier` field (featured/archive/delete)
-  // was introduced with the expansion: 92 featured, 47 archive, 30 delete.
-  // This test pins the confirmed price-tier distribution AND the display tiers so a
-  // future swap or re-import cannot silently change pricing or launch visibility
-  // without an explicit decision.
+test("the approved catalog preserves ADR-019 pricing and the owner-approved 2026-08-20 expansion", async () => {
   const rows = JSON.parse(
     await readFile(new URL("../../catalog/approved-artworks.json", import.meta.url), "utf8"),
   ) as Array<{
@@ -363,12 +370,16 @@ test("the approved catalog carries the owner-confirmed four-tier pricing distrib
     if (row.tier) displayTiers.set(row.tier, (displayTiers.get(row.tier) ?? 0) + 1);
   }
 
-  assert.equal(rows.length, 179, "approved-artworks.json: 179 rows (100 launch + 69 expansion + 10 owner intake)");
+  assert.equal(rows.length, 217, "approved artifact retains 179 prior rows plus 38 owner-approved expansion rows");
   assert.equal(priceTiers.get("exclusive|20000"), 17, "exclusive @ $20000 ($200): 17 rows");
   assert.equal(priceTiers.get("exclusive|8000"), 34, "exclusive @ $8000 ($80): 34 rows");
-  assert.equal(priceTiers.get("repeatable|3500"), 51, "repeatable @ $3500 ($35): 51 rows");
+  assert.equal(priceTiers.get("repeatable|3500"), 59, "repeatable @ $3500 ($35): 59 rows");
   assert.equal(priceTiers.get("repeatable|1000"), 77, "repeatable @ $1000 ($10): 77 rows");
-  assert.equal(priceTiers.size, 4, "exactly four price-tier combinations");
+  assert.equal(priceTiers.get("repeatable|2000"), 6, "repeatable @ $2000 ($20): 6 rows");
+  assert.equal(priceTiers.get("repeatable|5000"), 9, "repeatable @ $5000 ($50): 9 rows");
+  assert.equal(priceTiers.get("repeatable|7500"), 9, "repeatable @ $7500 ($75): 9 rows");
+  assert.equal(priceTiers.get("repeatable|10000"), 6, "repeatable @ $10000 ($100): 6 rows");
+  assert.equal(priceTiers.size, 8, "only the two existing exclusive tiers and six approved repeatable tiers exist");
 
   assert.equal(
     rows.filter((r) => r.saleMode === "exclusive").length,
@@ -377,8 +388,8 @@ test("the approved catalog carries the owner-confirmed four-tier pricing distrib
   );
 assert.equal(
     rows.filter((r) => r.saleMode === "repeatable").length,
-    128,
-    "128 repeatable rows (51 + 77)"
+    166,
+    "166 repeatable rows after the 38-work expansion"
   );
 
   // Per-work exclusivity snapshot (ADR-019): the redistribution silently
@@ -414,7 +425,7 @@ assert.equal(
   );
 
   assert.equal(displayTiers.get("featured"), 92, "92 featured display rows");
-  assert.equal(displayTiers.get("archive"), 57, "57 archive display rows");
+  assert.equal(displayTiers.get("archive"), 95, "95 archive display rows after the 38-work expansion");
   assert.equal(displayTiers.get("delete"), 30, "30 delete display rows");
 });
 

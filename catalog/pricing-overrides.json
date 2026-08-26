@@ -58,5 +58,233 @@
     "priceCents": 1000,
     "tier": "archive",
     "rightsApproved": true
+  },
+  "signal-garden": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "floating-gambit": {
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "last-light-market": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "stem-in-the-quiet": {
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "cloud-aperture": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "signal-over-the-shore": {
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "procession-in-fog": {
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "eyes-in-the-wiring": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "red-silo": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "violet-archivist": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "three-registers-of-silence": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "night-shift-draftsman": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "dream-receiver": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "door-in-the-red-orchard": {
+    "saleMode": "repeatable",
+    "priceCents": 7500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "afternoon-across-the-water": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "rooms-above-weather": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "rain-keeps-the-house": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "memory-in-blue-plaster": {
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "yellow-field-interruption": {
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "chair-at-the-color-boundary": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "dinner-after-the-alarm": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "face-between-frequencies": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "red-measure": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "black-mineral-weather": {
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "green-bell-towers": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "no-exit-agrees": {
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "city-of-copper-facades": {
+    "saleMode": "repeatable",
+    "priceCents": 5000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "midnight-inventory": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "pastel-threshold": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "last-transaction": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "machine-with-a-red-thought": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "cloudwell-stair": {
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "night-collected-in-a-bag": {
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "offering-at-the-narrow-door": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "keeper-of-the-white-lantern": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "pilgrim-of-the-inner-light": {
+    "saleMode": "repeatable",
+    "priceCents": 10000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "flowers-at-the-cash-machine": {
+    "saleMode": "repeatable",
+    "priceCents": 2000,
+    "tier": "archive",
+    "rightsApproved": true
+  },
+  "letter-carriers-blue-hour": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "archive",
+    "rightsApproved": true
   }
 }

@@ -170,7 +170,7 @@ const vectorArtifact = {
   backend: payload.backend,
   generatedFrom: "public/assets/artworks display derivatives",
   dimensions: payload.dimensions,
-  note: "Audit and regeneration only. Site code must never import this file: 100 x 512 floats would ship in the client bundle.",
+  note: `Audit and regeneration only. Site code must never import this file: ${slugs.length} x ${VECTOR_DIMENSIONS} floats would ship in the client bundle.`,
   vectors: Object.fromEntries(slugs.map((slug) => [slug, payload.works[slug].vector])),
 };
 
