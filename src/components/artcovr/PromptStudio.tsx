@@ -38,6 +38,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const [coverTitle, setCoverTitle] = useState(artwork.title);
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const promptBoxRef = useRef<HTMLTextAreaElement | null>(null);
   const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const armedUploadRef = useRef<string | undefined>(undefined);
 
@@ -207,6 +209,14 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     };
   }, [artwork.id, phase, selectedPreviewKey]);
 
+  /** Chat-style input: grow with content, cap at roughly eight lines. */
+  function autosizePromptBox() {
+    const box = promptBoxRef.current;
+    if (!box) return;
+    box.style.height = "auto";
+    box.style.height = `${Math.min(box.scrollHeight, 200)}px`;
+  }
+
   function generate() {
     if (!ready || phase === "generating") return;
     pendingPrompt.current = prompt.trim();
@@ -287,14 +297,46 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
 
 
           <label htmlFor="prompt" className="sr-only">Describe the change you want</label>
-          <textarea
-            id="prompt"
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            placeholder="For example: keep the atmosphere and introduce a midnight-blue skyline."
-            rows={6}
-            className="mt-5 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
-          />
+          <div className="artcovr-plate mt-5 flex items-end gap-2 rounded-2xl border border-current/30 p-2 transition-colors focus-within:border-current">
+            <button
+              type="button"
+              onClick={() => setUploadOpen((open) => !open)}
+              aria-expanded={uploadOpen}
+              aria-label={armedUploadId ? "Style reference attached — manage" : "Attach a style reference image"}
+              className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
+            >
+              +
+            </button>
+            <textarea
+              id="prompt"
+              ref={promptBoxRef}
+              value={prompt}
+              onChange={(event) => {
+                setPrompt(event.target.value);
+                autosizePromptBox();
+              }}
+              onKeyDown={(event) => {
+                // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  generate();
+                }
+              }}
+              placeholder="Describe any change…"
+              rows={1}
+              aria-keyshortcuts="Enter"
+              className="max-h-[200px] min-h-9 w-full resize-none self-center bg-transparent px-2 py-1.5 text-base leading-6 outline-none"
+            />
+            <button
+              type="button"
+              onClick={generate}
+              disabled={!ready || phase === "generating" || restoring}
+              aria-label={phase === "generating" ? "Generating…" : "Generate image"}
+              className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <span aria-hidden="true">{phase === "generating" ? "…" : "↑"}</span>
+            </button>
+          </div>
           <PromptComposer
             artwork={artwork}
             value={prompt}
@@ -363,14 +405,6 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             </div>
           </fieldset>
           <div className="mt-3 flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={generate}
-              disabled={!ready || phase === "generating" || restoring}
-              className="artcovr-button px-5 py-3 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {phase === "generating" ? "Generating…" : "Generate image"}
-            </button>
             <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
               Reset
             </button>
@@ -381,6 +415,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
 
           <UploadCard
             artworkId={artwork.id}
+            open={uploadOpen}
+            onOpenChange={setUploadOpen}
             armedUploadId={armedUploadId}
             onArm={(id) => {
               armedUploadRef.current = id;

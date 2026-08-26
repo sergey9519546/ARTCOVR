@@ -27,11 +27,15 @@ function rejectionFor(file: File) {
 
 export function UploadCard({
   artworkId,
+  open,
+  onOpenChange,
   armedUploadId,
   onArm,
   onDisarm,
 }: {
   artworkId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   armedUploadId?: string;
   onArm: (referenceUploadId: string) => void;
   onDisarm: () => void;
@@ -91,7 +95,11 @@ export function UploadCard({
   }
 
   return (
-    <details className="group mt-6 border border-current/25" open={Boolean(file || armedUploadId)}>
+    <details
+      className="group mt-6 border border-current/25"
+      open={open || Boolean(file || armedUploadId)}
+      onToggle={(event) => onOpenChange((event.target as HTMLDetailsElement).open)}
+    >
       <summary className="cursor-pointer list-none px-4 py-3 text-[11px] font-bold uppercase tracking-[0.12em]">
         <span aria-hidden="true" className="mr-2 inline-block transition-transform group-open:rotate-90">›</span>
         Use your own image as a style reference
