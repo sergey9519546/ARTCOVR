@@ -32,6 +32,8 @@ export function UploadCard({
   armedUploadId,
   onArm,
   onDisarm,
+  onPreviewChange,
+  registerClear,
 }: {
   artworkId: string;
   open: boolean;
@@ -39,6 +41,10 @@ export function UploadCard({
   armedUploadId?: string;
   onArm: (referenceUploadId: string) => void;
   onDisarm: () => void;
+  /** Reports the selected file's thumbnail URL so the bar can show a chip. */
+  onPreviewChange?: (url: string | undefined, name: string | undefined) => void;
+  /** Hands the parent a stable way to clear the selection from the bar chip. */
+  registerClear?: (clear: () => void) => void;
 }) {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
@@ -50,11 +56,16 @@ export function UploadCard({
   useEffect(() => {
     if (!file) {
       setPreviewUrl(undefined);
+      onPreviewChange?.(undefined, undefined);
       return;
     }
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
+    onPreviewChange?.(url, file.name);
     return () => URL.revokeObjectURL(url);
+    // onPreviewChange is a parent setState wrapper; identity churn is harmless
+    // and depending on it would revoke/recreate the object URL every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
   function accept(candidate: File | undefined) {
@@ -75,6 +86,14 @@ export function UploadCard({
     if (inputRef.current) inputRef.current.value = "";
     onDisarm();
   }
+
+  const clearRef = useRef(clear);
+  clearRef.current = clear;
+  useEffect(() => {
+    registerClear?.(() => clearRef.current());
+    // registered once; the ref keeps the latest closure without re-registering
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function armReference() {
     if (!file || uploading) return;

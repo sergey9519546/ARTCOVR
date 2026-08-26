@@ -240,6 +240,21 @@ html.lenis, html.lenis body { height: auto; }
  * painted. Mixing the foreground into the background keeps the plate one step
  * off the page in whichever theme is active.
  */
+/*
+ * Prompt bar: an elevated surface one step further off the page than the
+ * plate, with a soft focus glow driven by the theme's own --ring token so it
+ * reads correctly on both grounds. backdrop-filter is deliberately absent —
+ * the bar sits over the page background, not over imagery.
+ */
+.artcovr-promptbar {
+  background: color-mix(in srgb, var(--foreground) 10%, var(--background));
+  transition: border-color .2s var(--motion-ease), box-shadow .2s var(--motion-ease);
+}
+.artcovr-promptbar:focus-within {
+  border-color: currentColor;
+  box-shadow: 0 0 0 1px var(--ring), 0 0 14px color-mix(in srgb, var(--ring) 55%, transparent);
+}
+
 .artcovr-plate {
   background: color-mix(in srgb, var(--foreground) 8%, var(--background));
 }

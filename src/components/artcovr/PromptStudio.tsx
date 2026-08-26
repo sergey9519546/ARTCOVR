@@ -39,6 +39,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [referenceThumb, setReferenceThumb] = useState<{ url: string; name: string } | undefined>(undefined);
+  const clearUploadRef = useRef<(() => void) | undefined>(undefined);
   const promptBoxRef = useRef<HTMLTextAreaElement | null>(null);
   const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const armedUploadRef = useRef<string | undefined>(undefined);
@@ -296,47 +298,6 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
           />
 
 
-          <label htmlFor="prompt" className="sr-only">Describe the change you want</label>
-          <div className="artcovr-plate mt-5 flex items-end gap-2 rounded-2xl border border-current/30 p-2 transition-colors focus-within:border-current">
-            <button
-              type="button"
-              onClick={() => setUploadOpen((open) => !open)}
-              aria-expanded={uploadOpen}
-              aria-label={armedUploadId ? "Style reference attached — manage" : "Attach a style reference image"}
-              className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
-            >
-              +
-            </button>
-            <textarea
-              id="prompt"
-              ref={promptBoxRef}
-              value={prompt}
-              onChange={(event) => {
-                setPrompt(event.target.value);
-                autosizePromptBox();
-              }}
-              onKeyDown={(event) => {
-                // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  generate();
-                }
-              }}
-              placeholder="Describe any change…"
-              rows={1}
-              aria-keyshortcuts="Enter"
-              className="max-h-[200px] min-h-9 w-full resize-none self-center bg-transparent px-2 py-1.5 text-base leading-6 outline-none"
-            />
-            <button
-              type="button"
-              onClick={generate}
-              disabled={!ready || phase === "generating" || restoring}
-              aria-label={phase === "generating" ? "Generating…" : "Generate image"}
-              className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <span aria-hidden="true">{phase === "generating" ? "…" : "↑"}</span>
-            </button>
-          </div>
           <PromptComposer
             artwork={artwork}
             value={prompt}
@@ -377,46 +338,18 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 />
               </div>
             </div>
-            <div className="mt-3" role="radiogroup" aria-label="Style handling">
-              <div className="flex flex-wrap gap-2">
-                <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "exact" ? "border-current" : "border-current/30 opacity-60"}`}>
-                  <input
-                    type="radio"
-                    name="style-mode"
-                    value="exact"
-                    checked={styleMode === "exact"}
-                    onChange={() => setStyleMode("exact")}
-                    className="sr-only"
-                  />
-                  Match style exactly
-                </label>
-                <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "expand" ? "border-current" : "border-current/30 opacity-60"}`}>
-                  <input
-                    type="radio"
-                    name="style-mode"
-                    value="expand"
-                    checked={styleMode === "expand"}
-                    onChange={() => setStyleMode("expand")}
-                    className="sr-only"
-                  />
-                  Expand on it
-                </label>
-              </div>
-            </div>
           </fieldset>
-          <div className="mt-3 flex flex-wrap items-center gap-4">
-            <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
-              Reset
-            </button>
-            <span aria-live="polite" className="text-xs opacity-60">
-              {message || (restoring ? "Restoring your selected preview…" : ready ? "Sign in to request a preview." : "Enter at least eight characters.")}
-            </span>
-          </div>
 
           <UploadCard
             artworkId={artwork.id}
             open={uploadOpen}
             onOpenChange={setUploadOpen}
+            onPreviewChange={(url, name) =>
+              setReferenceThumb(url && name ? { url, name } : undefined)
+            }
+            registerClear={(clear) => {
+              clearUploadRef.current = clear;
+            }}
             armedUploadId={armedUploadId}
             onArm={(id) => {
               armedUploadRef.current = id;
@@ -427,6 +360,108 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               setArmedUploadId(undefined);
             }}
           />
+
+          {/* The bar itself is pinned to the panel foot: content above scrolls
+              past while the input stays in reach, chat-app style. */}
+          <div className="sticky bottom-4 mt-6">
+            <label htmlFor="prompt" className="sr-only">Describe the image you want</label>
+            <div className="artcovr-promptbar flex items-end gap-2 rounded-[1.75rem] border border-current/30 p-2">
+              <button
+                type="button"
+                onClick={() => setUploadOpen((open) => !open)}
+                aria-expanded={uploadOpen}
+                aria-label={armedUploadId ? "Style reference attached — manage" : "Attach a style reference image"}
+                className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
+              >
+                +
+              </button>
+              {referenceThumb || armedUploadId ? (
+                <span className="flex shrink-0 items-center gap-1 self-center rounded-full border border-current/30 py-1 pl-1 pr-2">
+                  {referenceThumb ? (
+                    /* Local object URL, never a catalog asset. */
+                    <img src={referenceThumb.url} alt={`Reference: ${referenceThumb.name}`} className="size-7 rounded-full object-cover" />
+                  ) : (
+                    <span aria-hidden="true" className="grid size-7 place-items-center rounded-full bg-current/10 text-[10px] font-bold">ref</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => clearUploadRef.current?.()}
+                    aria-label="Remove the style reference"
+                    className="text-[13px] leading-none opacity-60 transition-opacity hover:opacity-100"
+                  >
+                    ×
+                  </button>
+                </span>
+              ) : null}
+              <textarea
+                id="prompt"
+                ref={promptBoxRef}
+                value={prompt}
+                maxLength={2000}
+                onChange={(event) => {
+                  setPrompt(event.target.value);
+                  autosizePromptBox();
+                }}
+                onKeyDown={(event) => {
+                  // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    generate();
+                  }
+                }}
+                placeholder="Describe the image you want…"
+                rows={1}
+                aria-keyshortcuts="Enter"
+                className="max-h-[200px] min-h-9 w-full resize-none self-center bg-transparent px-2 py-1.5 text-base leading-6 outline-none"
+              />
+              <button
+                type="button"
+                onClick={generate}
+                disabled={!ready || phase === "generating" || restoring}
+                aria-label={phase === "generating" ? "Generating…" : "Generate image"}
+                className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {phase === "generating" ? (
+                  <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  <span aria-hidden="true">↑</span>
+                )}
+              </button>
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.08em]">
+              {/* The only live control here is the style preset; the rest state
+                  facts the backend fixes per tier — selectors for them would be
+                  dead controls, which this repo bans. */}
+              <div role="radiogroup" aria-label="Style preset" className="flex gap-1">
+                <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "exact" ? "border-current" : "border-current/30 opacity-60"}`}>
+                  <input type="radio" name="style-mode" value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} className="sr-only" />
+                  Exact style
+                </label>
+                <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "expand" ? "border-current" : "border-current/30 opacity-60"}`}>
+                  <input type="radio" name="style-mode" value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} className="sr-only" />
+                  Expand
+                </label>
+              </div>
+              <span className="rounded-full border border-current/20 px-3 py-1 opacity-60">1:1</span>
+              <span className="rounded-full border border-current/20 px-3 py-1 opacity-60">1024 px preview</span>
+              <span className="rounded-full border border-current/20 px-3 py-1 opacity-60">1 image</span>
+              <span className="ml-auto tabular-nums opacity-60" aria-label={`${prompt.length} of 2000 characters`}>
+                {prompt.length}/2000
+              </span>
+            </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
+              Reset
+            </button>
+            <span aria-live="polite" className="text-xs opacity-60">
+              {message || (restoring ? "Restoring your selected preview…" : ready ? "Sign in to request a preview." : "Enter at least eight characters.")}
+            </span>
+          </div>
+
+          </div>
+
         </div>
 
         <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
