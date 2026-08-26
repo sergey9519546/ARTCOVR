@@ -8,12 +8,27 @@ import {
   createGeneration,
   getGenerationStatus,
   getMyImages,
+  uploadReference,
 } from "@/lib/artcovr/functions";
 import { PromptComposer } from "./PromptComposer";
-import { ReferenceBadge } from "./ReferenceBadge";
-import { UploadCard } from "./UploadCard";
 
 type Phase = "idle" | "generating" | "complete" | "error";
+
+const ACCEPTED_REFERENCE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+const MAX_REFERENCE_BYTES = 8 * 1024 * 1024;
+
+type ReferenceState =
+  | { status: "none" }
+  | { status: "uploading"; url: string; name: string }
+  | { status: "armed"; url: string; name: string };
+
+function referenceRejection(file: File) {
+  if (!(ACCEPTED_REFERENCE_TYPES as readonly string[]).includes(file.type)) {
+    return "Use a JPEG, PNG, or WebP image.";
+  }
+  if (file.size > MAX_REFERENCE_BYTES) return "That file is over the 8 MB limit.";
+  return "";
+}
 
 function terminalMessage(status: "blocked" | "failed" | "timed_out") {
   if (status === "blocked") return "That request could not be generated. Try a different prompt.";
@@ -38,9 +53,10 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const [coverTitle, setCoverTitle] = useState(artwork.title);
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const [uploadOpen, setUploadOpen] = useState(false);
-  const [referenceThumb, setReferenceThumb] = useState<{ url: string; name: string } | undefined>(undefined);
-  const clearUploadRef = useRef<(() => void) | undefined>(undefined);
+  const [coverOpen, setCoverOpen] = useState(false);
+  const [reference, setReference] = useState<ReferenceState>({ status: "none" });
+  const referenceRef = useRef<ReferenceState>({ status: "none" });
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const promptBoxRef = useRef<HTMLTextAreaElement | null>(null);
   const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const armedUploadRef = useRef<string | undefined>(undefined);
@@ -144,6 +160,10 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
           if (referenceUploadId) {
             armedUploadRef.current = undefined;
             setArmedUploadId(undefined);
+            const spent = referenceRef.current;
+            if (spent.status !== "none") URL.revokeObjectURL(spent.url);
+            referenceRef.current = { status: "none" };
+            setReference({ status: "none" });
           }
           jobId.current = created.generationId;
         }
@@ -273,217 +293,274 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     setPhase("idle");
   }
 
+  function setReferenceEverywhere(next: ReferenceState) {
+    referenceRef.current = next;
+    setReference(next);
+  }
+
+  function clearReference() {
+    if (reference.status !== "none") URL.revokeObjectURL(reference.url);
+    armedUploadRef.current = undefined;
+    setArmedUploadId(undefined);
+    setReferenceEverywhere({ status: "none" });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  /**
+   * Picking a file uploads it immediately: validate, show the chip as
+   * uploading, exchange the bytes for an opaque single-use id, arm it. On any
+   * failure the chip disappears and the reason lands in the status line.
+   */
+  async function pickReference(file: File | undefined) {
+    if (!file || reference.status === "uploading") return;
+    const rejection = referenceRejection(file);
+    if (rejection) {
+      setMessage(rejection);
+      return;
+    }
+    clearReference();
+    const url = URL.createObjectURL(file);
+    setReferenceEverywhere({ status: "uploading", url, name: file.name });
+    try {
+      const { referenceUploadId } = await uploadReference(file, artwork.id);
+      armedUploadRef.current = referenceUploadId;
+      setArmedUploadId(referenceUploadId);
+      setReferenceEverywhere({ status: "armed", url, name: file.name });
+      setMessage("Style reference attached. It applies to your next generation.");
+    } catch (cause) {
+      URL.revokeObjectURL(url);
+      setReferenceEverywhere({ status: "none" });
+      setMessage(
+        cause instanceof Error ? cause.message : "The reference could not be uploaded. Try again.",
+      );
+    }
+  }
+
   const busy = phase === "generating" || restoring;
   const previewSrc = result || artwork.image;
+  const coverSummary = [coverTitle.trim(), coverArtist.trim()].filter(Boolean).join(" · ");
 
   return (
     <section aria-labelledby="direction-title" className="border-t-2 border-current pt-5">
-      <div className="max-w-[62ch]">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 id="direction-title" className="text-2xl font-extrabold tracking-tight md:text-3xl">
+          Make it yours.
+        </h2>
         <p className="text-[11px] font-bold uppercase tracking-[0.1em] opacity-60">
           Generation studio
         </p>
-        <h2 id="direction-title" className="mt-2 text-3xl font-extrabold tracking-tight md:text-5xl">
-          Describe any change.
-        </h2>
       </div>
 
-      <div className="mt-9 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(21rem,.88fr)] lg:gap-14">
-        <div className="min-w-0">
-          <ReferenceBadge
-            imageSrc={previewSrc}
-            title={result ? `Latest result from ${artwork.title}` : artwork.title}
-            kind={result ? "generated" : "artwork"}
-            onReset={backToOriginal}
-            resetDisabled={busy}
+      <div className="mx-auto mt-6 w-full max-w-[640px]">
+        {/* THE CANVAS. Everything below acts on this one image. */}
+        <figure className="artcovr-plate relative aspect-square overflow-hidden rounded-2xl">
+          <Image
+            src={previewSrc}
+            alt={result ? `Generated image based on ${artwork.title}` : artwork.alt}
+            fill
+            unoptimized={Boolean(result)}
+            sizes="(min-width: 768px) 640px, 100vw"
+            className="object-cover"
           />
-
-
-          <PromptComposer
-            artwork={artwork}
-            value={prompt}
-            onChange={setPrompt}
-            disabled={phase === "generating"}
-          />
-
-          <fieldset className="mt-6 border border-current/25 p-4" disabled={phase === "generating"}>
-            <legend className="px-1 text-[10px] font-bold uppercase tracking-[0.14em]">
-              Cover text — rendered into the image
-            </legend>
-            <div className="mt-1 grid gap-3 sm:grid-cols-2">
-              <div>
-                <label htmlFor="cover-title" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
-                  Title
-                </label>
-                <input
-                  id="cover-title"
-                  type="text"
-                  maxLength={120}
-                  value={coverTitle}
-                  onChange={(event) => setCoverTitle(event.target.value)}
-                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
-                />
-              </div>
-              <div>
-                <label htmlFor="cover-artist" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
-                  Artist name
-                </label>
-                <input
-                  id="cover-artist"
-                  type="text"
-                  maxLength={120}
-                  value={coverArtist}
-                  onChange={(event) => setCoverArtist(event.target.value)}
-                  placeholder="Your artist or band name"
-                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
-                />
-              </div>
+          {phase === "generating" ? (
+            <div className="absolute inset-0 grid place-items-center bg-[var(--background)]/90">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em]">Generating…</p>
             </div>
-          </fieldset>
+          ) : null}
+          <figcaption className="absolute bottom-2 left-2 rounded-full bg-[var(--background)]/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em]">
+            {result ? "Watermarked preview" : "Original artwork"}
+          </figcaption>
+        </figure>
 
-          <UploadCard
-            artworkId={artwork.id}
-            open={uploadOpen}
-            onOpenChange={setUploadOpen}
-            onPreviewChange={(url, name) =>
-              setReferenceThumb(url && name ? { url, name } : undefined)
-            }
-            registerClear={(clear) => {
-              clearUploadRef.current = clear;
-            }}
-            armedUploadId={armedUploadId}
-            onArm={(id) => {
-              armedUploadRef.current = id;
-              setArmedUploadId(id);
-            }}
-            onDisarm={() => {
-              armedUploadRef.current = undefined;
-              setArmedUploadId(undefined);
-            }}
-          />
-
-          {/* The bar itself is pinned to the panel foot: content above scrolls
-              past while the input stays in reach, chat-app style. */}
-          <div className="sticky bottom-4 mt-6">
-            <label htmlFor="prompt" className="sr-only">Describe the image you want</label>
-            <div className="artcovr-promptbar flex items-end gap-2 rounded-[1.75rem] border border-current/30 p-2">
-              <button
-                type="button"
-                onClick={() => setUploadOpen((open) => !open)}
-                aria-expanded={uploadOpen}
-                aria-label={armedUploadId ? "Style reference attached — manage" : "Attach a style reference image"}
-                className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
-              >
-                +
-              </button>
-              {referenceThumb || armedUploadId ? (
-                <span className="flex shrink-0 items-center gap-1 self-center rounded-full border border-current/30 py-1 pl-1 pr-2">
-                  {referenceThumb ? (
-                    /* Local object URL, never a catalog asset. */
-                    <img src={referenceThumb.url} alt={`Reference: ${referenceThumb.name}`} className="size-7 rounded-full object-cover" />
-                  ) : (
-                    <span aria-hidden="true" className="grid size-7 place-items-center rounded-full bg-current/10 text-[10px] font-bold">ref</span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => clearUploadRef.current?.()}
-                    aria-label="Remove the style reference"
-                    className="text-[13px] leading-none opacity-60 transition-opacity hover:opacity-100"
-                  >
-                    ×
-                  </button>
-                </span>
-              ) : null}
-              <textarea
-                id="prompt"
-                ref={promptBoxRef}
-                value={prompt}
-                maxLength={2000}
-                onChange={(event) => {
-                  setPrompt(event.target.value);
-                  autosizePromptBox();
-                }}
-                onKeyDown={(event) => {
-                  // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
-                  if (event.key === "Enter" && !event.shiftKey) {
-                    event.preventDefault();
-                    generate();
-                  }
-                }}
-                placeholder="Describe the image you want…"
-                rows={1}
-                aria-keyshortcuts="Enter"
-                className="max-h-[200px] min-h-9 w-full resize-none self-center bg-transparent px-2 py-1.5 text-base leading-6 outline-none"
-              />
-              <button
-                type="button"
-                onClick={generate}
-                disabled={!ready || phase === "generating" || restoring}
-                aria-label={phase === "generating" ? "Generating…" : "Generate image"}
-                className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {phase === "generating" ? (
-                  <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                ) : (
-                  <span aria-hidden="true">↑</span>
-                )}
-              </button>
-            </div>
-
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.08em]">
-              {/* The only live control here is the style preset; the rest state
-                  facts the backend fixes per tier — selectors for them would be
-                  dead controls, which this repo bans. */}
-              <div role="radiogroup" aria-label="Style preset" className="flex gap-1">
-                <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "exact" ? "border-current" : "border-current/30 opacity-60"}`}>
-                  <input type="radio" name="style-mode" value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} className="sr-only" />
-                  Exact style
-                </label>
-                <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "expand" ? "border-current" : "border-current/30 opacity-60"}`}>
-                  <input type="radio" name="style-mode" value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} className="sr-only" />
-                  Expand
-                </label>
-              </div>
-              <span className="rounded-full border border-current/20 px-3 py-1 opacity-60">1:1</span>
-              <span className="rounded-full border border-current/20 px-3 py-1 opacity-60">1024 px preview</span>
-              <span className="rounded-full border border-current/20 px-3 py-1 opacity-60">1 image</span>
-              <span className="ml-auto tabular-nums opacity-60" aria-label={`${prompt.length} of 2000 characters`}>
-                {prompt.length}/2000
-              </span>
-            </div>
-
-          <div className="mt-3 flex flex-wrap items-center gap-4">
-            <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
-              Reset
-            </button>
-            <span aria-live="polite" className="text-xs opacity-60">
-              {message || (restoring ? "Restoring your selected preview…" : ready ? "Sign in to request a preview." : "Enter at least eight characters.")}
-            </span>
-          </div>
-
-          </div>
-
-        </div>
-
-        <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-          <figure className="artcovr-plate relative aspect-square overflow-hidden">
+        {/* CONTEXT STRIP: what the next generation builds from, and its two
+            optional parameters. One row, all chip-scale. */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-bold">
+          <span className="flex items-center gap-2 rounded-full border border-current/25 py-1 pl-1 pr-3">
             <Image
               src={previewSrc}
-              alt={result ? `Generated image based on ${artwork.title}` : artwork.alt}
-              fill
+              alt=""
+              aria-hidden
+              width={24}
+              height={24}
               unoptimized={Boolean(result)}
-              sizes="(min-width: 1024px) 35vw, 100vw"
-              className="object-cover"
+              className="size-6 rounded-full object-cover"
             />
-            {phase === "generating" ? (
-              <div className="absolute inset-0 grid place-items-center bg-[var(--background)]/90">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em]">Generating…</p>
-              </div>
+            <span className="opacity-70">from</span>
+            <span>{result ? "Latest result" : "Original artwork"}</span>
+            {result ? (
+              <button
+                type="button"
+                onClick={backToOriginal}
+                disabled={busy}
+                aria-label="Back to the original artwork"
+                className="ml-1 leading-none opacity-60 transition-opacity hover:opacity-100 disabled:opacity-30"
+              >
+                ×
+              </button>
             ) : null}
-            <figcaption className="absolute bottom-0 left-0 bg-[var(--background)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--foreground)]">
-              {result ? "Generated image — watermarked preview" : "Original artwork"}
-            </figcaption>
-          </figure>
+          </span>
+
+          {reference.status !== "none" ? (
+            <span className="flex items-center gap-2 rounded-full border border-current/25 py-1 pl-1 pr-3">
+              {/* Local object URL, never a catalog asset. */}
+              <img src={reference.url} alt="" aria-hidden className="size-6 rounded-full object-cover" />
+              <span className="max-w-[10rem] truncate">
+                {reference.status === "uploading" ? "Uploading…" : reference.name}
+              </span>
+              <button
+                type="button"
+                onClick={clearReference}
+                disabled={reference.status === "uploading"}
+                aria-label="Remove the style reference"
+                className="ml-1 leading-none opacity-60 transition-opacity hover:opacity-100 disabled:opacity-30"
+              >
+                ×
+              </button>
+            </span>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={() => setCoverOpen((open) => !open)}
+            aria-expanded={coverOpen}
+            className={`rounded-full border px-3 py-1 transition-colors ${coverOpen || coverSummary ? "border-current" : "border-current/25 opacity-70 hover:opacity-100"}`}
+          >
+            {coverSummary ? `Cover text: ${coverSummary}` : "Add cover text"}
+          </button>
+
+          <div role="radiogroup" aria-label="Style handling" className="ml-auto flex gap-1">
+            <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "exact" ? "border-current" : "border-current/25 opacity-60"}`}>
+              <input type="radio" name="style-mode" value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} className="sr-only" />
+              Exact style
+            </label>
+            <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "expand" ? "border-current" : "border-current/25 opacity-60"}`}>
+              <input type="radio" name="style-mode" value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} className="sr-only" />
+              Expand
+            </label>
+          </div>
         </div>
+
+        {coverOpen ? (
+          <div className="mt-2 grid gap-3 rounded-2xl border border-current/25 p-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="cover-title" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
+                Title
+              </label>
+              <input
+                id="cover-title"
+                type="text"
+                maxLength={120}
+                value={coverTitle}
+                onChange={(event) => setCoverTitle(event.target.value)}
+                disabled={phase === "generating"}
+                className="mt-1 w-full border-b border-current/30 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
+              />
+            </div>
+            <div>
+              <label htmlFor="cover-artist" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
+                Artist name
+              </label>
+              <input
+                id="cover-artist"
+                type="text"
+                maxLength={120}
+                value={coverArtist}
+                onChange={(event) => setCoverArtist(event.target.value)}
+                placeholder="Your artist or band name"
+                disabled={phase === "generating"}
+                className="mt-1 w-full border-b border-current/30 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
+              />
+            </div>
+            <p className="text-[11px] leading-4 opacity-60 sm:col-span-2">
+              Rendered into the generated image, spelled exactly as written.
+            </p>
+          </div>
+        ) : null}
+
+        {/* THE BAR, pinned in reach while the canvas scrolls. */}
+        <div className="sticky bottom-4 mt-4">
+          <label htmlFor="prompt" className="sr-only">Describe the image you want</label>
+          <div
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              event.preventDefault();
+              void pickReference(event.dataTransfer.files?.[0]);
+            }}
+            className="artcovr-promptbar flex items-end gap-2 rounded-[1.75rem] border border-current/30 p-2"
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPTED_REFERENCE_TYPES.join(",")}
+              className="sr-only"
+              aria-hidden
+              tabIndex={-1}
+              onChange={(event) => void pickReference(event.target.files?.[0])}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label={armedUploadId ? "Style reference attached — replace it" : "Attach a style reference image"}
+              className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
+            >
+              +
+            </button>
+            <textarea
+              id="prompt"
+              ref={promptBoxRef}
+              value={prompt}
+              maxLength={2000}
+              onChange={(event) => {
+                setPrompt(event.target.value);
+                autosizePromptBox();
+              }}
+              onKeyDown={(event) => {
+                // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  generate();
+                }
+              }}
+              placeholder="Describe the image you want…"
+              rows={1}
+              aria-keyshortcuts="Enter"
+              className="max-h-[200px] min-h-9 w-full resize-none self-center bg-transparent px-2 py-1.5 text-base leading-6 outline-none"
+            />
+            <button
+              type="button"
+              onClick={generate}
+              disabled={!ready || phase === "generating" || restoring}
+              aria-label={phase === "generating" ? "Generating…" : "Generate image"}
+              className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {phase === "generating" ? (
+                <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <span aria-hidden="true">↑</span>
+              )}
+            </button>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+            <span aria-live="polite" className="min-w-0 flex-1 opacity-70">
+              {message || (restoring ? "Restoring your selected preview…" : ready ? "Sign in to request a preview." : "Enter at least eight characters.")}
+            </span>
+            <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
+              Reset
+            </button>
+            <span className="opacity-50">1:1 · 1024 px · 1 image</span>
+            <span className="tabular-nums opacity-50" aria-label={`${prompt.length} of 2000 characters`}>
+              {prompt.length}/2000
+            </span>
+          </div>
+        </div>
+
+        <PromptComposer
+          artwork={artwork}
+          value={prompt}
+          onChange={setPrompt}
+          disabled={phase === "generating"}
+        />
       </div>
     </section>
   );

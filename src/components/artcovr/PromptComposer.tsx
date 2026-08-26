@@ -157,7 +157,7 @@ export function PromptComposer({
         Prompt suggestions — each adds a sentence to the prompt above
       </p>
       <div aria-labelledby="prompt-suggestions-label" className="flex flex-wrap gap-2">
-        {groups.flatMap((group) => group.chips).map((chip) => {
+        {groups.flatMap((group) => group.chips).slice(0, 6).map((chip) => {
           const active = hasClause(value, chip.clause);
           return (
             <button
@@ -166,10 +166,10 @@ export function PromptComposer({
               aria-pressed={active}
               disabled={disabled}
               onClick={() => onChange(applyClause(value, chip.clause))}
-              className={`border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.06em] transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+              className={`rounded-full border px-3 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                 active
                   ? "artcovr-button border-current"
-                  : "border-current/30 hover:border-current"
+                  : "border-current/25 opacity-70 hover:opacity-100"
               }`}
             >
               {chip.label}
