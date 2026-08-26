@@ -50,7 +50,12 @@ export function PurchasedGenerationStudio({
   const jobId = useRef<string | undefined>(undefined);
   const currentResultId = useRef<string | undefined>(latestResult?.id);
   const pendingPrompt = useRef("");
+  const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
+  const pendingStyleMode = useRef<"exact" | "expand">("exact");
   const resetRequested = useRef(false);
+  const [coverTitle, setCoverTitle] = useState(purchase.artworkTitle);
+  const [coverArtist, setCoverArtist] = useState("");
+  const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
   const ready = isPromptReady(prompt) && purchase.remainingGenerations > 0;
 
   useEffect(() => {
@@ -74,19 +79,16 @@ export function PurchasedGenerationStudio({
     const run = async () => {
       try {
         if (!jobId.current) {
+          const shared = {
+            artworkId: artwork.id,
+            purchaseId: purchase.id,
+            prompt: pendingPrompt.current,
+            ...(pendingCover.current ? { coverText: pendingCover.current } : {}),
+            styleMode: pendingStyleMode.current,
+          };
           const request: GenerationRequest = resetRequested.current
-            ? {
-                artworkId: artwork.id,
-                purchaseId: purchase.id,
-                prompt: pendingPrompt.current,
-                resetToBase: true,
-              }
-            : {
-                artworkId: artwork.id,
-                purchaseId: purchase.id,
-                prompt: pendingPrompt.current,
-                referenceGenerationId: currentResultId.current,
-              };
+            ? { ...shared, resetToBase: true }
+            : { ...shared, referenceGenerationId: currentResultId.current };
           const created = await createGeneration(request);
           jobId.current = created.generationId;
         }
@@ -153,6 +155,13 @@ export function PurchasedGenerationStudio({
   function generate() {
     if (!ready || phase === "generating") return;
     pendingPrompt.current = prompt.trim();
+    const title = coverTitle.trim();
+    const artistName = coverArtist.trim();
+    pendingCover.current =
+      title || artistName
+        ? { ...(title ? { title } : {}), ...(artistName ? { artistName } : {}) }
+        : undefined;
+    pendingStyleMode.current = styleMode;
     jobId.current = undefined;
     setMessage(
       resetRequested.current
@@ -192,6 +201,51 @@ export function PurchasedGenerationStudio({
             rows={5}
             className="mt-3 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
           />
+          <fieldset className="mt-4 border border-current/25 p-4" disabled={phase === "generating"}>
+            <legend className="px-1 text-[10px] font-bold uppercase tracking-[0.14em]">
+              Cover text — rendered into the image
+            </legend>
+            <div className="mt-1 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label htmlFor={`paid-cover-title-${purchase.id}`} className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
+                  Title
+                </label>
+                <input
+                  id={`paid-cover-title-${purchase.id}`}
+                  type="text"
+                  maxLength={120}
+                  value={coverTitle}
+                  onChange={(event) => setCoverTitle(event.target.value)}
+                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
+                />
+              </div>
+              <div>
+                <label htmlFor={`paid-cover-artist-${purchase.id}`} className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
+                  Artist name
+                </label>
+                <input
+                  id={`paid-cover-artist-${purchase.id}`}
+                  type="text"
+                  maxLength={120}
+                  value={coverArtist}
+                  onChange={(event) => setCoverArtist(event.target.value)}
+                  placeholder="Your artist or band name"
+                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
+                />
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Style handling">
+              <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "exact" ? "border-current" : "border-current/30 opacity-60"}`}>
+                <input type="radio" name={`paid-style-mode-${purchase.id}`} value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} className="sr-only" />
+                Match style exactly
+              </label>
+              <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "expand" ? "border-current" : "border-current/30 opacity-60"}`}>
+                <input type="radio" name={`paid-style-mode-${purchase.id}`} value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} className="sr-only" />
+                Expand on it
+              </label>
+            </div>
+          </fieldset>
+
           <div className="mt-3 flex flex-wrap items-center gap-4">
             <button
               type="button"
@@ -209,7 +263,7 @@ export function PurchasedGenerationStudio({
             </span>
           </div>
         </div>
-        <figure className="relative aspect-square overflow-hidden bg-[#e9e2d7]">
+        <figure className="artcovr-plate relative aspect-square overflow-hidden">
           <Image
             src={visibleImage}
             alt={resultIsGenerated ? `Generated image based on ${purchase.artworkTitle}` : artwork.alt}
