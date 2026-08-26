@@ -9,6 +9,10 @@ import {
   getGenerationStatus,
   getMyImages,
 } from "@/lib/artcovr/functions";
+import { CoverTypeControls, CoverTypeLayer, useCoverType } from "./OverlayComposer";
+import { PromptComposer } from "./PromptComposer";
+import { ReferenceBadge } from "./ReferenceBadge";
+import { UploadCard } from "./UploadCard";
 
 type Phase = "idle" | "generating" | "complete" | "error";
 
@@ -30,6 +34,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const pendingPrompt = useRef("");
   const ready = isPromptReady(prompt) && !restoring;
   const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
+  const { coverType, updateCoverType } = useCoverType(artwork.id, artwork.title);
 
   useEffect(() => {
     let active = true;
@@ -209,18 +214,68 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     setPhase("idle");
   }
 
+  /**
+   * Re-point the reference at the base artwork without discarding the prompt.
+   *
+   * Same state transition `reset` performs for the reference — the next
+   * createGeneration sends no referenceGenerationId and an explicit
+   * resetToBase — but the composed prompt survives, because "stop chaining"
+   * and "start over" are two different intentions.
+   */
+  function backToOriginal() {
+    if (phase === "generating" || restoring) return;
+    jobId.current = undefined;
+    currentResultId.current = undefined;
+    resetToBase.current = true;
+    try {
+      sessionStorage.removeItem(selectedPreviewKey);
+    } catch {}
+    setResult(undefined);
+    setMessage("Back to the original artwork. Your prompt was kept.");
+    setPhase("idle");
+  }
+
+  const busy = phase === "generating" || restoring;
+  const previewSrc = result || artwork.image;
+
   return (
-    <section aria-labelledby="direction-title" className="border-t border-current pt-5">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,.72fr)] lg:gap-12">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.1em] opacity-60">
-            Image editing
+    <section aria-labelledby="direction-title" className="border-t-2 border-current pt-5">
+      <div className="max-w-[62ch]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] opacity-60">
+          Generation studio
+        </p>
+        <h2 id="direction-title" className="mt-2 text-3xl font-extrabold tracking-tight md:text-5xl">
+          Describe any change.
+        </h2>
+        <p className="mt-3 text-sm leading-6 opacity-70">
+          Start from this artwork, steer it with the controls below, and edit the compiled prompt by
+          hand at any time. Each successful result becomes the starting image for your next prompt.
+        </p>
+      </div>
+
+      <div className="mt-9 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(21rem,.88fr)] lg:gap-14">
+        <div className="min-w-0">
+          <ReferenceBadge
+            imageSrc={previewSrc}
+            title={result ? `Latest result from ${artwork.title}` : artwork.title}
+            kind={result ? "generated" : "artwork"}
+            onReset={backToOriginal}
+            resetDisabled={busy}
+          />
+
+          <PromptComposer
+            artwork={artwork}
+            value={prompt}
+            onChange={setPrompt}
+            disabled={phase === "generating"}
+          />
+
+          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.14em] opacity-60">
+            Compiled prompt
           </p>
-          <h2 id="direction-title" className="mt-2 text-3xl font-extrabold tracking-tight">
-            Describe any change.
-          </h2>
-          <p className="mt-3 max-w-[52ch] text-sm leading-6 opacity-70">
-            Use one freeform prompt to add, remove, or alter anything. Each successful result becomes the starting image for your next prompt.
+          <p className="mt-1 text-[11px] leading-4 opacity-60">
+            Everything above writes into this box. Edit it freely — this exact text is what gets
+            sent.
           </p>
           <label htmlFor="prompt" className="sr-only">Describe the change you want</label>
           <textarea
@@ -228,8 +283,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
             placeholder="For example: keep the atmosphere and introduce a midnight-blue skyline."
-            rows={7}
-            className="mt-6 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
+            rows={6}
+            className="mt-2 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
           />
           <div className="mt-3 flex flex-wrap items-center gap-4">
             <button
@@ -247,20 +302,37 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               {message || (restoring ? "Restoring your selected preview…" : ready ? "Sign in to request a preview." : "Enter at least eight characters.")}
             </span>
           </div>
+
+          <UploadCard artworkId={artwork.id} />
         </div>
-        <figure className="relative aspect-square overflow-hidden bg-[#e9e2d7]">
-          <Image
-            src={result || artwork.image}
-            alt={result ? `Generated image based on ${artwork.title}` : artwork.alt}
-            fill
-            unoptimized={Boolean(result)}
-            sizes="(min-width: 1024px) 35vw, 100vw"
-            className="object-cover"
+
+        <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+          <figure className="artcovr-plate artcovr-cover-frame relative aspect-square overflow-hidden">
+            <Image
+              src={previewSrc}
+              alt={result ? `Generated image based on ${artwork.title}` : artwork.alt}
+              fill
+              unoptimized={Boolean(result)}
+              sizes="(min-width: 1024px) 35vw, 100vw"
+              className="object-cover"
+            />
+            <CoverTypeLayer state={coverType} />
+            {phase === "generating" ? (
+              <div className="absolute inset-0 grid place-items-center bg-[var(--background)]/90">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em]">Generating…</p>
+              </div>
+            ) : null}
+            <figcaption className="absolute bottom-0 left-0 bg-[var(--background)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--foreground)]">
+              {result ? "Generated image — watermarked preview" : "Original artwork"}
+            </figcaption>
+          </figure>
+
+          <CoverTypeControls
+            state={coverType}
+            onChange={updateCoverType}
+            disabled={phase === "generating"}
           />
-          <figcaption className="absolute bottom-0 left-0 bg-[#f3eee6] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
-            {result ? "Generated image" : "Original artwork"}
-          </figcaption>
-        </figure>
+        </div>
       </div>
     </section>
   );

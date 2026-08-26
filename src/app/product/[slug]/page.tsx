@@ -60,26 +60,61 @@ export default async function ProductPage({ params }: Props) {
         <nav aria-label="Breadcrumb" className="text-[11px] font-bold uppercase tracking-[.1em]">
           <Link href="/archive" className="link-hover">Archive</Link><span className="mx-2">/</span><span>{art.title}</span>
         </nav>
-        <div className="mt-7 grid gap-10 border-t-2 border-current pt-5 md:grid-cols-[1.1fr_.9fr]">
-          <figure className="relative aspect-square overflow-hidden bg-[#e9e2d7]">
-            <Image src={art.image} alt={art.alt} fill preload loading="eager" sizes="(min-width: 768px) 56vw, 100vw" className="object-cover" />
+
+        <header className="mt-7 border-t-2 border-current pt-5">
+          <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">
+            {art.category} — cover artwork
+          </p>
+          <h1 className="mt-3 max-w-[16ch] break-words text-5xl font-extrabold tracking-tighter md:text-7xl lg:text-8xl">
+            {art.title}
+          </h1>
+        </header>
+
+        <div className="mt-10 grid gap-10 lg:grid-cols-[1.45fr_.55fr] lg:gap-14">
+          <figure className="artcovr-plate relative aspect-square overflow-hidden">
+            <Image src={art.image} alt={art.alt} fill preload loading="eager" sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover" />
           </figure>
-          <section>
-            <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">Artwork preview</p>
-            <h1 className="mt-3 break-words text-4xl font-extrabold tracking-tighter md:text-6xl">{art.title}</h1>
-            <p className="mt-6 text-sm font-bold uppercase tracking-[.08em]">
+
+          <section aria-labelledby="license-summary" className="lg:sticky lg:top-24 lg:self-start">
+            <h2 id="license-summary" className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">
+              License and pricing
+            </h2>
+            <p className="mt-3 text-2xl font-extrabold tracking-tight">
+              {checkoutReady ? getCheckoutTotal(art.priceCents) : "Price pending"}
+            </p>
+            <p className="mt-2 text-sm font-bold uppercase tracking-[.08em]">
               {checkoutReady ? licenseMode : "Rights and pricing pending owner approval"}
             </p>
+
+            {checkoutReady ? (
+              <Link href={`/checkout/${art.slug}`} className="artcovr-button mt-6 inline-block w-full px-5 py-4 text-center text-xs font-bold uppercase tracking-[.08em]">Review license</Link>
+            ) : (
+              <p className="mt-6 border border-current/25 px-4 py-3 text-xs font-bold uppercase tracking-[.08em] opacity-60">Checkout pending owner approval</p>
+            )}
+
             <dl className="mt-7 divide-y divide-current/20 border-y border-current/20 text-sm">
               <div className="flex justify-between gap-6 py-3"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending"}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
-              <div className="flex justify-between py-3"><dt>Pricing</dt><dd>{getCheckoutTotal(art.priceCents)}</dd></div>
+              <div className="flex justify-between gap-6 py-3"><dt>Pricing</dt><dd className="text-right">{getCheckoutTotal(art.priceCents)}</dd></div>
+              <div className="flex justify-between gap-6 py-3"><dt>Category</dt><dd className="text-right">{art.category}</dd></div>
             </dl>
-            <p className="mt-7 max-w-[50ch] text-sm leading-6 opacity-70">
+
+            <p className="mt-7 text-sm leading-6 opacity-70">
               {checkoutReady
                 ? art.description
                 : "This candidate is in the ARTCOVR launch selection. Checkout opens only after commercial rights, price, license mode, and publication are approved."}
             </p>
+
+            {art.moodTags.length > 0 ? (
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {art.moodTags.map((tag) => (
+                  <li key={tag} className="border border-current/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] opacity-70">
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-bold uppercase tracking-[.08em] opacity-60">
               <li className="flex items-center gap-1.5">
                 <span aria-hidden="true">✓</span> Rights approved
@@ -91,14 +126,10 @@ export default async function ProductPage({ params }: Props) {
                 <Link href="/refunds" className="link-hover">Return policy</Link>
               </li>
             </ul>
-            {checkoutReady ? (
-              <Link href={`/checkout/${art.slug}`} className="artcovr-button mt-7 inline-block px-5 py-4 text-xs font-bold uppercase tracking-[.08em]">Review license</Link>
-            ) : (
-              <p className="mt-7 text-xs font-bold uppercase tracking-[.08em] opacity-60">Checkout pending owner approval</p>
-            )}
           </section>
         </div>
-        <div className="mt-20"><PromptStudio artwork={art} /></div>
+
+        <div className="mt-24"><PromptStudio artwork={art} /></div>
         {relatedWorks.length > 0 ? (
           <section aria-labelledby="related-works" className="mt-24 border-t-2 border-current pt-5">
             <div className="flex items-end justify-between gap-4">
@@ -118,7 +149,7 @@ export default async function ProductPage({ params }: Props) {
               {relatedWorks.map((related) => (
                 <li key={related.id}>
                   <Link href={`/product/${related.slug}`} className="group block" aria-label={`Open ${related.title}`}>
-                    <div className="relative aspect-square overflow-hidden bg-[#d2cac3] dark:bg-neutral-800">
+                    <div className="artcovr-plate relative aspect-square overflow-hidden">
                       <Image
                         src={related.image}
                         alt={related.alt}

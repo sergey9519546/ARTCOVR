@@ -229,3 +229,28 @@ html.lenis, html.lenis body { height: auto; }
   .artwork-grid-clamp > * { display: block !important; }
   .artwork-grid-reveal { display: none !important; }
 }
+
+/*
+ * Image plate: the ground an artwork sits on before its bytes arrive, and the
+ * matte around any image that does not fill its frame.
+ *
+ * Derived from the theme tokens rather than a fixed hex. The product and studio
+ * frames previously hard-coded #e9e2d7 / #d2cac3, which is a light-theme cream:
+ * in the dark theme those plates flashed a bright rectangle before every image
+ * painted. Mixing the foreground into the background keeps the plate one step
+ * off the page in whichever theme is active.
+ */
+.artcovr-plate {
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+}
+
+/*
+ * Cover-type frame: the studio preview doubles as a mock cover, and the
+ * typography laid over it is sized in `cqw` so it scales with the frame itself
+ * rather than with the viewport. Without a containment context those units
+ * would fall back to the small viewport and the type would resize when the
+ * window did, not when the frame did.
+ */
+.artcovr-cover-frame {
+  container-type: inline-size;
+}
