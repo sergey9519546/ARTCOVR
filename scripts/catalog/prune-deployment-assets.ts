@@ -13,9 +13,12 @@ if (process.env.NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING === "1") {
   process.exit(0);
 }
 
-const targetRoot = path.resolve(process.argv[2] ?? path.join(projectRoot, "out"));
+// next.config.ts sets distDir "next-build"; with output:"export" the static
+// site is emitted THERE, not to the historical out/. Vercel proved the drift:
+// a clean clone has no out/ at all and the prune gate correctly refused.
+const targetRoot = path.resolve(process.argv[2] ?? path.join(projectRoot, "next-build"));
 const normalized = targetRoot.replaceAll("\\", "/");
-const exportRoot = path.join(projectRoot, "out").replaceAll("\\", "/");
+const exportRoot = path.join(projectRoot, "next-build").replaceAll("\\", "/");
 const legacyStagingPattern =
   /^\/tmp\/build_fullstack_[A-Za-z0-9._-]+\/next-service-dist\/public$/;
 if (normalized !== exportRoot && !legacyStagingPattern.test(normalized)) {

@@ -15,7 +15,7 @@ import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";
 
-const exportRoot = path.resolve(import.meta.dirname, "..", "out");
+const exportRoot = path.resolve(import.meta.dirname, "..", "next-build");
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
 const host = process.env.HOST ?? "127.0.0.1";
 
