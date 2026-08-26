@@ -1,6 +1,6 @@
 import { HttpError, json, respondError } from "../_shared/errors.ts";
 import { admin } from "../_shared/supabase.ts";
-import { outputKeys, removePrivate } from "../_shared/storage.ts";
+import { allOutputKeys, removePrivate } from "../_shared/storage.ts";
 
 Deno.serve(async (request) => {
   try {
@@ -15,8 +15,9 @@ Deno.serve(async (request) => {
     if (error) throw new HttpError(502, "watchdog_failed", "Timed-out generation cleanup failed.");
     const timedOut = (data ?? []) as Array<{ generation_id: string; artwork_id: string }>;
     await Promise.all(timedOut.map(({ generation_id, artwork_id }) => {
-      const keys = outputKeys(artwork_id, generation_id);
-      return removePrivate([keys.clean, keys.preview]);
+      // The reaped worker died before recording which clean format the provider
+      // returned, so sweep every possible output key rather than assuming WebP.
+      return removePrivate(allOutputKeys(artwork_id, generation_id));
     }));
     return json({ timedOutGenerationIds: timedOut.map((row) => row.generation_id) });
   } catch (error) { return respondError(error); }
