@@ -19,6 +19,18 @@ Deno.serve(async (request) => {
       // returned, so sweep every possible output key rather than assuming WebP.
       return removePrivate(allOutputKeys(artwork_id, generation_id));
     }));
-    return json({ timedOutGenerationIds: timedOut.map((row) => row.generation_id) });
+    // Expired, never-consumed reference uploads are purged on the same beat:
+    // the RPC deletes the rows and hands back the object keys, and the objects
+    // go with them. A consumed upload is cleaned by its generation's own
+    // failure path, so this only ever touches uploads nothing used.
+    const { data: purged, error: purgeError } = await admin.rpc("purge_expired_reference_uploads", {});
+    if (purgeError) throw new HttpError(502, "watchdog_failed", "Expired reference-upload cleanup failed.");
+    const expired = (purged ?? []) as Array<{ upload_id: string; object_key: string }>;
+    await removePrivate(expired.map((row) => row.object_key));
+
+    return json({
+      timedOutGenerationIds: timedOut.map((row) => row.generation_id),
+      purgedReferenceUploadIds: expired.map((row) => row.upload_id),
+    });
   } catch (error) { return respondError(error); }
 });
