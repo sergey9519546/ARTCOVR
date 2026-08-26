@@ -6,6 +6,8 @@ import {
   PromptLengthError,
   REFERENCE_UPLOAD_INSTRUCTION,
   buildGenerationPrompt,
+  STYLE_MODE_EXACT_INSTRUCTION,
+  STYLE_MODE_EXPAND_INSTRUCTION,
 } from "../../supabase/functions/_shared/prompt.ts";
 import {
   MAXIMUM_REFERENCE_PIXELS,
@@ -341,4 +343,63 @@ test("request_generation keeps every pre-existing admission and lineage rule", a
   assert.match(sql, /v_limit := 4;/);
   // Applied migrations stay untouched.
   assert.match(previous, /returns table\(generation_id uuid, allowance_slot smallint, source_object_key text\)/);
+});
+
+test("cover text is rendered verbatim into the enrichment and never invents extra text", () => {
+  const artwork = { title: "Nocturne Drift", category: "ambient", moodTags: ["hazy"] };
+  const withCover = buildGenerationPrompt({
+    artwork,
+    userPrompt: "make the sky red",
+    hasReferenceUpload: false,
+    coverText: { title: "  Midnight   Static ", artistName: " The  Long Now " },
+  });
+  // Whitespace-normalised, quoted verbatim, and fenced against hallucinated text.
+  assert.ok(withCover.includes('the title "Midnight Static"'));
+  assert.ok(withCover.includes('the artist name "The Long Now"'));
+  assert.ok(withCover.includes("no other text"));
+
+  const without = buildGenerationPrompt({ artwork, userPrompt: "make the sky red", hasReferenceUpload: false });
+  assert.ok(!without.includes("cover typography"));
+
+  const again = buildGenerationPrompt({
+    artwork,
+    userPrompt: "make the sky red",
+    hasReferenceUpload: false,
+    coverText: { title: "  Midnight   Static ", artistName: " The  Long Now " },
+  });
+  assert.equal(withCover, again);
+});
+
+test("style mode branches deterministically and defaults to exact", () => {
+  const artwork = { title: "Nocturne Drift", category: "ambient", moodTags: [] };
+  const base = { artwork, userPrompt: "add rain", hasReferenceUpload: false } as const;
+
+  const defaulted = buildGenerationPrompt({ ...base });
+  const exact = buildGenerationPrompt({ ...base, styleMode: "exact" });
+  const expand = buildGenerationPrompt({ ...base, styleMode: "expand" });
+
+  assert.equal(defaulted, exact);
+  assert.ok(exact.includes(STYLE_MODE_EXACT_INSTRUCTION));
+  assert.ok(expand.includes(STYLE_MODE_EXPAND_INSTRUCTION));
+  assert.ok(!expand.includes(STYLE_MODE_EXACT_INSTRUCTION));
+  assert.notEqual(exact, expand);
+});
+
+test("the edge function bounds cover text and the provider is pinned to high input fidelity", async () => {
+  const generate = await readFile(
+    new URL("../../supabase/functions/generate-image/index.ts", import.meta.url),
+    "utf8",
+  );
+  // Cover text is validated before any allowance is spent, with its own code.
+  assert.match(generate, /cover_text_too_long/);
+  assert.match(generate, /coverText/);
+  assert.match(generate, /styleMode/);
+
+  const provider = await readFile(
+    new URL("../../supabase/functions/_shared/openai-images.ts", import.meta.url),
+    "utf8",
+  );
+  // Reference adherence: without high input fidelity the edit loosely
+  // reinterprets the source and both style modes become meaningless.
+  assert.match(provider, /form\.set\("input_fidelity", "high"\)/);
 });

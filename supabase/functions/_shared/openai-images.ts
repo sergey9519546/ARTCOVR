@@ -159,6 +159,11 @@ async function editImageOpenai(
   form.set("prompt", prompt);
   form.set("n", "1");
   form.set("quality", purchased ? "high" : "medium");
+  // High input fidelity is what makes the edit ADHERE to the reference image
+  // (and to an uploaded style reference) instead of loosely reinterpreting it.
+  // Applied to previews too: the preview is the iteration loop, and a preview
+  // that ignores the reference would misrepresent what a purchase produces.
+  form.set("input_fidelity", "high");
   form.set("size", purchased ? "2048x2048" : "1024x1024");
   form.set("output_format", "webp");
   form.set("image[]", new File([source], "source.png", { type: source.type || "image/png" }));

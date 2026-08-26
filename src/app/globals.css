@@ -244,13 +244,3 @@ html.lenis, html.lenis body { height: auto; }
   background: color-mix(in srgb, var(--foreground) 8%, var(--background));
 }
 
-/*
- * Cover-type frame: the studio preview doubles as a mock cover, and the
- * typography laid over it is sized in `cqw` so it scales with the frame itself
- * rather than with the viewport. Without a containment context those units
- * would fall back to the small viewport and the type would resize when the
- * window did, not when the frame did.
- */
-.artcovr-cover-frame {
-  container-type: inline-size;
-}

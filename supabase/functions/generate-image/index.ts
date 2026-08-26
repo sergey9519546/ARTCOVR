@@ -13,6 +13,8 @@ type RequestBody = {
   purchaseId?: string | null;
   referenceGenerationId?: string | null;
   referenceUploadId?: string | null;
+  coverText?: { title?: string | null; artistName?: string | null } | null;
+  styleMode?: "exact" | "expand" | null;
   resetToBase?: boolean;
   prompt?: string;
 };
@@ -102,6 +104,14 @@ Deno.serve(async (request) => {
     const user = await requireUser(request);
     const body = await readJson<RequestBody>(request);
     if (!body.artworkId || !body.prompt) throw new HttpError(400, "invalid_request", "artworkId and prompt are required.");
+    if (body.styleMode != null && body.styleMode !== "exact" && body.styleMode !== "expand") {
+      throw new HttpError(400, "invalid_request", "styleMode must be \"exact\" or \"expand\".");
+    }
+    const coverTitle = body.coverText?.title ?? "";
+    const coverArtist = body.coverText?.artistName ?? "";
+    if (typeof coverTitle !== "string" || typeof coverArtist !== "string" || coverTitle.length > 120 || coverArtist.length > 120) {
+      throw new HttpError(400, "cover_text_too_long", "Cover title and artist name must each be 120 characters or fewer.");
+    }
     // A prior result is the source being edited; an upload is a style reference.
     // Both at once has no single meaning, so it is refused here and again in SQL.
     if (body.referenceGenerationId && body.referenceUploadId) {
@@ -129,6 +139,8 @@ Deno.serve(async (request) => {
           moodTags: anchor?.mood_tags ?? null,
         },
         userPrompt: body.prompt,
+        coverText: body.coverText ?? null,
+        styleMode: body.styleMode ?? null,
         hasReferenceUpload: Boolean(body.referenceUploadId),
       });
     } catch (error) {

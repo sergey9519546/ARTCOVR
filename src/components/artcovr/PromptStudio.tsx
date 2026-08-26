@@ -9,7 +9,6 @@ import {
   getGenerationStatus,
   getMyImages,
 } from "@/lib/artcovr/functions";
-import { CoverTypeControls, CoverTypeLayer, useCoverType } from "./OverlayComposer";
 import { PromptComposer } from "./PromptComposer";
 import { ReferenceBadge } from "./ReferenceBadge";
 import { UploadCard } from "./UploadCard";
@@ -32,11 +31,15 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const currentResultId = useRef<string | undefined>(undefined);
   const resetToBase = useRef(false);
   const pendingPrompt = useRef("");
+  const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
+  const pendingStyleMode = useRef<"exact" | "expand">("exact");
   const ready = isPromptReady(prompt) && !restoring;
   const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
+  const [coverTitle, setCoverTitle] = useState(artwork.title);
+  const [coverArtist, setCoverArtist] = useState("");
+  const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
   const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const armedUploadRef = useRef<string | undefined>(undefined);
-  const { coverType, updateCoverType } = useCoverType(artwork.id, artwork.title);
 
   useEffect(() => {
     let active = true;
@@ -129,6 +132,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               ? { referenceUploadId }
               : { referenceGenerationId: currentResultId.current }),
             resetToBase: resetToBase.current,
+            ...(pendingCover.current ? { coverText: pendingCover.current } : {}),
+            styleMode: pendingStyleMode.current,
           });
           // Admission consumed the upload (single-use); a request rejected
           // BEFORE admission threw above and keeps the reference armed.
@@ -205,6 +210,13 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   function generate() {
     if (!ready || phase === "generating") return;
     pendingPrompt.current = prompt.trim();
+    const title = coverTitle.trim();
+    const artistName = coverArtist.trim();
+    pendingCover.current =
+      title || artistName
+        ? { ...(title ? { title } : {}), ...(artistName ? { artistName } : {}) }
+        : undefined;
+    pendingStyleMode.current = styleMode;
     jobId.current = undefined;
     setMessage(
       currentResultId.current
@@ -284,6 +296,74 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             disabled={phase === "generating"}
           />
 
+          <fieldset className="mt-6 border border-current/25 p-4" disabled={phase === "generating"}>
+            <legend className="px-1 text-[10px] font-bold uppercase tracking-[0.14em]">
+              Cover text — rendered into the image
+            </legend>
+            <p className="text-[11px] leading-4 opacity-60">
+              The generator paints this typography into the artwork itself, spelled exactly as
+              written. Leave a field empty to omit it.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label htmlFor="cover-title" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
+                  Title
+                </label>
+                <input
+                  id="cover-title"
+                  type="text"
+                  maxLength={120}
+                  value={coverTitle}
+                  onChange={(event) => setCoverTitle(event.target.value)}
+                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
+                />
+              </div>
+              <div>
+                <label htmlFor="cover-artist" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
+                  Artist name
+                </label>
+                <input
+                  id="cover-artist"
+                  type="text"
+                  maxLength={120}
+                  value={coverArtist}
+                  onChange={(event) => setCoverArtist(event.target.value)}
+                  placeholder="Your artist or band name"
+                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
+                />
+              </div>
+            </div>
+            <div className="mt-4" role="radiogroup" aria-labelledby="style-mode-label">
+              <p id="style-mode-label" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
+                Style handling
+              </p>
+              <div className="mt-1 flex flex-wrap gap-2">
+                <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "exact" ? "border-current" : "border-current/30 opacity-60"}`}>
+                  <input
+                    type="radio"
+                    name="style-mode"
+                    value="exact"
+                    checked={styleMode === "exact"}
+                    onChange={() => setStyleMode("exact")}
+                    className="sr-only"
+                  />
+                  Match style exactly
+                </label>
+                <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "expand" ? "border-current" : "border-current/30 opacity-60"}`}>
+                  <input
+                    type="radio"
+                    name="style-mode"
+                    value="expand"
+                    checked={styleMode === "expand"}
+                    onChange={() => setStyleMode("expand")}
+                    className="sr-only"
+                  />
+                  Expand on it
+                </label>
+              </div>
+            </div>
+          </fieldset>
+
           <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.14em] opacity-60">
             Compiled prompt
           </p>
@@ -332,7 +412,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         </div>
 
         <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-          <figure className="artcovr-plate artcovr-cover-frame relative aspect-square overflow-hidden">
+          <figure className="artcovr-plate relative aspect-square overflow-hidden">
             <Image
               src={previewSrc}
               alt={result ? `Generated image based on ${artwork.title}` : artwork.alt}
@@ -341,7 +421,6 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               sizes="(min-width: 1024px) 35vw, 100vw"
               className="object-cover"
             />
-            <CoverTypeLayer state={coverType} />
             {phase === "generating" ? (
               <div className="absolute inset-0 grid place-items-center bg-[var(--background)]/90">
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em]">Generating…</p>
@@ -351,12 +430,6 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               {result ? "Generated image — watermarked preview" : "Original artwork"}
             </figcaption>
           </figure>
-
-          <CoverTypeControls
-            state={coverType}
-            onChange={updateCoverType}
-            disabled={phase === "generating"}
-          />
         </div>
       </div>
     </section>

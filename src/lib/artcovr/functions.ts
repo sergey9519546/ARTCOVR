@@ -19,6 +19,13 @@ export type GenerationRequest = {
    */
   referenceUploadId?: string;
   resetToBase?: boolean;
+  /**
+   * Optional cover typography rendered INTO the generated image by the model.
+   * Verbatim spelling is enforced server-side in the enrichment template.
+   */
+  coverText?: { title?: string; artistName?: string };
+  /** "exact" (default) locks the reference style; "expand" allows reinterpretation. */
+  styleMode?: "exact" | "expand";
 };
 
 export type ReferenceUploadResponse = { referenceUploadId: string };
