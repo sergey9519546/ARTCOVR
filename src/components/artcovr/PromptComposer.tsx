@@ -152,45 +152,34 @@ export function PromptComposer({
   const groups = useMemo(() => buildGroups(artwork), [artwork]);
 
   return (
-    <div className="mt-6 space-y-5">
-      {groups.map((group) => (
-        <fieldset key={group.id} className="border-0 p-0">
-          <legend className="text-[10px] font-bold uppercase tracking-[0.14em] opacity-60">
-            {group.title}
-          </legend>
-          {/* opacity-60 is the floor here: at 50% this 11px text measures
-              ~3.7:1 on the cream background, under the 4.5:1 AA minimum. */}
-          <p className="mt-1 text-[11px] leading-4 opacity-60">{group.hint}</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {group.chips.map((chip) => {
-              const active = hasClause(value, chip.clause);
-              return (
-                <button
-                  key={chip.id}
-                  type="button"
-                  aria-pressed={active}
-                  disabled={disabled}
-                  onClick={() => onChange(applyClause(value, chip.clause))}
-                  className={`border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.06em] transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                    active
-                      ? "artcovr-button border-current"
-                      : "border-current/30 hover:border-current"
-                  }`}
-                >
-                  {chip.label}
-                  {/*
-                    The clause is appended as hidden text rather than set as a
-                    `title`, which would REPLACE the accessible name and leave
-                    it without the visible label — a WCAG 2.5.3 failure for
-                    voice control. As a suffix the visible label still leads.
-                  */}
-                  <span className="sr-only"> — {chip.clause}</span>
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
-      ))}
+    <div className="mt-3">
+      <p className="sr-only" id="prompt-suggestions-label">
+        Prompt suggestions — each adds a sentence to the prompt above
+      </p>
+      <div aria-labelledby="prompt-suggestions-label" className="flex flex-wrap gap-2">
+        {groups.flatMap((group) => group.chips).map((chip) => {
+          const active = hasClause(value, chip.clause);
+          return (
+            <button
+              key={chip.id}
+              type="button"
+              aria-pressed={active}
+              disabled={disabled}
+              onClick={() => onChange(applyClause(value, chip.clause))}
+              className={`border px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.06em] transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                active
+                  ? "artcovr-button border-current"
+                  : "border-current/30 hover:border-current"
+              }`}
+            >
+              {chip.label}
+              {/* Appended as hidden text, not `title`: a title would REPLACE
+                  the accessible name (WCAG 2.5.3 for voice control). */}
+              <span className="sr-only"> — {chip.clause}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

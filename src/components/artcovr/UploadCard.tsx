@@ -91,13 +91,14 @@ export function UploadCard({
   }
 
   return (
-    <section aria-labelledby="upload-reference-title" className="mt-6 border border-current/25 p-4">
-      <h3 id="upload-reference-title" className="text-[11px] font-bold uppercase tracking-[0.12em]">
+    <details className="group mt-6 border border-current/25" open={Boolean(file || armedUploadId)}>
+      <summary className="cursor-pointer list-none px-4 py-3 text-[11px] font-bold uppercase tracking-[0.12em]">
+        <span aria-hidden="true" className="mr-2 inline-block transition-transform group-open:rotate-90">›</span>
         Use your own image as a style reference
-      </h3>
+      </summary>
+      <div className="px-4 pb-4">
       <p className="mt-1 max-w-[52ch] text-[11px] leading-4 opacity-60">
-        Drop a JPEG, PNG, or WebP up to 8 MB. Files stay in your browser for now — reference upload
-        is coming online shortly.
+        JPEG, PNG or WebP, up to 8 MB. It applies to your next generation, then it is used up.
       </p>
 
       <div
@@ -181,6 +182,7 @@ export function UploadCard({
               : "")}
         </span>
       </div>
-    </section>
+      </div>
+    </details>
   );
 }

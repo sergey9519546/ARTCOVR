@@ -273,10 +273,6 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         <h2 id="direction-title" className="mt-2 text-3xl font-extrabold tracking-tight md:text-5xl">
           Describe any change.
         </h2>
-        <p className="mt-3 text-sm leading-6 opacity-70">
-          Start from this artwork, steer it with the controls below, and edit the compiled prompt by
-          hand at any time. Each successful result becomes the starting image for your next prompt.
-        </p>
       </div>
 
       <div className="mt-9 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(21rem,.88fr)] lg:gap-14">
@@ -289,6 +285,16 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             resetDisabled={busy}
           />
 
+
+          <label htmlFor="prompt" className="sr-only">Describe the change you want</label>
+          <textarea
+            id="prompt"
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            placeholder="For example: keep the atmosphere and introduce a midnight-blue skyline."
+            rows={6}
+            className="mt-5 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
+          />
           <PromptComposer
             artwork={artwork}
             value={prompt}
@@ -300,11 +306,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             <legend className="px-1 text-[10px] font-bold uppercase tracking-[0.14em]">
               Cover text — rendered into the image
             </legend>
-            <p className="text-[11px] leading-4 opacity-60">
-              The generator paints this typography into the artwork itself, spelled exactly as
-              written. Leave a field empty to omit it.
-            </p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <div className="mt-1 grid gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor="cover-title" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
                   Title
@@ -333,11 +335,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 />
               </div>
             </div>
-            <div className="mt-4" role="radiogroup" aria-labelledby="style-mode-label">
-              <p id="style-mode-label" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
-                Style handling
-              </p>
-              <div className="mt-1 flex flex-wrap gap-2">
+            <div className="mt-3" role="radiogroup" aria-label="Style handling">
+              <div className="flex flex-wrap gap-2">
                 <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "exact" ? "border-current" : "border-current/30 opacity-60"}`}>
                   <input
                     type="radio"
@@ -363,23 +362,6 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               </div>
             </div>
           </fieldset>
-
-          <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.14em] opacity-60">
-            Compiled prompt
-          </p>
-          <p className="mt-1 text-[11px] leading-4 opacity-60">
-            Everything above writes into this box. Edit it freely — this exact text is what gets
-            sent.
-          </p>
-          <label htmlFor="prompt" className="sr-only">Describe the change you want</label>
-          <textarea
-            id="prompt"
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            placeholder="For example: keep the atmosphere and introduce a midnight-blue skyline."
-            rows={6}
-            className="mt-2 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
-          />
           <div className="mt-3 flex flex-wrap items-center gap-4">
             <button
               type="button"
