@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
 import type { Artwork } from "@/lib/artcovr/artworks";
-import { searchArtworks } from "@/lib/artcovr/artworks";
+import { hybridSearch } from "@/lib/artcovr/semantic-search";
 
 type SortMode = "featured" | "price-asc" | "price-desc";
 
@@ -59,7 +59,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
   );
 
   const filteredItems = useMemo(() => {
-    const textMatched = searchArtworks(query, items);
+    const textMatched = hybridSearch(query, items);
     const matched = textMatched.filter((art) => {
       if (category && art.category !== category) return false;
       if (priceBand && priceBandOf(art) !== priceBand) return false;
