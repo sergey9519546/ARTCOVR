@@ -2,17 +2,47 @@
 
 All release gates must pass before any version is marked production-ready.
 
-| Gate | Requirement | Command / Check | Status (2026-08-18) |
+| Gate | Requirement | Command / Check (bun — mapped from the documented command) | Status (2026-08-26) |
 | :--- | :--- | :--- | :--- |
-| **G1: Unit & Contract Tests** | 100% test pass | `npm test` | **PASS** (145 pass, 0 fail, 0 skip) |
-| **G2: TypeScript Compilation** | Zero type errors | `npm run typecheck` | **PASS** |
-| **G3: Code Quality & Lint** | Zero ESLint warnings / errors | `npm run lint` | **PASS** (`@typescript-eslint/no-unused-vars` enabled; remaining rules deferred with written reasons per ULTRAPLAN task 8) |
-| **G4: Production Build** | Zero build errors; export pruned to approved assets | `npm run build` | **PASS** (139 published, 0 removed; 2656 files scanned, 0 forbidden slugs, 0 violations) |
-| **G5: Browser & E2E Tests** | All Playwright journeys pass | `npm run test:e2e` | **PASS** (42/42, desktop + mobile) |
-| **G6: Catalog Integrity** | Projection matches approved records | `npm run catalog:project:check`, `npm run catalog:launch:check` | **PASS** (169 approved → 139 projected, 30 delete-tier excluded, `launchCountValid: true`; pricing overrides wired via `catalog/pricing-overrides.json` + ADR-020) |
-| **G7: Security Headers** | CSP, X-Frame-Options, noindex on staging | Automated contract test + `vercel.json` headers | **PASS** |
-| **G8: Commerce Hardening** | Frozen prices, idempotent settle, dispute revoke/restore, convergent webhooks, dual-lane generation admission, dispute-pause entitlement credit, base-drift reconciliation | Backend tests + migrations 0001–0011 applied on disposable PG16 with behavioral checks | **PASS** (locally; live Supabase rolled out 0001–0011 on 2026-08-15: 6 public base tables verified, frozen `restore_purchase_access` intact, 3 new `0011` RPCs present, RLS enabled on artworks+purchases, watchdog crons firing HTTP 200, `entitlement_paused_at`+`base_snapshot_prior` columns live) |
-| **G9: Display Asset Integrity** | JPEG, square display derivatives; curated/seed sha sync | `tests/unit/catalog-display-assets.test.ts` | **PASS** |
+| **G1: Unit & Contract Tests** | 100% test pass | `bun run test` | **PASS** (exit 0, 11.4s, 2026-08-26T22:49:35Z) — ℹ tests 199, ℹ pass 199, ℹ fail 0, ℹ cancelled 0, ℹ skipped 0 |
+| **G2: TypeScript Compilation** | Zero type errors | `bun run typecheck` | **PASS** (exit 0, 1.3s, 2026-08-26T22:49:35Z) |
+| **G3: Code Quality & Lint** | Zero ESLint warnings / errors | `bun run lint` | **PASS** (exit 0, 4.7s, 2026-08-26T22:49:35Z) |
+| **G4: Production Build** | Zero build errors; export pruned to approved assets | `bun run build` | **PASS** (exit 0, 13.6s, 2026-08-26T22:49:35Z) — {"scannedFiles":3523,"reviewSlugs":169,"allowedSlugs":187,"forbiddenSlugs":30,"observedAllowedSlugs":187,"violations":0} — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
+| **G5: Browser & E2E Tests** | All Playwright journeys pass | `bun run test:e2e` | **NOT RUN** — requires live services this runner does not start — playwright.config.ts spawns a Next dev server on 127.0.0.1:45180 and drives an installed Chrome channel. Opt in explicitly with ARTCOVR_GATES_E2E=1. |
+| **G6: Catalog Integrity** | Projection matches approved records | `bun run catalog:project:check`, `bun run catalog:launch:check` | **PASS** (exit 0, 0.6s, 2026-08-26T22:49:35Z) — checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true; checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
+| **G7: Security Headers** | CSP, X-Frame-Options, noindex on staging | `vercel.json` | **NOT RUN** — no executable command in the Command / Check column — it names only `vercel.json` plus prose, so nothing could be executed and no status can be certified |
+| **G8: Commerce Hardening** | Frozen prices, idempotent settle, dispute revoke/restore, convergent webhooks, dual-lane generation admission, dispute-pause entitlement credit, base-drift reconciliation | Backend tests + migrations 0001–0011 applied on disposable PG16 with behavioral checks | **NOT RUN** — requires credentials and a live/disposable PostgreSQL instance to apply and behaviourally verify migrations 0001–0011: the `supabase` CLI is not installed (spawn ENOENT); no SUPABASE_DB_URL / SUPABASE_SERVICE_ROLE_KEY / DATABASE_URL is present in the environment. A file's presence never proves a migration is applied. |
+| **G9: Display Asset Integrity** | JPEG, square display derivatives; curated/seed sha sync | `node --test --experimental-strip-types tests/unit/catalog-display-assets.test.ts` | **PASS** (exit 0, 0.3s, 2026-08-26T22:49:35Z) — ℹ tests 2, ℹ pass 2, ℹ fail 0, ℹ cancelled 0, ℹ skipped 0 |
+
+<!-- release-gates:begin (generated by scripts/agent/release-gates.mjs — do not hand-edit) -->
+
+**How this table was produced.** `node scripts/agent/release-gates.mjs` executed it on 2026-08-26 (run `2026-08-26T22:49:35Z`). Every Status cell above is derived from a child-process exit code captured during that run and written to `~/.claude/logs/release-gates.jsonl`; no cell can read **PASS** without one.
+
+**Command mapping (npm is never spawned — `bun` is canonical per AGENTS.md).** The documented Command column was rewritten to the form actually executed:
+
+- `npm test → bun run test`
+- `npm run typecheck → bun run typecheck`
+- `npm run lint → bun run lint`
+- `npm run build → bun run build`
+- `npm run test:e2e → bun run test:e2e`
+- `npm run catalog:project:check → bun run catalog:project:check`
+- `npm run catalog:launch:check → bun run catalog:launch:check`
+- `tests/unit/catalog-display-assets.test.ts (a test file, not a command) → node --test --experimental-strip-types tests/unit/catalog-display-assets.test.ts`
+
+**NOT RUN (3).** A gate that needs credentials, a live service, a browser, or an absent CLI is recorded NOT RUN with its reason. It never becomes PASS by default:
+
+- **G5** — requires live services this runner does not start — playwright.config.ts spawns a Next dev server on 127.0.0.1:45180 and drives an installed Chrome channel. Opt in explicitly with ARTCOVR_GATES_E2E=1.
+- **G7** — no executable command in the Command / Check column — it names only `vercel.json` plus prose, so nothing could be executed and no status can be certified
+- **G8** — requires credentials and a live/disposable PostgreSQL instance to apply and behaviourally verify migrations 0001–0011: the `supabase` CLI is not installed (spawn ENOENT); no SUPABASE_DB_URL / SUPABASE_SERVICE_ROLE_KEY / DATABASE_URL is present in the environment. A file's presence never proves a migration is applied.
+
+**Numeric cross-check against computed catalog truth.** `node scripts/agent/rights-audit.mjs` reports **217 total / 217 approved / 187 publishable** (30 delete-tier excluded). Every `<N> published|approved|projected` claim in `.agent-state/*.md` was compared against it: **5 agree, 3 conflict, 1 superseded ledger claim(s)** in `DECISIONS.md` (an append-only record of dated decisions — its numbers are history by construction and are never rewritten).
+
+- `SOURCE-OF-TRUTH-CONFLICT` — `.agent-state/RELEASE_GATES.md`:10 (G4) stated **139 published**; `catalog/approved-artworks.json` computes **187** (rights-audit.publishable (approved rows minus delete-tier)). Computed value wins; the Status column above carries the corrected number.
+- `SOURCE-OF-TRUTH-CONFLICT` — `.agent-state/RELEASE_GATES.md`:12 (G6) stated **169 approved**; `catalog/approved-artworks.json` computes **217** (rights-audit.approved (rows passing rights/published/price)). Computed value wins; the Status column above carries the corrected number.
+- `SOURCE-OF-TRUTH-CONFLICT` — `.agent-state/RELEASE_GATES.md`:12 (G6) stated **139 projected**; `catalog/approved-artworks.json` computes **187** (rights-audit.publishable (approved rows minus delete-tier)). Computed value wins; the Status column above carries the corrected number.
+
+<!-- release-gates:end -->
+
 ## Launch blockers that are OWNER decisions, not engineering defects
 1. **FABRICATED_PRICING_APPROVAL** — **RESOLVED (ADR-019, 2026-08-15)**: Owner confirmed the four-tier pricing ($10/$35/$80/$200; 30 exclusive/70 repeatable at launch, now 51 exclusive/118 repeatable across 169) as owner-approved. No longer a launch blocker. See ADR-019.
 2. **Stripe webhook event enablement** — enable the `charge.dispute.closed` event on the Stripe webhook endpoint via the Stripe dashboard. Migration `202608140009_convergence_hardening.sql` is applied live, the edge function handles the event, and both watchdog crons are provisioned and firing HTTP 200 every minute. `OPENAI_IMAGE_TIMEOUT_MS` is auto-satisfied (defaults to 115000, under the 130000 watchdog cap). Only the Stripe dashboard toggle remains.
