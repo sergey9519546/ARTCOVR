@@ -10,9 +10,28 @@ export type GenerationRequest = {
   artworkId: string;
   prompt: string;
   purchaseId?: string;
+  /** A prior generated result to continue editing from. */
   referenceGenerationId?: string;
+  /**
+   * An image the user uploaded through {@link uploadReference}, used only as a
+   * style reference. Mutually exclusive with `referenceGenerationId`; sending
+   * both is rejected with 400 `dual_reference_conflict`.
+   */
+  referenceUploadId?: string;
   resetToBase?: boolean;
 };
+
+export type ReferenceUploadResponse = { referenceUploadId: string };
+
+/** Media types the reference upload endpoint accepts. */
+export const REFERENCE_UPLOAD_MEDIA_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+
+/** Byte ceiling the reference upload endpoint enforces server-side. */
+export const REFERENCE_UPLOAD_MAX_BYTES = 8 * 1024 * 1024;
 
 export type GenerationResponse = {
   generationId: string;
@@ -83,7 +102,7 @@ export type AccountData = {
 
 type ErrorPayload = { message?: string; error?: string; code?: string };
 
-async function request<T>(path: string, init: RequestInit) {
+async function authorized(init: RequestInit) {
   const config = getSupabasePublicConfig();
   const client = getSupabaseBrowserClient();
   if (!config || !client) {
@@ -106,13 +125,10 @@ async function request<T>(path: string, init: RequestInit) {
   const headers = new Headers(init.headers);
   headers.set("Authorization", `Bearer ${data.session.access_token}`);
   headers.set("apikey", config.anonKey);
-  if (init.body) headers.set("Content-Type", "application/json");
+  return { url: config.url, headers };
+}
 
-  const response = await fetch(`${config.url}${path}`, {
-    ...init,
-    headers,
-    cache: "no-store",
-  });
+async function readPayload<T>(response: Response) {
   const payload = (await response.json().catch(() => ({}))) as T & ErrorPayload;
   if (!response.ok) {
     throw new ArtcovrApiError(
@@ -122,6 +138,76 @@ async function request<T>(path: string, init: RequestInit) {
     );
   }
   return payload;
+}
+
+async function request<T>(path: string, init: RequestInit) {
+  const { url, headers } = await authorized(init);
+  if (init.body) headers.set("Content-Type", "application/json");
+
+  const response = await fetch(`${url}${path}`, {
+    ...init,
+    headers,
+    cache: "no-store",
+  });
+  return readPayload<T>(response);
+}
+
+// Image uploads are sent as a raw body with the file's own media type: there is
+// no JSON envelope to base64-inflate the bytes into, and no multipart form for a
+// caller to smuggle an extra field through. Everything else about the request --
+// session bearer token, anon key, no-store -- matches the JSON path.
+async function requestBinary<T>(path: string, body: Blob, contentType: string) {
+  const { url, headers } = await authorized({});
+  headers.set("Content-Type", contentType);
+
+  const response = await fetch(`${url}${path}`, {
+    method: "POST",
+    headers,
+    body,
+    cache: "no-store",
+  });
+  return readPayload<T>(response);
+}
+
+/**
+ * Uploads one image to use as a style reference for a later generation.
+ *
+ * The type and size checks below are a courtesy so an unusable file is refused
+ * before it is sent; the Edge Function re-applies both to the bytes it actually
+ * receives, decodes them, and re-encodes the image before storing it. The
+ * returned id is opaque: it names no bucket, path or URL, and only the server
+ * can resolve it back to an object.
+ *
+ * Pass it to {@link createGeneration} as `referenceUploadId`. It is single-use,
+ * bound to the artwork it was uploaded for, and expires after 24 hours.
+ */
+export async function uploadReference(
+  file: Blob,
+  artworkId: string,
+): Promise<ReferenceUploadResponse> {
+  const mediaType = (file.type || "").split(";")[0].trim().toLowerCase();
+  if (!(REFERENCE_UPLOAD_MEDIA_TYPES as readonly string[]).includes(mediaType)) {
+    throw new ArtcovrApiError(
+      415,
+      "unsupported_media_type",
+      "Upload a JPEG, PNG or WebP image.",
+    );
+  }
+  if (file.size === 0) {
+    throw new ArtcovrApiError(400, "invalid_request", "That file is empty.");
+  }
+  if (file.size > REFERENCE_UPLOAD_MAX_BYTES) {
+    throw new ArtcovrApiError(
+      413,
+      "reference_too_large",
+      "Reference images must be 8 MB or smaller.",
+    );
+  }
+  return requestBinary<ReferenceUploadResponse>(
+    `/functions/v1/upload-reference?artworkId=${encodeURIComponent(artworkId)}`,
+    file,
+    mediaType,
+  );
 }
 
 export function createGeneration(requestBody: GenerationRequest) {

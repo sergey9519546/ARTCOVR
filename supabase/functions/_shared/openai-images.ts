@@ -148,7 +148,12 @@ function decodeB64Json(b64: string): Uint8Array {
   }
 }
 
-async function editImageOpenai(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
+async function editImageOpenai(
+  source: Blob,
+  prompt: string,
+  purchased: boolean,
+  references: Blob[],
+): Promise<EditResult> {
   const form = new FormData();
   form.set("model", imageModel);
   form.set("prompt", prompt);
@@ -157,6 +162,16 @@ async function editImageOpenai(source: Blob, prompt: string, purchased: boolean)
   form.set("size", purchased ? "2048x2048" : "1024x1024");
   form.set("output_format", "webp");
   form.set("image[]", new File([source], "source.png", { type: source.type || "image/png" }));
+  // The OpenAI image-edit endpoint takes a repeated `image[]` part; the first is
+  // the image being edited and any further parts are additional inputs the model
+  // may draw on. Appending happens only when a reference exists, so a request
+  // with no reference produces exactly the single-part form it always did.
+  references.forEach((reference, index) => {
+    form.append(
+      "image[]",
+      new File([reference], `reference-${index + 1}.webp`, { type: reference.type || "image/webp" }),
+    );
+  });
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMilliseconds());
   let response: Response;
@@ -224,11 +239,30 @@ async function editImageXai(source: Blob, prompt: string, purchased: boolean): P
   return { bytes: downloaded.bytes, requestId: downloaded.requestId ?? requestId, usage: payload?.usage ?? {}, format };
 }
 
-export async function editImage(source: Blob, prompt: string, purchased: boolean): Promise<EditResult> {
+// Only the OpenAI wire shape has a repeated image part. xAI's /v1/images/edits
+// takes a single `image` object, so there is no honest place to put a second
+// input; a reference upload is refused before any allowance is spent rather
+// than silently dropped, which would hand the user a result that ignored the
+// image they supplied.
+export const supportsReferenceUploads = provider === "openai";
+export const maximumReferenceImages = 1;
+
+export async function editImage(
+  source: Blob,
+  prompt: string,
+  purchased: boolean,
+  references: Blob[] = [],
+): Promise<EditResult> {
   if (!apiKey) throw new Error("Missing OPENAI_API_KEY.");
+  if (references.length > maximumReferenceImages) {
+    throw new HttpError(400, "too_many_reference_images", "Only one uploaded style reference is accepted.");
+  }
+  if (references.length > 0 && !supportsReferenceUploads) {
+    throw new HttpError(501, "reference_upload_unsupported", "The configured image provider cannot accept an uploaded style reference.");
+  }
   const result = provider === "xai"
     ? await editImageXai(source, prompt, purchased)
-    : await editImageOpenai(source, prompt, purchased);
+    : await editImageOpenai(source, prompt, purchased, references);
   try {
     const validated = validateSquareRaster(result.bytes, purchased ? 2048 : 1024, maximumOutputBytes);
     result.format = validated.format;
