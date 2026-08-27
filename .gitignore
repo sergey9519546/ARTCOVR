@@ -82,9 +82,10 @@ server.log
 /upload/
 *.mp4
 
-# Skills installed via npx skills
+# Skills installed via npx skills (root dir only — a bare agent/ swallowed
+# scripts/agent/, silently untracking the git-hook gate scripts)
 .agents/skills/
-agent/
+/agent/
 skills-lock.json
 
 # Catalog rescore scratch: proposals and pre-swap backups are working artifacts,

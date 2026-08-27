@@ -1,0 +1,10 @@
+#!/bin/sh
+# Enforcement gate: typecheck + tests before any commit. FAIL-MODE closed.
+# Bootstrap exception: on a checkout that predates the gate (no gate.mjs),
+# warn and allow — blocking every historical branch would strand the owner.
+# doctor flags this state; the gate branch itself is always enforced.
+if [ ! -f "scripts/agent/gate.mjs" ]; then
+  echo "[gate] scripts/agent/gate.mjs absent on this checkout - gate not enforced here" >&2
+  exit 0
+fi
+exec "/c/Program Files/nodejs/node" scripts/agent/gate.mjs pre-commit

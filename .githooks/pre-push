@@ -1,0 +1,8 @@
+#!/bin/sh
+# Deploy gate: push to artcovr-storefront IS the production deploy.
+# lint + catalog launch check + rights audit. FAIL-MODE closed.
+if [ ! -f "scripts/agent/gate.mjs" ]; then
+  echo "[gate] scripts/agent/gate.mjs absent on this checkout - gate not enforced here" >&2
+  exit 0
+fi
+exec "/c/Program Files/nodejs/node" scripts/agent/gate.mjs pre-push
