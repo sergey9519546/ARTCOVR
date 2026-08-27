@@ -123,7 +123,14 @@ Remaining deferred rules (written reasons preserved):
 
 **Done when:** the six items above are either enabled and green, or off with a written reason recorded here.
 
-**Status (2026-08-18):** `@typescript-eslint/no-unused-vars` is on and green. Five rules remain deferred with documented reasons.
+**Status (2026-08-27):** Four of the five deferred rules are now enabled and lint-clean:
+- `no-unreachable: error` ✅ (was already on)
+- `no-fallthrough: error` ✅ (was already on)
+- `react-hooks/exhaustive-deps: error` ✅ (was already on)
+- `@typescript-eslint/ban-ts-comment: error` ✅ (enabled 2026-08-27 — zero `@ts-ignore`/`@ts-expect-error` in codebase)
+
+One rule remains deferred with written reason:
+- **`no-undef`** — 5 false positives from TypeScript ambient globals (`Bun`, `React` JSX, `RequestInit`). ESLint lacks awareness of TypeScript's global type context without an explicit `globals` config. Fix requires adding `globals: { Bun: true }` and configuring `languageOptions.globals` for browser DOM types. Keep off until a dedicated pass adds that config cleanly.
 
 ---
 
