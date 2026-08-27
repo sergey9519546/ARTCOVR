@@ -34,7 +34,7 @@ export default defineConfig({
   webServer: externalBaseUrl
     ? undefined
     : {
-        command: `bun run dev -- --hostname 127.0.0.1 --port ${port}`,
+        command: `npx next dev --hostname 127.0.0.1 --port ${port}`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
