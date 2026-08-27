@@ -118,7 +118,7 @@ export function FullScreenSnap() {
   if (displayArtworks.length === 0) return null;
 
   return (
-    <div ref={wrapperRef} id="editorial" tabIndex={-1} className="relative scroll-mt-0 focus:outline-none">
+    <div ref={wrapperRef} id="editorial" tabIndex={-1} className="relative scroll-mt-0">
       {/*
         * The bar paints the theme ground, not a fixed cream. `bg-cream` is the
         * same #f3ecd9 as `--foreground` in the dark theme, so the marquee text

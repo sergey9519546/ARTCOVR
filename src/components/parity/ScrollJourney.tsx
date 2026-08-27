@@ -26,7 +26,6 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
   const [consts] = useState<JourneyConsts>(() =>
     makeJourneyConsts(featuredArtworks.length),
   );
-
   useEffect(() => {
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
     const updateMode = () => setStaticMode(mediaQuery.matches);
@@ -95,6 +94,7 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
     };
   }, [enabled, staticMode, motionFailed, consts.total]);
 
+  if (featuredArtworks.length < 2) return null;
   if (staticMode || motionFailed) {
     return (
       <>
