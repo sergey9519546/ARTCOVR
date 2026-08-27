@@ -87,6 +87,10 @@ test("the home surfaces expose the complete featured tier without broken images"
 });
 
 test("the archive lists every published tier and each product destination renders", async ({ request }) => {
+  // On a freshly started dev server every route needs JIT compilation, so the
+  // serial probe of all 187 product pages can take well over 30 s.  Raise the
+  // per-test budget without weakening any assertion.
+  test.setTimeout(90_000);
   const archive = await request.get("/archive");
   expect(archive.status()).toBe(200);
   const html = await archive.text();
