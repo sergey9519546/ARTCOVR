@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARTCOVR — Flag Review</title>
+<style>
+  :root{
+    --bg:#0d0f12;
+    --bg-2:#14171c;
+    --card:#171b21;
+    --card-2:#1d222a;
+    --line:#2a3038;
+    --text:#e8eaed;
+    --muted:#9aa3ad;
+    --dim:#6b7480;
+    --keep:#2fbf5f;
+    --archive:#3d8bfd;
+    --remove:#e14b53;
+    --accent:#d9b26a;
+    --radius:14px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font);
+    font-size:15px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- sticky header ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(13,15,18,.93);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar{
+    max-width:1900px;
+    margin:0 auto;
+    padding:12px 22px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    font-weight:700;
+    letter-spacing:.14em;
+    font-size:13px;
+    text-transform:uppercase;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  .brand small{
+    display:block;
+    letter-spacing:.04em;
+    text-transform:none;
+    font-weight:400;
+    font-size:11px;
+    color:var(--dim);
+  }
+  .progress-wrap{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:260px;
+    flex:1 1 260px;
+  }
+  .progress-text{
+    font-variant-numeric:tabular-nums;
+    font-size:14px;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .progress-text span{color:var(--dim);font-weight:400;}
+  .track{
+    flex:1;
+    height:7px;
+    background:#22272e;
+    border-radius:99px;
+    overflow:hidden;
+    min-width:80px;
+  }
+  .track i{
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--keep),var(--accent));
+    transition:width .25s ease;
+  }
+  .tallies{display:flex;gap:8px;flex-wrap:wrap;}
+  .tally{
+    font-size:12px;
+    font-weight:600;
+    padding:5px 11px;
+    border-radius:99px;
+    border:1px solid var(--line);
+    background:var(--bg-2);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  .tally.keep{color:var(--keep);border-color:rgba(47,191,95,.4);}
+  .tally.archive{color:var(--archive);border-color:rgba(61,139,253,.4);}
+  .tally.remove{color:var(--remove);border-color:rgba(225,75,83,.4);}
+  .tally.todo{color:var(--muted);}
+
+  .actions{display:flex;gap:9px;flex-wrap:wrap;margin-left:auto;}
+  button{
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    background:var(--card-2);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:9px 14px;
+    cursor:pointer;
+    transition:background .12s ease, border-color .12s ease, transform .06s ease;
+  }
+  button:hover{background:#262d37;border-color:#3b434e;}
+  button:active{transform:translateY(1px);}
+  button.primary{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#1a1408;
+  }
+  button.primary:hover{background:#e6c17c;border-color:#e6c17c;}
+  button.ghost{background:transparent;}
+
+  /* ---------- legend ---------- */
+  .legend{
+    max-width:1900px;
+    margin:0 auto;
+    padding:0 22px 12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    font-size:12px;
+    color:var(--dim);
+  }
+  .legend .chip{cursor:default;}
+  .hint{
+    font-size:12px;
+    color:var(--dim);
+    padding-left:4px;
+  }
+  kbd{
+    font-family:var(--mono);
+    font-size:11px;
+    background:#22272e;
+    border:1px solid var(--line);
+    border-bottom-width:2px;
+    border-radius:5px;
+    padding:1px 5px;
+    color:var(--muted);
+  }
+
+  /* ---------- grid ---------- */
+  main{
+    max-width:1900px;
+    margin:0 auto;
+    padding:22px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(380px, 1fr));
+    gap:22px;
+  }
+
+  .card{
+    background:var(--card);
+    border:3px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .card.hovered{box-shadow:0 0 0 1px rgba(217,178,106,.35);}
+  .card[data-verdict="keep"]{border-color:var(--keep);}
+  .card[data-verdict="archive"]{border-color:var(--archive);}
+  .card[data-verdict="remove"]{border-color:var(--remove);}
+
+  .corner{
+    position:absolute;
+    top:10px;
+    right:10px;
+    z-index:3;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    padding:6px 11px;
+    border-radius:7px;
+    color:#0d0f12;
+    display:none;
+    box-shadow:0 2px 10px rgba(0,0,0,.5);
+  }
+  .card[data-verdict] .corner{display:block;}
+  .card[data-verdict="keep"] .corner{background:var(--keep);}
+  .card[data-verdict="archive"] .corner{background:var(--archive);color:#fff;}
+  .card[data-verdict="remove"] .corner{background:var(--remove);color:#fff;}
+
+  .imgbox{
+    position:relative;
+    background:#0a0c0f;
+    min-height:300px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-bottom:1px solid var(--line);
+  }
+  .imgbox img{
+    display:block;
+    width:100%;
+    height:auto;
+    max-height:560px;
+    object-fit:contain;
+  }
+  .imgbox .placeholder{
+    display:none;
+    padding:48px 20px;
+    text-align:center;
+    color:var(--dim);
+    font-family:var(--mono);
+    font-size:12px;
+    word-break:break-all;
+    line-height:1.7;
+  }
+  .imgbox .placeholder strong{
+    display:block;
+    color:var(--remove);
+    font-family:var(--font);
+    font-size:13px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .imgbox.missing img{display:none;}
+  .imgbox.missing .placeholder{display:block;}
+
+  .body{padding:14px 16px 6px;}
+  .title-row{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+  .title{font-size:17px;font-weight:650;letter-spacing:.01em;}
+  .price{
+    font-variant-numeric:tabular-nums;
+    font-weight:700;
+    font-size:16px;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+  .meta{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:6px;
+    flex-wrap:wrap;
+  }
+  .slug{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--dim);
+    word-break:break-all;
+  }
+  .mode{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.11em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:5px;
+    border:1px solid var(--line);
+    color:var(--muted);
+    white-space:nowrap;
+  }
+  .mode.exclusive{
+    color:#e9d3a2;
+    border-color:rgba(217,178,106,.45);
+    background:rgba(217,178,106,.09);
+  }
+  .mode.repeatable{
+    color:#a9c7e8;
+    border-color:rgba(120,165,215,.35);
+    background:rgba(120,165,215,.08);
+  }
+
+  .flags{padding:12px 16px 4px;display:flex;flex-direction:column;gap:9px;}
+  .flag{
+    border-radius:9px;
+    padding:9px 11px;
+    border:1px solid;
+  }
+  .chip{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:5px;
+    margin-bottom:5px;
+  }
+  .flag .why{font-size:12.5px;color:var(--muted);line-height:1.4;}
+
+  .flag.f-watermark_or_text{background:rgba(240,180,60,.07);border-color:rgba(240,180,60,.3);}
+  .flag.f-watermark_or_text .chip{background:rgba(240,180,60,.18);color:#f3c163;}
+  .flag.f-identifiable_person{background:rgba(196,110,220,.07);border-color:rgba(196,110,220,.3);}
+  .flag.f-identifiable_person .chip{background:rgba(196,110,220,.18);color:#d094e6;}
+  .flag.f-possible_photo_of_physical_artwork{background:rgba(80,190,200,.07);border-color:rgba(80,190,200,.3);}
+  .flag.f-possible_photo_of_physical_artwork .chip{background:rgba(80,190,200,.18);color:#6fd3dc;}
+  .flag.f-unknown{background:rgba(150,150,150,.07);border-color:rgba(150,150,150,.3);}
+  .flag.f-unknown .chip{background:rgba(150,150,150,.18);color:#bbb;}
+
+  .verdicts{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    padding:14px 16px 16px;
+    margin-top:auto;
+  }
+  .vbtn{
+    padding:11px 6px;
+    font-size:12.5px;
+    font-weight:750;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:var(--card-2);
+    color:var(--muted);
+  }
+  .vbtn:hover{color:var(--text);}
+  .vbtn.k.on{background:var(--keep);border-color:var(--keep);color:#08240f;}
+  .vbtn.a.on{background:var(--archive);border-color:var(--archive);color:#fff;}
+  .vbtn.r.on{background:var(--remove);border-color:var(--remove);color:#fff;}
+  .vbtn .num{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:10px;
+    opacity:.55;
+    margin-right:4px;
+  }
+
+  /* ---------- export panel ---------- */
+  .export{
+    max-width:1900px;
+    margin:0 auto;
+    padding:0 22px 60px;
+  }
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+  }
+  .panel h2{
+    margin:0 0 4px;
+    font-size:15px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .panel p{margin:0 0 12px;font-size:13px;color:var(--muted);}
+  textarea{
+    width:100%;
+    min-height:280px;
+    background:#0a0c0f;
+    color:#cfe3d0;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    line-height:1.55;
+    resize:vertical;
+  }
+  .copystate{
+    font-size:12.5px;
+    margin-top:10px;
+    min-height:18px;
+    color:var(--keep);
+    font-weight:600;
+  }
+  .copystate.warn{color:#f3c163;}
+  footer{
+    max-width:1900px;
+    margin:0 auto;
+    padding:0 22px 40px;
+    color:var(--dim);
+    font-size:12px;
+  }
+  @media (max-width:520px){
+    .grid{grid-template-columns:1fr;}
+    .bar{padding:10px 14px;}
+    main,.export,footer,.legend{padding-left:14px;padding-right:14px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="brand">ARTCOVR<small>Provenance flag review</small></div>
+
+    <div class="progress-wrap">
+      <div class="progress-text" id="progressText">0 / 25 <span>decided</span></div>
+      <div class="track"><i id="progressBar"></i></div>
+    </div>
+
+    <div class="tallies">
+      <div class="tally keep"  id="tKeep">KEEP 0</div>
+      <div class="tally archive" id="tArchive">ARCHIVE 0</div>
+      <div class="tally remove" id="tRemove">REMOVE 0</div>
+      <div class="tally todo" id="tTodo">UNDECIDED 23</div>
+    </div>
+
+    <div class="actions">
+      <button class="ghost" id="btnAllKeep">Mark all remaining KEEP</button>
+      <button class="ghost" id="btnReset">Reset all</button>
+      <button class="primary" id="btnExport">EXPORT JSON</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="flag f-watermark_or_text chip" style="border:0;padding:3px 8px;">Watermark / text</span>
+    <span class="flag f-identifiable_person chip" style="border:0;padding:3px 8px;">Identifiable person</span>
+    <span class="flag f-possible_photo_of_physical_artwork chip" style="border:0;padding:3px 8px;">Photo of physical art</span>
+    <span class="hint">Hover a card and press <kbd>1</kbd> keep &middot; <kbd>2</kbd> archive &middot; <kbd>3</kbd> remove &middot; <kbd>0</kbd> clear</span>
+  </div>
+</header>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<section class="export">
+  <div class="panel">
+    <h2>Export payload</h2>
+    <p>Click EXPORT above (or the button below). It copies to your clipboard and fills the box — paste it back into chat.</p>
+    <button class="primary" id="btnExport2">EXPORT JSON</button>
+    <div class="copystate" id="copyState"></div>
+    <textarea id="out" spellcheck="false" placeholder="Export output appears here…"></textarea>
+  </div>
+</section>
+
+<footer>
+  Images load from <code>file:///C:/Users/serge/Desktop/ARTCOVR/public/assets/artworks/&lt;slug&gt;.jpg</code>.
+  Verdicts autosave to this browser under <code>artcovr-flag-review-v1</code>.
+</footer>
+
+<script>
+"use strict";
+
+var IMG_BASE = "file:///C:/Users/serge/Desktop/ARTCOVR/public/assets/artworks/";
+var STORAGE_KEY = "artcovr-flag-review-v1";
+
+var FLAG_INFO = {
+  watermark_or_text: {
+    label: "Watermark / text",
+    why: "The scan thinks there may be a watermark, signature block, stock-site mark, or other text baked into the image."
+  },
+  identifiable_person: {
+    label: "Identifiable person",
+    why: "The image may show a recognisable real person's face \u2014 a likeness/consent issue if they never agreed to be sold."
+  },
+  possible_photo_of_physical_artwork: {
+    label: "Photo of physical art",
+    why: "This may be a photograph of someone else's physical painting or print rather than an original digital work."
+  }
+};
+
+var WORKS = [
+  {"slug":"magi-in-grey","title":"Magi in Grey","flags":["watermark_or_text","possible_photo_of_physical_artwork"],"price":3500,"saleMode":"repeatable"},
+  {"slug":"veil-in-red-wind","title":"Veil in Red Wind","flags":["identifiable_person"],"price":8000,"saleMode":"exclusive"},
+  {"slug":"white-eyes-in-the-rain","title":"White Eyes in the Rain","flags":["watermark_or_text"],"price":20000,"saleMode":"exclusive"},
+  {"slug":"portrait-in-slippage","title":"Portrait in Slippage","flags":["watermark_or_text"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"sleeper-on-the-rainbow","title":"Sleeper on the Rainbow","flags":["possible_photo_of_physical_artwork"],"price":3500,"saleMode":"repeatable"},
+  {"slug":"the-boating-afternoon","title":"The Boating Afternoon","flags":["possible_photo_of_physical_artwork"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"boy-and-the-ant","title":"Boy and the Ant","flags":["watermark_or_text"],"price":8000,"saleMode":"exclusive"},
+  {"slug":"exit-in-fragments","title":"Exit in Fragments","flags":["watermark_or_text"],"price":3500,"saleMode":"repeatable"},
+  {"slug":"halftone-skull-in-red","title":"Halftone Skull in Red","flags":["watermark_or_text"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"motel-in-teal-night","title":"Motel in Teal Night","flags":["watermark_or_text"],"price":20000,"saleMode":"exclusive"},
+  {"slug":"the-lives-not-chosen","title":"The Lives Not Chosen","flags":["watermark_or_text"],"price":8000,"saleMode":"exclusive"},
+  {"slug":"the-waiting-bench","title":"The Waiting Bench","flags":["watermark_or_text"],"price":8000,"saleMode":"exclusive"},
+  {"slug":"the-xerox-scream","title":"The Xerox Scream","flags":["watermark_or_text"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"ramen-with-my-skeleton","title":"Ramen with My Skeleton","flags":["watermark_or_text"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"ethereal-pastel-surrealism","title":"Ethereal Pastel Surrealism","flags":["possible_photo_of_physical_artwork"],"price":3500,"saleMode":"repeatable"},
+  {"slug":"narrative-surrealist-synthesis","title":"Narrative Surrealist Synthesis","flags":["identifiable_person"],"price":3500,"saleMode":"repeatable"},
+  {"slug":"disruptive-analog-grunge","title":"Disruptive Analog Grunge","flags":["watermark_or_text","identifiable_person"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"surreal-retro-futurist-collage","title":"Surreal Retro-Futurist Collage","flags":["watermark_or_text","identifiable_person"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"high-contrast-fauvist-glitch","title":"High-Contrast Fauvist Glitch","flags":["possible_photo_of_physical_artwork"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"graphic-surrealist-collage","title":"Graphic Surrealist Collage","flags":["identifiable_person"],"price":20000,"saleMode":"exclusive"},
+  {"slug":"surreal-retro-cosmic-collage","title":"Surreal Retro Cosmic Collage","flags":["identifiable_person"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"graphic-retro-printmaker","title":"Graphic Retro Printmaker","flags":["possible_photo_of_physical_artwork"],"price":1000,"saleMode":"repeatable"},
+  {"slug":"cathedral-of-washers","title":"Cathedral of Washers","flags":["identifiable_person"],"price":3500,"saleMode":"repeatable"},
+  {"slug":"no-exit-agrees","title":"No Exit Agrees","flags":["watermark_or_text"],"price":2000,"saleMode":"repeatable"},
+  {"slug":"letter-carriers-blue-hour","title":"The Letter Carrier’s Blue Hour","flags":["identifiable_person"],"price":3500,"saleMode":"repeatable"}
+];
+
+var verdicts = {};      // slug -> "keep" | "archive" | "remove"
+var hoveredSlug = null;
+var cardEls = {};
+
+/* ---------- helpers ---------- */
+function money(cents){
+  var n = (cents || 0) / 100;
+  return "$" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function esc(s){
+  return String(s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function flagInfo(key){
+  return FLAG_INFO[key] || { label: key.replace(/_/g," "), why: "Unrecognised flag type \u2014 review manually." };
+}
+
+/* ---------- storage ---------- */
+function load(){
+  try{
+    var raw = window.localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    var data = JSON.parse(raw);
+    var src = (data && data.verdicts) ? data.verdicts : data;
+    if(src && typeof src === "object"){
+      for(var i=0;i<WORKS.length;i++){
+        var s = WORKS[i].slug;
+        var v = src[s];
+        if(v === "keep" || v === "archive" || v === "remove") verdicts[s] = v;
+      }
+    }
+  }catch(e){ /* private mode / corrupt value — start clean */ }
+}
+function save(){
+  try{
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      savedAt: new Date().toISOString(),
+      verdicts: verdicts
+    }));
+  }catch(e){ /* ignore */ }
+}
+
+/* ---------- render ---------- */
+function buildCard(w){
+  var card = document.createElement("div");
+  card.className = "card";
+  card.setAttribute("data-slug", w.slug);
+
+  var flagsHtml = "";
+  for(var i=0;i<w.flags.length;i++){
+    var f = w.flags[i];
+    var info = flagInfo(f);
+    var cls = FLAG_INFO[f] ? ("f-" + f) : "f-unknown";
+    flagsHtml +=
+      '<div class="flag ' + cls + '" title="' + esc(info.why) + '">' +
+        '<span class="chip">' + esc(info.label) + '</span>' +
+        '<div class="why">' + esc(info.why) + '</div>' +
+      '</div>';
+  }
+
+  var mode = String(w.saleMode || "").toLowerCase();
+  var modeCls = (mode === "exclusive" || mode === "repeatable") ? mode : "";
+
+  card.innerHTML =
+    '<div class="corner"></div>' +
+    '<div class="imgbox">' +
+      '<img alt="' + esc(w.title) + '" loading="lazy" src="' + IMG_BASE + encodeURIComponent(w.slug) + '.jpg">' +
+      '<div class="placeholder"><strong>Image not found</strong>' + esc(w.slug) + '.jpg</div>' +
+    '</div>' +
+    '<div class="body">' +
+      '<div class="title-row">' +
+        '<div class="title">' + esc(w.title) + '</div>' +
+        '<div class="price">' + money(w.price) + '</div>' +
+      '</div>' +
+      '<div class="meta">' +
+        '<span class="mode ' + modeCls + '">' + esc(w.saleMode) + '</span>' +
+        '<span class="slug">' + esc(w.slug) + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="flags">' + flagsHtml + '</div>' +
+    '<div class="verdicts">' +
+      '<button class="vbtn k" data-v="keep"><span class="num">1</span>Keep</button>' +
+      '<button class="vbtn a" data-v="archive"><span class="num">2</span>Archive</button>' +
+      '<button class="vbtn r" data-v="remove"><span class="num">3</span>Remove</button>' +
+    '</div>';
+
+  var img = card.querySelector("img");
+  img.onerror = function(){ card.querySelector(".imgbox").classList.add("missing"); };
+
+  var btns = card.querySelectorAll(".vbtn");
+  for(var b=0;b<btns.length;b++){
+    (function(btn){
+      btn.addEventListener("click", function(){
+        setVerdict(w.slug, btn.getAttribute("data-v"), true);
+      });
+    })(btns[b]);
+  }
+
+  card.addEventListener("mouseenter", function(){
+    hoveredSlug = w.slug;
+    card.classList.add("hovered");
+  });
+  card.addEventListener("mouseleave", function(){
+    if(hoveredSlug === w.slug) hoveredSlug = null;
+    card.classList.remove("hovered");
+  });
+
+  return card;
+}
+
+function paintCard(slug){
+  var card = cardEls[slug];
+  if(!card) return;
+  var v = verdicts[slug];
+  if(v){
+    card.setAttribute("data-verdict", v);
+    card.querySelector(".corner").textContent = v;
+  }else{
+    card.removeAttribute("data-verdict");
+    card.querySelector(".corner").textContent = "";
+  }
+  var btns = card.querySelectorAll(".vbtn");
+  for(var i=0;i<btns.length;i++){
+    if(btns[i].getAttribute("data-v") === v) btns[i].classList.add("on");
+    else btns[i].classList.remove("on");
+  }
+}
+
+function setVerdict(slug, v, toggle){
+  if(toggle && verdicts[slug] === v) delete verdicts[slug];  // click same button again = undo
+  else if(v === null) delete verdicts[slug];
+  else verdicts[slug] = v;
+  paintCard(slug);
+  save();
+  updateHeader();
+}
+
+function updateHeader(){
+  var k=0,a=0,r=0;
+  for(var i=0;i<WORKS.length;i++){
+    var v = verdicts[WORKS[i].slug];
+    if(v === "keep") k++;
+    else if(v === "archive") a++;
+    else if(v === "remove") r++;
+  }
+  var total = WORKS.length;
+  var done = k + a + r;
+  document.getElementById("progressText").innerHTML = done + " / " + total + " <span>decided</span>";
+  document.getElementById("progressBar").style.width = (total ? (done/total*100) : 0) + "%";
+  document.getElementById("tKeep").textContent    = "KEEP " + k;
+  document.getElementById("tArchive").textContent = "ARCHIVE " + a;
+  document.getElementById("tRemove").textContent  = "REMOVE " + r;
+  document.getElementById("tTodo").textContent    = "UNDECIDED " + (total - done);
+}
+
+/* ---------- export ---------- */
+function buildPayload(){
+  var decided = [];
+  var undecided = [];
+  for(var i=0;i<WORKS.length;i++){
+    var s = WORKS[i].slug;
+    var v = verdicts[s];
+    if(v) decided.push({ slug: s, verdict: v });
+    else undecided.push(s);
+  }
+  return {
+    exportedAt: new Date().toISOString(),
+    verdicts: decided,
+    undecided: undecided,
+    counts: {
+      total: WORKS.length,
+      decided: decided.length,
+      undecided: undecided.length
+    }
+  };
+}
+
+function doExport(){
+  var payload = buildPayload();
+  var text = JSON.stringify(payload, null, 2);
+  var out = document.getElementById("out");
+  out.value = text;
+
+  var state = document.getElementById("copyState");
+  var note = payload.undecided.length
+    ? " (" + payload.undecided.length + " still undecided \u2014 listed under \"undecided\")"
+    : " (all " + payload.counts.total + " decided)";
+
+  function ok(){
+    state.className = "copystate";
+    state.textContent = "Copied to clipboard" + note + ". Paste it into chat.";
+  }
+  function fallback(){
+    out.focus();
+    out.select();
+    var copied = false;
+    try{ copied = document.execCommand("copy"); }catch(e){ copied = false; }
+    if(copied){ ok(); }
+    else{
+      state.className = "copystate warn";
+      state.textContent = "Could not copy automatically \u2014 the JSON is selected in the box below, press Ctrl+C." + note;
+    }
+  }
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok, fallback);
+  }else{
+    fallback();
+  }
+  out.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+/* ---------- wiring ---------- */
+function init(){
+  load();
+
+  var grid = document.getElementById("grid");
+  for(var i=0;i<WORKS.length;i++){
+    var card = buildCard(WORKS[i]);
+    cardEls[WORKS[i].slug] = card;
+    grid.appendChild(card);
+    paintCard(WORKS[i].slug);
+  }
+  updateHeader();
+
+  document.getElementById("btnExport").addEventListener("click", doExport);
+  document.getElementById("btnExport2").addEventListener("click", doExport);
+
+  document.getElementById("btnAllKeep").addEventListener("click", function(){
+    var n = 0;
+    for(var i=0;i<WORKS.length;i++){
+      var s = WORKS[i].slug;
+      if(!verdicts[s]){ verdicts[s] = "keep"; paintCard(s); n++; }
+    }
+    save();
+    updateHeader();
+    var state = document.getElementById("copyState");
+    state.className = "copystate";
+    state.textContent = n ? ("Marked " + n + " remaining work" + (n===1?"":"s") + " as KEEP.") : "Nothing left undecided.";
+  });
+
+  document.getElementById("btnReset").addEventListener("click", function(){
+    if(!window.confirm("Clear all verdicts and start over?")) return;
+    verdicts = {};
+    for(var i=0;i<WORKS.length;i++) paintCard(WORKS[i].slug);
+    save();
+    updateHeader();
+    document.getElementById("out").value = "";
+    document.getElementById("copyState").textContent = "";
+  });
+
+  document.addEventListener("keydown", function(e){
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target;
+    if(t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT")) return;
+    if(!hoveredSlug) return;
+    var map = { "1":"keep", "2":"archive", "3":"remove" };
+    if(map[e.key]){
+      setVerdict(hoveredSlug, map[e.key], false);
+      e.preventDefault();
+    }else if(e.key === "0"){
+      setVerdict(hoveredSlug, null, false);
+      e.preventDefault();
+    }
+  });
+}
+
+if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+else init();
+</script>
+</body>
+</html>
