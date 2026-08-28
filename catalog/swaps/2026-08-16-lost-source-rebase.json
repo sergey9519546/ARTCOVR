@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-16",
+  "directive": "Lost-source rebase for 2026-08-14 style-diversity swap works",
+  "works": [
+    {
+      "slug": "clocktower-vespers",
+      "oldId": "art_a2de27b6021422e09b89",
+      "newId": "art_640611737599c4e65057",
+      "oldSha256": "a2de27b6021422e09b8999fe305db3ca2d81b4b85a106d0c726104641fb67db8",
+      "newSha256": "640611737599c4e65057236449c90d9b06de1b41f15561822e40dba6d780da82",
+      "reason": "regenerated original PNG existed only in ephemeral cloud session (regen-picks, 2026-08-14) and was not persisted; rebased onto surviving 1280px display JPEG"
+    },
+    {
+      "slug": "wheel-of-quiet-relics",
+      "oldId": "art_e114dbcce2588ae7f0b8",
+      "newId": "art_0e8024c6fdcdda1f5601",
+      "oldSha256": "e114dbcce2588ae7f0b896096c5932e0b44c37819a03869214dda28b74bb46fc",
+      "newSha256": "0e8024c6fdcdda1f56015bfa316ee3abb0310a9f40c6513e5f3ac767129c5617",
+      "reason": "regenerated original PNG existed only in ephemeral cloud session (regen-picks, 2026-08-14) and was not persisted; rebased onto surviving 1280px display JPEG"
+    },
+    {
+      "slug": "the-stitched-icon",
+      "oldId": "art_9acb2bf21ff1f0f4a954",
+      "newId": "art_c2526ee8c0e65eb1f0ce",
+      "oldSha256": "9acb2bf21ff1f0f4a95432e299f0296262745020e3513076493862e11259fde2",
+      "newSha256": "c2526ee8c0e65eb1f0ceca1dc225ff5086130f6503862901b645eeda77889a4d",
+      "reason": "regenerated original PNG existed only in ephemeral cloud session (regen-picks, 2026-08-14) and was not persisted; rebased onto surviving 1280px display JPEG"
+    },
+    {
+      "slug": "pilgrim-of-the-prism-dawn",
+      "oldId": "art_d8689878945e344a2a6e",
+      "newId": "art_23b477b5f92cded31ee6",
+      "oldSha256": "d8689878945e344a2a6e0d7ac79eb574180a0ed7faac311ce82cc301656cbf98",
+      "newSha256": "23b477b5f92cded31ee6de8c91a0d627a404758c9297d9a592a894ddcfb81ff0",
+      "reason": "regenerated original PNG existed only in ephemeral cloud session (regen-picks, 2026-08-14) and was not persisted; rebased onto surviving 1280px display JPEG"
+    },
+    {
+      "slug": "the-dune-observatory",
+      "oldId": "art_6abeb3afbb63aeb37067",
+      "newId": "art_d15a6bd3bd9de3ac4c38",
+      "oldSha256": "6abeb3afbb63aeb3706728d3332a501201904847245f89b315be2028530f7e82",
+      "newSha256": "d15a6bd3bd9de3ac4c3885664e02bcd91352591acba84da8b5b3147f777491ee",
+      "reason": "regenerated original PNG existed only in ephemeral cloud session (regen-picks, 2026-08-14) and was not persisted; rebased onto surviving 1280px display JPEG"
+    },
+    {
+      "slug": "cloud-chamber-communion",
+      "oldId": "art_a50373a194fc24e48d32",
+      "newId": "art_983524c609fb012f4e7b",
+      "oldSha256": "a50373a194fc24e48d32690cc13c65ba4952d628966b61f8a119e7d0440b3d55",
+      "newSha256": "983524c609fb012f4e7b7b9c3bde5fd39da41006cdfe37cfd1f9b829d77405a5",
+      "reason": "regenerated original PNG existed only in ephemeral cloud session (regen-picks, 2026-08-14) and was not persisted; rebased onto surviving 1280px display JPEG"
+    },
+    {
+      "slug": "herald-of-the-orbit-bloom",
+      "oldId": "art_a75e86bdbba9d20ba692",
+      "newId": "art_595082f3d921e6afd44f",
+      "oldSha256": "a75e86bdbba9d20ba692f79e0b511b3d83c25c3dc0f9127783bccc42693d7abd",
+      "newSha256": "595082f3d921e6afd44f808a23cf2947a1e27587ebe56d9bb0d40720a37a6597",
+      "reason": "regenerated original PNG existed only in ephemeral cloud session (regen-picks, 2026-08-14) and was not persisted; rebased onto surviving 1280px display JPEG"
+    }
+  ]
+}

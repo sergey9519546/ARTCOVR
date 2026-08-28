@@ -1,7 +1,7 @@
 {
   "workbookPath": "C:\\Users\\serge\\Desktop\\ARTCOVR\\outputs\\catalog\\ARTCOVR_Catalog_Approval.xlsx",
   "candidates": 100,
-  "candidateIdentitySha256": "6401609303aef693a9b8327081253c30ae15ac340f86b42522d1ca4aa96f96ca",
+  "candidateIdentitySha256": "ad58e81399077bfae25e2dce10fb86d457c4cbc1f06b7a9c7fc3038be9970ad9",
   "approved": 100,
   "rejectedOrPending": 0,
   "issues": [],
