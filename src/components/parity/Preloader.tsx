@@ -1,14 +1,18 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
 import {
   PRELOADER_COMPLETE_TIME_MS,
-  STATIC_MEDIA_QUERY,
+  REDUCED_MOTION_QUERY,
 } from "@/lib/artcovr/motion";
 
-const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 6);
-const ROTATIONS = [9.98, -12.43, -2.99, -6.51, 17.67, -1.09];
+const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 18);
+const ROTATIONS = [
+  9.98, -12.43, -2.99, -6.51, 17.67, -1.09,
+  12.35, -8.74, 5.12, -14.82, 11.23, -4.67,
+  15.41, -11.08, 3.89, -7.95, 13.72, -9.45,
+];
 // The counter is paced as a slow crawl that accelerates into a ramp: it dwells
 // in the low single digits for a long time (the "really slow start"), then the
 // gaps between steps shrink and the increments grow as it ramps toward 100.
@@ -36,9 +40,9 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
 
   useEffect(() => {
     document.documentElement.classList.add("ready");
-    const staticExperience = window.matchMedia(STATIC_MEDIA_QUERY).matches;
+    const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches;
 
-    if (staticExperience) {
+    if (reducedMotion) {
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
@@ -132,15 +136,15 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 width={450}
                 height={450}
                 decoding="async"
-                className="absolute aspect-square w-[28vw] object-cover md:w-[20vw]"
+                className="absolute aspect-square w-[42vw] object-cover sm:w-[32vw] md:w-[20vw]"
                 style={{
                   color: "transparent",
                   willChange: "transform",
-                  transform: `translate3d(0,0,0) rotate(${ROTATIONS[index]}deg) scale(${shown ? 1 : 0})`,
+                  transform: `translate3d(0,0,0) rotate(${ROTATIONS[index % ROTATIONS.length]}deg) scale(${shown ? 1 : 0})`,
                   transition: "transform 0.5s cubic-bezier(0.19,1,0.22,1)",
                   zIndex: index + 1,
                 }}
-                sizes="(max-width: 768px) 28vw, 20vw"
+                sizes="(max-width: 640px) 42vw, (max-width: 768px) 32vw, 20vw"
               />
             );
           })}
@@ -149,7 +153,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
           aria-hidden="true"
           className="artcovr-wordmark text-cream relative mx-auto w-fit max-w-[88vw] overflow-visible text-center text-[clamp(2.8rem,9vw,8.5rem)] mix-blend-difference"
           style={{
-            zIndex: 20,
+            zIndex: 50,
             opacity: exited ? 0 : 1,
             transition: "opacity 0.4s cubic-bezier(0.19,1,0.22,1)",
           }}

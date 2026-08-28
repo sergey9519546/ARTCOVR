@@ -243,7 +243,7 @@ export const productionIntroSlugs: readonly string[] = !isPrivateStaging
 
 export function pickIntroArtworks(
   items: readonly Artwork[] = displayArtworks,
-  count = 6,
+  count = 18,
   preferredIntroSlugs: readonly string[] = isPrivateStaging
     ? stagingIntroSlugs
     : productionIntroSlugs,

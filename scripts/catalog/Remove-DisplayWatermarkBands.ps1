@@ -50,7 +50,7 @@ if (@($rows | Where-Object { $_.rights_approved -ne 'yes' -or $_.publication_app
   throw 'Every batch row must have explicit rights and publication approval.'
 }
 
-$approvedRows = (Get-Content $approvedPath | ConvertFrom-Json) | Where-Object { $_.tier -ne 'delete' }
+$approvedRows = (Get-Content $approved | ConvertFrom-Json) | Where-Object { $_.tier -ne 'delete' }
 $bySlug = @{}
 foreach ($entry in $approvedRows) { $bySlug[$entry.slug] = $entry }
 

@@ -158,3 +158,13 @@
 - **Evidence command**: `node scripts/agent/rights-audit.mjs` (P10's auditor; this runner parses its JSON and does not recompute the counts) → `{"total":217,"approved":217,"publishable":187}`, captured 2026-08-26 in run `2026-08-26T22:49:35Z` and logged to `~/.claude/logs/release-gates.jsonl`.
 - **Scope**: only the RELEASE_GATES Status column is machine-rewritten. No present-tense numeric claim outside it conflicted with computed truth this run. `DECISIONS.md` is append-only: 1 superseded number(s) in earlier ADRs are correct *as history*, are reported as `HISTORICAL-CLAIM` rather than as conflicts, and are never edited.
 - **Impact**: The release-gate table is now machine-generated per run. Any gate needing credentials, a live service, a browser, or an absent CLI reads **NOT RUN** with its reason, and **PASS** is derivable only from a logged exit code. Re-running the runner after this correction finds no table conflict and appends no further ADR.
+
+## ADR-025 (2026-08-28): Mobile Intro Animation Support & 18-Cover Sequence Pacing (Supersedes ADR-005 Preloader Bypass)
+
+- **Context**: ADR-005 previously bypassed the intro preloader on all coarse pointer / mobile devices via `STATIC_MEDIA_QUERY`. Additionally, the intro preloader only displayed 6 artworks (finishing at ~1.68s) leaving an awkward ~2.4s dwell time where no new cards appeared while waiting for loading completion at 3.78s.
+- **Decision**: 
+  1. Separated motion contracts: added `REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"` for accessibility-critical animation bypass (preloader), while retaining `STATIC_MEDIA_QUERY` for heavy scroll/parallax journeys. Mobile users now experience the full intro preloader, while users with `prefers-reduced-motion: reduce` continue to bypass immediately.
+  2. Expanded the intro artwork selection to 18 diverse, high-contrast, approved covers spanning all categories in `production-intro.json` and `staging-intro.json`.
+  3. Added 18 organic tilt angles in `Preloader.tsx` so images punch in consecutively every 168ms throughout the entire loading duration right up to 100% counter completion (3780ms) and curtain wipe exit (4060ms).
+- **Impact**: Mobile users see the intro animation. The intro maintains visual momentum continuously through the full loading time. All unit, contract, typecheck, lint, build export isolation, and Playwright E2E mobile/desktop tests pass.
+

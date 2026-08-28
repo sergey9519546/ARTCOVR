@@ -16,12 +16,8 @@ test("home motion hydrates, respects the static gate, and keeps the restored art
   const isMobile = testInfo.project.name.startsWith("mobile");
   const preloader = page.locator("#artcovr-preloader");
 
-  if (isMobile) {
-    await expect(preloader).toHaveCount(0, { timeout: 5_000 });
-  } else {
-    await expect(preloader).toBeVisible();
-    await expect(preloader).toHaveCount(0, { timeout: 8_000 });
-  }
+  await expect(preloader).toBeVisible();
+  await expect(preloader).toHaveCount(0, { timeout: 8_000 });
 
   await expect(page.locator("main")).not.toHaveAttribute("inert", "");
   await expect(page.locator("html")).toHaveClass(/loaded/);

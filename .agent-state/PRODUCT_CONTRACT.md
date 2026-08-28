@@ -21,4 +21,4 @@
 
 ## 4. User Experience & Design
 - **Themes**: Support `dark`, `light`, and `red` (archive signal) themes with smooth CSS variable switching and persistent user preferences in `localStorage`.
-- **Motion & Accessibility**: Fully accessible without JavaScript; instant bypass of preloader and page transitions when `prefers-reduced-motion: reduce` or pointer is coarse. No keyboard traps in mobile menus or snap containers.
+- **Motion & Accessibility**: Fully accessible without JavaScript; instant bypass of preloader and page transitions when `prefers-reduced-motion: reduce`. Heavy scroll journeys adapt to static mode on coarse-pointer/mobile devices. No keyboard traps in mobile menus or snap containers.

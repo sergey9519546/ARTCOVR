@@ -4,7 +4,7 @@ import test from "node:test";
 
 const read = (path: string) => readFile(new URL(`../../${path}`, import.meta.url), "utf8");
 
-test("all blocking motion shares the static eligibility contract", async () => {
+test("all blocking motion shares the accessibility and static eligibility contract", async () => {
   const [preloader, transition, page, motion] = await Promise.all([
     read("src/components/parity/Preloader.tsx"),
     read("src/components/parity/PageTransition.tsx"),
@@ -14,14 +14,15 @@ test("all blocking motion shares the static eligibility contract", async () => {
   assert.match(motion, /prefers-reduced-motion: reduce/);
   assert.match(motion, /pointer: coarse/);
   assert.match(motion, /max-width: 767px/);
-  assert.match(preloader, /STATIC_MEDIA_QUERY/);
+  assert.match(motion, /REDUCED_MOTION_QUERY/);
+  assert.match(preloader, /REDUCED_MOTION_QUERY/);
   assert.match(preloader, /window\.addEventListener\("keydown", skipIntro\)/);
   assert.doesNotMatch(preloader, /keydown[^\n]*once: true/);
   assert.match(transition, /STATIC_MEDIA_QUERY/);
   assert.match(page, /STATIC_MEDIA_QUERY/);
-  assert.match(page, /if \(!allowed\) \{\s*setPreloaderDone\(true\)/);
+  assert.match(page, /REDUCED_MOTION_QUERY/);
+  assert.match(page, /if \(reducedMotionQuery\.matches\) \{\s*setPreloaderDone\(true\)/);
   assert.match(page, /inert=\{pageBlocked \? true : undefined\}/);
-  assert.doesNotMatch(page, /REDUCED_MOTION_QUERY/);
 });
 
 test("hero entrance uses a scoped GSAP timeline and exact easing curve", async () => {

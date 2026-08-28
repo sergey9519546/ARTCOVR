@@ -71,9 +71,7 @@ describe("artwork helpers", () => {
   });
 
   test("picks a diverse intro-art set with category and mood spread", () => {
-    // Mirrors src/lib/artcovr/staging-intro.json. The 2026-08-14 style-cluster
-    // thinning removed nesting-appliance, so the regenerated original that
-    // inherited its launch slot carries the intro set instead.
+    // Mirrors src/lib/artcovr/staging-intro.json.
     const introSlugs = [
       "cart-of-hours",
       "last-sock-on-the-line",
@@ -81,9 +79,21 @@ describe("artwork helpers", () => {
       "transit-diagram",
       "corrupted-digital-dreamscape",
       "velvet-moss-surrealism",
+      "clocktower-vespers",
+      "approved-horizon",
+      "cyan-passage",
+      "escalator-to-nowhere",
+      "parking-meter-garden",
+      "mouth-full-of-coins",
+      "wheel-of-quiet-relics",
+      "door-on-a-plate",
+      "birthday-spark",
+      "pilgrim-of-the-prism-dawn",
+      "second-sunrise",
+      "celestial-paper-bag",
     ];
-    const introArtworks = pickIntroArtworks(reviewCatalog, 6, introSlugs);
-    assert.equal(introArtworks.length, 6);
+    const introArtworks = pickIntroArtworks(reviewCatalog, 18, introSlugs);
+    assert.equal(introArtworks.length, 18);
     // Every preferred slug must still resolve: a stale intro list would be
     // silently backfilled by the category fallback instead of failing.
     assert.deepEqual(
@@ -108,6 +118,7 @@ describe("artwork helpers", () => {
     for (const slug of introSlugs) {
       assert.ok(reviewSlugs.has(slug), `intro slug ${slug} is not in the review catalog`);
     }
+    assert.equal(introSlugs.length, 18);
   });
 
   test("the production intro list resolves against the approved public catalog", async () => {
@@ -118,10 +129,9 @@ describe("artwork helpers", () => {
     for (const slug of introSlugs) {
       assert.ok(publicSlugs.has(slug), `production intro slug ${slug} is missing from the approved catalog`);
     }
-    // The preloader relied on a category-priority fallback that picked a near-
-    // black cover; the explicit list must be exactly six diverse covers so the
-    // default selection is never left to a future sort drift.
-    assert.equal(introSlugs.length, 6);
+    // The explicit list is exactly 18 diverse covers spanning all categories
+    // so images appear smoothly throughout the entire preloader duration.
+    assert.equal(introSlugs.length, 18);
   });
 
   test("searches artwork metadata across categories, moods, and descriptors", () => {
