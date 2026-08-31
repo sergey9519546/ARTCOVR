@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "artcovr"
+description = "A curated digital art gallery for discovering, collecting, and generating distinctive artwork through an immersive visual experience."
+version = "1.0.0"
+id = "artifacts/artcovr"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22424
+
+[services.development]
+run = "pnpm --filter @workspace/artcovr run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/artcovr", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/artcovr/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22424"
+BASE_PATH = "/"

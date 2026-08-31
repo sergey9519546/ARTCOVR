@@ -1,0 +1,261 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* These variants and tokens are part of the supplied archive UI contract. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-cream: #f3ecd9;
+  --color-paper: #f3ecd9;
+  --color-carbon: #0b0b0b;
+  --color-white: #f3ecd9;
+  --color-signal: #122519;
+  --color-graphite: #74746f;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --grid-cols-16: repeat(16, minmax(0, 1fr));
+  --font-sans: var(--font-artcovr);
+  --ease-out-extreme: cubic-bezier(.19, 1, .22, 1);
+}
+
+:root {
+  --paper: #f3ecd9;
+  --carbon: #0b0b0b;
+  --signal: #122519;
+  --background: #f3ecd9;
+  --foreground: #000;
+  --card: #fff;
+  --card-foreground: #000;
+  --border: rgb(0 0 0 / 14%);
+  --input: rgb(0 0 0 / 18%);
+  --ring: rgb(0 0 0 / 45%);
+  --cursor-color: #122519;
+  --motion-ease: cubic-bezier(.19, 1, .22, 1);
+  --radius: .625rem;
+}
+
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #000;
+  --foreground: #f3ecd9;
+  --card: #171717;
+  --card-foreground: #f3ecd9;
+  --border: rgb(243 236 217 / 16%);
+  --input: rgb(243 236 217 / 22%);
+  --ring: rgb(243 236 217 / 55%);
+  --cursor-color: #f3ecd9;
+}
+* { box-sizing: border-box; }
+html {
+  background: var(--background);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-artcovr), Arial, sans-serif;
+  line-height: 1.5;
+  transition: background-color .35s var(--motion-ease), color .35s var(--motion-ease);
+}
+button, input, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+::selection { background: var(--signal); color: #f3ecd9; }
+
+.link-hover { position: relative; }
+.link-hover::after {
+  position: absolute;
+  right: 0;
+  bottom: -.18em;
+  left: 0;
+  height: max(1px, .1em);
+  content: "";
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .5s cubic-bezier(.83, 0, .17, 1);
+}
+.link-hover:hover::after,
+.link-hover:focus-visible::after,
+.link-hover[data-selected]::after,
+.link-hover[aria-current="page"]::after { transform: scaleX(1); }
+
+.skip-link {
+  position: fixed;
+  top: .5rem;
+  left: .5rem;
+  z-index: 110;
+  padding: .75rem 1rem;
+  background: #000;
+  color: #f3ecd9;
+  transform: translateY(-150%);
+  transition: transform .2s ease;
+}
+.skip-link:focus { transform: translateY(0); }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+/*
+ * One wordmark lockup. Every ARTCOVR wordmark — header, hero, footer, page
+ * transition, intro — carries identical weight, tracking, and leading, and
+ * differs only in font-size. These had drifted to four different tracking
+ * values with leading set on the hero alone, so the small marks read as a
+ * different logo from the large one.
+ */
+.artcovr-wordmark {
+  font-weight: 900;
+  line-height: .8;
+  letter-spacing: -.095em;
+}
+
+/*
+ * Optical compensation for the small wordmarks.
+ *
+ * The family ships Regular/Medium/Bold only (400/700/800), so `font-weight: 900`
+ * has no matching face and `font-synthesis: none` forbids faking it — every mark
+ * already renders at Bold, the heaviest weight available. At 20-36px that face
+ * rasterises visibly lighter than the same face at 300px, so the header mark
+ * reads thinner than the hero even though the geometry is identical.
+ *
+ * A stroke in `em` restores the apparent weight proportionally, and
+ * `paint-order` keeps it outside the glyph so counters stay open.
+ *
+ * Tracking is reset to 0 rather than inheriting -.095em. That value is a
+ * DISPLAY setting: measured by rasterising the wordmark and counting clear
+ * vertical columns between glyphs, -.095em leaves zero separation at 20-24px —
+ * the letters fuse into one shape. Tracking in `em` scales proportionally, which
+ * is precisely wrong optically, since small type needs more air, not the same
+ * ratio. At 0 tracking the small marks recover 4-5 of 6 letter gaps while
+ * measuring 0.20 ink density against the hero's 0.211, i.e. the same apparent
+ * weight without the fusing.
+ *
+ * Delete this rule the moment a Black/Heavy face is added and set the real
+ * weight instead — this is a workaround for a missing font file, not a design.
+ */
+.artcovr-wordmark-optical {
+  -webkit-text-stroke: .026em currentColor;
+  paint-order: stroke fill;
+  letter-spacing: 0;
+}
+
+.artcovr-button {
+  background: var(--foreground);
+  color: var(--background);
+}
+.artcovr-button:hover:not(:disabled) { filter: contrast(1.12); }
+.artwork-frame { contain: layout paint style; }
+.product-card-wrapper { content-visibility: auto; contain-intrinsic-size: 300px; }
+.carousel-card, .spiral-item { will-change: transform; }
+[data-artwork], [data-product], .carousel-card, .spiral-item {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+html.has-custom-cursor,
+html.has-custom-cursor * { cursor: none !important; }
+html.has-custom-cursor input,
+html.has-custom-cursor textarea,
+html.has-custom-cursor button,
+html.has-custom-cursor a,
+html.has-custom-cursor [contenteditable] { cursor: auto !important; }
+html.has-custom-cursor input:focus,
+html.has-custom-cursor textarea:focus,
+html.has-custom-cursor button:focus,
+html.has-custom-cursor a:focus { cursor: auto !important; }
+@media (pointer: coarse), (hover: none) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * { cursor: auto !important; }
+}
+
+#header, .theme-control {
+  opacity: 0;
+  transform: translateY(-6rem);
+  transition: opacity 2s var(--ease-out-extreme), transform 2s var(--ease-out-extreme);
+  transition-delay: .5s;
+}
+html.loaded #header,
+html.loaded .theme-control { opacity: 1; transform: translateY(0); }
+
+html.lenis, html.lenis body { height: auto; }
+.lenis { scroll-behavior: auto !important; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  #header, .theme-control { opacity: 1; transform: none; }
+}
+
+/*
+ * Home grid clamp: the artwork grid opens on eight rows and reveals the rest
+ * behind a button. The lead block is a fixed 13 cards, so the number of cards
+ * this trailing block may show to reach eight rows depends on the column count
+ * — 2 columns spends 7 rows on the lead block and leaves one row (2 cards), 3
+ * columns spends 5 and leaves three rows (9), 4 columns spends 4 and leaves
+ * four rows (16). Each breakpoint re-shows what the narrower rule hid before
+ * hiding its own overflow.
+ */
+.artwork-grid-clamp > *:nth-child(n+3) { display: none; }
+@media (min-width: 768px) {
+  .artwork-grid-clamp > *:nth-child(n+3) { display: block; }
+  .artwork-grid-clamp > *:nth-child(n+10) { display: none; }
+}
+@media (min-width: 1024px) {
+  .artwork-grid-clamp > *:nth-child(n+10) { display: block; }
+  .artwork-grid-clamp > *:nth-child(n+17) { display: none; }
+}
+
+@media (scripting: none) {
+  #artcovr-preloader, #layer { display: none !important; }
+  #page, #page-shell, #header { visibility: visible !important; opacity: 1 !important; transform: none !important; }
+  /* Without scripting the reveal button cannot run, so the full grid ships. */
+  .artwork-grid-clamp > * { display: block !important; }
+  .artwork-grid-reveal { display: none !important; }
+}
+
+/*
+ * Image plate: the ground an artwork sits on before its bytes arrive, and the
+ * matte around any image that does not fill its frame.
+ *
+ * Derived from the theme tokens rather than a fixed hex. The product and studio
+ * frames previously hard-coded #e9e2d7 / #d2cac3, which is a light-theme cream:
+ * in the dark theme those plates flashed a bright rectangle before every image
+ * painted. Mixing the foreground into the background keeps the plate one step
+ * off the page in whichever theme is active.
+ */
+/*
+ * Prompt bar: an elevated surface one step further off the page than the
+ * plate, with a soft focus glow driven by the theme's own --ring token so it
+ * reads correctly on both grounds. backdrop-filter is deliberately absent —
+ * the bar sits over the page background, not over imagery.
+ */
+.artcovr-promptbar {
+  background: color-mix(in srgb, var(--foreground) 10%, var(--background));
+  transition: border-color .2s var(--motion-ease), box-shadow .2s var(--motion-ease);
+}
+.artcovr-promptbar:focus-within {
+  border-color: currentColor;
+  box-shadow: 0 0 0 1px var(--ring), 0 0 14px color-mix(in srgb, var(--ring) 55%, transparent);
+}
+
+.artcovr-plate {
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+}
+
