@@ -14,6 +14,7 @@
     "test": "node --test --experimental-strip-types",
     "test:e2e": "node node_modules/@playwright/test/cli.js test",
     "test:e2e:ui": "node node_modules/@playwright/test/cli.js test --ui",
+    "db:verify": "bash scripts/db/verify-database.sh",
     "verify": "bun run test && bun run typecheck && bun run lint && bun run catalog:validate && bun run catalog:project:check && bun run catalog:search:check && bun run build",
     "verify:ci": "bun run test && bun run typecheck && bun run lint && bun run catalog:validate && bun run catalog:project:check && bun run catalog:launch:check && bun run build",
     "catalog:validate": "node --experimental-strip-types scripts/catalog/validate.ts",
