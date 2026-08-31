@@ -8,7 +8,23 @@
  */
 import { readFile } from "node:fs/promises";
 
-import { buildSearchIndex, SEARCH_INDEX_OUTPUT_PATH } from "./build-search-index.ts";
+import {
+  buildSearchIndex,
+  SEARCH_INDEX_OUTPUT_PATH,
+  SEMANTIC_LAB_DIR,
+  semanticLabAvailable,
+} from "./build-search-index.ts";
+
+// Fail closed, but say which failure this is: an absent private lab reads as a
+// stale index otherwise, and the ENOENT names a path that means nothing off the
+// owner's machine. This gate stays owner/CI-with-lab only by design — see
+// `verify:ci` in package.json for the portable gate set.
+if (!semanticLabAvailable()) {
+  throw new Error(
+    `Cannot verify the search index: the private semantic-lab source tree is not present at ${SEMANTIC_LAB_DIR}. ` +
+      "Set ARTCOVR_SEMANTIC_LAB_DIR to its location, or run the portable gate set with 'bun run verify:ci'.",
+  );
+}
 
 const { serialized } = await buildSearchIndex();
 

@@ -72,6 +72,10 @@ server.log
 /outputs/catalog/*.xlsx
 /outputs/catalog/*.png
 /outputs/catalog/*.private.json
+# Regeneration picks are clean master source bytes — 21 of the 2026-08-14 set are
+# byte-identical to the private `base` objects of live, priced works. Clean masters
+# belong in entitlement-bound private storage, never in the git tree.
+/outputs/catalog/regen-picks-*/
 /catalog/candidates.csv
 /catalog/candidates.json
 
