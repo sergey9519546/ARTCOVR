@@ -27,8 +27,13 @@ Note this contradicts the PR #2 note below, which records edge functions as
 deployed and verified on 2026-08-15. Either the deployment was later removed or
 partially rolled back. Worth understanding before redeploying.
 
-- Fix: `supabase functions deploy <name>` for each missing function, then set the
-  Stripe webhook endpoint to the deployed `stripe-webhook` URL.
+- **Fix (one-click):** a `Deploy Edge Functions` workflow now exists
+  (`.github/workflows/deploy-functions.yml`). One-time setup: create a Supabase
+  access token (dashboard -> Account -> Access Tokens), save it as the repository
+  secret `SUPABASE_ACCESS_TOKEN`, then run the workflow from the Actions tab. It
+  defaults to a dry run; untick `dry_run` to apply. GitHub hands the token to the
+  runner — nobody has to read or paste it anywhere else.
+- Then point the Stripe webhook endpoint at the deployed `stripe-webhook` URL.
 - Verify: `bun run check:deployment` (needs NEXT_PUBLIC_SUPABASE_URL and
   NEXT_PUBLIC_SUPABASE_ANON_KEY — both public browser values). Exit 0 = all deployed.
 - Done when: that command reports 9 of 9 and a test purchase completes end to end.

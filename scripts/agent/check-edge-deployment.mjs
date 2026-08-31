@@ -30,15 +30,21 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
-const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-if (!url || !anonKey) {
+// The deployed/undeployed signal needs no key at all — the Supabase router
+// answers a preflight for a missing function with 404 before any auth runs. So
+// this gate needs only the project URL, which is public. Set SUPABASE_PROJECT_REF
+// (e.g. abcdefghijklmnop) or NEXT_PUBLIC_SUPABASE_URL.
+const projectRef = process.env.SUPABASE_PROJECT_REF ?? "";
+const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? (projectRef ? `https://${projectRef}.supabase.co` : "")).replace(/\/$/, "");
+if (!url) {
   console.error(
-    "NOT RUN: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY " +
-      "(both are public values from the browser bundle). This gate checks the LIVE project.",
+    "NOT RUN: set SUPABASE_PROJECT_REF or NEXT_PUBLIC_SUPABASE_URL. Both are public " +
+      "values — the URL ships in the browser bundle. This gate checks the LIVE project.",
   );
   process.exit(2);
 }
+// Sent only when available; the probe does not depend on it.
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
 /** Every function name the frontend actually invokes. */
 async function calledByFrontend(dir, found = new Set()) {
@@ -78,7 +84,7 @@ for (const name of expected) {
   try {
     const response = await fetch(`${url}/functions/v1/${name}`, {
       method: "OPTIONS",
-      headers: { apikey: anonKey, authorization: `Bearer ${anonKey}` },
+      headers: anonKey ? { apikey: anonKey, authorization: `Bearer ${anonKey}` } : {},
     });
     status = response.status;
     if (status === 404) detail = (await response.text()).slice(0, 80);
