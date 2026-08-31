@@ -3,6 +3,40 @@
 Outstanding operational items requiring owner action. Not engineering defects —
 tracked here so they survive across sessions.
 
+## [2026-08-31] LAUNCH BLOCKER — 6 of 9 Edge Functions are not deployed
+Probed against the live project `gcnamdbwekikkuqvzuko` using the public anon key
+and HTTP OPTIONS (a CORS preflight — invokes no business logic, writes nothing).
+
+| Function | Live | Consequence if absent |
+| :--- | :--- | :--- |
+| `create-checkout` | **404** | **Nobody can start a purchase.** The buy button 404s. |
+| `stripe-webhook` | **404** | **No payment could ever be fulfilled.** Stripe has nowhere to deliver. |
+| `my-images` | **404** | A buyer cannot reach what they paid for. |
+| `generation-status` | **404** | Preview/status polling fails. |
+| `submit-inquiry` | **404** | Contact form dead. |
+| `upload-reference` | **404** | User style references cannot be uploaded. |
+| `generate-image` | 200 | deployed |
+| `generation-watchdog` | 405 | deployed (rejects OPTIONS, as designed) |
+| `commerce-watchdog` | 405 | deployed |
+
+The storefront renders perfectly and all nine release gates were green when this
+was found, because **every gate tests the repository and none looks at what is
+actually running.** A static export in front of a 404 backend fails silently.
+
+Note this contradicts the PR #2 note below, which records edge functions as
+deployed and verified on 2026-08-15. Either the deployment was later removed or
+partially rolled back. Worth understanding before redeploying.
+
+- Fix: `supabase functions deploy <name>` for each missing function, then set the
+  Stripe webhook endpoint to the deployed `stripe-webhook` URL.
+- Verify: `bun run check:deployment` (needs NEXT_PUBLIC_SUPABASE_URL and
+  NEXT_PUBLIC_SUPABASE_ANON_KEY — both public browser values). Exit 0 = all deployed.
+- Done when: that command reports 9 of 9 and a test purchase completes end to end.
+
+**Until this is fixed, the site cannot take money.** It outranks every other item
+in this file, including the rate-lane migration question — free traffic starving
+paying customers is moot while there are no paying customers.
+
 ## [2026-08-31] Public preview ceiling — RESOLVED (ADR-026)
 Root-caused and closed. Public displays were emitted at two resolutions with no rule
 deciding which; the split correlated **100% with source format** (27 `image/jpeg` sources
