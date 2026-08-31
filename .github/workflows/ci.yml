@@ -11,9 +11,14 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # The repository default branch is still artcovr-storefront while main is the
+    # consolidated product branch, and both are kept in sync. Cover both so the
+    # gates run whichever one a change lands on.
+    branches: [main, artcovr-storefront]
+  # No base filter: a pull request against ANY branch is verified. With a
+  # branches: [main] filter, a PR opened against the default branch would have
+  # run no checks at all.
   pull_request:
-    branches: [main]
 
 concurrency:
   group: ci-${{ github.ref }}
