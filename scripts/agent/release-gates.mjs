@@ -253,14 +253,25 @@ const PRECONDITIONS = {
     process.env.ARTCOVR_GATES_E2E === "1"
       ? null
       : "requires live services this runner does not start — playwright.config.ts spawns a Next dev server on 127.0.0.1:45180 and drives an installed Chrome channel. Opt in explicitly with ARTCOVR_GATES_E2E=1.",
+  // G8 is `bun run db:verify`, which applies every migration to a DISPOSABLE
+  // database and runs the contract + behavioural suites. It needs psql and a
+  // reachable PostgreSQL — not the Supabase CLI, and not production
+  // credentials. Requiring those was why this gate could never run.
   G8: () => {
-    const cli = probeCli("supabase");
-    const creds = ["SUPABASE_DB_URL", "SUPABASE_SERVICE_ROLE_KEY", "DATABASE_URL"].filter((k) => process.env[k]);
-    if (cli.present && creds.length > 0) return null;
-    const missing = [];
-    if (!cli.present) missing.push(`the \`supabase\` CLI is not installed (${cli.why})`);
-    if (creds.length === 0) missing.push("no SUPABASE_DB_URL / SUPABASE_SERVICE_ROLE_KEY / DATABASE_URL is present in the environment");
-    return `requires credentials and a live/disposable PostgreSQL instance to apply and behaviourally verify migrations 0001–0011: ${missing.join("; ")}. A file's presence never proves a migration is applied.`;
+    const cli = probeCli("psql");
+    if (!cli.present) {
+      return `requires a PostgreSQL client: the \`psql\` binary is not installed (${cli.why}). Install postgresql-client, point PGHOST/PGPORT/PGUSER at a disposable instance, and re-run.`;
+    }
+    const probe = spawnSync("psql", ["-tAc", "select 1"], {
+      encoding: "utf8",
+      timeout: 15_000,
+      env: { ...process.env, PGDATABASE: process.env.PGDATABASE ?? "postgres", PGCONNECT_TIMEOUT: "10" },
+    });
+    if (probe.status !== 0) {
+      const why = (probe.stderr ?? "").trim().split(/\r?\n/)[0] || `exit ${probe.status}`;
+      return `requires a reachable disposable PostgreSQL: psql could not connect (${why}). Set PGHOST/PGPORT/PGUSER and re-run. NEVER point this at production — it creates a database and writes rows.`;
+    }
+    return null;
   },
 };
 
