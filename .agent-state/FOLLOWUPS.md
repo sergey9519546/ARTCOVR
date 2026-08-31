@@ -3,29 +3,23 @@
 Outstanding operational items requiring owner action. Not engineering defects —
 tracked here so they survive across sessions.
 
-## [2026-08-31] Public previews match master resolution — RIGHTS/PRICING
-Measured, not inferred. Of the 70 published works whose source dimensions are
-recorded in `catalog/curated-artworks.json`:
+## [2026-08-31] Public preview ceiling — RESOLVED (ADR-026)
+Root-caused and closed. Public displays were emitted at two resolutions with no rule
+deciding which; the split correlated **100% with source format** (27 `image/jpeg` sources
+downscaled to 1024; 43 `image/png` sources left at full master resolution, zero exceptions).
+`PUBLIC_ASSET_PASSTHROUGH` compares bytes, and a PNG→JPEG conversion always changes bytes,
+so it could only ever catch JPEG-mastered works — those were remediated to 1024 by
+`Fix-PassthroughDisplays.ps1`; the PNG-mastered ones were invisible to it.
 
-- **43 have a public preview at the exact pixel dimensions of their private master**
-  (ratio 1.00 — e.g. `cart-of-hours`, `cyan-passage`, `camera-tears` at 1280x1280).
-- 27 fall between 80% and 99% of source. **None** is below 80%.
-- Across all 187 published derivatives: 108 are 1280x1280, 4 are 1254x1254, 75 are
-  1024x1024 — so 112 exceed the "protected 1024px JPEG derivative" contract recorded
-  in `.agent-state/DECISIONS.md:36`.
+Owner decision: ceiling raised to **1280**, protection remains the lossy re-encode. No asset
+re-encoded (all are already ≤ 1280). `PUBLIC_DISPLAY_MAX_DIMENSION` in
+`scripts/catalog/display-contract.ts` is now the single source of truth across
+`validate.ts`, `finalize-owner-approved-batch.ts` and `swap-launch-works.ts`;
+`validatePublication` bounds dimensions directly and runs in `verify`/`verify:ci`. See ADR-026.
 
-The only thing separating the free preview from the licensed master for those works is
-JPEG re-encoding. `PUBLIC_ASSET_PASSTHROUGH` in `scripts/catalog/validate.ts:135` cannot
-catch this: it compares SHA-256 only, so a same-resolution re-encode passes.
-
-Deliberately not auto-fixed — choosing the derivative ceiling is a commercial decision,
-and re-rendering 187 public assets must go through the canonical catalog pipeline.
-
-- Decide the public derivative ceiling (the 1024px contract, or a new documented value).
-- Re-render the affected derivatives via the catalog pipeline; refresh projection SHAs.
-- Then extend `validatePublication` to fail when a public derivative's dimensions are
-  >= the recorded source dimensions, so byte-inequality is no longer the only guard.
-- Done when: `bun run catalog:validate` enforces the dimension bound and passes.
+Remaining, if the owner wants it: the 2026-08-28 no-watermark decision lives only in the header
+of `Remove-DisplayWatermarkBands.ps1` and has no ADR. ADR-026 restates it, but a dedicated ADR
+would properly pin the protection model.
 
 ## [2026-08-31] Clean masters were tracked in git — untracked, still in history
 21 of the 84 files in `outputs/catalog/regen-picks-2026-08-14/` (194 MB) are

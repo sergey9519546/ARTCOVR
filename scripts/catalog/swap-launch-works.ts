@@ -57,6 +57,7 @@ import {
   validateLaunchReviewIntegrity,
 } from "../../src/lib/artcovr/catalog-review.ts";
 import { decodeImageHeader } from "../../src/lib/artcovr/catalog-source.ts";
+import { PUBLIC_DISPLAY_MAX_DIMENSION } from "./display-contract.ts";
 import type { DirectSourcePool } from "../../src/lib/artcovr/launch-selection.ts";
 import {
   LAUNCH_SOURCE_POOLS,
@@ -223,9 +224,14 @@ async function measureSource(work: SwapWork): Promise<MeasuredSource> {
 }
 
 /**
- * Baseline JPEG, quality 90, RGB, source dimensions preserved — identical in
- * kind to the derivatives produced by scripts/catalog/Prepare-DisplayAssets.ps1.
+ * Baseline JPEG, quality 90, RGB, downscaled to `size` — the same contract as
+ * scripts/catalog/Prepare-DisplayAssets.ps1, which renders at the ceiling.
  * Clean sources never enter public/; only this lossy review derivative does.
+ *
+ * This previously preserved source dimensions and asserted `image.size ==
+ * (size, size)` while the caller passed the source's own width, making the
+ * assertion vacuous and emitting previews at full master resolution. Never
+ * upscales: a source below the ceiling keeps its own size.
  */
 const encodeDisplayDerivative = `
 import sys
@@ -233,9 +239,13 @@ from PIL import Image
 
 source, target, size = sys.argv[1], sys.argv[2], int(sys.argv[3])
 with Image.open(source) as image:
-    if image.size != (size, size):
-        raise SystemExit(f"{source}: expected {size}x{size}, found {image.size[0]}x{image.size[1]}")
+    if image.size[0] != image.size[1]:
+        raise SystemExit(f"{source}: expected a square image, found {image.size[0]}x{image.size[1]}")
+    if image.size[0] < size:
+        raise SystemExit(f"{source}: refusing to upscale {image.size[0]}px to {size}px")
     rgb = image.convert("RGB")
+    if image.size[0] != size:
+        rgb = rgb.resize((size, size), Image.LANCZOS)
     rgb.save(target, format="JPEG", quality=90, optimize=True, progressive=False, subsampling=0)
 `;
 
@@ -599,21 +609,21 @@ if (apply) {
     );
     await rm(removedDisplay, { force: true });
     const target = path.join(displayDirectory, `${entry.work.slug}.jpg`);
+    // Cap at the public ceiling; a source already at or below it keeps its size.
+    const displaySize = Math.min(entry.source.width, PUBLIC_DISPLAY_MAX_DIMENSION);
     await execFileAsync(pythonBin, [
       "-c",
       encodeDisplayDerivative,
       entry.source.absolutePath,
       target,
-      String(entry.source.width),
+      String(displaySize),
     ]);
     const written = await readFile(target);
     const header = decodeImageHeader(written);
-    if (
-      header.format !== "jpeg" ||
-      header.width !== entry.source.width ||
-      header.height !== entry.source.height
-    ) {
-      throw new Error(`${entry.work.slug}.jpg is not a square JPEG derivative of its source.`);
+    if (header.format !== "jpeg" || header.width !== displaySize || header.height !== displaySize) {
+      throw new Error(
+        `${entry.work.slug}.jpg is not a square ${displaySize}x${displaySize} JPEG derivative of its source.`,
+      );
     }
   }
 }

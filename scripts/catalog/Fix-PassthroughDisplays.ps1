@@ -113,13 +113,16 @@ try {
       if ($sourceImage.Width -ne $sourceImage.Height -or $sourceImage.Width -lt 1024) {
         throw "Expected square image >= 1024: $gitHeadPath ($($sourceImage.Width)x$($sourceImage.Height))"
       }
-      $display   = [System.Drawing.Bitmap]::new(1024, 1024, [System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
+      # Cap at the public ceiling (PUBLIC_DISPLAY_MAX_DIMENSION in
+      # scripts/catalog/display-contract.ts); never upscale a smaller source.
+      $targetSize = [Math]::Min($sourceImage.Width, 1280)
+      $display   = [System.Drawing.Bitmap]::new($targetSize, $targetSize, [System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
       $graphics  = [System.Drawing.Graphics]::FromImage($display)
       try {
         $graphics.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
         $graphics.InterpolationMode  = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
         $graphics.PixelOffsetMode    = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
-        $graphics.DrawImage($sourceImage, 0, 0, 1024, 1024)
+        $graphics.DrawImage($sourceImage, 0, 0, $targetSize, $targetSize)
         $display.Save($publicFile, $jpegEncoder, $encoderParameters)
       } finally {
         if ($graphics) { $graphics.Dispose() }
