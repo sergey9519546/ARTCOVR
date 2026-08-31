@@ -17,9 +17,10 @@ re-encoded (all are already ≤ 1280). `PUBLIC_DISPLAY_MAX_DIMENSION` in
 `validate.ts`, `finalize-owner-approved-batch.ts` and `swap-launch-works.ts`;
 `validatePublication` bounds dimensions directly and runs in `verify`/`verify:ci`. See ADR-026.
 
-Remaining, if the owner wants it: the 2026-08-28 no-watermark decision lives only in the header
-of `Remove-DisplayWatermarkBands.ps1` and has no ADR. ADR-026 restates it, but a dedicated ADR
-would properly pin the protection model.
+The 2026-08-28 no-watermark decision, previously recorded only in the header of
+`Remove-DisplayWatermarkBands.ps1`, now has its own entry — **ADR-027**, which also pins the scope:
+it governs catalog storefront displays only, and the image-generation watermark
+(`rasterizePreview()` / `502 watermark_passthrough`) remains fully enforced. Nothing outstanding.
 
 ## [2026-08-31] Clean masters were tracked in git — untracked, still in history
 21 of the 84 files in `outputs/catalog/regen-picks-2026-08-14/` (194 MB) are
