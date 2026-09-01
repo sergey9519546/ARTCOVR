@@ -82,7 +82,6 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
           }}
           resultCount={filteredItems.length}
           totalCount={items.length}
-           showHeader={false}
         />
       </div>
 
