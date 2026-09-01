@@ -127,7 +127,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
  * not re-apply after the reveal completes.
  */
 @media (prefers-reduced-motion: no-preference) and (pointer: fine) and (min-width: 768px) {
-  .artcovr-hero-wordmark { transform: translateY(105%); }
+  html:not(.loaded) .artcovr-hero-wordmark { transform: translateY(105%); }
 }
 
 /*
