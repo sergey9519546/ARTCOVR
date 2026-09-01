@@ -2,6 +2,7 @@
 
 import Link from "@/components/compat/Link";
 import { useLocation } from "wouter";
+import { useAuth, useClerk } from "@clerk/react";
 import { useCallback, useEffect, useState } from "react";
 import { MobileMenu } from "@/components/parity/MobileMenu";
 import { ThemeToggle } from "@/components/artcovr/ThemeToggle";
@@ -16,6 +17,8 @@ const links = [
 export function SiteHeader() {
   const [pathname] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isLoaded, isSignedIn } = useAuth();
+  const { signOut } = useClerk();
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
@@ -48,9 +51,20 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            <Link href="/sign-in" className="link-hover flex min-h-11 items-center">Sign in</Link>
-              <ThemeToggle />
-            </div>
+            {!isLoaded ? (
+              <span className="flex min-h-11 items-center opacity-60" aria-live="polite">Account…</span>
+            ) : isSignedIn ? (
+              <button type="button" onClick={() => void signOut({ redirectUrl: "/" })} className="link-hover flex min-h-11 items-center">
+                Log out
+              </button>
+            ) : (
+              <>
+                <Link href="/sign-in" className="link-hover flex min-h-11 items-center">Sign in</Link>
+                <Link href="/sign-up" className="link-hover flex min-h-11 items-center">Sign up</Link>
+              </>
+            )}
+            <ThemeToggle />
+          </div>
           <button
             type="button"
             onClick={() => setMenuOpen(true)}

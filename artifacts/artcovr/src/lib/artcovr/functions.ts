@@ -1,7 +1,3 @@
-import {
-  getSupabaseBrowserClient,
-  getSupabasePublicConfig,
-} from "@/lib/supabase/client";
 import { ArtcovrApiError as ArtcovrApiErrorBase } from "@/lib/artcovr/api-error";
 
 export class ArtcovrApiError extends ArtcovrApiErrorBase {}
@@ -109,32 +105,6 @@ export type AccountData = {
 
 type ErrorPayload = { message?: string; error?: string; code?: string };
 
-async function authorized(init: RequestInit) {
-  const config = getSupabasePublicConfig();
-  const client = getSupabaseBrowserClient();
-  if (!config || !client) {
-    throw new ArtcovrApiError(
-      503,
-      "account_services_unavailable",
-      "ARTCOVR account services are not configured yet.",
-    );
-  }
-
-  const { data, error } = await client.auth.getSession();
-  if (error || !data.session?.access_token) {
-    throw new ArtcovrApiError(
-      401,
-      "unauthorized",
-      "Sign in with your email before continuing.",
-    );
-  }
-
-  const headers = new Headers(init.headers);
-  headers.set("Authorization", `Bearer ${data.session.access_token}`);
-  headers.set("apikey", config.anonKey);
-  return { url: config.url, headers };
-}
-
 async function readPayload<T>(response: Response) {
   const payload = (await response.json().catch(() => ({}))) as T & ErrorPayload;
   if (!response.ok) {
@@ -148,13 +118,14 @@ async function readPayload<T>(response: Response) {
 }
 
 async function request<T>(path: string, init: RequestInit) {
-  const { url, headers } = await authorized(init);
+  const headers = new Headers(init.headers);
   if (init.body) headers.set("Content-Type", "application/json");
 
-  const response = await fetch(`${url}${path}`, {
+  const response = await fetch(`/api${path}`, {
     ...init,
     headers,
     cache: "no-store",
+    credentials: "same-origin",
   });
   return readPayload<T>(response);
 }
@@ -167,23 +138,25 @@ async function localRequest<T>(path: string, init: RequestInit) {
     ...init,
     headers,
     cache: "no-store",
+    credentials: "same-origin",
   });
   return readPayload<T>(response);
 }
 
 // Image uploads are sent as a raw body with the file's own media type: there is
 // no JSON envelope to base64-inflate the bytes into, and no multipart form for a
-// caller to smuggle an extra field through. Everything else about the request --
-// session bearer token, anon key, no-store -- matches the JSON path.
+// caller to smuggle an extra field through. The browser sends the Clerk session
+// cookie automatically; it never reads or constructs a session token.
 async function requestBinary<T>(path: string, body: Blob, contentType: string) {
-  const { url, headers } = await authorized({});
+  const headers = new Headers();
   headers.set("Content-Type", contentType);
 
-  const response = await fetch(`${url}${path}`, {
+  const response = await fetch(`/api${path}`, {
     method: "POST",
     headers,
     body,
     cache: "no-store",
+    credentials: "same-origin",
   });
   return readPayload<T>(response);
 }

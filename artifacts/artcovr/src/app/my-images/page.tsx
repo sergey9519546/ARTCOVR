@@ -6,7 +6,6 @@ import { PurchasedGenerationStudio } from "@/components/artcovr/PurchasedGenerat
 import { PublicPage } from "@/components/artcovr/PublicPage";
 import { getArtworkBySlug } from "@/lib/artcovr/artworks";
 import { ArtcovrApiError, getMyImages, type AccountData } from "@/lib/artcovr/functions";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function formatDate(value: string | null) {
   return value
@@ -29,21 +28,7 @@ export default function MyImagesPage() {
   }, []);
 
   const loadAccount = useCallback(async (quiet = false) => {
-    const client = getSupabaseBrowserClient();
-    if (!client) {
-      if (mounted.current) {
-        setState("error");
-        setMessage("Account services are not configured yet.");
-      }
-      return null;
-    }
     if (!quiet && mounted.current) setState("loading");
-
-    const { data: sessionData } = await client.auth.getSession();
-    if (!sessionData.session) {
-      if (mounted.current) setState("signed-out");
-      return null;
-    }
 
     try {
       const account = await getMyImages();

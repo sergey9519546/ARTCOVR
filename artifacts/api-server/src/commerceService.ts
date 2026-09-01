@@ -58,7 +58,10 @@ export async function fulfillCheckoutSession(
     const sessionCustomerId = stripeId(session.customer);
     const email = customerEmail(session);
     const accountKey =
-      sessionCustomerId || email || `stripe-session:${session.id}`;
+      order.clerkUserId ||
+      sessionCustomerId ||
+      email ||
+      `stripe-session:${session.id}`;
 
     if (paid && order.status !== "paid") {
       await tx
@@ -105,6 +108,7 @@ export async function fulfillCheckoutSession(
 
 export function createOrderValues(input: {
   id: string;
+  clerkUserId: string;
   artworkId: string;
   artworkSlug: string;
   amountCents: number;
@@ -114,6 +118,7 @@ export function createOrderValues(input: {
 }) {
   return {
     id: input.id,
+    clerkUserId: input.clerkUserId,
     artworkId: input.artworkId,
     artworkSlug: input.artworkSlug,
     idempotencyKey: input.idempotencyKey,

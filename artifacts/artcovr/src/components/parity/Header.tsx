@@ -2,6 +2,7 @@
 
 import Link from "@/components/compat/Link";
 import { useLocation } from "wouter";
+import { useAuth, useClerk } from "@clerk/react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 
 export function Header({
@@ -14,6 +15,8 @@ export function Header({
    const [pathname] = useLocation();
 const archiveSelected = pathname === "/archive" || pathname.startsWith("/product/");
    const accountSelected = pathname === "/my-images";
+    const { isLoaded, isSignedIn } = useAuth();
+    const { signOut } = useClerk();
 
    return (
      <nav
@@ -31,7 +34,7 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
                <Link className="link-hover" data-selected={archiveSelected || undefined} aria-current={archiveSelected ? "page" : undefined} href="/archive">archive</Link>
              </li>
              <li>
-               <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">my cart</Link>
+                <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">my images</Link>
              </li>
               <li className="md:hidden">
                <button
@@ -46,6 +49,15 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
              </li>
            </ul>
            <div className="hidden h-[1.265625rem] w-[3.875rem] md:block" aria-hidden="true" />
+            <div className="hidden items-center gap-4 text-sm md:flex">
+              {!isLoaded ? (
+                <span className="opacity-60" aria-live="polite">account…</span>
+              ) : isSignedIn ? (
+                <button type="button" className="link-hover" onClick={() => void signOut({ redirectUrl: "/" })}>log out</button>
+              ) : (
+                <Link className="link-hover" href="/sign-in">sign in</Link>
+              )}
+            </div>
            <ThemeSwitcher />
          </div>
        </div>
