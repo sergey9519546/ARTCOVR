@@ -1,0 +1,1 @@
+- [Artifact-scoped browser tooling](browser-test-tooling.md) — add test dependencies through the pnpm workspace filter rather than the generic root installer.
