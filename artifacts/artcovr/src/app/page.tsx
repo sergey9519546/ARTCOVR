@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
@@ -75,11 +75,16 @@ export default function Home() {
     };
   }, [preloaderDone]);
 
-  useEffect(() => {
+  // Initialize the entrance timeline before the browser paints the
+  // post-preloader frame. With useEffect, the wordmark first paints in its
+  // final position, then GSAP applies its hidden starting transform for one
+  // frame, which reads as a flash/disappearance before the animation.
+  useLayoutEffect(() => {
     if (!preloaderDone || !motionAllowed) return;
     const hero = document.querySelector<HTMLElement>("#home-hero");
     if (!hero) return;
 
+    gsap.registerPlugin(ScrollTrigger, CustomEase);
     CustomEase.create("artcovr-entrance", "0.19,1,0.22,1");
     const context = gsap.context(() => {
       const timeline = gsap.timeline({
@@ -151,7 +156,7 @@ export default function Home() {
       setTransitionActive(true);
     };
 
-    // Capture phase: run before React/Next's <Link> onClick (which is delegated
+    // Capture phase: run before the router Link onClick (which is delegated
     // at the root container) so our preventDefault() wins and the transition plays
     // instead of an immediate navigation. See ULTRAPLAN task 7.
     document.addEventListener("click", handleArtworkClick, true);

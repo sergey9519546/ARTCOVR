@@ -190,7 +190,12 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
           );
           const drawn = spiralOwnsLead && leadT < 0.999;
           const arc = Math.sin(leadT * Math.PI);
-          const x = leadT * (window.innerWidth * 0.72 + cardSize);
+          // The lead card is center-anchored, so x=0 places its left edge
+          // halfway across the viewport. Start it flush with the left edge;
+          // otherwise the spiral opens with a large empty band on the right.
+          const leftEdgeStart = -window.innerWidth / 2 + cardSize / 2;
+          const x =
+            leftEdgeStart + leadT * (window.innerWidth * 0.72 + cardSize);
           const y = -arc * RADIUS_Y * 0.72;
           const z = leadT * 380;
           const scale = sharedLeadScale * (1 + leadT * 0.08);
