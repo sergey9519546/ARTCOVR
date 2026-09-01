@@ -103,6 +103,16 @@ export type AccountData = {
   downloads: AccountDownload[];
 };
 
+export type OwnerCatalogIntelligenceAccess = {
+  authorized: true;
+  role: "curator";
+  capabilities: {
+    aggregateInsights: boolean;
+    visualDiversityMap: boolean;
+    duplicateReview: boolean;
+  };
+};
+
 type ErrorPayload = { message?: string; error?: string; code?: string };
 
 async function readPayload<T>(response: Response) {
@@ -237,6 +247,13 @@ export function createCheckout(
 
 export function getMyImages() {
   return request<AccountData>("/functions/v1/my-images", { method: "GET" });
+}
+
+export function getOwnerCatalogIntelligenceAccess() {
+  return request<OwnerCatalogIntelligenceAccess>(
+    "/owner/catalog-intelligence",
+    { method: "GET" },
+  );
 }
 
 export function submitInquiry(name: string, message: string) {

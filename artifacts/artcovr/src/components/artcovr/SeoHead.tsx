@@ -85,6 +85,11 @@ const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
     description: "Access your ARTCOVR purchases, generated images, prompts, and authorized downloads.",
     index: false,
   },
+  "/catalog-intelligence": {
+    title: "Catalog Intelligence | ARTCOVR",
+    description: "Protected ARTCOVR owner workspace for aggregate visual curation insights.",
+    index: false,
+  },
 };
 
 function trimTitle(value: string, maxLength = 60) {

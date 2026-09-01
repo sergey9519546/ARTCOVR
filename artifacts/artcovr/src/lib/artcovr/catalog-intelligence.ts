@@ -26,7 +26,7 @@ export const INTELLIGENCE_PAYLOAD_CONTRACT = {
   duplicates: "duplicates.js",
 } as const;
 
-export type CatalogFacetKey = "genre" | "color" | "mood";
+export type CatalogFacetKey = "genre" | "color" | "mood" | "style";
 
 export type CatalogIntelligenceRecord = {
   slug: string;
@@ -141,6 +141,7 @@ export function buildCatalogFacetIndex(items: readonly Artwork[]): CatalogFacetI
     genre: new Map(),
     color: new Map(),
     mood: new Map(),
+    style: new Map(),
   };
 
   for (const artwork of items) {
@@ -150,6 +151,9 @@ export function buildCatalogFacetIndex(items: readonly Artwork[]): CatalogFacetI
       genre: record.genres,
       color: record.colors,
       mood: record.moods,
+      style: record.visualDescriptors
+        .filter((descriptor) => descriptor.task === "style")
+        .map((descriptor) => descriptor.label),
     };
     for (const facet of Object.keys(values) as CatalogFacetKey[]) {
       for (const value of values[facet]) {
@@ -164,6 +168,7 @@ export function buildCatalogFacetIndex(items: readonly Artwork[]): CatalogFacetI
     genre: new Map([...postings.genre].map(([value, slugs]) => [value, slugs.size])),
     color: new Map([...postings.color].map(([value, slugs]) => [value, slugs.size])),
     mood: new Map([...postings.mood].map(([value, slugs]) => [value, slugs.size])),
+    style: new Map([...postings.style].map(([value, slugs]) => [value, slugs.size])),
   };
 
   return { records, postings, counts };
@@ -185,6 +190,7 @@ export function summarizeCatalogIntelligence(index: CatalogFacetIndex): CatalogI
       genre: facetSummary("genre"),
       color: facetSummary("color"),
       mood: facetSummary("mood"),
+      style: facetSummary("style"),
     },
   };
 }

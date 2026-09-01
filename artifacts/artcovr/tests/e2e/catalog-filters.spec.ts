@@ -156,3 +156,8 @@ test("archive search and facets restore from the URL", async ({ page }) => {
   await expect(page.locator(`[data-facet="genre"] button[aria-pressed="true"]`)).toHaveAttribute("aria-pressed", "true");
   await expect(page.url()).toContain("genre=");
 });
+
+test("curation workspace redirects signed-out visitors to sign in", async ({ page }) => {
+  await page.goto("/catalog-intelligence");
+  await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcatalog-intelligence/);
+});
