@@ -52,8 +52,20 @@ const MOOD_DISPLAY_LABELS: Record<string, string> = {
   "Serene__Peaceful": "Serene",
 };
 
-function getArtworkMood(artwork: Artwork): string | null {
-  return getVisualEntry(artwork.slug)?.labels.mood?.label ?? artwork.moodTags[0] ?? null;
+const EMOTIONAL_MOOD_TAGS = new Set([
+  "dreamlike",
+  "quiet",
+  "monumental",
+  "solitary",
+  "nocturnal",
+  "uncanny",
+  "macabre",
+]);
+
+function getArtworkMoods(artwork: Artwork): string[] {
+  const visualMood = getVisualEntry(artwork.slug)?.labels.mood?.label;
+  const taggedMoods = artwork.moodTags.filter((tag) => EMOTIONAL_MOOD_TAGS.has(tag));
+  return [...new Set([visualMood, ...taggedMoods].filter((value): value is string => Boolean(value)))];
 }
 
 export function displayMoodLabel(value: string) {
@@ -80,10 +92,10 @@ export function getCatalogFacets(items: readonly Artwork[]) {
   const categories = [...new Set(items.map((item) => item.category))].sort();
   const colors = [...new Set(items.map(getArtworkColor).filter((value): value is string => Boolean(value)))]
     .sort((left, right) => displayFacetLabel(left).localeCompare(displayFacetLabel(right)));
-  const moods = [...new Set(items.map(getArtworkMood).filter((value): value is string => Boolean(value)))]
+  const moods = [...new Set(items.flatMap(getArtworkMoods))]
     .map((tag) => ({
       tag,
-      count: items.filter((item) => getArtworkMood(item) === tag).length,
+      count: items.filter((item) => getArtworkMoods(item).includes(tag)).length,
     }))
     .sort((left, right) => right.count - left.count || left.tag.localeCompare(right.tag))
     .slice(0, 12)
@@ -101,7 +113,7 @@ export function applyCatalogView(
     .filter((artwork) => {
       if (view.category && artwork.category !== view.category) return false;
       if (view.color && getArtworkColor(artwork) !== view.color) return false;
-      if (view.mood && getArtworkMood(artwork) !== view.mood) return false;
+      if (view.mood && !getArtworkMoods(artwork).includes(view.mood)) return false;
       return true;
     })
     .sort((left, right) => (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0));
@@ -158,15 +170,12 @@ export function CatalogControls({
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) return;
 
-    const interval = window.setInterval(() => {
-      setOffsets((current) => ({
-        category: current.category + 3 >= facets.categories.length ? 0 : current.category + 3,
-        color: current.color + 3 >= facets.colors.length ? 0 : current.color + 3,
-        mood: current.mood + 3 >= facets.moods.length ? 0 : current.mood + 3,
-      }));
-    }, 5200);
-
-    return () => window.clearInterval(interval);
+    const refreshOffset = (length: number) => length > 1 ? Math.floor(Math.random() * length) : 0;
+    setOffsets({
+      category: refreshOffset(facets.categories.length),
+      color: refreshOffset(facets.colors.length),
+      mood: refreshOffset(facets.moods.length),
+    });
   }, [facets.categories.length, facets.colors.length, facets.moods.length]);
 
   const update = (key: FacetKey, value: string | null) => {
@@ -176,7 +185,7 @@ export function CatalogControls({
   const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
     { key: "category", label: "Style", options: facets.categories, visibleCount: 7 },
     { key: "mood", label: "Mood", options: facets.moods, visibleCount: 8 },
-    { key: "color", label: "Color", options: facets.colors, visibleCount: 8 },
+    { key: "color", label: "Color", options: facets.colors, visibleCount: 9 },
   ];
 
   return (
