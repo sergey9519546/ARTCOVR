@@ -76,9 +76,9 @@ export default function Home() {
   }, [preloaderDone]);
 
   // Initialize the entrance timeline before the browser paints the
-  // post-preloader frame. With useEffect, the wordmark first paints in its
-  // final position, then GSAP applies its hidden starting transform for one
-  // frame, which reads as a flash/disappearance before the animation.
+  // post-preloader frame. The wordmark and rule own the first beat; copy
+  // waits until that lockup is readable instead of entering while the mark is
+  // still clipped.
   useLayoutEffect(() => {
     if (!preloaderDone || !motionAllowed) return;
     const hero = document.querySelector<HTMLElement>("#home-hero");
@@ -100,7 +100,7 @@ export default function Home() {
           "#hero-line",
           { scaleX: 0 },
           { scaleX: 1, duration: 0.65, clearProps: "transform" },
-          "-=0.52",
+          "-=0.16",
         )
         .fromTo(
           [
@@ -120,7 +120,7 @@ export default function Home() {
             stagger: 0.06,
             clearProps: "opacity,visibility,transform",
           },
-          "-=0.4",
+          "+=0.08",
         );
     }, hero);
 
