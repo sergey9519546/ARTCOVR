@@ -126,6 +126,7 @@ export function CatalogControls({
   onClear,
   resultCount,
   totalCount,
+  showGenreFacet = true,
   showMoodFacet = true,
   facetIndex,
 }: {
@@ -135,6 +136,7 @@ export function CatalogControls({
   onClear?: () => void;
   resultCount: number;
   totalCount: number;
+  showGenreFacet?: boolean;
   showMoodFacet?: boolean;
   facetIndex?: CatalogFacetIndex;
 }) {
@@ -166,7 +168,9 @@ export function CatalogControls({
   };
 
   const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
-    { key: "genre", label: "Genre", options: facets.genres, visibleCount: 10 },
+    ...(showGenreFacet
+      ? [{ key: "genre" as const, label: "Genre", options: facets.genres, visibleCount: 10 }]
+      : []),
     ...(showMoodFacet
       ? [{ key: "mood" as const, label: "Mood", options: facets.moods, visibleCount: 10 }]
       : []),

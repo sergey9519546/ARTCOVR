@@ -1,4 +1,5 @@
 import { ArchiveSearch } from "@/components/artcovr/ArchiveSearch";
+import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { SiteFooter } from "@/components/artcovr/SiteFooter";
 import { SiteHeader } from "@/components/artcovr/SiteHeader";
 import { displayArtworks, isPrivateStaging } from "@/lib/artcovr/artworks";
@@ -49,6 +50,7 @@ export default function ArchivePage() {
         <section aria-label="Artwork archive" className="mt-20">
           <ArchiveSearch items={displayArtworks} />
         </section>
+        <ScrollJourney enabled />
       </main>
       <SiteFooter />
     </>

@@ -99,6 +99,7 @@ export function ProductGrid() {
         }}
         resultCount={filteredArtworks.length}
         totalCount={displayArtworks.length}
+        showGenreFacet={false}
         facetIndex={facetIndex}
       />
       <h2 id="selected-artworks" className="sr-only">
