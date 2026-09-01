@@ -7,7 +7,6 @@ import {
   applyCatalogView,
   CatalogControls,
   DEFAULT_CATALOG_VIEW,
-  groupArtworks,
   type CatalogView,
 } from "@/components/artcovr/CatalogControls";
 // The home grid renders the featured tier only (owner rule: green works on the
@@ -76,10 +75,7 @@ export function ProductGrid() {
   const isDefaultView =
     view.category === null &&
     view.color === null &&
-    view.mood === null &&
-    view.priceBand === null &&
-    view.sort === "curated" &&
-    view.group === "none";
+    view.mood === null;
   const isPartialCatalog = hasRange(4, 7);
   const remainingArtworks = filteredArtworks.slice(GRID_RUNWAY_END);
   const firstRow = filteredArtworks.slice(0, 12);
@@ -110,28 +106,8 @@ export function ProductGrid() {
         <div className="mt-10 border border-current/20 px-6 py-12 text-center">
           <p className="text-xl font-bold">No covers match those controls.</p>
           <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">
-            Clear a category, color, mood, or price filter to see more.
+            Clear a style, color, or mood filter to see more.
           </p>
-        </div>
-      ) : view.group !== "none" ? (
-        <div className="mt-10 space-y-14 md:space-y-20">
-          {groupArtworks(filteredArtworks, view.group).map((group) => (
-            <section key={group.key} aria-label={`${group.label} group`}>
-              <div className="mb-5 flex items-baseline justify-between gap-4 border-t-2 border-current pt-3">
-                <h3 className="text-sm font-bold uppercase tracking-[.08em]">
-                  {group.label}
-                </h3>
-                <span className="text-xs uppercase tracking-[.1em] text-current/50">
-                  {group.items.length} {group.items.length === 1 ? "cover" : "covers"}
-                </span>
-              </div>
-              <div className={uniformRowClass}>
-                {group.items.map((artwork, index) => (
-                  <ProductCard key={artwork.id} artwork={artwork} priority={index < 2} />
-                ))}
-              </div>
-            </section>
-          ))}
         </div>
       ) : isDefaultView ? (
         <>

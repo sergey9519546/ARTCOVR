@@ -1,50 +1,22 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { getVisualEntry, humanizeVisualLabel } from "@/lib/artcovr/visual-index";
 
-export type CatalogSort = "curated" | "title-asc" | "price-asc" | "price-desc";
-export type CatalogGroup = "none" | "category" | "color" | "mood";
+type FacetKey = "category" | "color" | "mood";
 
 export type CatalogView = {
   category: string | null;
   color: string | null;
   mood: string | null;
-  priceBand: string | null;
-  sort: CatalogSort;
-  group: CatalogGroup;
 };
 
 export const DEFAULT_CATALOG_VIEW: CatalogView = {
   category: null,
   color: null,
   mood: null,
-  priceBand: null,
-  sort: "curated",
-  group: "none",
 };
-
-export const PRICE_BANDS = [
-  { id: "under-50", label: "Under $50", min: 0, max: 5000 },
-  { id: "50-100", label: "$50–$100", min: 5000, max: 10000 },
-  { id: "100-200", label: "$100–$200", min: 10000, max: 20000 },
-  { id: "200-plus", label: "$200+", min: 20000, max: Infinity },
-] as const;
-
-export const SORT_MODES: { id: CatalogSort; label: string }[] = [
-  { id: "curated", label: "Curated" },
-  { id: "title-asc", label: "A–Z" },
-  { id: "price-asc", label: "Price ↑" },
-  { id: "price-desc", label: "Price ↓" },
-];
-
-export const GROUP_MODES: { id: CatalogGroup; label: string }[] = [
-  { id: "none", label: "No grouping" },
-  { id: "category", label: "Category" },
-  { id: "color", label: "Color" },
-  { id: "mood", label: "Mood" },
-];
 
 export function getArtworkColor(artwork: Artwork): string | null {
   const dominantColor = getVisualEntry(artwork.slug)?.labels.domcolor?.label;
@@ -73,17 +45,6 @@ function colorSwatch(value: string) {
   return swatches[value];
 }
 
-export function priceBandOf(artwork: Artwork): string | null {
-  if (artwork.priceCents === null) return null;
-  const band = PRICE_BANDS.find(
-    (candidate) =>
-      artwork.priceCents !== null &&
-      artwork.priceCents >= candidate.min &&
-      artwork.priceCents < candidate.max,
-  );
-  return band?.id ?? null;
-}
-
 export function getCatalogFacets(items: readonly Artwork[]) {
   const categories = [...new Set(items.map((item) => item.category))].sort();
   const colors = [...new Set(items.map(getArtworkColor).filter((value): value is string => Boolean(value)))]
@@ -105,45 +66,28 @@ export function applyCatalogView(
   view: CatalogView,
   orderIndex = new Map(items.map((item, index) => [item.slug, index])),
 ) {
-  const matched = items.filter((artwork) => {
-    if (view.category && artwork.category !== view.category) return false;
-    if (view.color && getArtworkColor(artwork) !== view.color) return false;
-    if (view.mood && !artwork.moodTags.includes(view.mood)) return false;
-    if (view.priceBand && priceBandOf(artwork) !== view.priceBand) return false;
-    return true;
-  });
-
-  return [...matched].sort((left, right) => {
-    if (view.sort === "title-asc") return left.title.localeCompare(right.title);
-    if (view.sort === "price-asc") {
-      return (left.priceCents ?? Infinity) - (right.priceCents ?? Infinity);
-    }
-    if (view.sort === "price-desc") {
-      return (right.priceCents ?? -Infinity) - (left.priceCents ?? -Infinity);
-    }
-    return (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0);
-  });
+  return [...items]
+    .filter((artwork) => {
+      if (view.category && artwork.category !== view.category) return false;
+      if (view.color && getArtworkColor(artwork) !== view.color) return false;
+      if (view.mood && !artwork.moodTags.includes(view.mood)) return false;
+      return true;
+    })
+    .sort((left, right) => (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0));
 }
 
-export function groupArtworks(items: readonly Artwork[], group: CatalogGroup) {
-  if (group === "none") return [{ key: "all", label: null, items: [...items] }];
-
-  const buckets = new Map<string, Artwork[]>();
-  for (const artwork of items) {
-    const key =
-      group === "category"
-        ? artwork.category
-        : group === "color"
-          ? getArtworkColor(artwork) ?? "Unclassified"
-          : artwork.moodTags[0] ?? "Unclassified";
-    buckets.set(key, [...(buckets.get(key) ?? []), artwork]);
+function getVisibleFacetValues(options: string[], active: string | null, offset: number) {
+  const rotatingOptions = active ? options.filter((option) => option !== active) : options;
+  const rotatingCount = active ? 2 : 3;
+  if (rotatingOptions.length <= rotatingCount) {
+    return active ? [active, ...rotatingOptions] : rotatingOptions;
   }
 
-  return [...buckets.entries()].map(([key, groupedItems]) => ({
-    key,
-    label: displayFacetLabel(key),
-    items: groupedItems,
-  }));
+  const start = offset % rotatingOptions.length;
+  const visible = Array.from({ length: rotatingCount }, (_, index) => (
+    rotatingOptions[(start + index) % rotatingOptions.length]
+  ));
+  return active ? [active, ...visible] : visible;
 }
 
 export function CatalogControls({
@@ -162,19 +106,40 @@ export function CatalogControls({
   totalCount: number;
 }) {
   const facets = useMemo(() => getCatalogFacets(items), [items]);
-  const hasPriceData = items.some((item) => item.priceCents !== null);
-  const activeFilters = [
-    view.category,
-    view.color,
-    view.mood,
-    view.priceBand,
-  ].filter(Boolean).length;
+  const [offsets, setOffsets] = useState<Record<FacetKey, number>>({
+    category: 0,
+    color: 0,
+    mood: 0,
+  });
   const isDefault =
-    activeFilters === 0 && view.sort === "curated" && view.group === "none";
+    view.category === null &&
+    view.color === null &&
+    view.mood === null;
 
-  const update = <Key extends keyof CatalogView>(key: Key, value: CatalogView[Key]) => {
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) return;
+
+    const interval = window.setInterval(() => {
+      setOffsets((current) => ({
+        category: current.category + 3 >= facets.categories.length ? 0 : current.category + 3,
+        color: current.color + 3 >= facets.colors.length ? 0 : current.color + 3,
+        mood: current.mood + 3 >= facets.moods.length ? 0 : current.mood + 3,
+      }));
+    }, 5200);
+
+    return () => window.clearInterval(interval);
+  }, [facets.categories.length, facets.colors.length, facets.moods.length]);
+
+  const update = (key: FacetKey, value: string | null) => {
     onChange({ ...view, [key]: value });
   };
+
+  const rows: { key: FacetKey; label: string; options: string[] }[] = [
+    { key: "category", label: "Style", options: facets.categories },
+    { key: "color", label: "Color", options: facets.colors },
+    { key: "mood", label: "Mood", options: facets.moods },
+  ];
 
   return (
     <div className="border-y border-current/15 py-5" data-catalog-controls>
@@ -202,67 +167,24 @@ export function CatalogControls({
       </div>
 
       <div className="mt-5 space-y-4">
-        <ControlRow label="Category">
-          <Chip active={view.category === null} onClick={() => update("category", null)}>All</Chip>
-          {facets.categories.map((category) => (
-            <Chip key={category} active={view.category === category} onClick={() => update("category", category)}>
-              {category}
-            </Chip>
-          ))}
-        </ControlRow>
-
-        <ControlRow label="Color">
-          <Chip active={view.color === null} onClick={() => update("color", null)}>All</Chip>
-          {facets.colors.map((color) => (
-            <Chip
-              key={color}
-              active={view.color === color}
-              onClick={() => update("color", color)}
-              swatch={colorSwatch(color)}
-            >
-              {displayFacetLabel(color)}
-            </Chip>
-          ))}
-        </ControlRow>
-
-        <ControlRow label="Mood">
-          <Chip active={view.mood === null} onClick={() => update("mood", null)}>All</Chip>
-          {facets.moods.map((mood) => (
-            <Chip key={mood} active={view.mood === mood} onClick={() => update("mood", mood)}>
-              {mood}
-            </Chip>
-          ))}
-        </ControlRow>
-
-        <ControlRow label="Price">
-          <Chip active={view.priceBand === null} onClick={() => update("priceBand", null)}>Any</Chip>
-          {PRICE_BANDS.map((band) => (
-            <Chip key={band.id} active={view.priceBand === band.id} onClick={() => update("priceBand", band.id)}>
-              {band.label}
-            </Chip>
-          ))}
-        </ControlRow>
-
-        <ControlRow label="Sort">
-          {SORT_MODES.map((mode) => (
-            <Chip
-              key={mode.id}
-              active={view.sort === mode.id}
-              disabled={!hasPriceData && mode.id.startsWith("price")}
-              onClick={() => update("sort", mode.id)}
-            >
-              {mode.label}
-            </Chip>
-          ))}
-        </ControlRow>
-
-        <ControlRow label="Group">
-          {GROUP_MODES.map((mode) => (
-            <Chip key={mode.id} active={view.group === mode.id} onClick={() => update("group", mode.id)}>
-              {mode.label}
-            </Chip>
-          ))}
-        </ControlRow>
+        {rows.map(({ key, label, options }) => {
+          const visibleOptions = getVisibleFacetValues(options, view[key], offsets[key]);
+          return (
+            <ControlRow key={key} label={label}>
+              <Chip active={view[key] === null} onClick={() => update(key, null)}>All</Chip>
+              {visibleOptions.map((option) => (
+                <Chip
+                  key={option}
+                  active={view[key] === option}
+                  onClick={() => update(key, option)}
+                  swatch={key === "color" ? colorSwatch(option) : undefined}
+                >
+                  {displayFacetLabel(option)}
+                </Chip>
+              ))}
+            </ControlRow>
+          );
+        })}
       </div>
     </div>
   );
@@ -274,20 +196,18 @@ function ControlRow({ label, children }: { label: string; children: ReactNode })
       <span className="w-20 shrink-0 pt-2 text-[11px] font-bold uppercase tracking-[.12em] text-current/50">
         {label}
       </span>
-      <div className="flex min-w-0 flex-wrap gap-2">{children}</div>
+      <div className="flex min-w-0 flex-wrap gap-x-5 gap-y-1">{children}</div>
     </div>
   );
 }
 
 function Chip({
   active,
-  disabled = false,
   onClick,
   swatch,
   children,
 }: {
   active: boolean;
-  disabled?: boolean;
   onClick: () => void;
   swatch?: string;
   children: ReactNode;
@@ -296,7 +216,6 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
       aria-pressed={active}
       data-active={active || undefined}
       className="artcovr-filter-control"
