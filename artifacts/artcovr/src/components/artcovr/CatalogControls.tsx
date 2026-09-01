@@ -141,9 +141,9 @@ export function CatalogControls({
   };
 
   const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
-    { key: "category", label: "Style", options: facets.categories, visibleCount: 3 },
-    { key: "color", label: "Color", options: facets.colors, visibleCount: 8 },
+    { key: "category", label: "Style", options: facets.categories, visibleCount: 7 },
     { key: "mood", label: "Mood", options: facets.moods, visibleCount: 8 },
+    { key: "color", label: "Color", options: facets.colors, visibleCount: 8 },
   ];
 
   return (
@@ -172,15 +172,13 @@ export function CatalogControls({
       </div>
 
       <div className="artcovr-catalog-facets">
-        {rows.map(({ key, label, options, visibleCount }, facetIndex) => {
+        {rows.map(({ key, label, options, visibleCount }) => {
           const visibleOptions = getVisibleFacetValues(options, view[key], offsets[key], visibleCount);
-          const actualVisibleCount = Math.min(visibleCount, options.length) + 1;
           const headingId = `catalog-facet-${key}`;
           return (
             <section className="artcovr-catalog-facet" data-facet={key} key={key} aria-labelledby={headingId}>
               <header className="artcovr-catalog-facet-head">
                 <h3 id={headingId}>{label}</h3>
-                <span>0{facetIndex + 1} / {actualVisibleCount} visible</span>
               </header>
               <div className="artcovr-catalog-facet-choices">
                 <Chip active={view[key] === null} onClick={() => update(key, null)}>All</Chip>
