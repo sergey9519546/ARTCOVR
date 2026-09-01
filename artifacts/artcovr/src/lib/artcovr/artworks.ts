@@ -61,7 +61,7 @@ export function artworkTier(artwork: Artwork): "featured" | "archive" {
  * passed both rights and publication approval.
  */
 export const isPrivateStaging =
-  import.meta.env.VITE_ARTCOVR_PRIVATE_STAGING === "1";
+  import.meta.env?.VITE_ARTCOVR_PRIVATE_STAGING === "1";
 
 /**
  * The unapproved review catalog may exist ONLY inside explicit private-staging
