@@ -63,9 +63,11 @@ test("public catalog keeps genre coverage and featured/archive boundaries", asyn
   page,
 }) => {
   await page.goto("/");
-  await expect(catalogStatus(page)).toHaveText(
-    `${FEATURED_TOTAL} / ${FEATURED_TOTAL} works`,
-  );
+  await expect(
+    page.locator('section[aria-labelledby="selected-artworks"] a[data-artwork="true"]'),
+  ).toHaveCount(FEATURED_TOTAL);
+  await expect(page.locator("[data-catalog-controls]")).toHaveCount(0);
+  await expect(page.locator('[aria-label="ARTCOVR archive journey"]')).toHaveCount(1);
 
   await page.goto("/archive");
   await expect(catalogStatus(page)).toHaveText(
