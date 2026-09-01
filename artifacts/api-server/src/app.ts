@@ -3,6 +3,7 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { WebhookHandlers } from "./webhookHandlers";
 
 const app: Express = express();
 
@@ -25,6 +26,30 @@ app.use(
     },
   }),
 );
+
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res): Promise<void> => {
+    const signature = req.headers["stripe-signature"];
+    if (!signature) {
+      res.status(400).json({ code: "missing_signature", message: "Missing Stripe signature." });
+      return;
+    }
+
+    try {
+      await WebhookHandlers.processWebhook(
+        req.body as Buffer,
+        Array.isArray(signature) ? signature[0] : signature,
+      );
+      res.status(200).json({ received: true });
+    } catch (error) {
+      req.log.error({ err: error }, "Stripe webhook processing failed");
+      res.status(400).json({ code: "webhook_processing_failed", message: "Webhook rejected." });
+    }
+  },
+);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

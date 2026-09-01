@@ -3,6 +3,7 @@ import ownerPicksJson from "./owner-picks.json" with { type: "json" };
 import curatedReview from "./curated-review.json" with { type: "json" };
 import stagingIntroJson from "./staging-intro.json" with { type: "json" };
 import productionIntroJson from "./production-intro.json" with { type: "json" };
+import commerceConfigJson from "./commerce-config.json" with { type: "json" };
 import { selectPublicCatalog } from "./catalog-visibility.ts";
 import {
   orderByDiversityRank,
@@ -38,6 +39,10 @@ export type Artwork = {
    */
   tier?: "featured" | "archive";
 };
+
+export const includedCreditsPerCover = (
+  commerceConfigJson as { includedCreditsPerCover: number }
+).includedCreditsPerCover;
 
 /**
  * Tier accessor with the staging default: a record without a tier (the private

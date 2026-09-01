@@ -4,7 +4,11 @@ import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
 import { useEffect, useState } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
-import { getCheckoutTotal, isCheckoutReady } from "@/lib/artcovr/artworks";
+import {
+  getCheckoutTotal,
+  includedCreditsPerCover,
+  isCheckoutReady,
+} from "@/lib/artcovr/artworks";
 import {
   shouldRotateCheckoutIdempotencyKey as shouldRotateCheckoutKey,
 } from "@/lib/artcovr/checkout-errors";
@@ -96,6 +100,7 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
           <dl className="mt-8 divide-y divide-current/20 border-y border-current/20 text-sm">
             <div className="flex justify-between gap-6 py-4"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending owner approval"}</dd></div>
             <div className="flex justify-between gap-6 py-4"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
+            <div className="flex justify-between gap-6 py-4"><dt>Studio credits</dt><dd className="text-right">{includedCreditsPerCover} included</dd></div>
             <div className="flex justify-between py-4 font-bold"><dt>Total</dt><dd>{getCheckoutTotal(artwork.priceCents)}</dd></div>
           </dl>
           <p className="mt-8 max-w-[45ch] text-sm leading-6 opacity-70">

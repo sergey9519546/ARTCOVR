@@ -159,6 +159,18 @@ async function request<T>(path: string, init: RequestInit) {
   return readPayload<T>(response);
 }
 
+async function localRequest<T>(path: string, init: RequestInit) {
+  const headers = new Headers(init.headers);
+  if (init.body) headers.set("Content-Type", "application/json");
+
+  const response = await fetch(`/api${path}`, {
+    ...init,
+    headers,
+    cache: "no-store",
+  });
+  return readPayload<T>(response);
+}
+
 // Image uploads are sent as a raw body with the file's own media type: there is
 // no JSON envelope to base64-inflate the bytes into, and no multipart form for a
 // caller to smuggle an extra field through. Everything else about the request --
@@ -236,11 +248,11 @@ export function createCheckout(
   idempotencyKey: string,
   selectedPreviewId?: string,
 ) {
-  return request<{
+  return localRequest<{
     purchaseId: string;
     checkoutUrl: string;
     expiresAt: string;
-  }>("/functions/v1/create-checkout", {
+  }>("/checkout", {
     method: "POST",
     body: JSON.stringify({
       artworkId,
