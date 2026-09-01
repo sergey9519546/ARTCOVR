@@ -1,0 +1,126 @@
+name: CI
+
+# Until now nothing verified pushes or pull requests: the only enforcement was
+# the local git hooks in .githooks. This runs the portable gate set — every gate
+# that does not need the owner's private curation tree.
+#
+# Deliberately NOT run here: `catalog:search:check` and the build-search-index
+# determinism test, which rebuild the search index from the private semantic-lab
+# source tree (see CLAUDE.md). They stay owner-machine gates; the test reports as
+# an explicit skip rather than a silent pass.
+
+on:
+  push:
+    # The repository default branch is still artcovr-storefront while main is the
+    # consolidated product branch, and both are kept in sync. Cover both so the
+    # gates run whichever one a change lands on.
+    branches: [main, artcovr-storefront]
+  # No base filter: a pull request against ANY branch is verified. With a
+  # branches: [main] filter, a PR opened against the default branch would have
+  # run no checks at all.
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      # The build pipeline runs node --experimental-strip-types, which needs >= 22.6.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Verify (portable gate set)
+        run: bun run verify:ci
+
+  # G5 in .agent-state/RELEASE_GATES.md. Until now this only ever ran when
+  # somebody remembered to run it by hand, so a regression in the browser
+  # journeys could reach the default branch unnoticed. Kept a separate job so a
+  # browser flake never masks a real failure in the gate set above.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Installs the browser build this repo's pinned @playwright/test expects.
+      # Do not swap for a system Chromium: a version mismatch fails at launch
+      # with an "Executable doesn't exist" error that reads like a test failure.
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+
+      # playwright.config.ts starts `npx next dev` itself via its webServer block.
+      - name: Browser journeys
+        run: bun run test:e2e
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failures
+          path: /tmp/artcovr-playwright-results/
+          retention-days: 7
+
+  # G8 in .agent-state/RELEASE_GATES.md. This gate had never been executed —
+  # it needs a real database and nobody had stood one up — so a contract
+  # assertion broken since migration 0012 went unnoticed. It now runs on every
+  # push against a disposable PostgreSQL 16, the same version Supabase runs.
+  #
+  # Scope: this proves the migrations apply cleanly, the schema contract holds,
+  # and the guards behave. It proves NOTHING about what is applied to the live
+  # Supabase project — a green run here and a stale production database are
+  # entirely compatible.
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+
+      - name: Migrations, contract invariants, behavioural checks
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: bun run db:verify

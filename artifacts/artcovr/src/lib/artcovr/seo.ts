@@ -1,10 +1,9 @@
-const FALLBACK_SITE_URL = "https://artcovr.com";
-
 export function getSiteUrl(value = import.meta.env.VITE_SITE_URL): string {
+  if (!value) return "";
   try {
-    const url = new URL(value || FALLBACK_SITE_URL);
+    const url = new URL(value);
     if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return FALLBACK_SITE_URL;
+      return "";
     }
     url.hash = "";
     url.search = "";
@@ -13,11 +12,12 @@ export function getSiteUrl(value = import.meta.env.VITE_SITE_URL): string {
     url.password = "";
     return url.toString().replace(/\/$/, "");
   } catch {
-    return FALLBACK_SITE_URL;
+    return "";
   }
 }
 
 export function absoluteSiteUrl(path = "/", siteUrl = getSiteUrl()): string {
+  if (!siteUrl) return path.startsWith("/") ? path : `/${path}`;
   const url = new URL(path, `${siteUrl}/`);
   return url.protocol === "http:" || url.protocol === "https:"
     ? url.toString()
@@ -107,6 +107,8 @@ export type ArtworkStructuredDataInput = {
   published: boolean;
   saleMode?: "exclusive" | "repeatable" | null;
   creatorName?: string | null;
+  genres?: string[];
+  moodTags?: string[];
 };
 
 export function buildArtworkStructuredData(
@@ -149,7 +151,18 @@ export function buildArtworkStructuredData(
         description: artwork.description,
         image: { "@id": `${productUrl}#artwork` },
         url: productUrl,
-        ...(artwork.category ? { category: artwork.category } : {}),
+         ...(artwork.genres?.length
+           ? { category: artwork.genres.join(", ") }
+           : artwork.category
+             ? { category: artwork.category }
+             : {}),
+         sku: artwork.slug,
+         brand: { "@id": `${siteUrl}#organization` },
+         ...(artwork.genres?.length || artwork.moodTags?.length
+           ? {
+               keywords: [...(artwork.genres ?? []), ...(artwork.moodTags ?? [])].join(", "),
+             }
+           : {}),
         offers: {
           "@type": "Offer",
           url: productUrl,
@@ -173,10 +186,54 @@ export function buildArtworkStructuredData(
 export function buildOrganizationStructuredData(siteUrl = getSiteUrl()) {
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${siteUrl}#organization`,
-    name: "ARTCOVR",
-    url: siteUrl,
-    logo: absoluteSiteUrl("/icon-512.png", siteUrl),
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}#organization`,
+        name: "ARTCOVR",
+        url: siteUrl,
+        logo: absoluteSiteUrl("/icon-512.png", siteUrl),
+        description:
+          "ARTCOVR is a storefront for owner-approved cover artwork with commercial licensing and prompt-based image editing.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}#website`,
+        name: "ARTCOVR",
+        url: siteUrl,
+        description:
+          "Browse distinctive square cover art, review commercial license terms, and shape purchased artwork with a prompt.",
+        publisher: { "@id": `${siteUrl}#organization` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${siteUrl}/archive?query={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
+}
+
+export type FaqStructuredDataItem = {
+  question: string;
+  answer: string;
+};
+
+export function buildFaqStructuredData(
+  questions: readonly FaqStructuredDataItem[],
+  siteUrl = getSiteUrl(),
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${absoluteSiteUrl("/faq", siteUrl)}#faq`,
+    mainEntity: questions.map(({ question, answer }) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: answer,
+      },
+    })),
   };
 }

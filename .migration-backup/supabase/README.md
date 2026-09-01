@@ -42,6 +42,17 @@ The base and catalog keys are authoritative values from the approved catalog art
 
 The OpenAI call uses `AbortController` at 115 seconds by default (`OPENAI_IMAGE_TIMEOUT_MS`, maximum 130 seconds). Both clean and raster-watermarked outputs must be structurally valid, static, exact-dimension WebP rasters below 20 MiB before finalization. `blocked`, `failed`, and `timed_out` rows set `allowance_slot` to null, releasing the claimed success allowance. Admission starts conservatively at 4 attempts per rolling minute project-wide, plus 6 per rolling 10 minutes and 24 per rolling 24 hours per authenticated user, so failures cannot create unlimited provider spend. Raise the global ceiling only after the OpenAI project tier and production latency budget are verified. Only successful rows retain an allowance slot.
 
+> **UNVERIFIED — the project-wide bound above describes the pre-`202608140010` single-lane behaviour.**
+> `202608140010_generation_rate_lanes.sql` replaces it with two independent lanes (4/min free +
+> 4/min purchased, up to 8/min combined), and `.agent-state/PRODUCT_CONTRACT.md` and
+> `.agent-state/FAILURE_GRAPH.md` already document the dual-lane form as current.
+> `.agent-state/ULTRAPLAN.md` task 4 records that the migration has never been parsed by Postgres.
+> Nothing in this repository can settle which body is live — only the database can. Until someone
+> inspects `request_generation` on the live instance, assume the **single-lane** behaviour described
+> above, because that is the fail-closed reading: under it, free-tier traffic can still exhaust the
+> project-wide bucket and deny generation to a paying customer. Reconcile all four documents once the
+> applied state is known.
+
 ## Scheduler provisioning
 
 1. Generate a long random `CRON_SECRET` and set it with `supabase secrets set`.
@@ -51,6 +62,14 @@ The OpenAI call uses `AbortController` at 115 seconds by default (`OPENAI_IMAGE_
 
 ## Invariants
 
-Migrations `202608110001`–`202608130008` are applied and frozen. `202608140009_convergence_hardening.sql` carries every later schema and function change: the `stripe_events.processed_outcome` classification column, the `purchases` reconciliation backoff columns, the flood-controlled 45-minute `reserve_artwork` (which now also returns exactly one row per conflict branch), the `base_source_sha256_snapshot` backfill and the snapshot-bound `account_assets`, the 180-second `reap_stale_generations` default, `restore_purchase_access`, and the removal of the unverified `refund_purchase(uuid)` RPC.
+Migrations `202608110001`–`202608130008` are applied and frozen. `202608140009_convergence_hardening.sql` carries the convergence work: the `stripe_events.processed_outcome` classification column, the `purchases` reconciliation backoff columns, the flood-controlled 45-minute `reserve_artwork` (which now also returns exactly one row per conflict branch), the `base_source_sha256_snapshot` backfill and the snapshot-bound `account_assets`, the 180-second `reap_stale_generations` default, `restore_purchase_access`, and the removal of the unverified `refund_purchase(uuid)` RPC.
+
+Three migrations postdate `0009`, and this section previously claimed `0009` carried "every later schema and function change" — it does not:
+
+- `202608140010_generation_rate_lanes.sql` — splits generation admission into independent free and purchased lanes. **Application state unverified; see the admission note above.**
+- `202608150011_creative_axis.sql` — entitlement dispute clock and base-drift reconciliation. Additive; does not touch the frozen artwork→purchase settlement lock order.
+- `202608250012_reference_uploads.sql` — user-supplied generation references. Adds an externally-supplied input surface; references are still resolved and validated server-side, never from a client-provided key.
+
+A migration file in this directory is not evidence that it is applied. Verify against the live database before relying on any behaviour it defines.
 
 `tests/contract_invariants.sql` is for a disposable migrated database. `tests/verify-contract.ps1` statically checks the schema and required function entrypoints without credentials. It does not replace running the SQL against a real Supabase Postgres instance.

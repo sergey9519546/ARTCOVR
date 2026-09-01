@@ -23,9 +23,9 @@ export default function ProductPage() {
   const art = getArtworkBySlug(slug);
   if (!art) return <NotFound />;
 
-  const jsonLd = buildArtworkStructuredData(art);
   const relatedWorks = getRelatedArtworks(art.slug, 4);
   const genres = getArtworkGenres(art);
+  const jsonLd = buildArtworkStructuredData({ ...art, genres });
   const checkoutReady = isCheckoutReady(art);
   const licenseMode = art.saleMode === "exclusive"
     ? "Exclusive commercial license"

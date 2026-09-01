@@ -2,44 +2,31 @@
 
 All release gates must pass before any version is marked production-ready.
 
-| Gate | Requirement | Command / Check (bun — mapped from the documented command) | Status (2026-08-26) |
+| Gate | Requirement | Command / Check (bun — mapped from the documented command) | Status (2026-08-31) |
 | :--- | :--- | :--- | :--- |
-| **G1: Unit & Contract Tests** | 100% test pass | `bun run test` | **PASS** (exit 0, 11.4s, 2026-08-26T22:49:35Z) — ℹ tests 199, ℹ pass 199, ℹ fail 0, ℹ cancelled 0, ℹ skipped 0 |
-| **G2: TypeScript Compilation** | Zero type errors | `bun run typecheck` | **PASS** (exit 0, 1.3s, 2026-08-26T22:49:35Z) |
-| **G3: Code Quality & Lint** | Zero ESLint warnings / errors | `bun run lint` | **PASS** (exit 0, 4.7s, 2026-08-26T22:49:35Z) |
-| **G4: Production Build** | Zero build errors; export pruned to approved assets | `bun run build` | **PASS** (exit 0, 13.6s, 2026-08-26T22:49:35Z) — {"scannedFiles":3523,"reviewSlugs":169,"allowedSlugs":187,"forbiddenSlugs":30,"observedAllowedSlugs":187,"violations":0} — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
-| **G5: Browser \& E2E Tests** | All Playwright journeys pass | `npm run test:e2e` | **PASS** (exit 0, 40.0s, 2026-08-27T10:30:11Z) — 44 passed, 2 skipped (platform-conditional), 0 failed — cold-start run; dev server auto-started by playwright webServer config via `npx next dev` |
-| **G6: Catalog Integrity** | Projection matches approved records | `bun run catalog:project:check`, `bun run catalog:launch:check` | **PASS** (exit 0, 0.6s, 2026-08-26T22:49:35Z) — checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true; checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
-| **G7: Security Headers** | CSP, X-Frame-Options, noindex on staging | `vercel.json` | **NOT RUN** — no executable command in the Command / Check column — it names only `vercel.json` plus prose, so nothing could be executed and no status can be certified |
-| **G8: Commerce Hardening** | Frozen prices, idempotent settle, dispute revoke/restore, convergent webhooks, dual-lane generation admission, dispute-pause entitlement credit, base-drift reconciliation | Backend tests + migrations 0001–0011 applied on disposable PG16 with behavioral checks | **NOT RUN** — requires credentials and a live/disposable PostgreSQL instance to apply and behaviourally verify migrations 0001–0011: the `supabase` CLI is not installed (spawn ENOENT); no SUPABASE_DB_URL / SUPABASE_SERVICE_ROLE_KEY / DATABASE_URL is present in the environment. A file's presence never proves a migration is applied. |
-| **G9: Display Asset Integrity** | JPEG, square display derivatives; curated/seed sha sync | `node --test --experimental-strip-types tests/unit/catalog-display-assets.test.ts` | **PASS** (exit 0, 0.3s, 2026-08-26T22:49:35Z) — ℹ tests 2, ℹ pass 2, ℹ fail 0, ℹ cancelled 0, ℹ skipped 0 |
+| **G1: Unit & Contract Tests** | 100% test pass | `bun run test` | **PASS** (exit 0, 2.6s, 2026-08-31T10:27:33Z) — # tests 200, # pass 198, # fail 0, # cancelled 0, # skipped 2 |
+| **G2: TypeScript Compilation** | Zero type errors | `bun run typecheck` | **PASS** (exit 0, 6.7s, 2026-08-31T10:27:33Z) |
+| **G3: Code Quality & Lint** | Zero ESLint warnings / errors | `bun run lint` | **PASS** (exit 0, 7.7s, 2026-08-31T10:27:33Z) |
+| **G4: Production Build** | Zero build errors; export pruned to approved assets | `bun run build` | **PASS** (exit 0, 18.8s, 2026-08-31T10:27:33Z) — {"scannedFiles":3523,"reviewSlugs":169,"allowedSlugs":187,"forbiddenSlugs":30,"observedAllowedSlugs":187,"violations":0} — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
+| **G5: Browser \& E2E Tests** | All Playwright journeys pass | `bun run test:e2e` | **PASS** (exit 0, 81.3s, 2026-08-31T10:27:33Z) — 44 passed (1.3m) |
+| **G6: Catalog Integrity** | Projection matches approved records | `bun run catalog:project:check`, `bun run catalog:launch:check` | **PASS** (exit 0, 0.9s, 2026-08-31T10:27:33Z) — checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true; checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
+| **G7: Security Headers** | CSP, X-Frame-Options, noindex on staging | `bun run check:headers` | **PASS** (exit 0, 0.1s, 2026-08-31T10:27:33Z) — passed=22, failed=0 |
+| **G8: Commerce Hardening** | Frozen prices, idempotent settle, dispute revoke/restore, convergent webhooks, dual-lane generation admission, dispute-pause entitlement credit, base-drift reconciliation | `bun run db:verify` | **PASS** (exit 0, 1.0s, 2026-08-31T10:27:33Z) — G8 OK: migrations apply, contract invariants hold, behavioural checks pass. |
+| **G9: Display Asset Integrity** | JPEG, square display derivatives; curated/seed sha sync | `node --test --experimental-strip-types tests/unit/catalog-display-assets.test.ts` | **PASS** (exit 0, 0.5s, 2026-08-31T10:27:33Z) — # tests 3, # pass 3, # fail 0, # cancelled 0, # skipped 0 |
 
 <!-- release-gates:begin (generated by scripts/agent/release-gates.mjs — do not hand-edit) -->
 
-**How this table was produced.** `node scripts/agent/release-gates.mjs` executed it on 2026-08-26 (run `2026-08-26T22:49:35Z`). Every Status cell above is derived from a child-process exit code captured during that run and written to `~/.claude/logs/release-gates.jsonl`; no cell can read **PASS** without one.
+**How this table was produced.** `node scripts/agent/release-gates.mjs` executed it on 2026-08-31 (run `2026-08-31T10:27:33Z`). Every Status cell above is derived from a child-process exit code captured during that run and written to `~/.claude/logs/release-gates.jsonl`; no cell can read **PASS** without one.
 
 **Command mapping (npm is never spawned — `bun` is canonical per AGENTS.md).** The documented Command column was rewritten to the form actually executed:
 
-- `npm test → bun run test`
-- `npm run typecheck → bun run typecheck`
-- `npm run lint → bun run lint`
-- `npm run build → bun run build`
 - `npm run test:e2e → bun run test:e2e`
-- `npm run catalog:project:check → bun run catalog:project:check`
-- `npm run catalog:launch:check → bun run catalog:launch:check`
-- `tests/unit/catalog-display-assets.test.ts (a test file, not a command) → node --test --experimental-strip-types tests/unit/catalog-display-assets.test.ts`
 
-**NOT RUN (3).** A gate that needs credentials, a live service, a browser, or an absent CLI is recorded NOT RUN with its reason. It never becomes PASS by default:
+**NOT RUN (0).** A gate that needs credentials, a live service, a browser, or an absent CLI is recorded NOT RUN with its reason. It never becomes PASS by default:
 
-- **G5** — requires live services this runner does not start — playwright.config.ts spawns a Next dev server on 127.0.0.1:45180 and drives an installed Chrome channel. Opt in explicitly with ARTCOVR_GATES_E2E=1.
-- **G7** — no executable command in the Command / Check column — it names only `vercel.json` plus prose, so nothing could be executed and no status can be certified
-- **G8** — requires credentials and a live/disposable PostgreSQL instance to apply and behaviourally verify migrations 0001–0011: the `supabase` CLI is not installed (spawn ENOENT); no SUPABASE_DB_URL / SUPABASE_SERVICE_ROLE_KEY / DATABASE_URL is present in the environment. A file's presence never proves a migration is applied.
+- (none)
 
-**Numeric cross-check against computed catalog truth.** `node scripts/agent/rights-audit.mjs` reports **217 total / 217 approved / 187 publishable** (30 delete-tier excluded). Every `<N> published|approved|projected` claim in `.agent-state/*.md` was compared against it: **5 agree, 3 conflict, 1 superseded ledger claim(s)** in `DECISIONS.md` (an append-only record of dated decisions — its numbers are history by construction and are never rewritten).
-
-- `SOURCE-OF-TRUTH-CONFLICT` — `.agent-state/RELEASE_GATES.md`:10 (G4) stated **139 published**; `catalog/approved-artworks.json` computes **187** (rights-audit.publishable (approved rows minus delete-tier)). Computed value wins; the Status column above carries the corrected number.
-- `SOURCE-OF-TRUTH-CONFLICT` — `.agent-state/RELEASE_GATES.md`:12 (G6) stated **169 approved**; `catalog/approved-artworks.json` computes **217** (rights-audit.approved (rows passing rights/published/price)). Computed value wins; the Status column above carries the corrected number.
-- `SOURCE-OF-TRUTH-CONFLICT` — `.agent-state/RELEASE_GATES.md`:12 (G6) stated **139 projected**; `catalog/approved-artworks.json` computes **187** (rights-audit.publishable (approved rows minus delete-tier)). Computed value wins; the Status column above carries the corrected number.
+**Numeric cross-check against computed catalog truth.** `node scripts/agent/rights-audit.mjs` reports **217 total / 217 approved / 187 publishable** (30 delete-tier excluded). Every `<N> published|approved|projected` claim in `.agent-state/*.md` was compared against it: **13 agree, 0 conflict, 8 superseded ledger claim(s)** in `DECISIONS.md` (an append-only record of dated decisions — its numbers are history by construction and are never rewritten).
 
 <!-- release-gates:end -->
 

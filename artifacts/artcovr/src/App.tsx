@@ -18,6 +18,7 @@ import NotFound from "@/pages/not-found";
 import ProductPage from "@/app/product/[slug]/page";
 import RefundsPage from "@/app/refunds/page";
 import SignInPage from "@/app/sign-in/page";
+import { SeoHead } from "@/components/artcovr/SeoHead";
 import { Route, Switch, Redirect, useLocation, Router as WouterRouter } from "wouter";
 
 const queryClient = new QueryClient();
@@ -63,12 +64,21 @@ function CheckoutRoute() {
   return <CheckoutPageComponent />;
 }
 
+function AppContent() {
+  return (
+    <>
+      <SeoHead />
+      <Router />
+    </>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
+          <AppContent />
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

@@ -52,7 +52,7 @@ ADR-016 documents the empirical resolution: the 19 `generated_images` rows use `
 - Apply against staging first; confirm the function replaced cleanly.
 - Verify a purchased call succeeds while the free lane is saturated.
 - Decide the throughput question: worst case rises 4/min → 8/min (4 free + 4 purchased). If the provider tier cannot absorb 8/min, lower the `>= 4` in the purchased branch — one number, lanes are independent.
-- Update `.agent-state/PRODUCT_CONTRACT.md:18` and `FAILURE_GRAPH.md:36`, both of which still document "4/min globally".
+- ~~Update `.agent-state/PRODUCT_CONTRACT.md:18` and `FAILURE_GRAPH.md:36`, both of which still document "4/min globally".~~ **This instruction is stale (corrected 2026-08-31.)** Both files were already rewritten to the dual-lane form, so they now assert behaviour this task says is not applied — the inverse of the problem described here. Both now carry an explicit UNVERIFIED marker, as does `supabase/README.md`, which still documents the single-lane bound. On applying the migration, the work is to *remove those markers*, not to update the numbers. If the migration is instead found already applied, remove the markers and correct `supabase/README.md` to the dual-lane form.
 
 **Done when:** applied, verified against a real DB, docs updated.
 

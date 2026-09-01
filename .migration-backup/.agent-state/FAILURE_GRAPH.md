@@ -34,6 +34,7 @@
 3. **Infinite AI Generation Abuse**:
    - *Risk*: Bot or malicious user exhausts GPU generation quota.
    - *Mitigation*: Dual-lane rate limiting at DB level (migration `202608140010`): 4/min free lane + 4/min purchased lane (independent advisory keys, up to 8/min combined), 6/10min per user, 24/24hr per user. Both lanes count only `('queued','running','succeeded')` rows.
+   - *⚠ MITIGATION UNVERIFIED*: `202608140010` has never been confirmed applied (`.agent-state/ULTRAPLAN.md` task 4), and `supabase/README.md` still documents the single-lane 4/min project-wide bound. **Do not count this mitigation as in force until `request_generation` is inspected on the live database.** The per-user limits (6/10min, 24/24hr) predate `0010` and are unaffected. What is unproven is lane separation — so the residual risk is not unbounded spend but *starvation*: free-tier previews filling the single global bucket and refusing a paying customer's generation.
 4. **Stale Lock / Multi-Process Conflicts in Dev**:
    - *Risk*: Lingering `next dev` processes lock the configured dev build directory, and Playwright's managed Next server can hang during Windows teardown after tests have passed.
    - *Mitigation*: Browser behavior is verified against an explicitly managed server while the harness lifecycle is repaired. Process cleanup is limited to exact PIDs started by the current test run; never broadly terminate Node processes or delete an unverified lock.

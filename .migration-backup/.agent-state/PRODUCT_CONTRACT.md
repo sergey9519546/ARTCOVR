@@ -15,7 +15,7 @@
 ## 3. Generative Pipeline
 - **Raster Dimensions & Formats**: Valid generated images must be structurally valid WebP at 1024x1024 (previews) or 2048x2048 (master deliverables).
 - **Rate Limits**:
-  - Dual-Lane Global: Independent 4/min free lane and 4/min purchased lane (migration `202608140010`; independent advisory locks, up to 8/min combined).
+  - Dual-Lane Global: Independent 4/min free lane and 4/min purchased lane (migration `202608140010`; independent advisory locks, up to 8/min combined). **UNVERIFIED against the live database** — `.agent-state/ULTRAPLAN.md` task 4 records that `202608140010` has never been parsed by Postgres, and `supabase/README.md` still describes the single-lane 4/min project-wide bound it replaces. Until the applied state is confirmed, treat the single global lane as the operative behaviour: it is the fail-closed reading, under which free traffic can still deny generation to a paying customer.
   - User: Maximum 6 generations per 10 minutes, 24 generations per 24 hours.
 - **Failure Clean-up**: If image generation or validation fails, intermediate storage objects are removed and active attempt slots are released.
 

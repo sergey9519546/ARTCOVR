@@ -5,4 +5,14 @@ if [ ! -f "scripts/agent/gate.mjs" ]; then
   echo "[gate] scripts/agent/gate.mjs absent on this checkout - gate not enforced here" >&2
   exit 0
 fi
-exec "/c/Program Files/nodejs/node" scripts/agent/gate.mjs pre-push
+# Resolve node from PATH first, then the known Windows install. Mirrors
+# resolveBun() in gate.mjs: unresolvable denies (fail closed).
+if command -v node >/dev/null 2>&1; then
+  NODE_BIN=node
+elif [ -x "/c/Program Files/nodejs/node" ]; then
+  NODE_BIN="/c/Program Files/nodejs/node"
+else
+  echo "[gate] node unresolvable on PATH or at the known Windows install - denying" >&2
+  exit 1
+fi
+exec "$NODE_BIN" scripts/agent/gate.mjs pre-push

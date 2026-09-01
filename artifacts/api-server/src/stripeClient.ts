@@ -24,12 +24,12 @@ async function stripeRequest<T>(
   options: StripeRequestOptions = {},
 ): Promise<T> {
   const connectors = new ReplitConnectors();
-  const headers = new Headers({ Accept: "application/json" });
+  const headers: Record<string, string> = { Accept: "application/json" };
   if (options.form) {
-    headers.set("Content-Type", "application/x-www-form-urlencoded");
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
   }
   if (options.idempotencyKey) {
-    headers.set("Idempotency-Key", options.idempotencyKey);
+    headers["Idempotency-Key"] = options.idempotencyKey;
   }
 
   const response = await connectors.proxy("stripe", path, {

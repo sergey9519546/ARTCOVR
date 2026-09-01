@@ -168,3 +168,87 @@
   3. Added 18 organic tilt angles in `Preloader.tsx` so images punch in consecutively every 168ms throughout the entire loading duration right up to 100% counter completion (3780ms) and curtain wipe exit (4060ms).
 - **Impact**: Mobile users see the intro animation. The intro maintains visual momentum continuously through the full loading time. All unit, contract, typecheck, lint, build export isolation, and Playwright E2E mobile/desktop tests pass.
 
+
+## ADR-026 (2026-08-31): Public Preview Ceiling Raised to 1280px; Display Contract Unified in One Constant
+- **Context**: Public display derivatives were being emitted at two different resolutions with no
+  rule deciding which. Of the 70 published works whose source dimensions are recorded in
+  `catalog/curated-artworks.json`, 27 were downscaled to 1024 and 43 shipped at their master's exact
+  dimensions (39 at 1280, 4 at 1254). Across all 187 published derivatives: 108 at 1280x1280,
+  4 at 1254x1254, 75 at 1024x1024.
+
+  The split is explained entirely by source format — a 100% clean correlation, zero exceptions:
+
+  | source `sourceMimeType` | outcome | count |
+  | :--- | :--- | ---: |
+  | `image/jpeg` | downscaled to 1024 | 27 |
+  | `image/png` | left at source resolution | 43 |
+
+  Root cause: `PUBLIC_ASSET_PASSTHROUGH` in `scripts/catalog/validate.ts` compares
+  `displaySha256 === row.sourceSha256` — byte identity. A JPEG master copied to `public/` is
+  byte-identical, so it fired, and those works were remediated by
+  `Fix-PassthroughDisplays.ps1`, which re-encodes at 1024. A PNG master converted to JPEG
+  *always* produces different bytes, so the check passed trivially, nothing flagged it, and the
+  preview kept full master resolution. The guard was a proxy for "the preview is meaningfully
+  degraded" that only holds when source and display share a format.
+
+  Contributing defect: `scripts/catalog/swap-launch-works.ts` passed the source's own width as the
+  encoder's target size and asserted `image.size == (size, size)` — a vacuous assertion — then
+  required the output to equal source dimensions. It never downscaled. Meanwhile
+  `finalize-owner-approved-batch.ts` hard-required exactly 1024x1024, so the four intake paths
+  disagreed with each other.
+- **Decision (owner, 2026-08-31)**: Raise the public preview ceiling from 1024 to **1280**. Protection
+  for a public preview remains the lossy re-encode (storefront displays carry no visible watermark
+  since the owner decision of 2026-08-28); the owner accepts that for the 43 PNG-mastered works the
+  preview matches the master's pixel dimensions, differing only by JPEG compression — which remains
+  substantial in practice (e.g. `cart-of-hours`: 1,019,350-byte PNG master vs 233,698-byte JPEG
+  preview, 4.4x). No public asset is re-encoded: every existing display is already at or below 1280,
+  so the catalog satisfies the new ceiling as-is.
+- **Impact**: `PUBLIC_DISPLAY_MAX_DIMENSION = 1280` in the new `scripts/catalog/display-contract.ts`
+  is the single source of truth, consumed by `validate.ts`, `finalize-owner-approved-batch.ts`, and
+  `swap-launch-works.ts`. `validatePublication` now fails `PUBLIC_DERIVATIVE_OVERSIZED` and
+  `PUBLIC_DERIVATIVE_NOT_SQUARE` on dimensions directly rather than inferring degradation from bytes,
+  closing the format-conversion blind spot; `catalog:validate` is wired into `verify` and `verify:ci`,
+  so CI enforces it. `swap-launch-works.ts` now downscales to `min(source, ceiling)` and never
+  upscales. `Prepare-DisplayAssets.ps1` and `Fix-PassthroughDisplays.ps1` render at
+  `min(source, 1280)`. `New-ProtectedBatchDisplays.ps1` is marked superseded — its 1024 values are
+  retired watermark-band geometry, not the display contract. A regression test pins the ceiling
+  across every published derivative. Source gates ("square, >= 1024px") are unchanged; they are a
+  minimum on the master, not the preview ceiling, and must not be confused with it.
+- **Note**: The 2026-08-28 no-watermark decision is recorded only in the header of
+  `Remove-DisplayWatermarkBands.ps1` and has no ADR of its own; this ADR is the first ledger entry to
+  restate it. Worth a dedicated ADR if the owner wants the protection model formally pinned.
+
+## ADR-027 (2026-08-28, recorded 2026-08-31): Storefront Display Protection Is the Lossy Re-encode, Not a Visible Watermark
+- **Status**: Retroactive ledger entry. The decision was taken on 2026-08-28 but was recorded only in the
+  header of `scripts/catalog/Remove-DisplayWatermarkBands.ps1`; it had no ADR. ADR-026 restated it in
+  passing while raising the preview ceiling. This entry records it properly. No behaviour changes here.
+- **Scope — read this before acting on it**: This governs **catalog storefront display derivatives only**
+  (`public/assets/artworks/*.jpg`, the free previews of the 187 published works). It does **not** touch the
+  image-generation watermark, which is a separate contract on a separate surface and remains fully
+  enforced: `supabase/functions/generate-image/index.ts` calls `rasterizePreview()` and raises
+  `502 watermark_passthrough` if the renderer returns the clean image unchanged. AGENTS.md line 90
+  ("A preview never exposes clean bytes. Watermark failure or passthrough is a hard failure") and the
+  stop-ship condition at line 139 continue to apply to generation in full. Do not read this ADR as
+  licence to weaken either.
+- **Context**: The candidate-selection-2026-08-20 batch was published with a visible 'ARTCOVR / PREVIEW'
+  band drawn by `New-ProtectedBatchDisplays.ps1` over the bottom-right corner. The band was inconsistent
+  with the rest of the catalog, whose displays carried no such mark.
+- **Decision (owner, 2026-08-28)**: Storefront display derivatives carry **no visible watermark**.
+  Protection for a public preview is the **lossy re-encode** — never the clean source bytes.
+  `Remove-DisplayWatermarkBands.ps1` re-encoded the affected rows from the batch's unwatermarked
+  candidate derivative at JPEG quality 88 and overwrote `public/assets/artworks` in place, enforcing per
+  file that the output SHA-256 differs from the clean source SHA-256 and that the input derivative is
+  exactly 1024x1024. Rows showing no band were reported and left untouched.
+- **Impact**: `New-ProtectedBatchDisplays.ps1` is superseded and marked as such in its header; its
+  hard-coded 1024 values and band coordinates are geometry for the retired band, not the display
+  contract. The protection model has two parts and both are now executable rather than prose:
+  the bytes must differ from the clean source (`PUBLIC_ASSET_PASSTHROUGH` in
+  `scripts/catalog/validate.ts`), and the dimensions must not exceed
+  `PUBLIC_DISPLAY_MAX_DIMENSION` (`PUBLIC_DERIVATIVE_OVERSIZED`, added by ADR-026 precisely because the
+  byte check alone is blind to a format conversion). `catalog:validate` runs in `verify` and `verify:ci`,
+  so CI enforces both.
+- **Consequence the owner has accepted (ADR-026)**: with no visible watermark and the ceiling at 1280,
+  the 43 PNG-mastered works ship a preview at the master's exact pixel dimensions. Compression is the
+  only thing separating free preview from paid master for those works — substantial in practice
+  (`cart-of-hours`: 1,019,350-byte PNG master vs 233,698-byte JPEG preview, 4.4x), but dimensional
+  parity is real and intentional. Revisit here if the licensing position changes.

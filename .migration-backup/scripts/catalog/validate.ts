@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { buildCatalogImport } from "../../src/lib/artcovr/catalog-import.ts";
+import { PUBLIC_DISPLAY_MAX_DIMENSION } from "./display-contract.ts";
 import {
   decodeImageHeader,
   validateCandidateMetadata,
@@ -134,6 +135,27 @@ async function validatePublication(): Promise<void> {
           id: row.catalogId,
           code: "PUBLIC_ASSET_PASSTHROUGH",
           message: "Published display bytes must not equal the clean source SHA-256.",
+        });
+      }
+      // PUBLIC_ASSET_PASSTHROUGH compares bytes, which a format conversion always
+      // changes — so it can never catch a PNG master re-encoded to JPEG at full
+      // master resolution. That blind spot is why 43 PNG-mastered works shipped
+      // previews at 1280 while every JPEG-mastered work was caught and re-encoded
+      // to 1024. Bound the dimension directly instead of inferring it from bytes.
+      if (header.width > PUBLIC_DISPLAY_MAX_DIMENSION || header.height > PUBLIC_DISPLAY_MAX_DIMENSION) {
+        failures.push({
+          id: row.catalogId,
+          code: "PUBLIC_DERIVATIVE_OVERSIZED",
+          message:
+            `Published display is ${header.width}x${header.height}; the public preview ceiling is ` +
+            `${PUBLIC_DISPLAY_MAX_DIMENSION}px per side.`,
+        });
+      }
+      if (header.width !== header.height) {
+        failures.push({
+          id: row.catalogId,
+          code: "PUBLIC_DERIVATIVE_NOT_SQUARE",
+          message: `Published display must be square; found ${header.width}x${header.height}.`,
         });
       }
     } catch {

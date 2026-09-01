@@ -44,7 +44,11 @@ select exists (
 select exists (select 1 from pg_indexes where schemaname = 'public' and indexname = 'artworks_source_sha256_unique_idx') as source_hash_unique_index_exists;
 select exists (select 1 from pg_constraint where conname = 'artworks_publication_integrity') as publication_integrity_constraint_exists;
 select to_regprocedure('public.reserve_artwork(text,uuid,uuid,uuid)') is not null as catalog_reservation_rpc_exists;
-select to_regprocedure('public.request_generation(text,uuid,uuid,uuid,text,text,boolean)') is not null as catalog_generation_rpc_exists;
+-- 8 arguments since 202608250012_reference_uploads.sql, which drops the 7-arg
+-- form and adds the trailing reference-upload uuid. This assertion still named
+-- the dropped 7-arg signature and so failed against any correctly migrated
+-- database; it went unnoticed because this suite had never been run.
+select to_regprocedure('public.request_generation(text,uuid,uuid,uuid,text,text,boolean,uuid)') is not null as catalog_generation_rpc_exists;
 select to_regprocedure('public.settle_purchase_paid(uuid,text,text,integer,text)') is not null as amount_checked_settlement_rpc_exists;
 select to_regprocedure('public.reconcile_full_refund(uuid,text)') is not null as atomic_refund_reconciliation_rpc_exists;
 select reloptions @> array['security_invoker=true']
@@ -124,7 +128,7 @@ begin
     raise exception 'publication integrity constraint is missing';
   end if;
   if to_regprocedure('public.reserve_artwork(text,uuid,uuid,uuid)') is null
-    or to_regprocedure('public.request_generation(text,uuid,uuid,uuid,text,text,boolean)') is null
+    or to_regprocedure('public.request_generation(text,uuid,uuid,uuid,text,text,boolean,uuid)') is null
     or to_regprocedure('public.settle_purchase_paid(uuid,text,text,integer,text)') is null
     or to_regprocedure('public.reconcile_full_refund(uuid,text)') is null
     or to_regprocedure('public.reap_stale_generations(timestamptz)') is null then
