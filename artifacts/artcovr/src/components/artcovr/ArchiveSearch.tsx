@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
 import {
   applyCatalogView,
@@ -10,13 +10,37 @@ import {
 } from "@/components/artcovr/CatalogControls";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { hybridSearch } from "@/lib/artcovr/semantic-search";
+import { buildCatalogFacetIndex } from "@/lib/artcovr/catalog-intelligence";
 
 export function ArchiveSearch({ items }: { items: Artwork[] }) {
   const [query, setQuery] = useState(() => {
     if (typeof window === "undefined") return "";
     return new URLSearchParams(window.location.search).get("query") ?? "";
   });
-  const [view, setView] = useState<CatalogView>(DEFAULT_CATALOG_VIEW);
+  const [view, setView] = useState<CatalogView>(() => {
+    if (typeof window === "undefined") return DEFAULT_CATALOG_VIEW;
+    const params = new URLSearchParams(window.location.search);
+    return {
+      genre: params.get("genre") || null,
+      color: params.get("color") || null,
+      mood: null,
+    };
+  });
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const nextParams: Array<[string, string | null]> = [
+      ["query", query.trim() || null],
+      ["genre", view.genre],
+      ["color", view.color],
+    ];
+    for (const [key, value] of nextParams) {
+      if (value) url.searchParams.set(key, value);
+      else url.searchParams.delete(key);
+    }
+    url.searchParams.delete("mood");
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [query, view]);
 
   // Preserve the curated display order so "Featured" sort restores the
   // owner-pick + palette-spread arrangement after filtering.
@@ -24,11 +48,12 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     () => new Map(items.map((item, index) => [item.slug, index])),
     [items],
   );
+  const facetIndex = useMemo(() => buildCatalogFacetIndex(items), [items]);
 
   const filteredItems = useMemo(() => {
     const textMatched = hybridSearch(query, items);
-    return applyCatalogView(textMatched, view, orderIndex);
-  }, [items, query, view, orderIndex]);
+    return applyCatalogView(textMatched, view, orderIndex, facetIndex);
+  }, [items, query, view, orderIndex, facetIndex]);
   const hasActiveSearch = query.length > 0 || Object.values(view).some(Boolean);
 
   return (
@@ -86,6 +111,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
           resultCount={filteredItems.length}
           totalCount={items.length}
           showMoodFacet={false}
+          facetIndex={facetIndex}
         />
       </div>
 
@@ -94,7 +120,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
       ) : filteredItems.length === 0 ? (
         <div className="mt-12 border border-current/20 px-6 py-12 text-center">
           <p className="text-xl font-bold">No works match those filters.</p>
-          <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different genre, color, or mood.</p>
+           <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different genre, color, mood, or visual topic.</p>
         </div>
       ) : (
         <div className="mt-12">

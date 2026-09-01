@@ -3,10 +3,16 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   displayGenreLabel,
-  getArtworkGenres,
   type Artwork,
 } from "@/lib/artcovr/artworks";
-import { getVisualEntry, humanizeVisualLabel } from "@/lib/artcovr/visual-index";
+import {
+  buildCatalogFacetIndex,
+  getArtworkColors,
+  getArtworkMoods,
+  intersectCatalogFacetSlugs,
+  type CatalogFacetIndex,
+} from "@/lib/artcovr/catalog-intelligence";
+import { humanizeVisualLabel } from "@/lib/artcovr/visual-index";
 
 type FacetKey = "genre" | "color" | "mood";
 
@@ -22,20 +28,7 @@ export const DEFAULT_CATALOG_VIEW: CatalogView = {
   mood: null,
 };
 
-function getBlendColor(value?: string) {
-  if (!value) return null;
-  if (value.includes("Teal")) return "Teal";
-  if (value.includes("Earth")) return "Brown";
-  if (value.includes("Pastel")) return "Pink";
-  return null;
-}
-
-export function getArtworkColors(artwork: Artwork): string[] {
-  const visualEntry = getVisualEntry(artwork.slug);
-  const dominantColor = visualEntry?.labels.domcolor?.label ?? artwork.accentColor ?? null;
-  const blendColor = getBlendColor(visualEntry?.labels.colorblend?.label);
-  return [...new Set([dominantColor, blendColor].filter((value): value is string => Boolean(value)))];
-}
+export { getArtworkColors, getArtworkMoods };
 
 export function getArtworkColor(artwork: Artwork): string | null {
   return getArtworkColors(artwork)[0] ?? null;
@@ -54,22 +47,6 @@ const MOOD_DISPLAY_LABELS: Record<string, string> = {
   "Mysterious__Dreamy": "Mysterious",
   "Serene__Peaceful": "Serene",
 };
-
-const EMOTIONAL_MOOD_TAGS = new Set([
-  "dreamlike",
-  "quiet",
-  "monumental",
-  "solitary",
-  "nocturnal",
-  "uncanny",
-  "macabre",
-]);
-
-function getArtworkMoods(artwork: Artwork): string[] {
-  const visualMood = getVisualEntry(artwork.slug)?.labels.mood?.label;
-  const taggedMoods = artwork.moodTags.filter((tag) => EMOTIONAL_MOOD_TAGS.has(tag));
-  return [...new Set([visualMood, ...taggedMoods].filter((value): value is string => Boolean(value)))];
-}
 
 export function displayMoodLabel(value: string) {
   return MOOD_DISPLAY_LABELS[value] ?? displayFacetLabel(value);
@@ -94,24 +71,19 @@ function colorSwatch(value: string) {
   return swatches[value];
 }
 
-export function getCatalogFacets(items: readonly Artwork[]) {
-  const genres = [...new Set(items.flatMap(getArtworkGenres))]
-    .map((genre) => ({
-      genre,
-      count: items.filter((item) => getArtworkGenres(item).includes(genre)).length,
-    }))
-    .sort((left, right) => right.count - left.count || displayGenreLabel(left.genre).localeCompare(displayGenreLabel(right.genre)))
-    .map(({ genre }) => genre);
-  const colors = [...new Set(items.flatMap(getArtworkColors))]
+export function getCatalogFacets(
+  items: readonly Artwork[],
+  index = buildCatalogFacetIndex(items),
+) {
+  const genres = [...index.counts.genre]
+    .sort((left, right) => right[1] - left[1] || displayGenreLabel(left[0]).localeCompare(displayGenreLabel(right[0])))
+    .map(([genre]) => genre);
+  const colors = [...index.counts.color.keys()]
     .sort((left, right) => displayFacetLabel(left).localeCompare(displayFacetLabel(right)));
-  const moods = [...new Set(items.flatMap(getArtworkMoods))]
-    .map((tag) => ({
-      tag,
-      count: items.filter((item) => getArtworkMoods(item).includes(tag)).length,
-    }))
-    .sort((left, right) => right.count - left.count || left.tag.localeCompare(right.tag))
+  const moods = [...index.counts.mood]
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
     .slice(0, 12)
-    .map(({ tag }) => tag);
+    .map(([mood]) => mood);
 
   return { genres, colors, moods };
 }
@@ -120,14 +92,11 @@ export function applyCatalogView(
   items: readonly Artwork[],
   view: CatalogView,
   orderIndex = new Map(items.map((item, index) => [item.slug, index])),
+  index = buildCatalogFacetIndex(items),
 ) {
+  const matchingSlugs = intersectCatalogFacetSlugs(index, view);
   return [...items]
-    .filter((artwork) => {
-      if (view.genre && !getArtworkGenres(artwork).includes(view.genre as ReturnType<typeof getArtworkGenres>[number])) return false;
-      if (view.color && !getArtworkColors(artwork).includes(view.color)) return false;
-      if (view.mood && !getArtworkMoods(artwork).includes(view.mood)) return false;
-      return true;
-    })
+    .filter((artwork) => matchingSlugs === null || matchingSlugs.has(artwork.slug))
     .sort((left, right) => (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0));
 }
 
@@ -158,6 +127,7 @@ export function CatalogControls({
   resultCount,
   totalCount,
   showMoodFacet = true,
+  facetIndex,
 }: {
   items: Artwork[];
   view: CatalogView;
@@ -166,8 +136,9 @@ export function CatalogControls({
   resultCount: number;
   totalCount: number;
   showMoodFacet?: boolean;
+  facetIndex?: CatalogFacetIndex;
 }) {
-  const facets = useMemo(() => getCatalogFacets(items), [items]);
+  const facets = useMemo(() => getCatalogFacets(items, facetIndex), [items, facetIndex]);
   const [offsets, setOffsets] = useState<Record<FacetKey, number>>({
     genre: 0,
     color: 0,
