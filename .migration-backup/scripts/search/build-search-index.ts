@@ -39,6 +39,7 @@
  * relies on this to detect drift.
  */
 import path from "node:path";
+import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
@@ -56,8 +57,18 @@ export const SEARCH_INDEX_OUTPUT_PATH = path.join(
   "search-index.json",
 );
 
-const SEMANTIC_LAB_DIR =
+/**
+ * Private curation source tree. Not in the repository — it holds pre-approval
+ * catalog material. Override with ARTCOVR_SEMANTIC_LAB_DIR on any machine that
+ * is not the owner's; `semanticLabAvailable()` lets callers distinguish "the
+ * private inputs are absent here" from "the index is genuinely stale".
+ */
+export const SEMANTIC_LAB_DIR =
   process.env.ARTCOVR_SEMANTIC_LAB_DIR ?? "E:\\ART_COLLECTION\\.artcovr-curation\\semantic-lab";
+
+export function semanticLabAvailable(): boolean {
+  return existsSync(path.join(SEMANTIC_LAB_DIR, "catalog-clip-manifest.json"));
+}
 
 type PhraseVocabEntry = { phrase: string; source: string; facet: string };
 type CatalogVisibilityRow = { slug: string; rightsApproved: boolean; published: boolean };

@@ -1,3 +1,9 @@
+# SUPERSEDED. This renderer draws the 'ARTCOVR / PREVIEW' watermark band, which
+# the owner decision of 2026-08-28 retired (see Remove-DisplayWatermarkBands.ps1).
+# Its hard-coded 1024 values and band coordinates are geometry for that retired
+# band, NOT the public preview ceiling — that ceiling is
+# PUBLIC_DISPLAY_MAX_DIMENSION in scripts/catalog/display-contract.ts. Do not
+# treat the numbers below as the display contract.
 param(
   [string]$ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path,
   [string]$MetadataCsvPath = '',

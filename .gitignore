@@ -40,6 +40,86 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (keep documented placeholders in version control)
+.env*
+!.env.example
+!supabase/.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+local-*
+.claude
+.z-ai-config
+*.log
+dev.log
+dev.out.log
+test
+prompt
+server.log
+
+# Skills directory
+/skills/
+
+# Local agent execution ledger
+/.superpowers/
+
+# Supabase local runtime and generated secrets
+/supabase/.branches/
+/supabase/.temp/
+
+# Sites deployment metadata is generated during private staging publish
+/.openai/
+
+# Local catalog review artifacts and private source locators (never deployed)
+/outputs/catalog/review-assets/
+/outputs/catalog/thumbnails/
+/outputs/catalog/*.ndjson
+/outputs/catalog/*.xlsx
+/outputs/catalog/*.png
+/outputs/catalog/*.private.json
+# Regeneration picks are clean master source bytes — 21 of the 2026-08-14 set are
+# byte-identical to the private `base` objects of live, priced works. Clean masters
+# belong in entitlement-bound private storage, never in the git tree.
+/outputs/catalog/regen-picks-*/
+/catalog/candidates.csv
+/catalog/candidates.json
+
+# Local private source locators (never deployed)
+/catalog/*.local.json
+
+# Build-session scratch: screen recordings and pasted uploads are never runtime data
+/upload/
+*.mp4
+
+# Skills installed via npx skills (root dir only — a bare agent/ swallowed
+# scripts/agent/, silently untracking the git-hook gate scripts)
+.agents/skills/
+/agent/
+skills-lock.json
+
+# Catalog rescore scratch: proposals and pre-swap backups are working artifacts,
+# never part of the compiled program. Excluded from tsconfig for the same reason.
+**/*.PRE-RESCORE.bak
+**/*.PROPOSED.ts
+scripts/catalog/__pycache__/
+
+# Local journey visual-debug sweep — scratch fixture with hardcoded local paths
+journey-sweep.mjs
+
+# Qwen CLI local scratch (temp files, computed artifacts)
+.qwen/
 
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md

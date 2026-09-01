@@ -1,7 +1,9 @@
 param(
   [string]$ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path,
   [string]$PrivateSourceMapPath = '',
-  [int]$DisplaySize = 1024,
+  # Public preview ceiling; keep in step with PUBLIC_DISPLAY_MAX_DIMENSION in
+  # scripts/catalog/display-contract.ts. A source below it is never upscaled.
+  [int]$DisplaySize = 1280,
   [long]$JpegQuality = 90
 )
 
@@ -126,7 +128,8 @@ foreach ($candidate in $candidates) {
     if ($source.Width -ne $source.Height -or $source.Width -lt 1024) {
       throw "Source failed decoded-dimension gate: $sourcePath ($($source.Width)x$($source.Height))"
     }
-    $display = New-ScaledBitmap -Source $source -Width $DisplaySize -Height $DisplaySize
+    $targetSize = [Math]::Min($source.Width, $DisplaySize)
+    $display = New-ScaledBitmap -Source $source -Width $targetSize -Height $targetSize
     try {
       $display.Save($outputPath, $jpegEncoder, $encoderParameters)
       $thumbnail = New-ScaledBitmap -Source $display -Width 128 -Height 128

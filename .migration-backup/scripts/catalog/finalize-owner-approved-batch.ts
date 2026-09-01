@@ -5,6 +5,7 @@ import path from "node:path";
 import { buildCatalogImport } from "../../src/lib/artcovr/catalog-import.ts";
 import { commitCatalogBatch } from "../../src/lib/artcovr/catalog-batch-transaction.ts";
 import { decodeImageHeader, makeCatalogSlug } from "../../src/lib/artcovr/catalog-source.ts";
+import { PUBLIC_DISPLAY_MAX_DIMENSION } from "./display-contract.ts";
 
 type PlanCandidate = {
   candidate: string;
@@ -133,8 +134,22 @@ for (const [index, candidate] of plan.candidates.entries()) {
   const protectedSource = path.join(protectedDirectory, `${metadata.slug}.jpg`);
   const protectedBytes = await readFile(protectedSource);
   const protectedImage = decodeImageHeader(protectedBytes);
-  if (protectedImage.format !== "jpeg" || protectedImage.width !== 1024 || protectedImage.height !== 1024) {
-    throw new Error(`${candidate.candidate}: protected display must be a real 1024x1024 JPEG.`);
+  // Bounded by the shared ceiling rather than pinned to one size: a 1024 source
+  // cannot be upscaled, and a larger source is capped. Requiring exactly 1024
+  // here while other intake paths preserved source dimensions is what let the
+  // catalog end up with two different preview resolutions.
+  if (
+    protectedImage.format !== "jpeg" ||
+    protectedImage.width !== protectedImage.height ||
+    protectedImage.width > PUBLIC_DISPLAY_MAX_DIMENSION ||
+    protectedImage.width > sourceImage.width
+  ) {
+    throw new Error(
+      `${candidate.candidate}: protected display must be a square JPEG no larger than ` +
+        `${PUBLIC_DISPLAY_MAX_DIMENSION}px and never larger than its source ` +
+        `(found ${protectedImage.format} ${protectedImage.width}x${protectedImage.height}, ` +
+        `source ${sourceImage.width}x${sourceImage.height}).`,
+    );
   }
   if (sha256(protectedBytes) === sourceHash) throw new Error(`${candidate.candidate}: protected display passthrough.`);
 

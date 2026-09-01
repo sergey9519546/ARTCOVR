@@ -6,7 +6,7 @@ import curatedPublicJson from "../../src/lib/artcovr/curated-public.json" with {
 import searchIndexJson from "../../src/lib/artcovr/search-index.json" with { type: "json" };
 import { artworks, type Artwork } from "../../src/lib/artcovr/artworks.ts";
 import { hybridSearch, rankBySemanticPhrases } from "../../src/lib/artcovr/semantic-search.ts";
-import { buildSearchIndex } from "../../scripts/search/build-search-index.ts";
+import { buildSearchIndex, semanticLabAvailable } from "../../scripts/search/build-search-index.ts";
 
 type SearchIndexMatrix = {
   rows: number;
@@ -118,11 +118,20 @@ describe("search-index.json dequantisation self-consistency", () => {
 });
 
 describe("build-search-index.ts determinism", () => {
-  test("building the index twice in memory yields byte-identical output", { timeout: 60_000 }, async () => {
-    const first = await buildSearchIndex();
-    const second = await buildSearchIndex();
-    assert.equal(first.serialized, second.serialized);
-  });
+  // Rebuilding needs the private semantic-lab source tree, which is deliberately
+  // not in the repository. Where it is absent this reports as an explicit skip
+  // rather than an ENOENT naming a path that exists only on the owner's machine.
+  // Every other test in this file reads the committed index and always runs, so
+  // the rights gate is never skipped — only the rebuild-from-private-source one.
+  test(
+    "building the index twice in memory yields byte-identical output",
+    { timeout: 60_000, skip: semanticLabAvailable() ? false : "private semantic-lab source tree not present (set ARTCOVR_SEMANTIC_LAB_DIR)" },
+    async () => {
+      const first = await buildSearchIndex();
+      const second = await buildSearchIndex();
+      assert.equal(first.serialized, second.serialized);
+    },
+  );
 });
 
 describe("semantic-search.ts", () => {
