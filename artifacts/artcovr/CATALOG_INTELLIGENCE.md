@@ -41,9 +41,32 @@ The attached viewers reference these payload families:
 
 The HTML files do not contain those payloads. The application reports the
 payload set as incomplete instead of silently treating missing data as empty.
-A future import must validate identity coverage, approval isolation, vector
-dimensions, related-link targets, duplicate canonicality, and keyword/index
-alignment before the data can be used.
+
+## Import and integrity boundary
+
+`src/lib/artcovr/catalog-payload.ts` is the import boundary for a decoded
+bundle. `validateCatalogIntelligencePayload` requires the full
+`FULL_CATALOG_SIZE` (22,260) by default and validates each layer before use:
+
+- metadata, FastText predictions, analysis, search, vectors, and related
+  neighbors must cover every catalog identity exactly once;
+- FastText indexes must point only at known filenames;
+- vectors must declare 512 dimensions;
+- related targets must resolve to known slugs/filenames;
+- duplicate groups must include one canonical member and cannot reuse members;
+- stale slug/filename joins, orphan records, missing records, and an
+  unapproved `approvedPublic` projection produce explicit issues.
+
+Each family reports `missing`, `incomplete`, `invalid`, or `valid` status.
+`integrity: "valid"` and `completeness: "complete"` are both required before
+the bundle is trusted. A smaller fixture or intentionally scoped staging
+import must opt into an explicit `expectedCorpusSize`.
+
+The validator returns `projection.approvedPublic` and
+`projection.privateStaging` as separate identity lists. The public list is
+identity-only and contains no raw vectors, prompts, local paths, or private
+metadata. The full bundle is not imported by storefront code; the checked-in
+public artifacts remain the bounded customer-facing source.
 
 ## Safe uses
 
