@@ -100,10 +100,17 @@ file. Verification fails on stale identity data, a changed source revision,
 missing or extra files, substituted files, and hash/byte mismatches.
 
 Keep the manifest and the raw external bundle in the owner-side import
-workspace; do not check either into the storefront bundle. The importer should
-run `verifyCatalogIntelligenceManifest` together with
-`validateCatalogIntelligencePayload`, or use
-`validateCatalogIntelligenceBundle` to require both gates.
+workspace; do not check either into the storefront bundle. The owner-side
+import entry point is `importCatalogIntelligenceBundle` in
+`src/lib/artcovr/catalog-manifest.ts`: supply the manifest, the raw
+`manifestFiles`, the catalog source revision, and a `decodePayload` callback.
+It verifies the raw file hashes first and only then decodes and validates the
+payload. A changed, substituted, missing, or unexpected file returns the
+specific manifest issue and an empty projection; it must not be partially
+imported. Callers that already decoded a payload may use
+`validateCatalogIntelligenceBundle`, which applies the same manifest-first
+short-circuit. Both entry points keep the raw bundle and manifest outside the
+storefront artifact.
 
 ## Safe uses
 

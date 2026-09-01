@@ -101,6 +101,21 @@ export type ValidateCatalogIntelligenceBundleInput = Omit<
   options?: CatalogPayloadValidationInput["options"];
 };
 
+export type ImportCatalogIntelligenceBundleInput = Omit<
+  ValidateCatalogIntelligenceBundleInput,
+  "payload"
+> & {
+  /**
+   * Decode the raw bundle only after its files have passed manifest
+   * verification. The decoder receives the same files that were hashed.
+   */
+  decodePayload: (files: readonly CatalogManifestFileInput[]) => unknown;
+};
+
+export type CatalogIntelligenceBundleValidation = CatalogPayloadValidation & {
+  manifestVerification: CatalogManifestVerification;
+};
+
 const EXPECTED_PAYLOAD_PATHS: readonly { family: CatalogPayloadFamily; path: string }[] = [
   ...INTELLIGENCE_METADATA_CHUNK_FILES.map((path) => ({ family: "metadata" as const, path })),
   { family: "fasttextPredictions", path: "fasttext_predictions.js" },
@@ -467,31 +482,50 @@ export function verifyCatalogIntelligenceManifest(input: {
   return { ok: issues.length === 0, issues, manifest: parsed };
 }
 
-/**
- * Combined owner-side gate: decoded payload structure must pass the existing
- * identity validator and the original bundle files must match the manifest.
- */
-export function validateCatalogIntelligenceBundle(
-  input: ValidateCatalogIntelligenceBundleInput,
-): CatalogPayloadValidation & { manifestVerification: CatalogManifestVerification } {
-  const payloadValidation = validateCatalogIntelligencePayload({
-    catalog: input.catalog,
-    payload: input.payload,
-    options: input.options,
-  });
-  const manifestVerification = verifyCatalogIntelligenceManifest({
-    manifest: input.manifest,
-    catalog: input.catalog,
-    files: input.manifestFiles,
-    sourceVersion: input.sourceVersion,
-    vectorDimensions: input.vectorDimensions,
-  });
-  const manifestIssues = manifestVerification.issues.map((manifestIssue) => ({
+function manifestIssuesAsPayloadIssues(
+  manifestVerification: CatalogManifestVerification,
+): CatalogPayloadValidation["issues"] {
+  return manifestVerification.issues.map((manifestIssue) => ({
     family: "catalog" as const,
     code: "MANIFEST_MISMATCH" as const,
     ...(manifestIssue.path ? { key: manifestIssue.path } : {}),
     message: manifestIssue.message,
   }));
+}
+
+function rejectedBundleValidation(
+  input: Pick<ValidateCatalogIntelligenceBundleInput, "catalog" | "options">,
+  manifestVerification: CatalogManifestVerification,
+): CatalogIntelligenceBundleValidation {
+  // Build the safe report shape without inspecting the incoming payload. The
+  // projection is deliberately cleared so a caller cannot accidentally use
+  // catalog identities from a rejected import as a partial result.
+  const emptyPayloadValidation = validateCatalogIntelligencePayload({
+    catalog: input.catalog,
+    payload: undefined,
+    options: input.options,
+  });
+  return {
+    ...emptyPayloadValidation,
+    ok: false,
+    completeness: "incomplete",
+    integrity: "invalid",
+    issues: manifestIssuesAsPayloadIssues(manifestVerification),
+    projection: { approvedPublic: [], privateStaging: [] },
+    manifestVerification,
+  };
+}
+
+function combineBundleValidation(
+  input: ValidateCatalogIntelligenceBundleInput,
+  manifestVerification: CatalogManifestVerification,
+): CatalogIntelligenceBundleValidation {
+  const payloadValidation = validateCatalogIntelligencePayload({
+    catalog: input.catalog,
+    payload: input.payload,
+    options: input.options,
+  });
+  const manifestIssues = manifestIssuesAsPayloadIssues(manifestVerification);
   return {
     ...payloadValidation,
     ok: payloadValidation.ok && manifestVerification.ok,
@@ -506,4 +540,47 @@ export function validateCatalogIntelligenceBundle(
     issues: [...payloadValidation.issues, ...manifestIssues],
     manifestVerification,
   };
+}
+
+/**
+ * Combined owner-side gate for callers that already have a decoded payload.
+ * Manifest verification intentionally runs first so a changed or substituted
+ * bundle cannot be inspected or exposed as a partial import.
+ */
+export function validateCatalogIntelligenceBundle(
+  input: ValidateCatalogIntelligenceBundleInput,
+): CatalogIntelligenceBundleValidation {
+  const manifestVerification = verifyCatalogIntelligenceManifest({
+    manifest: input.manifest,
+    catalog: input.catalog,
+    files: input.manifestFiles,
+    sourceVersion: input.sourceVersion,
+    vectorDimensions: input.vectorDimensions,
+  });
+  if (!manifestVerification.ok) return rejectedBundleValidation(input, manifestVerification);
+  return combineBundleValidation(input, manifestVerification);
+}
+
+/**
+ * Owner-side import entry point. Raw bundle files are hashed and compared
+ * with the supplied manifest before the decoder is called. A failed manifest
+ * returns a rejected, empty projection and never invokes decodePayload.
+ */
+export function importCatalogIntelligenceBundle(
+  input: ImportCatalogIntelligenceBundleInput,
+): CatalogIntelligenceBundleValidation {
+  const manifestVerification = verifyCatalogIntelligenceManifest({
+    manifest: input.manifest,
+    catalog: input.catalog,
+    files: input.manifestFiles,
+    sourceVersion: input.sourceVersion,
+    vectorDimensions: input.vectorDimensions,
+  });
+  if (!manifestVerification.ok) {
+    return rejectedBundleValidation(input, manifestVerification);
+  }
+  return combineBundleValidation(
+    { ...input, payload: input.decodePayload(input.manifestFiles) },
+    manifestVerification,
+  );
 }

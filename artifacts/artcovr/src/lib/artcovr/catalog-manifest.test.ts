@@ -4,6 +4,7 @@ import { describe, test } from "node:test";
 import {
   buildCatalogIntelligenceManifest,
   getCatalogManifestPayloadPaths,
+  importCatalogIntelligenceBundle,
   serializeCatalogIntelligenceManifest,
   validateCatalogIntelligenceBundle,
   verifyCatalogIntelligenceManifest,
@@ -100,5 +101,45 @@ describe("catalog intelligence manifest", () => {
     assert.equal(result.ok, false);
     assert.equal(result.manifestVerification.ok, false);
     assert.ok(result.issues.some(({ code }) => code === "MANIFEST_MISMATCH"));
+    assert.deepEqual(result.projection, { approvedPublic: [], privateStaging: [] });
+  });
+
+  test("verifies raw files before decoding and does not partially import a changed bundle", () => {
+    const manifest = buildCatalogIntelligenceManifest({
+      catalog,
+      files,
+      sourceVersion: "catalog-source@2026-09-01",
+      expectedCorpusSize: 2,
+    });
+    const changedFiles = files.map((file, index) =>
+      index === 0 ? { ...file, content: "changed after manifest generation" } : file,
+    );
+    let decodeCalls = 0;
+    const result = importCatalogIntelligenceBundle({
+      catalog,
+      manifest,
+      manifestFiles: changedFiles,
+      sourceVersion: "catalog-source@2026-09-01",
+      options: { expectedCorpusSize: 2 },
+      decodePayload: () => {
+        decodeCalls += 1;
+        throw new Error("decoder must not run for a changed bundle");
+      },
+    });
+
+    assert.equal(result.ok, false);
+    assert.equal(decodeCalls, 0);
+    assert.equal(result.manifestVerification.ok, false);
+    assert.ok(
+      result.manifestVerification.issues.some(
+        ({ code, path }) => code === "MANIFEST_HASH_MISMATCH" && path === files[0].path,
+      ),
+    );
+    assert.ok(
+      result.issues.some(
+        ({ message }) => message.includes(files[0].path) && message.includes("manifest hash"),
+      ),
+    );
+    assert.deepEqual(result.projection, { approvedPublic: [], privateStaging: [] });
   });
 });
