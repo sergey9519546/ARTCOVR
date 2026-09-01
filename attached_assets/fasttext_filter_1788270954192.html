@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FastText Image Filter</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0a0a0a; color: #e0e0e0; }
+  .header { padding: 20px; background: #111; border-bottom: 1px solid #333; }
+  .header h1 { font-size: 24px; margin-bottom: 10px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px 20px; background: #151515; }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-group label { font-size: 11px; color: #888; text-transform: uppercase; }
+  .filter-group select { background: #222; color: #fff; border: 1px solid #444; padding: 6px 10px; border-radius: 4px; font-size: 13px; }
+  .stats { padding: 10px 20px; font-size: 13px; color: #888; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; padding: 15px 20px; }
+  .card { position: relative; border-radius: 6px; overflow: hidden; background: #1a1a1a; }
+  .card img { width: 100%; height: 200px; object-fit: cover; display: block; }
+  .card .info { padding: 8px; font-size: 11px; }
+  .card .info .label { color: #aaa; }
+  .card .info .conf { color: #666; float: right; }
+  .card .tags { display: flex; flex-wrap: wrap; gap: 3px; padding: 0 8px 8px; }
+  .card .tags span { background: #222; padding: 2px 6px; border-radius: 3px; font-size: 10px; color: #999; }
+  .card .tags span.style { background: #1a2a3a; color: #6af; }
+  .card .tags span.medium { background: #2a1a3a; color: #a6f; }
+  .card .tags span.mood { background: #1a3a2a; color: #6fa; }
+  .empty { padding: 40px; text-align: center; color: #555; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>FastText Image Filter</h1>
+  <p>22,260 AI-generated images classified by style, medium, mood, category, weather, and color.</p>
+</div>
+<div class="filters" id="filters"></div>
+<div class="stats" id="stats"></div>
+<div class="grid" id="grid"></div>
+
+<script src="fasttext_predictions.js"></script>
+<script src="fasttext_index.js"></script>
+<script src="fasttext_stats.js"></script>
+<script>
+const tasks = [
+  {key: 'style', label: 'Style'},
+  {key: 'medium', label: 'Medium'},
+  {key: 'mood', label: 'Mood'},
+  {key: 'category', label: 'Category'},
+  {key: 'weather', label: 'Weather'},
+  {key: 'colorblend', label: 'Color Blend'},
+  {key: 'domcolor', label: 'Dominant Color'},
+];
+
+const preds = window.fasttextPredictions || {};
+const index = window.fasttextIndex || {};
+const stats = window.fasttextStats || {};
+
+// Build filter dropdowns
+const filtersEl = document.getElementById('filters');
+const selects = {};
+
+tasks.forEach(task => {
+  const group = document.createElement('div');
+  group.className = 'filter-group';
+  const label = document.createElement('label');
+  label.textContent = task.label;
+  const select = document.createElement('select');
+  select.innerHTML = '<option value="">All</option>';
+  const taskStats = stats[task.key] || {};
+  Object.entries(taskStats).sort((a,b) => b[1]-a[1]).forEach(([lbl, count]) => {
+    select.innerHTML += `<option value="${lbl}">${lbl} (${count})</option>`;
+  });
+  select.addEventListener('change', applyFilters);
+  selects[task.key] = select;
+  group.appendChild(label);
+  group.appendChild(select);
+  filtersEl.appendChild(group);
+});
+
+function applyFilters() {
+  const activeFilters = {};
+  tasks.forEach(task => {
+    const val = selects[task.key].value;
+    if (val) activeFilters[task.key] = val;
+  });
+
+  let filenames;
+  if (Object.keys(activeFilters).length === 0) {
+    filenames = Object.keys(preds);
+  } else {
+    const sets = Object.entries(activeFilters).map(([task, label]) => {
+      return new Set((index[task] || {})[label] || []);
+    });
+    filenames = [...sets.reduce((a, b) => new Set([...a].filter(x => b.has(x))), sets[0] || new Set())];
+  }
+
+  renderGrid(filenames.slice(0, 200));
+  document.getElementById('stats').textContent = `${filenames.length} images found`;
+}
+
+function renderGrid(filenames) {
+  const grid = document.getElementById('grid');
+  if (filenames.length === 0) {
+    grid.innerHTML = '<div class="empty">No images match the selected filters.</div>';
+    return;
+  }
+  grid.innerHTML = filenames.map(fn => {
+    const p = preds[fn] || {};
+    const tags = Object.entries(p).map(([task, val]) =>
+      `<span class="${task}">${val.label}</span>`
+    ).join('');
+    return `<div class="card">
+      <img src="${fn}" loading="lazy" onerror="this.style.display='none'">
+      <div class="info"><span class="label">${fn.split('/').pop()}</span></div>
+      <div class="tags">${tags}</div>
+    </div>`;
+  }).join('');
+}
+
+// Initial render
+applyFilters();
+</script>
+</body>
+</html>

@@ -202,22 +202,27 @@ export function normalizeArtworkSearchValue(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9\s-]/g, " ").replace(/\s+/g, " ").trim();
 }
 
-export function buildArtworkSearchText(artwork: Artwork) {
+/**
+ * One connected keyword corpus for lexical search, detail views, and future
+ * indexing. It combines editorial metadata with every audited visual label;
+ * rights, pricing, and publication state intentionally stay out of discovery
+ * semantics.
+ */
+export function getArtworkDiscoveryKeywords(artwork: Artwork) {
   return [
     artwork.title,
     artwork.slug,
     artwork.category,
     artwork.alt,
     artwork.description,
-    artwork.accentColor,
-    artwork.saleMode,
-    artwork.licenseLabel,
     ...artwork.moodTags,
     ...genreSearchTerms(artwork),
-    // Machine visual labels (fastText task vocabularies) so archive queries
-    // like "minimalism", "film noir shadowy", or "foggy" reach the catalog.
     ...visualLabelSearchTerms(artwork.slug),
-  ].filter((value): value is string => typeof value === "string" && value.trim().length > 0).join(" ");
+  ].filter((value): value is string => typeof value === "string" && value.trim().length > 0);
+}
+
+export function buildArtworkSearchText(artwork: Artwork) {
+  return getArtworkDiscoveryKeywords(artwork).join(" ");
 }
 
 export function searchArtworks(query: string, items: readonly Artwork[] = displayArtworks) {

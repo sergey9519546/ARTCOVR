@@ -1,2 +1,3 @@
 - [Artifact-scoped browser tooling](browser-test-tooling.md) — add test dependencies through the pnpm workspace filter rather than the generic root installer.
 - [Hero animation gating](hero-animation-gating.md) — keep the entrance CSS-owned and start it beneath the preloader curtain; JS/CSS transform handoffs cause visible jumps.
+- [Catalog intelligence joins](catalog-intelligence-import.md) — connect each cover by slug/filename across editorial metadata, visual labels, keywords, vector identity, and related works.

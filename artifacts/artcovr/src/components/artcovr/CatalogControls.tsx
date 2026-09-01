@@ -157,6 +157,7 @@ export function CatalogControls({
   onClear,
   resultCount,
   totalCount,
+  showMoodFacet = true,
 }: {
   items: Artwork[];
   view: CatalogView;
@@ -164,6 +165,7 @@ export function CatalogControls({
   onClear?: () => void;
   resultCount: number;
   totalCount: number;
+  showMoodFacet?: boolean;
 }) {
   const facets = useMemo(() => getCatalogFacets(items), [items]);
   const [offsets, setOffsets] = useState<Record<FacetKey, number>>({
@@ -194,7 +196,9 @@ export function CatalogControls({
 
   const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
     { key: "genre", label: "Genre", options: facets.genres, visibleCount: 10 },
-    { key: "mood", label: "Mood", options: facets.moods, visibleCount: 10 },
+    ...(showMoodFacet
+      ? [{ key: "mood" as const, label: "Mood", options: facets.moods, visibleCount: 10 }]
+      : []),
     { key: "color", label: "Color", options: facets.colors, visibleCount: 12 },
   ];
 

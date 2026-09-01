@@ -27,6 +27,13 @@ export const VISUAL_TASKS = [
 export type VisualTask = (typeof VISUAL_TASKS)[number];
 export type VisualLabel = { label: string; conf: number };
 export type VisualRelated = { slug: string; score: number };
+export type VisualDescriptor = {
+  task: VisualTask;
+  taskLabel: string;
+  label: string;
+  displayLabel: string;
+  confidence: number;
+};
 export type VisualIndexEntry = {
   related: VisualRelated[];
   diversityRank: number;
@@ -61,13 +68,53 @@ export function humanizeVisualLabel(label: string) {
   return label.replaceAll("__", " ").replaceAll("_", " ").replaceAll("-", " ").toLowerCase().trim();
 }
 
-/** Label strings for one work, for search-corpus merging. Never includes confidences. */
-export function visualLabelSearchTerms(slug: string): string[] {
+const VISUAL_TASK_LABELS: Record<VisualTask, string> = {
+  style: "Style",
+  medium: "Medium",
+  mood: "Mood",
+  category: "Theme",
+  weather: "Weather",
+  colorblend: "Palette",
+  domcolor: "Dominant color",
+};
+
+export function displayVisualLabel(label: string) {
+  return humanizeVisualLabel(label).replace(/\b[a-z]/g, (character) => character.toUpperCase());
+}
+
+/**
+ * The connected visual record used by detail views and search explanations.
+ * Each descriptor keeps its source task, original vocabulary value, display
+ * value, and confidence together instead of flattening the metadata into
+ * unrelated strings.
+ */
+export function getVisualDescriptorGroups(slug: string): VisualDescriptor[] {
   const entry = getVisualEntry(slug);
   if (!entry) return [];
+
   return VISUAL_TASKS.flatMap((task) => {
-    const label = entry.labels[task]?.label;
-    if (!label) return [];
+    const descriptor = entry.labels[task];
+    if (!descriptor?.label) return [];
+    return [{
+      task,
+      taskLabel: VISUAL_TASK_LABELS[task],
+      label: descriptor.label,
+      displayLabel: displayVisualLabel(descriptor.label),
+      confidence: descriptor.conf,
+    }];
+  });
+}
+
+/** All audited visual vocabulary values for one work, with display aliases. */
+export function getVisualKeywords(slug: string): string[] {
+  return [...new Set(
+    getVisualDescriptorGroups(slug).flatMap(({ label, displayLabel }) => [label, displayLabel]),
+  )];
+}
+
+/** Label strings for one work, for search-corpus merging. Never includes confidences. */
+export function visualLabelSearchTerms(slug: string): string[] {
+  return getVisualDescriptorGroups(slug).flatMap(({ label }) => {
     const humanized = humanizeVisualLabel(label);
     return humanized === label.toLowerCase() ? [humanized] : [label, humanized];
   });
