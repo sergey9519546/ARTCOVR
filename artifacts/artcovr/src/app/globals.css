@@ -120,14 +120,68 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 /*
- * Keep the hero mark below its clipped plate until the entrance timeline is
- * ready. This CSS-side state is what the browser paints before React effects
- * run; the media query deliberately excludes every static presentation mode.
- * The entrance tween clears its transform after the reveal; the html.loaded
- * guard removes this start state before that cleanup runs.
+ * Paint every animated hero target in the same state GSAP starts from. The
+ * preloader curtain can then open without exposing final content that GSAP
+ * hides again one frame later. Static presentation modes bypass these states.
  */
 @media (prefers-reduced-motion: no-preference) and (pointer: fine) and (min-width: 768px) {
-  html:not(.loaded) .artcovr-hero-wordmark { transform: translateY(105%); }
+  .artcovr-hero-wordmark {
+    transition:
+      opacity .78s cubic-bezier(.19, 1, .22, 1),
+      visibility 0s,
+      transform .78s cubic-bezier(.19, 1, .22, 1);
+  }
+
+  #hero-line {
+    transition: transform .65s cubic-bezier(.19, 1, .22, 1) .36s;
+  }
+
+  :is(
+    #hero-title,
+    #hero-subtitle,
+    #hero-paragraph,
+    #hero-link,
+    #hero-license-link,
+    #hero-copyright,
+    #hero-license-link-mobile
+  ) {
+    transition:
+      opacity .5s cubic-bezier(.19, 1, .22, 1),
+      visibility 0s,
+      transform .5s cubic-bezier(.19, 1, .22, 1);
+  }
+
+  #hero-title { transition-delay: .72s, 0s, .72s; }
+  #hero-subtitle { transition-delay: .765s, 0s, .765s; }
+  #hero-paragraph { transition-delay: .81s, 0s, .81s; }
+  #hero-link { transition-delay: .855s, 0s, .855s; }
+  #hero-license-link { transition-delay: .9s, 0s, .9s; }
+  #hero-copyright { transition-delay: .945s, 0s, .945s; }
+  #hero-license-link-mobile { transition-delay: .99s, 0s, .99s; }
+
+  html:not(.loaded) .artcovr-hero-wordmark {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(18%);
+  }
+
+  html:not(.loaded) #hero-line {
+    transform: scaleX(0);
+  }
+
+  html:not(.loaded) :is(
+    #hero-title,
+    #hero-subtitle,
+    #hero-paragraph,
+    #hero-link,
+    #hero-license-link,
+    #hero-copyright,
+    #hero-license-link-mobile
+  ) {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+  }
 }
 
 /*

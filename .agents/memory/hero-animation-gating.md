@@ -3,8 +3,8 @@ name: Hero animation gating
 description: The safe relationship between CSS first-paint hiding, the loaded class, and GSAP cleanup.
 ---
 
-The hero wordmark may use a CSS off-canvas start state only while `html:not(.loaded)` is true; once the preloader opens the gate, add `html.loaded` before GSAP clears the completed transform.
+The hero entrance is CSS-owned from start to finish. Apply the hidden/offset state while `html:not(.loaded)`, then add `html.loaded` when the preloader curtain starts its exit so both transitions run as one reveal.
 
-**Why:** Keeping a zero transform inline after the tween masks a CSS regression but breaks the intended clean final state and browser assertions that expect `transform: none`.
+**Why:** Letting GSAP take over a CSS percentage transform composed the offsets and made the wordmark jump away before revealing. Starting the JS timeline after the curtain also exposed final copy, hid it, then revealed it again.
 
-**How to apply:** When changing the entrance timeline or preloader gate, verify the order of `preloaderDone`, `html.loaded`, the layout effect, and `clearProps` across animated desktop and static motion modes.
+**How to apply:** Keep the entrance free of inline transform writes, start it with the curtain exit callback, unblock interaction only on preloader completion, and verify opacity/transform move monotonically across animated and static modes.

@@ -27,12 +27,22 @@ const IMAGE_INTERVAL = 168;
 const EXIT_TIME = 4060;
 const DISMISS_TIME = 5180;
 
-export function Preloader({ onComplete }: { onComplete?: () => void }) {
+type PreloaderProps = {
+  onExitStart?: () => void;
+  onComplete?: () => void;
+};
+
+export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
   const [visibleImages, setVisibleImages] = useState(0);
   const [counter, setCounter] = useState(0);
   const [exited, setExited] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const onExitStartRef = useRef(onExitStart);
   const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onExitStartRef.current = onExitStart;
+  }, [onExitStart]);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -47,6 +57,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
       setCounter(100);
       setExited(true);
       setDismissed(true);
+      onExitStartRef.current?.();
       onCompleteRef.current?.();
       return;
     }
@@ -61,7 +72,10 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
     for (let index = 0; index < PRELOADER_IMAGES.length; index += 1) {
       timers.push(setTimeout(() => setVisibleImages(index + 1), IMAGE_START + index * IMAGE_INTERVAL));
     }
-    timers.push(setTimeout(() => setExited(true), EXIT_TIME));
+    timers.push(setTimeout(() => {
+      setExited(true);
+      onExitStartRef.current?.();
+    }, EXIT_TIME));
     timers.push(setTimeout(() => onCompleteRef.current?.(), PRELOADER_COMPLETE_TIME_MS));
     timers.push(setTimeout(() => setDismissed(true), DISMISS_TIME));
 
@@ -76,6 +90,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
       setCounter(100);
       setExited(true);
       setDismissed(true);
+      onExitStartRef.current?.();
       onCompleteRef.current?.();
       window.removeEventListener("keydown", skipIntro);
     };
