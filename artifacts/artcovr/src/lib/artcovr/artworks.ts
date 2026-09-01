@@ -6,9 +6,11 @@ import productionIntroJson from "./production-intro.json" with { type: "json" };
 import commerceConfigJson from "./commerce-config.json" with { type: "json" };
 import { selectPublicCatalog } from "./catalog-visibility.ts";
 import {
+  getVisualEntry,
   orderByDiversityRank,
   relatedVisualSlugs,
   spreadByVisualCluster,
+  VISUAL_TASKS,
   visualLabelSearchTerms,
 } from "./visual-index.ts";
 import { displayGenreLabel, genreSearchTerms, getArtworkGenres } from "./genre-index.ts";
@@ -311,22 +313,77 @@ export function getArtworkBySlug(slug: string) {
   return displayArtworks.find((artwork) => artwork.slug === slug);
 }
 
+const VISUAL_SIMILARITY_WEIGHTS: Record<(typeof VISUAL_TASKS)[number], number> = {
+  style: 8,
+  medium: 7,
+  mood: 6,
+  category: 5,
+  colorblend: 4,
+  domcolor: 3,
+  weather: 2,
+};
+
+function broadSimilarityScore(source: Artwork, candidate: Artwork) {
+  const sourceEntry = getVisualEntry(source.slug);
+  const candidateEntry = getVisualEntry(candidate.slug);
+  let score = 0;
+
+  if (sourceEntry && candidateEntry) {
+    for (const task of VISUAL_TASKS) {
+      if (sourceEntry.labels[task].label === candidateEntry.labels[task].label) {
+        score += VISUAL_SIMILARITY_WEIGHTS[task];
+      }
+    }
+  }
+
+  if (source.category === candidate.category) score += 4;
+
+  const sourceGenres = new Set(getArtworkGenres(source));
+  score += getArtworkGenres(candidate).filter((genre) => sourceGenres.has(genre)).length * 3;
+
+  const sourceMoods = new Set(source.moodTags);
+  score += candidate.moodTags.filter((mood) => sourceMoods.has(mood)).length;
+
+  return score;
+}
+
 /**
- * Visually nearest works that are actually displayable. Related slugs come
- * from the committed visual index, but only works present in the current
- * display catalog may be linked: a pruned or unapproved slug must never
- * surface as a related work.
+ * Similar works that are actually displayable. The committed visual index
+ * supplies the first six image-nearest neighbors. The rest of the approved
+ * catalog is ranked by its audited visual labels and editorial traits, giving
+ * the product page a deep discovery pool without shipping raw vectors or
+ * treating unapproved records as recommendations.
  */
 export function getRelatedArtworks(slug: string, count = 4) {
-  const related: Artwork[] = [];
-  for (const relatedSlug of relatedVisualSlugs(slug, count * 2)) {
-    if (relatedSlug === slug) continue;
-    const artwork = getArtworkBySlug(relatedSlug);
-    if (!artwork) continue;
-    related.push(artwork);
-    if (related.length >= count) break;
-  }
-  return related;
+  const source = getArtworkBySlug(slug);
+  if (!source || count <= 0) return [];
+
+  const exactRelatedRank = new Map(
+    relatedVisualSlugs(slug, displayArtworks.length).map((relatedSlug, index) => [
+      relatedSlug,
+      index,
+    ]),
+  );
+
+  return displayArtworks
+    .filter((artwork) => artwork.slug !== slug)
+    .sort((left, right) => {
+      const leftExactRank = exactRelatedRank.get(left.slug);
+      const rightExactRank = exactRelatedRank.get(right.slug);
+      if (leftExactRank !== undefined || rightExactRank !== undefined) {
+        if (leftExactRank === undefined) return 1;
+        if (rightExactRank === undefined) return -1;
+        return leftExactRank - rightExactRank;
+      }
+
+      const scoreDelta = broadSimilarityScore(right, source) - broadSimilarityScore(left, source);
+      if (scoreDelta !== 0) return scoreDelta;
+
+      const leftDiversityRank = getVisualEntry(left.slug)?.diversityRank ?? Number.MAX_SAFE_INTEGER;
+      const rightDiversityRank = getVisualEntry(right.slug)?.diversityRank ?? Number.MAX_SAFE_INTEGER;
+      return leftDiversityRank - rightDiversityRank || left.slug.localeCompare(right.slug);
+    })
+    .slice(0, count);
 }
 
 /**

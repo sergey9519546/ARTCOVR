@@ -9,6 +9,7 @@ import {
   getArtworkBySlug,
   getCheckoutTotal,
   getArtworkDiscoveryKeywords,
+  getRelatedArtworks,
   isCheckoutReady,
   isPrivateStaging,
   isPromptReady,
@@ -133,6 +134,7 @@ describe("artwork helpers", () => {
     // The explicit list is exactly 18 diverse covers spanning all categories
     // so images appear smoothly throughout the entire preloader duration.
     assert.equal(introSlugs.length, 18);
+    assert.equal(introSlugs.at(-1), "graphic-surreal-pop");
   });
 
   test("searches artwork metadata across categories, moods, and descriptors", () => {
@@ -150,6 +152,17 @@ describe("artwork helpers", () => {
     assert.ok(keywords.includes("surrealism"));
     assert.ok(keywords.includes("Digital_Art"));
     assert.ok(keywords.includes("uncanny"));
+  });
+
+  test("expands find-similar into the approved catalog without duplicates", () => {
+    const source = displayArtworks[0];
+    if (!source) return;
+
+    const related = getRelatedArtworks(source.slug, displayArtworks.length);
+    assert.equal(related.length, Math.max(displayArtworks.length - 1, 0));
+    assert.equal(new Set(related.map((artwork) => artwork.slug)).size, related.length);
+    assert.ok(related.every((artwork) => artwork.slug !== source.slug));
+    assert.ok(related.every((artwork) => artwork.rightsApproved && artwork.published));
   });
 
   test("formats a checkout total from cents", () => {

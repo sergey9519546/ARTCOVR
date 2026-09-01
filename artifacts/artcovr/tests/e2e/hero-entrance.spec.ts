@@ -177,3 +177,40 @@ test.describe("static presentations keep the hero wordmark visible without the e
     });
   }
 });
+
+test("home header logo waits until the oversized hero wordmark is passed", async ({
+  browser,
+}) => {
+  const { context, page } = await openHome(browser, {
+    ...test.info().project.use,
+    viewport: { width: 1440, height: 1000 },
+    reducedMotion: "reduce",
+    hasTouch: false,
+  });
+
+  try {
+    const brand = page.locator('a[aria-label="ARTCOVR home"]');
+    await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+      timeout: 8_000,
+    });
+    await expect(brand).toHaveAttribute("aria-hidden", "true");
+    await expect(brand).toHaveAttribute("tabindex", "-1");
+
+    await page.evaluate(() => {
+      const wordmark = document.querySelector<HTMLElement>("#hero-wordmark");
+      if (!wordmark) throw new Error("Hero wordmark target is missing");
+      const documentBottom = wordmark.getBoundingClientRect().bottom + window.scrollY;
+      window.scrollTo(0, documentBottom + 1);
+    });
+
+    await expect(brand).toHaveAttribute("aria-hidden", "false");
+    await expect(brand).not.toHaveAttribute("tabindex");
+    await expect(brand).toBeVisible();
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(brand).toHaveAttribute("aria-hidden", "true");
+    await expect(brand).toHaveAttribute("tabindex", "-1");
+  } finally {
+    await context.close();
+  }
+});

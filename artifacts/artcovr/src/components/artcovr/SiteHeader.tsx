@@ -43,7 +43,7 @@ export function SiteHeader() {
           <Link href="/" className="flex min-h-11 items-center text-sm font-extrabold tracking-tight" aria-label="ARTCOVR home">
             ARTCOVR
           </Link>
-          <div className="hidden items-center gap-8 text-[11px] font-bold uppercase tracking-[0.08em] md:flex">
+          <div className="hidden items-center gap-8 text-[11px] font-bold uppercase tracking-[0.08em] lg:flex">
             {visibleLinks.map((link) => (
               <Link
                 key={link.href}
@@ -73,7 +73,7 @@ export function SiteHeader() {
             onClick={() => setMenuOpen(true)}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            className="flex min-h-11 min-w-11 items-center justify-end text-xs font-bold uppercase tracking-[.08em] md:hidden"
+            className="flex min-h-11 min-w-11 items-center justify-end text-xs font-bold uppercase tracking-[.08em] lg:hidden"
           >
             Menu
           </button>
