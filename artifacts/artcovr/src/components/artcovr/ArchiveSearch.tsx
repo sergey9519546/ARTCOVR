@@ -1,41 +1,21 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
+import { ArtworkCard } from "@/components/artcovr/ArtworkCard";
+import {
+  applyCatalogView,
+  CatalogControls,
+  DEFAULT_CATALOG_VIEW,
+  groupArtworks,
+  type CatalogView,
+} from "@/components/artcovr/CatalogControls";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { hybridSearch } from "@/lib/artcovr/semantic-search";
 
-type SortMode = "featured" | "price-asc" | "price-desc";
-
-const SORT_MODES: { id: SortMode; label: string }[] = [
-  { id: "featured", label: "Featured" },
-  { id: "price-asc", label: "Price ↑" },
-  { id: "price-desc", label: "Price ↓" },
-];
-
-type PriceBand = { id: string; label: string; min: number; max: number };
-
-const PRICE_BANDS: PriceBand[] = [
-  { id: "under-50", label: "Under $50", min: 0, max: 5000 },
-  { id: "50-100", label: "$50–$100", min: 5000, max: 10000 },
-  { id: "100-200", label: "$100–$200", min: 10000, max: 20000 },
-  { id: "200-plus", label: "$200+", min: 20000, max: Infinity },
-];
-
-function priceBandOf(art: Artwork): string | null {
-  if (art.priceCents === null) return null;
-  const band = PRICE_BANDS.find(
-    (b) => art.priceCents !== null && art.priceCents >= b.min && art.priceCents < b.max,
-  );
-  return band ? band.id : null;
-}
-
 export function ArchiveSearch({ items }: { items: Artwork[] }) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string | null>(null);
-  const [priceBand, setPriceBand] = useState<string | null>(null);
-  const [mood, setMood] = useState<string | null>(null);
-  const [sort, setSort] = useState<SortMode>("featured");
+  const [view, setView] = useState<CatalogView>(DEFAULT_CATALOG_VIEW);
 
   // Preserve the curated display order so "Featured" sort restores the
   // owner-pick + palette-spread arrangement after filtering.
@@ -44,56 +24,10 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     [items],
   );
 
-  const categories = useMemo(
-    () => [...new Set(items.map((i) => i.category))].sort(),
-    [items],
-  );
-  const moods = useMemo(
-    () =>
-      [...new Set(items.flatMap((i) => i.moodTags))]
-        .map((tag) => ({ tag, count: items.filter((i) => i.moodTags.includes(tag)).length }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 12)
-        .map((entry) => entry.tag),
-    [items],
-  );
-
   const filteredItems = useMemo(() => {
     const textMatched = hybridSearch(query, items);
-    const matched = textMatched.filter((art) => {
-      if (category && art.category !== category) return false;
-      if (priceBand && priceBandOf(art) !== priceBand) return false;
-      if (mood && !art.moodTags.includes(mood)) return false;
-      return true;
-    });
-
-    const sorted = [...matched];
-    if (sort === "price-asc") {
-      sorted.sort((left, right) => (left.priceCents ?? Infinity) - (right.priceCents ?? Infinity));
-    } else if (sort === "price-desc") {
-      sorted.sort((left, right) => (right.priceCents ?? -Infinity) - (left.priceCents ?? -Infinity));
-    } else {
-      sorted.sort(
-        (left, right) =>
-          (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0),
-      );
-    }
-    return sorted;
-  }, [items, query, category, priceBand, mood, sort, orderIndex]);
-
-  const hasPriceData = useMemo(
-    () => items.some((item) => item.priceCents !== null),
-    [items],
-  );
-
-  const activeFilters = [category, priceBand, mood].filter(Boolean).length;
-  const clearAll = () => {
-    setQuery("");
-    setCategory(null);
-    setPriceBand(null);
-    setMood(null);
-    setSort("featured");
-  };
+    return applyCatalogView(textMatched, view, orderIndex);
+  }, [items, query, view, orderIndex]);
 
   return (
     <>
@@ -102,14 +36,6 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
           <label htmlFor="archive-search" className="text-[11px] font-bold uppercase tracking-[.12em] text-current/70">
             Search archive
           </label>
-          <div className="text-xs uppercase tracking-[.12em] text-current/60" role="status" aria-live="polite">
-            {filteredItems.length} / {items.length} works
-            {activeFilters > 0 ? (
-              <button type="button" onClick={clearAll} className="ml-3 underline hover:text-current">
-                Clear filters
-              </button>
-            ) : null}
-          </div>
         </div>
         <div className="mt-4 flex items-center gap-3 rounded-full border border-current/20 bg-transparent px-4 py-3 text-base md:max-w-xl">
           <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0 opacity-70">
@@ -130,44 +56,17 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
           ) : null}
         </div>
 
-        <div className="mt-6 flex flex-col gap-5">
-          <FilterRow label="Category">
-            <Chip active={category === null} onClick={() => setCategory(null)}>All</Chip>
-            {categories.map((cat) => (
-              <Chip key={cat} active={category === cat} onClick={() => setCategory(cat)}>
-                {cat}
-              </Chip>
-            ))}
-          </FilterRow>
-
-          <FilterRow label="Price">
-            <Chip active={priceBand === null} onClick={() => setPriceBand(null)}>Any</Chip>
-            {PRICE_BANDS.map((band) => (
-              <Chip key={band.id} active={priceBand === band.id} onClick={() => setPriceBand(band.id)}>
-                {band.label}
-              </Chip>
-            ))}
-          </FilterRow>
-
-          <FilterRow label="Mood">
-            <Chip active={mood === null} onClick={() => setMood(null)}>Any</Chip>
-            {moods.map((tag) => (
-              <Chip key={tag} active={mood === tag} onClick={() => setMood(tag)}>
-                {tag}
-              </Chip>
-            ))}
-          </FilterRow>
-
-          {hasPriceData ? (
-            <FilterRow label="Sort">
-              {SORT_MODES.map((mode) => (
-                <Chip key={mode.id} active={sort === mode.id} onClick={() => setSort(mode.id)}>
-                  {mode.label}
-                </Chip>
-              ))}
-            </FilterRow>
-          ) : null}
-        </div>
+        <CatalogControls
+          items={items}
+          view={view}
+          onChange={setView}
+          onClear={() => {
+            setQuery("");
+            setView(DEFAULT_CATALOG_VIEW);
+          }}
+          resultCount={filteredItems.length}
+          totalCount={items.length}
+        />
       </div>
 
       {items.length === 0 ? (
@@ -177,47 +76,31 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
           <p className="text-xl font-bold">No works match those filters.</p>
           <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different mood, category, or price.</p>
         </div>
-      ) : (
+      ) : view.group === "none" ? (
         <div className="mt-12">
           <ArtworkGrid items={filteredItems} />
         </div>
+      ) : (
+        <div className="mt-12 space-y-16 md:space-y-24">
+          {groupArtworks(filteredItems, view.group).map((group) => (
+            <section key={group.key} aria-label={`${group.label} group`}>
+              <div className="mb-5 flex items-baseline justify-between gap-4 border-t-2 border-current pt-3">
+                <h2 className="text-sm font-bold uppercase tracking-[.08em]">
+                  {group.label}
+                </h2>
+                <span className="text-xs uppercase tracking-[.1em] text-current/50">
+                  {group.items.length} {group.items.length === 1 ? "work" : "works"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16">
+                {group.items.map((artwork, index) => (
+                  <ArtworkCard key={artwork.id} artwork={artwork} priority={index < 2} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       )}
     </>
-  );
-}
-
-function FilterRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex flex-col gap-2 md:flex-row md:items-center">
-      <span className="w-20 shrink-0 text-[11px] font-bold uppercase tracking-[.12em] text-current/50">
-        {label}
-      </span>
-      <div className="flex flex-wrap gap-2">{children}</div>
-    </div>
-  );
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-[.08em] transition-colors ${
-        active
-          ? "border-current bg-current text-[var(--background)]"
-          : "border-current/20 text-current/70 hover:border-current/50 hover:text-current"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

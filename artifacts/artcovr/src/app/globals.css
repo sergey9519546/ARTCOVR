@@ -89,6 +89,62 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .link-hover[data-selected]::after,
 .link-hover[aria-current="page"]::after { transform: scaleX(1); }
 
+.artcovr-filter-control {
+  position: relative;
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: .45rem;
+  padding: .42rem .15rem .35rem;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, currentColor 62%, transparent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    color .35s var(--motion-ease),
+    border-color .35s var(--motion-ease);
+}
+.artcovr-filter-control::before {
+  width: .42rem;
+  height: .42rem;
+  border: 1px solid currentColor;
+  content: "";
+  transform: rotate(45deg);
+  transition:
+    background-color .35s var(--motion-ease),
+    transform .35s var(--motion-ease);
+}
+.artcovr-filter-control:hover:not(:disabled),
+.artcovr-filter-control:focus-visible,
+.artcovr-filter-control[data-active="true"] {
+  color: var(--foreground);
+  border-bottom-color: currentColor;
+}
+.artcovr-filter-control[data-active="true"] {
+  border-bottom-width: 2px;
+}
+.artcovr-filter-control[data-active="true"]::before {
+  background: currentColor;
+  transform: rotate(45deg) scale(.8);
+}
+.artcovr-filter-control:disabled {
+  cursor: not-allowed;
+  color: color-mix(in srgb, currentColor 25%, transparent);
+}
+.artcovr-filter-swatch {
+  width: .48rem;
+  height: .48rem;
+  flex: none;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 50%;
+}
+
 .skip-link {
   position: fixed;
   top: .5rem;
