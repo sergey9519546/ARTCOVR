@@ -63,6 +63,12 @@ async function main() {
     throw new Error("--vector-dimensions must be a positive integer.");
   }
   const files = await filesInDirectory(bundleDir);
+  const expectedCorpusSize = Number(process.argv.includes("--expected-corpus-size")
+    ? flag("--expected-corpus-size")
+    : 22_260);
+  if (!Number.isSafeInteger(expectedCorpusSize) || expectedCorpusSize <= 0) {
+    throw new Error("--expected-corpus-size must be a positive integer.");
+  }
 
   if (command === "generate") {
     const out = resolve(flag("--out"));
@@ -71,6 +77,7 @@ async function main() {
       files,
       sourceVersion,
       vectorDimensions,
+      expectedCorpusSize,
     });
     await writeFile(out, serializeCatalogIntelligenceManifest(manifest), "utf8");
     console.log(`Wrote catalog intelligence manifest to ${out}`);
@@ -85,6 +92,7 @@ async function main() {
     files,
     sourceVersion,
     vectorDimensions,
+    expectedCorpusSize,
   });
   if (!result.ok) {
     printIssues(result.issues);

@@ -90,6 +90,31 @@ pnpm --filter @workspace/artcovr run catalog-intelligence:manifest -- \
   --manifest /path/to/catalog-intelligence-manifest.json
 ```
 
+After a manifest has been generated, a single owner-side import command can
+decode every JavaScript payload family, validate the decoded bundle, and write
+the result. The command reads and hashes the raw files before parsing any
+payload data. It accepts only declarative object/array literal assignments and
+never executes the external JavaScript; calls, functions, operators, property
+access, and additional statements are rejected. It does not write its output
+when manifest or payload validation fails:
+
+```sh
+pnpm --filter @workspace/artcovr run catalog-intelligence:import -- \
+  --bundle-dir /path/to/external-bundle \
+  --catalog-file /path/to/catalog-identities.json \
+  --source-version catalog-export@SOURCE_REVISION \
+  --manifest /path/to/catalog-intelligence-manifest.json \
+  --out /path/to/owner-import/catalog-intelligence.json
+```
+
+The importer defaults to the full 22,260-record corpus and the fixed
+512-dimensional vector contract. `--expected-corpus-size N` is available only
+for an explicitly scoped fixture or staging run; pass the same value to the
+`generate` command above and to the import command, and every family must
+still validate against that corpus. The importer intentionally has no
+override for vector dimensions because the catalog payload contract is fixed
+at 512.
+
 `catalog-identities.json` is the source catalog array containing `slug` and
 one of `assetKey`, `filename`, `displayPath`, or `image`. The manifest records
 the source revision, the stable slug/filename identity source, corpus count,
@@ -99,9 +124,9 @@ FastText output, search index, vector, related-neighbor, and duplicate-group
 file. Verification fails on stale identity data, a changed source revision,
 missing or extra files, substituted files, and hash/byte mismatches.
 
-Keep the manifest and the raw external bundle in the owner-side import
-workspace; do not check either into the storefront bundle. The owner-side
-import entry point is `importCatalogIntelligenceBundle` in
+Keep the manifest, raw external bundle, and import output in the owner-side
+import workspace; do not check them into the storefront bundle. The
+owner-side library entry point is `importCatalogIntelligenceBundle` in
 `src/lib/artcovr/catalog-manifest.ts`: supply the manifest, the raw
 `manifestFiles`, the catalog source revision, and a `decodePayload` callback.
 It verifies the raw file hashes first and only then decodes and validates the

@@ -386,6 +386,7 @@ export function verifyCatalogIntelligenceManifest(input: {
   files: readonly CatalogManifestFileInput[];
   sourceVersion: string;
   vectorDimensions?: number;
+  expectedCorpusSize?: number;
 }): CatalogManifestVerification {
   const parsed = parseManifest(input.manifest);
   if ("issues" in parsed) return parsed;
@@ -398,18 +399,21 @@ export function verifyCatalogIntelligenceManifest(input: {
   }
 
   const issues: CatalogManifestIssue[] = [];
+  const expectedCorpusSize = input.expectedCorpusSize ?? parsed.corpus.count;
   if (parsed.sourceVersion !== input.sourceVersion) {
     issues.push({
       code: "MANIFEST_SOURCE_MISMATCH",
       message: `Manifest sourceVersion ${parsed.sourceVersion} does not match incoming ${input.sourceVersion}.`,
     });
   }
-  if (parsed.corpus.count !== identities.length ||
+  if (identities.length !== expectedCorpusSize ||
+      parsed.corpus.count !== identities.length ||
       parsed.corpus.identityCoverage.slugCount !== new Set(identities.map(({ slug }) => slug)).size ||
       parsed.corpus.identityCoverage.filenameCount !== new Set(identities.map(({ assetKey }) => assetKey)).size) {
     issues.push({
       code: "MANIFEST_CORPUS_MISMATCH",
-      message: `Manifest corpus count/coverage does not match incoming catalog (${identities.length}).`,
+      message:
+        `Manifest corpus count/coverage does not match the expected ${expectedCorpusSize}-record incoming catalog (${identities.length}).`,
     });
   }
   if (parsed.corpus.identityCoverage.identitySha256 !== identitySha256(identities)) {
@@ -556,6 +560,7 @@ export function validateCatalogIntelligenceBundle(
     files: input.manifestFiles,
     sourceVersion: input.sourceVersion,
     vectorDimensions: input.vectorDimensions,
+    expectedCorpusSize: input.options?.expectedCorpusSize,
   });
   if (!manifestVerification.ok) return rejectedBundleValidation(input, manifestVerification);
   return combineBundleValidation(input, manifestVerification);
@@ -575,6 +580,7 @@ export function importCatalogIntelligenceBundle(
     files: input.manifestFiles,
     sourceVersion: input.sourceVersion,
     vectorDimensions: input.vectorDimensions,
+    expectedCorpusSize: input.options?.expectedCorpusSize,
   });
   if (!manifestVerification.ok) {
     return rejectedBundleValidation(input, manifestVerification);
