@@ -140,3 +140,19 @@ test("searching a displayed genre finds the filtered artwork", async ({
     ),
   ).toHaveCount(1);
 });
+
+test("archive search and facets restore from the URL", async ({ page }) => {
+  await page.goto("/archive");
+  const genreChoice = choices(facet(page, "genre")).first();
+  await expect(genreChoice).toBeVisible();
+
+  await genreChoice.click();
+  await expect.poll(() => new URL(page.url()).searchParams.get("genre")).toBeTruthy();
+  const filteredCount = resultCount(await catalogStatus(page).innerText());
+
+  await page.reload();
+  await expect(page.locator("#archive-search")).toHaveValue("");
+  await expect(catalogStatus(page)).toHaveText(`${filteredCount} / ${ARCHIVE_TOTAL} works`);
+  await expect(page.locator(`[data-facet="genre"] button[aria-pressed="true"]`)).toHaveAttribute("aria-pressed", "true");
+  await expect(page.url()).toContain("genre=");
+});

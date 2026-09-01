@@ -1,6 +1,7 @@
 import { createInsertSchema } from "drizzle-zod";
 import {
   integer,
+  index,
   pgTable,
   text,
   timestamp,
@@ -12,6 +13,9 @@ export const artcovrOrders = pgTable(
   "artcovr_orders",
   {
     id: text("id").primaryKey(),
+    // Clerk subject used to scope every customer-owned order query.
+    // Nullable keeps legacy orders inaccessible rather than guessing ownership.
+    clerkUserId: text("clerk_user_id"),
     artworkId: text("artwork_id").notNull(),
     artworkSlug: text("artwork_slug").notNull(),
     stripeCheckoutSessionId: text("stripe_checkout_session_id"),
@@ -38,6 +42,9 @@ export const artcovrOrders = pgTable(
     checkoutSessionIdx: uniqueIndex(
       "artcovr_orders_checkout_session_id_idx",
     ).on(table.stripeCheckoutSessionId),
+    clerkUserIdx: index("artcovr_orders_clerk_user_id_idx").on(
+      table.clerkUserId,
+    ),
   }),
 );
 

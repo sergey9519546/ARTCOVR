@@ -31,8 +31,6 @@ async function initStripe() {
   logger.info("Stripe proxy and webhook ready");
 }
 
-await initStripe();
-
 app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
@@ -40,4 +38,8 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+});
+
+void initStripe().catch((error) => {
+  logger.error({ err: error }, "Stripe initialization failed");
 });

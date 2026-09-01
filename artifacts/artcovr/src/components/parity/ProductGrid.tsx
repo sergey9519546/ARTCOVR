@@ -13,6 +13,7 @@ import {
 // front page, archive works on /archive). Aliased to the historical name so the
 // motion/parity source contracts keep matching.
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { buildCatalogFacetIndex } from "@/lib/artcovr/catalog-intelligence";
 
 const ARTWORK_IMAGE_FALLBACK = "/assets/artwork-placeholder.svg";
 
@@ -35,9 +36,10 @@ export function ProductGrid() {
     () => new Map(displayArtworks.map((item, index) => [item.slug, index])),
     [],
   );
+  const facetIndex = useMemo(() => buildCatalogFacetIndex(displayArtworks), []);
   const filteredArtworks = useMemo(
-    () => applyCatalogView(displayArtworks, view, orderIndex),
-    [view, orderIndex],
+    () => applyCatalogView(displayArtworks, view, orderIndex, facetIndex),
+    [view, orderIndex, facetIndex],
   );
 
   useEffect(() => {
@@ -97,6 +99,7 @@ export function ProductGrid() {
         }}
         resultCount={filteredArtworks.length}
         totalCount={displayArtworks.length}
+        facetIndex={facetIndex}
       />
       <h2 id="selected-artworks" className="sr-only">
         Selected cover artwork

@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useAuth, useClerk } from "@clerk/react";
+import Link from "@/components/compat/Link";
 
 const items = [
   { label: "archive", href: "/archive" },
-  { label: "my cart", href: "/my-images" },
+  { label: "my images", href: "/my-images" },
 ];
 
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { signOut } = useClerk();
   const dialog = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   // The modal effect below must survive parent re-renders that hand down a
@@ -125,7 +129,17 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             </li>
           ))}
         </ul>
-        <div className="flex flex-col gap-2 text-sm">
+          <div className="flex flex-col gap-3 text-sm">
+            {!isLoaded ? (
+              <span className="opacity-70" aria-live="polite">Account loading…</span>
+            ) : isSignedIn ? (
+              <button type="button" className="link-hover w-fit" onClick={() => { onClose(); void signOut({ redirectUrl: "/" }); }}>Log out</button>
+            ) : (
+              <div className="flex gap-4">
+                <Link href="/sign-in" className="link-hover" onClick={onClose}>Sign in</Link>
+                <Link href="/sign-up" className="link-hover" onClick={onClose}>Sign up</Link>
+              </div>
+            )}
           <p className="opacity-70">Cover art, made yours.</p>
           <p className="opacity-70">© 2026 ARTCOVR</p>
         </div>

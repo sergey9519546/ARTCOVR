@@ -13,6 +13,7 @@ import {
   createCheckoutSession,
   retrieveCheckoutSession,
 } from "../stripeClient";
+import { getAuthenticatedUserId, requireAuth } from "../middlewares/auth";
 
 const router: IRouter = Router();
 const checkoutBody = z.object({
@@ -26,7 +27,8 @@ function requestOrigin(req: Request) {
   return `${forwardedProto || req.protocol}://${req.get("host")}`;
 }
 
-router.post("/checkout", async (req, res): Promise<void> => {
+router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
+  const clerkUserId = getAuthenticatedUserId(req);
   const parsed = checkoutBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
@@ -48,7 +50,12 @@ router.post("/checkout", async (req, res): Promise<void> => {
   const existing = await db
     .select()
     .from(artcovrOrders)
-    .where(eq(artcovrOrders.idempotencyKey, parsed.data.idempotencyKey))
+    .where(
+      and(
+        eq(artcovrOrders.idempotencyKey, parsed.data.idempotencyKey),
+        eq(artcovrOrders.clerkUserId, clerkUserId),
+      ),
+    )
     .limit(1);
 
   const existingOrder = existing[0];
@@ -89,6 +96,7 @@ router.post("/checkout", async (req, res): Promise<void> => {
   const orderId = `order_${randomUUID()}`;
   const orderValues = createOrderValues({
     id: orderId,
+    clerkUserId,
     artworkId: artwork.id,
     artworkSlug: artwork.slug,
     amountCents: artwork.priceCents,
