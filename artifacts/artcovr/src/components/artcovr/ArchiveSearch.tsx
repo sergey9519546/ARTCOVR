@@ -12,7 +12,10 @@ import type { Artwork } from "@/lib/artcovr/artworks";
 import { hybridSearch } from "@/lib/artcovr/semantic-search";
 
 export function ArchiveSearch({ items }: { items: Artwork[] }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("query") ?? "";
+  });
   const [view, setView] = useState<CatalogView>(DEFAULT_CATALOG_VIEW);
 
   // Preserve the curated display order so "Featured" sort restores the

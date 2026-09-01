@@ -12,14 +12,22 @@ export default function ArchivePage() {
   const siteUrl = getSiteUrl();
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: displayArtworks.map((art, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: art.title,
-      image: absoluteSiteUrl(art.image, siteUrl),
-      url: absoluteSiteUrl(`/product/${art.slug}`, siteUrl),
-    })),
+    "@type": ["CollectionPage", "WebPage"],
+    "@id": `${absoluteSiteUrl("/archive", siteUrl)}#collection`,
+    name: "ARTCOVR cover art archive",
+    description:
+      "A searchable archive of owner-approved square cover artwork organized by genre, mood, color, and visual topic.",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: displayArtworks.length,
+      itemListElement: displayArtworks.map((art, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: art.title,
+        image: absoluteSiteUrl(art.image, siteUrl),
+        url: absoluteSiteUrl(`/product/${art.slug}`, siteUrl),
+      })),
+    },
   };
 
   return (
@@ -35,7 +43,7 @@ export default function ArchivePage() {
           <p className="mt-7 max-w-[53ch] text-sm leading-6">
             {isPrivateStaging
               ? "A private visual-review selection from the owner's collection. Availability, commercial rights, license mode, and pricing activate only after final approval."
-              : "A focused collection of owner-approved cover artwork."}
+              : `${displayArtworks.length} owner-approved square cover artworks, searchable by music genre, mood, color, and visual topic. Each published work has its own commercial license terms.`}
           </p>
         </div>
         <section aria-label="Artwork archive" className="mt-20">
