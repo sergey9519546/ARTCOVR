@@ -20,6 +20,9 @@ export function SiteHeader() {
   const { isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const visibleLinks = isSignedIn
+    ? [...links, { href: "/catalog-intelligence", label: "Curation" }]
+    : links;
 
   useEffect(() => {
     document.documentElement.classList.add("loaded");
@@ -41,7 +44,7 @@ export function SiteHeader() {
             ARTCOVR
           </Link>
           <div className="hidden items-center gap-8 text-[11px] font-bold uppercase tracking-[0.08em] md:flex">
-            {links.map((link) => (
+            {visibleLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
