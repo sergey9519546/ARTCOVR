@@ -6,7 +6,9 @@ import { SiteFooter } from "@/components/artcovr/SiteFooter";
 import { SiteHeader } from "@/components/artcovr/SiteHeader";
 import {
   getArtworkBySlug,
+  displayGenreLabel,
   getCheckoutTotal,
+  getArtworkGenres,
   getRelatedArtworks,
   isCheckoutReady,
 } from "@/lib/artcovr/artworks";
@@ -23,6 +25,7 @@ export default function ProductPage() {
 
   const jsonLd = buildArtworkStructuredData(art);
   const relatedWorks = getRelatedArtworks(art.slug, 4);
+  const genres = getArtworkGenres(art);
   const checkoutReady = isCheckoutReady(art);
   const licenseMode = art.saleMode === "exclusive"
     ? "Exclusive commercial license"
@@ -41,7 +44,7 @@ export default function ProductPage() {
 
         <header className="mt-7 border-t-2 border-current pt-5">
           <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">
-            {art.category} — cover artwork
+            {genres.slice(0, 2).map(displayGenreLabel).join(" · ")} — cover artwork
           </p>
           <h1 className="mt-3 max-w-[16ch] break-words text-5xl font-extrabold tracking-tighter md:text-7xl lg:text-8xl">
             {art.title}
@@ -74,7 +77,8 @@ export default function ProductPage() {
               <div className="flex justify-between gap-6 py-3"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending"}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>Pricing</dt><dd className="text-right">{getCheckoutTotal(art.priceCents)}</dd></div>
-              <div className="flex justify-between gap-6 py-3"><dt>Category</dt><dd className="text-right">{art.category}</dd></div>
+              <div className="flex justify-between gap-6 py-3"><dt>Genre</dt><dd className="text-right">{genres.map(displayGenreLabel).join(" · ")}</dd></div>
+              <div className="flex justify-between gap-6 py-3"><dt>Visual category</dt><dd className="text-right">{art.category}</dd></div>
             </dl>
 
             <p className="mt-7 text-sm leading-6 opacity-70">
@@ -119,7 +123,9 @@ export default function ProductPage() {
                       <Image src={related.image} alt={related.alt} fill unoptimized loading="lazy" sizes="(min-width: 768px) 25vw, 50vw" className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]" />
                     </div>
                     <p className="mt-3 text-lg leading-5">{related.title}</p>
-                    <p className="mt-[6px] text-[11px] uppercase opacity-60">{related.category}</p>
+                    <p className="mt-[6px] text-[11px] uppercase opacity-60">
+                      {getArtworkGenres(related).slice(0, 2).map(displayGenreLabel).join(" · ")}
+                    </p>
                   </Link>
                 </li>
               ))}

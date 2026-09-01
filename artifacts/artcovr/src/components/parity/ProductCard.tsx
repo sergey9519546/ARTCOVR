@@ -4,7 +4,9 @@ import { memo } from "react";
 import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
 import {
+  displayGenreLabel,
   getCheckoutTotal,
+  getArtworkGenres,
   type Artwork,
 } from "@/lib/artcovr/artworks";
 
@@ -55,7 +57,7 @@ export const ProductCard = memo(function ProductCard({
       </div>
       <div className="mt-[6px] flex items-center gap-1 text-[11px] uppercase">
         <div className="h-2 w-2 rounded-full bg-current" />
-        <span>{artwork.category}</span>
+        <span>{getArtworkGenres(artwork).slice(0, 2).map(displayGenreLabel).join(" · ")}</span>
       </div>
     </Link>
   );

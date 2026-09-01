@@ -1,12 +1,14 @@
 import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
-import { getVisualStyleLabel, isCheckoutReady, type Artwork } from "@/lib/artcovr/artworks";
-import { humanizeVisualLabel } from "@/lib/artcovr/visual-index";
+import {
+  displayGenreLabel,
+  getArtworkGenres,
+  isCheckoutReady,
+  type Artwork,
+} from "@/lib/artcovr/artworks";
 
 export function ArtworkCard({ artwork, priority = false }: { artwork: Artwork; priority?: boolean }) {
-  // Machine style label from the committed visual index; absent for any work
-  // that is not indexed, in which case the card renders exactly as before.
-  const styleLabel = getVisualStyleLabel(artwork.slug);
+  const genres = getArtworkGenres(artwork);
   return (
     <article className="group">
       <Link href={`/product/${artwork.slug}`} className="block" aria-label={`View ${artwork.title}`}>
@@ -23,9 +25,9 @@ export function ArtworkCard({ artwork, priority = false }: { artwork: Artwork; p
                   : "Non-exclusive license available"
                 : "Availability pending"}
             </p>
-            {styleLabel ? (
+            {genres.length > 0 ? (
               <p className="mt-1 text-[10px] uppercase tracking-[.12em] opacity-40">
-                {humanizeVisualLabel(styleLabel)}
+                {genres.slice(0, 2).map(displayGenreLabel).join(" · ")}
               </p>
             ) : null}
           </div>

@@ -1,19 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import type { Artwork } from "@/lib/artcovr/artworks";
+import {
+  displayGenreLabel,
+  getArtworkGenres,
+  type Artwork,
+} from "@/lib/artcovr/artworks";
 import { getVisualEntry, humanizeVisualLabel } from "@/lib/artcovr/visual-index";
 
-type FacetKey = "category" | "color" | "mood";
+type FacetKey = "genre" | "color" | "mood";
 
 export type CatalogView = {
-  category: string | null;
+  genre: string | null;
   color: string | null;
   mood: string | null;
 };
 
 export const DEFAULT_CATALOG_VIEW: CatalogView = {
-  category: null,
+  genre: null,
   color: null,
   mood: null,
 };
@@ -40,34 +44,6 @@ export function getArtworkColor(artwork: Artwork): string | null {
 export function displayFacetLabel(value: string) {
   if (value.startsWith("#")) return value.toUpperCase();
   return humanizeVisualLabel(value);
-}
-
-const STYLE_DISPLAY_LABELS: Record<string, string> = {
-  "Digital / Computational": "Digital",
-  "Graphic / Illustration / Print": "Graphic",
-  "Material / Sculptural / Organic": "Sculptural",
-  "Minimal / Abstract": "Minimal",
-  "Mixed Media / Collage": "Collage",
-  "Painterly / Illustrative": "Painterly",
-  "Surreal / Hybrid": "Surreal",
-};
-
-export function displayStyleLabel(value: string) {
-  return STYLE_DISPLAY_LABELS[value] ?? VISUAL_STYLE_DISPLAY_LABELS[value] ?? displayFacetLabel(value);
-}
-
-const VISUAL_STYLE_DISPLAY_LABELS: Record<string, string> = {
-  Surrealism: "Surrealist",
-  Abstract: "Abstract",
-  Minimalism: "Minimalist",
-  Impressionism: "Impressionist",
-  Expressionism: "Expressionist",
-  Baroque: "Baroque",
-};
-
-function getArtworkStyles(artwork: Artwork): string[] {
-  const visualStyle = getVisualEntry(artwork.slug)?.labels.style?.label;
-  return [...new Set([artwork.category, visualStyle].filter((value): value is string => Boolean(value)))];
 }
 
 const MOOD_DISPLAY_LABELS: Record<string, string> = {
@@ -119,8 +95,13 @@ function colorSwatch(value: string) {
 }
 
 export function getCatalogFacets(items: readonly Artwork[]) {
-  const categories = [...new Set(items.flatMap(getArtworkStyles))]
-    .sort((left, right) => displayStyleLabel(left).localeCompare(displayStyleLabel(right)));
+  const genres = [...new Set(items.flatMap(getArtworkGenres))]
+    .map((genre) => ({
+      genre,
+      count: items.filter((item) => getArtworkGenres(item).includes(genre)).length,
+    }))
+    .sort((left, right) => right.count - left.count || displayGenreLabel(left.genre).localeCompare(displayGenreLabel(right.genre)))
+    .map(({ genre }) => genre);
   const colors = [...new Set(items.flatMap(getArtworkColors))]
     .sort((left, right) => displayFacetLabel(left).localeCompare(displayFacetLabel(right)));
   const moods = [...new Set(items.flatMap(getArtworkMoods))]
@@ -132,7 +113,7 @@ export function getCatalogFacets(items: readonly Artwork[]) {
     .slice(0, 12)
     .map(({ tag }) => tag);
 
-  return { categories, colors, moods };
+  return { genres, colors, moods };
 }
 
 export function applyCatalogView(
@@ -142,7 +123,7 @@ export function applyCatalogView(
 ) {
   return [...items]
     .filter((artwork) => {
-      if (view.category && !getArtworkStyles(artwork).includes(view.category)) return false;
+      if (view.genre && !getArtworkGenres(artwork).includes(view.genre as ReturnType<typeof getArtworkGenres>[number])) return false;
       if (view.color && !getArtworkColors(artwork).includes(view.color)) return false;
       if (view.mood && !getArtworkMoods(artwork).includes(view.mood)) return false;
       return true;
@@ -186,12 +167,12 @@ export function CatalogControls({
 }) {
   const facets = useMemo(() => getCatalogFacets(items), [items]);
   const [offsets, setOffsets] = useState<Record<FacetKey, number>>({
-    category: 0,
+    genre: 0,
     color: 0,
     mood: 0,
   });
   const isDefault =
-    view.category === null &&
+    view.genre === null &&
     view.color === null &&
     view.mood === null;
 
@@ -201,18 +182,18 @@ export function CatalogControls({
 
     const refreshOffset = (length: number) => length > 1 ? Math.floor(Math.random() * length) : 0;
     setOffsets({
-      category: refreshOffset(facets.categories.length),
+      genre: refreshOffset(facets.genres.length),
       color: refreshOffset(facets.colors.length),
       mood: refreshOffset(facets.moods.length),
     });
-  }, [facets.categories.length, facets.colors.length, facets.moods.length]);
+  }, [facets.genres.length, facets.colors.length, facets.moods.length]);
 
   const update = (key: FacetKey, value: string | null) => {
     onChange({ ...view, [key]: value });
   };
 
   const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
-    { key: "category", label: "Style", options: facets.categories, visibleCount: 10 },
+    { key: "genre", label: "Genre", options: facets.genres, visibleCount: 10 },
     { key: "mood", label: "Mood", options: facets.moods, visibleCount: 10 },
     { key: "color", label: "Color", options: facets.colors, visibleCount: 12 },
   ];
@@ -256,8 +237,8 @@ export function CatalogControls({
                 >
                   {key === "color"
                     ? null
-                    : key === "category"
-                      ? displayStyleLabel(option)
+                      : key === "genre"
+                      ? displayGenreLabel(option)
                       : displayMoodLabel(option)}
                 </Chip>
               ))}

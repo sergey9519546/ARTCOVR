@@ -11,8 +11,10 @@ import {
   spreadByVisualCluster,
   visualLabelSearchTerms,
 } from "./visual-index.ts";
+import { displayGenreLabel, genreSearchTerms, getArtworkGenres } from "./genre-index.ts";
 
 export { visualIndex, getVisualEntry, getVisualStyleLabel } from "./visual-index.ts";
+export { displayGenreLabel, getArtworkGenres } from "./genre-index.ts";
 
 export type Artwork = {
   id: string;
@@ -211,6 +213,7 @@ export function buildArtworkSearchText(artwork: Artwork) {
     artwork.saleMode,
     artwork.licenseLabel,
     ...artwork.moodTags,
+    ...genreSearchTerms(artwork),
     // Machine visual labels (fastText task vocabularies) so archive queries
     // like "minimalism", "film noir shadowy", or "foggy" reach the catalog.
     ...visualLabelSearchTerms(artwork.slug),
