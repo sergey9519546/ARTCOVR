@@ -76,9 +76,14 @@ export function applyCatalogView(
     .sort((left, right) => (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0));
 }
 
-function getVisibleFacetValues(options: string[], active: string | null, offset: number) {
+function getVisibleFacetValues(
+  options: string[],
+  active: string | null,
+  offset: number,
+  visibleCount: number,
+) {
   const rotatingOptions = active ? options.filter((option) => option !== active) : options;
-  const rotatingCount = active ? 2 : 3;
+  const rotatingCount = active ? visibleCount - 1 : visibleCount;
   if (rotatingOptions.length <= rotatingCount) {
     return active ? [active, ...rotatingOptions] : rotatingOptions;
   }
@@ -135,20 +140,20 @@ export function CatalogControls({
     onChange({ ...view, [key]: value });
   };
 
-  const rows: { key: FacetKey; label: string; options: string[] }[] = [
-    { key: "category", label: "Style", options: facets.categories },
-    { key: "color", label: "Color", options: facets.colors },
-    { key: "mood", label: "Mood", options: facets.moods },
+  const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
+    { key: "category", label: "Style", options: facets.categories, visibleCount: 3 },
+    { key: "color", label: "Color", options: facets.colors, visibleCount: 8 },
+    { key: "mood", label: "Mood", options: facets.moods, visibleCount: 8 },
   ];
 
   return (
-    <div className="border-y border-current/15 py-5" data-catalog-controls>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="artcovr-catalog-controls" data-catalog-controls>
+      <div className="artcovr-catalog-header">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[.12em] text-current/60">
+          <p className="artcovr-catalog-heading">
             Browse the collection
           </p>
-          <p className="mt-1 text-xs uppercase tracking-[.1em] text-current/50" role="status" aria-live="polite">
+          <p className="artcovr-catalog-count" role="status" aria-live="polite">
             {resultCount} / {totalCount} works
           </p>
         </div>
@@ -159,44 +164,43 @@ export function CatalogControls({
               if (onClear) onClear();
               else onChange(DEFAULT_CATALOG_VIEW);
             }}
-            className="text-[11px] font-bold uppercase tracking-[.1em] underline underline-offset-4 hover:text-current"
+            className="artcovr-catalog-clear"
           >
             Clear all
           </button>
         ) : null}
       </div>
 
-      <div className="mt-5 space-y-4">
-        {rows.map(({ key, label, options }) => {
-          const visibleOptions = getVisibleFacetValues(options, view[key], offsets[key]);
+      <div className="artcovr-catalog-facets">
+        {rows.map(({ key, label, options, visibleCount }, facetIndex) => {
+          const visibleOptions = getVisibleFacetValues(options, view[key], offsets[key], visibleCount);
+          const actualVisibleCount = Math.min(visibleCount, options.length) + 1;
+          const headingId = `catalog-facet-${key}`;
           return (
-            <ControlRow key={key} label={label}>
-              <Chip active={view[key] === null} onClick={() => update(key, null)}>All</Chip>
+            <section className="artcovr-catalog-facet" data-facet={key} key={key} aria-labelledby={headingId}>
+              <header className="artcovr-catalog-facet-head">
+                <h3 id={headingId}>{label}</h3>
+                <span>0{facetIndex + 1} / {actualVisibleCount} visible</span>
+              </header>
+              <div className="artcovr-catalog-facet-choices">
+                <Chip active={view[key] === null} onClick={() => update(key, null)}>All</Chip>
               {visibleOptions.map((option) => (
                 <Chip
                   key={option}
                   active={view[key] === option}
                   onClick={() => update(key, option)}
                   swatch={key === "color" ? colorSwatch(option) : undefined}
+                  swatchOnly={key === "color"}
+                  ariaLabel={key === "color" ? `Color: ${displayFacetLabel(option)}` : undefined}
                 >
-                  {displayFacetLabel(option)}
+                  {key === "color" ? null : displayFacetLabel(option)}
                 </Chip>
               ))}
-            </ControlRow>
+              </div>
+            </section>
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function ControlRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex flex-col gap-2 md:flex-row md:items-start">
-      <span className="w-20 shrink-0 pt-2 text-[11px] font-bold uppercase tracking-[.12em] text-current/50">
-        {label}
-      </span>
-      <div className="flex min-w-0 flex-wrap gap-x-5 gap-y-1">{children}</div>
     </div>
   );
 }
@@ -206,10 +210,14 @@ function Chip({
   onClick,
   swatch,
   children,
+  swatchOnly,
+  ariaLabel,
 }: {
   active: boolean;
   onClick: () => void;
   swatch?: string;
+  swatchOnly?: boolean;
+  ariaLabel?: string;
   children: ReactNode;
 }) {
   return (
@@ -217,14 +225,16 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      aria-label={ariaLabel}
       data-active={active || undefined}
+      data-swatch-only={swatchOnly || undefined}
       className="artcovr-filter-control"
     >
       {swatch ? (
         <span
           aria-hidden="true"
           className="artcovr-filter-swatch"
-          style={{ backgroundColor: swatch }}
+          style={{ background: swatch }}
         />
       ) : null}
       {children}
