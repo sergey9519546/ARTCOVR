@@ -7,7 +7,7 @@ export function Hero() {
         <div className="relative overflow-hidden pt-[0.08em]">
           <p
             aria-label="ARTCOVR"
-            className="artcovr-wordmark mb-6 text-[19.4vw]"
+            className="artcovr-wordmark artcovr-hero-wordmark mb-6 text-[19.4vw]"
           >
             ARTCOVR
           </p>
