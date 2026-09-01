@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import gsap from "gsap";
-import { CustomEase } from "gsap/CustomEase";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomCursor } from "@/components/parity/CustomCursor";
 import { ErrorBoundary } from "@/components/parity/ErrorBoundary";
@@ -30,6 +29,7 @@ export default function Home() {
   const [, navigate] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [heroEntranceReady, setHeroEntranceReady] = useState(false);
   const [preloaderDone, setPreloaderDone] = useState(false);
   const [motionAllowed, setMotionAllowed] = useState(false);
   const [transitionActive, setTransitionActive] = useState(false);
@@ -43,6 +43,7 @@ export default function Home() {
       const allowed = !mediaQuery.matches;
       setMotionAllowed(allowed);
       if (reducedMotionQuery.matches) {
+        setHeroEntranceReady(true);
         setPreloaderDone(true);
       }
     };
@@ -58,10 +59,10 @@ export default function Home() {
   useLenis(preloaderDone && motionAllowed);
 
   useEffect(() => {
-    if (!preloaderDone) return;
+    if (!heroEntranceReady) return;
 
     document.documentElement.classList.add("loaded");
-    gsap.registerPlugin(ScrollTrigger, CustomEase);
+    gsap.registerPlugin(ScrollTrigger);
     const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 100);
     const refreshOnLoad = () => ScrollTrigger.refresh();
     if (document.readyState !== "complete") {
@@ -73,59 +74,7 @@ export default function Home() {
       window.removeEventListener("load", refreshOnLoad);
       document.documentElement.classList.remove("loaded");
     };
-  }, [preloaderDone]);
-
-  // Initialize the entrance timeline before the browser paints the
-  // post-preloader frame. The wordmark and rule own the first beat; copy
-  // waits until that lockup is readable instead of entering while the mark is
-  // still clipped.
-  useLayoutEffect(() => {
-    if (!preloaderDone || !motionAllowed) return;
-    const hero = document.querySelector<HTMLElement>("#home-hero");
-    if (!hero) return;
-
-    gsap.registerPlugin(ScrollTrigger, CustomEase);
-    CustomEase.create("artcovr-entrance", "0.19,1,0.22,1");
-    const context = gsap.context(() => {
-      const timeline = gsap.timeline({
-        defaults: { ease: "artcovr-entrance" },
-      });
-      timeline
-        .fromTo(
-          ".artcovr-wordmark",
-          { yPercent: 105 },
-          { yPercent: 0, duration: 0.8, clearProps: "transform" },
-        )
-        .fromTo(
-          "#hero-line",
-          { scaleX: 0 },
-          { scaleX: 1, duration: 0.65, clearProps: "transform" },
-          "-=0.16",
-        )
-        .fromTo(
-          [
-            "#hero-title",
-            "#hero-subtitle",
-            "#hero-paragraph",
-            "#hero-link",
-            "#hero-license-link",
-            "#hero-copyright",
-            "#hero-license-link-mobile",
-          ],
-          { autoAlpha: 0, y: 20 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.55,
-            stagger: 0.06,
-            clearProps: "opacity,visibility,transform",
-          },
-          "+=0.08",
-        );
-    }, hero);
-
-    return () => context.revert();
-  }, [motionAllowed, preloaderDone]);
+  }, [heroEntranceReady]);
 
   useEffect(() => {
     if (!preloaderDone || !motionAllowed) return;
@@ -175,7 +124,13 @@ export default function Home() {
   // rebuild it — restoring focus to the hamburger and re-capturing the inert
   // baseline — every time an unrelated state change (a matchMedia update on
   // rotate, say) re-renders this page.
-  const openPreloaderGate = useCallback(() => setPreloaderDone(true), []);
+  const openHeroEntrance = useCallback(() => {
+    setHeroEntranceReady(true);
+  }, []);
+  const openPreloaderGate = useCallback(() => {
+    setHeroEntranceReady(true);
+    setPreloaderDone(true);
+  }, []);
   const toggleMenu = useCallback(() => setMenuOpen((open) => !open), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
@@ -220,7 +175,10 @@ export default function Home() {
         <CustomCursor />
       </ErrorBoundary>
       <ErrorBoundary label="preloader">
-        <Preloader onComplete={openPreloaderGate} />
+        <Preloader
+          onExitStart={openHeroEntrance}
+          onComplete={openPreloaderGate}
+        />
       </ErrorBoundary>
       <div id="page-shell" aria-hidden={pageBlocked} inert={pageBlocked ? true : undefined}>
         <ErrorBoundary label="header">

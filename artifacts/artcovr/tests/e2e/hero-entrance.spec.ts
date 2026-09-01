@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 type HeroState = {
   matchesStaticMedia: boolean;
+  opacity: number;
   transform: string;
   transformY: number;
   wordmarkHeight: number;
@@ -61,6 +62,7 @@ async function readHeroState(
 
       return {
         matchesStaticMedia: window.matchMedia(mediaQuery).matches,
+        opacity: Number.parseFloat(getComputedStyle(wordmark).opacity),
         transform,
         transformY: transform === "none" ? 0 : new DOMMatrix(transform).m42,
         wordmarkHeight: rect.height,
@@ -83,7 +85,7 @@ async function openHome(
   return { context, page };
 }
 
-test("animated desktop starts the hero wordmark off-canvas, then reveals it after the preloader", async ({
+test("animated desktop stages the hero before the curtain opens, then reveals it without inline transform writes", async ({
   browser,
 }) => {
   const { context, page } = await openHome(browser, {
@@ -97,9 +99,11 @@ test("animated desktop starts the hero wordmark off-canvas, then reveals it afte
     const initial = await readHeroState(page);
     expect(initial.matchesStaticMedia).toBe(false);
     expect(initial.transform).not.toBe("none");
-    expect(initial.transformY).toBeGreaterThanOrEqual(
-      initial.wordmarkHeight * 0.9,
-    );
+    expect(initial.opacity).toBe(0);
+    expect(initial.transformY).toBeGreaterThan(0);
+    expect(initial.transformY).toBeLessThan(initial.wordmarkHeight * 0.35);
+    expect(initial.inlineTransformWrites).toEqual([]);
+    await expect(page.locator("#hero-title")).toHaveCSS("opacity", "0");
 
     await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
       timeout: 8_000,
@@ -107,7 +111,12 @@ test("animated desktop starts the hero wordmark off-canvas, then reveals it afte
     await expect
       .poll(async () => (await readHeroState(page)).transform)
       .toBe("none");
+    await expect
+      .poll(async () => (await readHeroState(page)).opacity)
+      .toBe(1);
     await expect(page.locator(".artcovr-hero-wordmark")).toBeVisible();
+    await expect(page.locator("#hero-title")).toHaveCSS("opacity", "1");
+    expect((await readHeroState(page)).inlineTransformWrites).toEqual([]);
   } finally {
     await context.close();
   }
