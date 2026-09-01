@@ -133,6 +133,7 @@ export function CatalogControls({
   onClear,
   resultCount,
   totalCount,
+  showHeader = true,
 }: {
   items: Artwork[];
   view: CatalogView;
@@ -140,6 +141,7 @@ export function CatalogControls({
   onClear?: () => void;
   resultCount: number;
   totalCount: number;
+  showHeader?: boolean;
 }) {
   const facets = useMemo(() => getCatalogFacets(items), [items]);
   const [offsets, setOffsets] = useState<Record<FacetKey, number>>({
@@ -178,29 +180,31 @@ export function CatalogControls({
   ];
 
   return (
-    <div className="artcovr-catalog-controls" data-catalog-controls>
-      <div className="artcovr-catalog-header">
-        <div>
-          <p className="artcovr-catalog-heading">
-            Browse the collection
-          </p>
-          <p className="artcovr-catalog-count" role="status" aria-live="polite">
-            {resultCount} / {totalCount} works
-          </p>
+    <div className="artcovr-catalog-controls" data-catalog-controls data-compact={!showHeader || undefined}>
+      {showHeader ? (
+        <div className="artcovr-catalog-header">
+          <div>
+            <p className="artcovr-catalog-heading">
+              Browse the collection
+            </p>
+            <p className="artcovr-catalog-count" role="status" aria-live="polite">
+              {resultCount} / {totalCount} works
+            </p>
+          </div>
+          {!isDefault ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (onClear) onClear();
+                else onChange(DEFAULT_CATALOG_VIEW);
+              }}
+              className="artcovr-catalog-clear"
+            >
+              Clear all
+            </button>
+          ) : null}
         </div>
-        {!isDefault ? (
-          <button
-            type="button"
-            onClick={() => {
-              if (onClear) onClear();
-              else onChange(DEFAULT_CATALOG_VIEW);
-            }}
-            className="artcovr-catalog-clear"
-          >
-            Clear all
-          </button>
-        ) : null}
-      </div>
+      ) : null}
 
       <div className="artcovr-catalog-facets">
         {rows.map(({ key, label, options, visibleCount }) => {
