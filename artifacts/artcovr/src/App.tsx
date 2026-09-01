@@ -17,6 +17,7 @@ import PrivacyPage from "@/app/legal/privacy/page";
 import TermsPage from "@/app/legal/terms/page";
 import LicensePage from "@/app/license/page";
 import MyImagesPage from "@/app/my-images/page";
+import CatalogIntelligencePage from "@/app/catalog-intelligence/page";
 import NotFound from "@/pages/not-found";
 import ProductPage from "@/app/product/[slug]/page";
 import RefundsPage from "@/app/refunds/page";
@@ -113,6 +114,7 @@ function Router() {
         <Route path="/legal/terms" component={TermsPage} />
         <Route path="/license" component={LicensePage} />
         <Route path="/my-images" component={ProtectedMyImagesRoute} />
+        <Route path="/catalog-intelligence" component={ProtectedCatalogIntelligenceRoute} />
         <Route path="/product/:slug" component={ProductPage} />
         <Route path="/refunds" component={RefundsPage} />
         <Route path="/shipping-and-return">
@@ -152,6 +154,19 @@ function ProtectedMyImagesRoute() {
   }
   if (!isSignedIn) return <Redirect to="/sign-in?redirect_url=%2Fmy-images" />;
   return <MyImagesPage />;
+}
+
+function ProtectedCatalogIntelligenceRoute() {
+  const { isLoaded, isSignedIn } = useAuth();
+  if (!isLoaded) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm opacity-60" aria-live="polite">
+        Loading curation access…
+      </div>
+    );
+  }
+  if (!isSignedIn) return <Redirect to="/sign-in?redirect_url=%2Fcatalog-intelligence" />;
+  return <CatalogIntelligencePage />;
 }
 
 function ClerkQueryClientCacheInvalidator() {

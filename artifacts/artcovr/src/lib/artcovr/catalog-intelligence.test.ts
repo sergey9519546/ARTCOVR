@@ -65,6 +65,7 @@ describe("catalog intelligence", () => {
     assert.ok(summary.facets.genre.length > 0);
     assert.ok(summary.facets.color.length > 0);
     assert.ok(summary.facets.mood.length > 0);
+    assert.ok(summary.facets.style.length > 0);
     assert.equal("vectors" in summary, false);
   });
 

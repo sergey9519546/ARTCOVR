@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { requireAuth } from "./auth";
+import { getCurationUserIds, isCurationUser } from "../routes/intelligence";
 
 function responseRecorder() {
   let statusCode = 200;
@@ -58,4 +59,12 @@ test("requireAuth attaches the Clerk subject to authenticated requests", () => {
 
   assert.equal(called, true);
   assert.equal(request.clerkUserId, "user_artcovr_test");
+});
+
+test("curation access uses an explicit server-side allowlist", () => {
+  const allowlist = getCurationUserIds(" owner_1, admin_2 , owner_1 ");
+  assert.equal(isCurationUser("owner_1", allowlist), true);
+  assert.equal(isCurationUser("admin_2", allowlist), true);
+  assert.equal(isCurationUser("customer_3", allowlist), false);
+  assert.equal(isCurationUser("owner_1", getCurationUserIds("")), false);
 });
