@@ -2,9 +2,11 @@ import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
 import { useParams } from "wouter";
 import { PromptStudio } from "@/components/artcovr/PromptStudio";
+import { RelatedWorks } from "@/components/artcovr/RelatedWorks";
 import { SiteFooter } from "@/components/artcovr/SiteFooter";
 import { SiteHeader } from "@/components/artcovr/SiteHeader";
 import {
+  displayArtworks,
   getArtworkBySlug,
   displayGenreLabel,
   getCheckoutTotal,
@@ -29,7 +31,7 @@ export default function ProductPage() {
   const art = getArtworkBySlug(slug);
   if (!art) return <NotFound />;
 
-  const relatedWorks = getRelatedArtworks(art.slug, 4);
+  const relatedWorks = getRelatedArtworks(art.slug, displayArtworks.length);
   const genres = getArtworkGenres(art);
   const visualDescriptors = getVisualDescriptorGroups(art.slug);
   const visualKeywords = [...new Set([
@@ -151,30 +153,7 @@ export default function ProductPage() {
 
         <div className="mt-24"><PromptStudio artwork={art} /></div>
         {relatedWorks.length > 0 ? (
-          <section aria-labelledby="related-works" className="mt-24 border-t-2 border-current pt-5">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <h2 id="related-works" className="text-[11px] font-bold uppercase tracking-[.1em]">Find similar</h2>
-                <p className="mt-2 max-w-[44ch] text-sm leading-6 opacity-60">Visually nearest works from the approved catalog, ranked by image similarity.</p>
-              </div>
-              <Link href="/archive" className="link-hover shrink-0 text-[11px] font-bold uppercase tracking-[.1em]">Browse archive</Link>
-            </div>
-            <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 lg:gap-x-6">
-              {relatedWorks.map((related) => (
-                <li key={related.id}>
-                  <Link href={`/product/${related.slug}`} className="group block" aria-label={`Open ${related.title}`}>
-                    <div className="artcovr-plate relative aspect-square overflow-hidden">
-                      <Image src={related.image} alt={related.alt} fill unoptimized loading="lazy" sizes="(min-width: 768px) 25vw, 50vw" className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]" />
-                    </div>
-                    <p className="mt-3 text-lg leading-5">{related.title}</p>
-                    <p className="mt-[6px] text-[11px] uppercase opacity-60">
-                      {getArtworkGenres(related).slice(0, 2).map(displayGenreLabel).join(" · ")}
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <RelatedWorks works={relatedWorks} />
         ) : null}
       </main>
       <SiteFooter />

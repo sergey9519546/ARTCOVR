@@ -29,12 +29,12 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
   }, [onClose]);
 
   // The overlay itself has no breakpoint gate, but its only close button — and
-  // every hamburger that opens it — is `md:hidden`. Widening past the `md`
+  // every hamburger that opens it — is `lg:hidden`. Widening past the `lg`
   // breakpoint with the menu open would leave a full-screen overlay that a
   // mouse-only user cannot dismiss, so close it on that crossing.
   useEffect(() => {
     if (!open) return;
-    const desktop = window.matchMedia("(min-width: 768px)");
+    const desktop = window.matchMedia("(min-width: 1024px)");
     const closeWhenDesktop = () => {
       if (desktop.matches) onCloseRef.current();
     };
@@ -54,7 +54,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
       }
       if (event.key !== "Tab") return;
       // Only currently-rendered controls can hold focus. Counting the
-      // `md:hidden` close button would make the first/last comparisons below
+      // `lg:hidden` close button would make the first/last comparisons below
       // test against a node that can never be `document.activeElement`, which
       // lets Shift+Tab walk straight out of the dialog.
       const focusable = Array.from(
@@ -111,7 +111,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
       inert={!open ? true : undefined}
     >
       <div className="flex min-h-dvh w-full flex-col justify-between px-4 py-6 lg:px-6">
-        <button ref={closeButton} type="button" className="ml-auto flex min-h-11 min-w-11 items-center justify-end text-sm font-bold uppercase md:hidden" onClick={onClose}>
+        <button ref={closeButton} type="button" className="ml-auto flex min-h-11 min-w-11 items-center justify-end text-sm font-bold uppercase lg:hidden" onClick={onClose}>
           Close
         </button>
         <ul className="my-6 flex w-full flex-col text-[clamp(2rem,10vw,3rem)] font-normal leading-[.94] tracking-tight md:my-12 md:text-6xl">

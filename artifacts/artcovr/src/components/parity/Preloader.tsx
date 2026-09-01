@@ -7,7 +7,15 @@ import {
   REDUCED_MOTION_QUERY,
 } from "@/lib/artcovr/motion";
 
-const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 18);
+const INTRO_FINAL_SLUG = "graphic-surreal-pop";
+const pickedIntroImages = pickIntroArtworks(displayArtworks, 18);
+const finalIntroImage = pickedIntroImages.find(({ slug }) => slug === INTRO_FINAL_SLUG);
+const PRELOADER_IMAGES = finalIntroImage
+  ? [
+      ...pickedIntroImages.filter(({ slug }) => slug !== INTRO_FINAL_SLUG),
+      finalIntroImage,
+    ]
+  : pickedIntroImages;
 const ROTATIONS = [
   9.98, -12.43, -2.99, -6.51, 17.67, -1.09,
   12.35, -8.74, 5.12, -14.82, 11.23, -4.67,
