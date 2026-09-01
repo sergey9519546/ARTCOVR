@@ -90,16 +90,23 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .link-hover[aria-current="page"]::after { transform: scaleX(1); }
 
 .artcovr-catalog-controls {
+  position: relative;
   border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
   border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
   padding: 1.35rem 0 1.65rem;
 }
 .artcovr-catalog-controls[data-compact="true"] {
   border-top: 0;
-  padding-top: .4rem;
+  border-bottom: 0;
+  padding: 0;
 }
 .artcovr-catalog-controls[data-compact="true"] .artcovr-catalog-facets {
   margin-top: 0;
+}
+.artcovr-catalog-controls[data-compact="true"] > .artcovr-catalog-clear {
+  position: absolute;
+  top: .35rem;
+  right: 0;
 }
 .artcovr-catalog-header {
   display: flex;

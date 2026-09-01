@@ -18,10 +18,23 @@ export const DEFAULT_CATALOG_VIEW: CatalogView = {
   mood: null,
 };
 
+function getBlendColor(value?: string) {
+  if (!value) return null;
+  if (value.includes("Teal")) return "Teal";
+  if (value.includes("Earth")) return "Brown";
+  if (value.includes("Pastel")) return "Pink";
+  return null;
+}
+
+export function getArtworkColors(artwork: Artwork): string[] {
+  const visualEntry = getVisualEntry(artwork.slug);
+  const dominantColor = visualEntry?.labels.domcolor?.label ?? artwork.accentColor ?? null;
+  const blendColor = getBlendColor(visualEntry?.labels.colorblend?.label);
+  return [...new Set([dominantColor, blendColor].filter((value): value is string => Boolean(value)))];
+}
+
 export function getArtworkColor(artwork: Artwork): string | null {
-  const dominantColor = getVisualEntry(artwork.slug)?.labels.domcolor?.label;
-  if (dominantColor) return dominantColor;
-  return artwork.accentColor ?? null;
+  return getArtworkColors(artwork)[0] ?? null;
 }
 
 export function displayFacetLabel(value: string) {
@@ -77,11 +90,14 @@ function colorSwatch(value: string) {
   const swatches: Record<string, string> = {
     Black: "#171717",
     Blue: "#2f63c7",
+    Brown: "#8a5a3b",
     Gray: "#8a8a86",
     Green: "#3f754f",
     Orange: "#df7a2e",
+    Pink: "#d88b9c",
     Purple: "#7953a8",
     Red: "#c84a3f",
+    Teal: "#319b95",
     White: "#f5f1e7",
     Yellow: "#dfb82e",
   };
@@ -90,7 +106,7 @@ function colorSwatch(value: string) {
 
 export function getCatalogFacets(items: readonly Artwork[]) {
   const categories = [...new Set(items.map((item) => item.category))].sort();
-  const colors = [...new Set(items.map(getArtworkColor).filter((value): value is string => Boolean(value)))]
+  const colors = [...new Set(items.flatMap(getArtworkColors))]
     .sort((left, right) => displayFacetLabel(left).localeCompare(displayFacetLabel(right)));
   const moods = [...new Set(items.flatMap(getArtworkMoods))]
     .map((tag) => ({
@@ -112,7 +128,7 @@ export function applyCatalogView(
   return [...items]
     .filter((artwork) => {
       if (view.category && artwork.category !== view.category) return false;
-      if (view.color && getArtworkColor(artwork) !== view.color) return false;
+      if (view.color && !getArtworkColors(artwork).includes(view.color)) return false;
       if (view.mood && !getArtworkMoods(artwork).includes(view.mood)) return false;
       return true;
     })
@@ -145,7 +161,6 @@ export function CatalogControls({
   onClear,
   resultCount,
   totalCount,
-  showHeader = true,
 }: {
   items: Artwork[];
   view: CatalogView;
@@ -153,7 +168,6 @@ export function CatalogControls({
   onClear?: () => void;
   resultCount: number;
   totalCount: number;
-  showHeader?: boolean;
 }) {
   const facets = useMemo(() => getCatalogFacets(items), [items]);
   const [offsets, setOffsets] = useState<Record<FacetKey, number>>({
@@ -185,36 +199,26 @@ export function CatalogControls({
   const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
     { key: "category", label: "Style", options: facets.categories, visibleCount: 7 },
     { key: "mood", label: "Mood", options: facets.moods, visibleCount: 8 },
-    { key: "color", label: "Color", options: facets.colors, visibleCount: 9 },
+    { key: "color", label: "Color", options: facets.colors, visibleCount: 12 },
   ];
 
   return (
-    <div className="artcovr-catalog-controls" data-catalog-controls data-compact={!showHeader || undefined}>
-      {showHeader ? (
-        <div className="artcovr-catalog-header">
-          <div>
-            <p className="artcovr-catalog-heading">
-              Browse the collection
-            </p>
-            <p className="artcovr-catalog-count" role="status" aria-live="polite">
-              {resultCount} / {totalCount} works
-            </p>
-          </div>
-          {!isDefault ? (
-            <button
-              type="button"
-              onClick={() => {
-                if (onClear) onClear();
-                else onChange(DEFAULT_CATALOG_VIEW);
-              }}
-              className="artcovr-catalog-clear"
-            >
-              Clear all
-            </button>
-          ) : null}
-        </div>
+    <div className="artcovr-catalog-controls" data-catalog-controls data-compact="true">
+      <p className="sr-only" role="status" aria-live="polite">
+        {resultCount} / {totalCount} works
+      </p>
+      {!isDefault ? (
+        <button
+          type="button"
+          onClick={() => {
+            if (onClear) onClear();
+            else onChange(DEFAULT_CATALOG_VIEW);
+          }}
+          className="artcovr-catalog-clear"
+        >
+          Clear all
+        </button>
       ) : null}
-
       <div className="artcovr-catalog-facets">
         {rows.map(({ key, label, options, visibleCount }) => {
           const visibleOptions = getVisibleFacetValues(options, view[key], offsets[key], visibleCount);
