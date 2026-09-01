@@ -15,6 +15,7 @@ import { PageLayer } from "@/components/parity/PageLayer";
 import { PageTransition } from "@/components/parity/PageTransition";
 import { Preloader } from "@/components/parity/Preloader";
 import { ProductGrid } from "@/components/parity/ProductGrid";
+import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { ScrollProgress } from "@/components/parity/ScrollProgress";
 import { useLenis } from "@/hooks/artcovr/useLenis";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
@@ -164,6 +165,9 @@ export default function Home() {
       <a href="#page" className="skip-link">
         Skip to content
       </a>
+      <a href="#editorial" className="skip-link">
+        Skip archive journey
+      </a>
       <ErrorBoundary label="scroll-progress">
         <ScrollProgress />
       </ErrorBoundary>
@@ -219,6 +223,9 @@ export default function Home() {
         ) : null}
         <ErrorBoundary label="artwork-grid">
           <ProductGrid />
+        </ErrorBoundary>
+        <ErrorBoundary label="journey">
+          <ScrollJourney enabled={preloaderDone && motionAllowed} />
         </ErrorBoundary>
         <ErrorBoundary label="editorial">
           <FullScreenSnap />

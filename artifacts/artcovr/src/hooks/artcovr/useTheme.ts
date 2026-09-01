@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 export type Theme = "light" | "dark";
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     let stored: string | null = null;
@@ -12,7 +12,7 @@ export function useTheme() {
       ? stored
       : current === "light" || current === "dark"
         ? current
-        : "light";
+        : "dark";
     document.documentElement.setAttribute("data-theme", next);
     setThemeState(next);
     setMounted(true);

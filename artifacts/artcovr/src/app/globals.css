@@ -29,6 +29,20 @@
   --paper: #f3ecd9;
   --carbon: #0b0b0b;
   --signal: #122519;
+  --background: #000;
+  --foreground: #f3ecd9;
+  --card: #171717;
+  --card-foreground: #f3ecd9;
+  --border: rgb(243 236 217 / 16%);
+  --input: rgb(243 236 217 / 22%);
+  --ring: rgb(243 236 217 / 55%);
+  --cursor-color: #f3ecd9;
+  --motion-ease: cubic-bezier(.19, 1, .22, 1);
+  --radius: .625rem;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
   --background: #f3ecd9;
   --foreground: #000;
   --card: #fff;
@@ -37,11 +51,7 @@
   --input: rgb(0 0 0 / 18%);
   --ring: rgb(0 0 0 / 45%);
   --cursor-color: #122519;
-  --motion-ease: cubic-bezier(.19, 1, .22, 1);
-  --radius: .625rem;
 }
-
-html[data-theme="light"] { color-scheme: light; }
 html[data-theme="dark"] {
   color-scheme: dark;
   --background: #000;
