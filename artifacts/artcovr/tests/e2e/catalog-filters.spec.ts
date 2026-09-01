@@ -85,15 +85,16 @@ test("public catalog keeps genre coverage and featured/archive boundaries", asyn
   expect(genreLines.every((genreLine) => genreLine.length > 0)).toBe(true);
 });
 
-test("genre, mood, and color filters work independently and together", async ({
+test("archive genre and color filters work independently and together", async ({
   page,
 }) => {
   await page.goto("/archive");
   await expect(catalogStatus(page)).toHaveText(
     `${ARCHIVE_TOTAL} / ${ARCHIVE_TOTAL} works`,
   );
+  await expect(facet(page, "mood")).toHaveCount(0);
 
-  for (const key of ["genre", "mood", "color"] as const) {
+  for (const key of ["genre", "color"] as const) {
     await chooseFirstFacetOption(page, key);
     await clearFacet(page, key);
     await expect(catalogStatus(page)).toHaveText(
@@ -102,10 +103,8 @@ test("genre, mood, and color filters work independently and together", async ({
   }
 
   await chooseFirstFacetOption(page, "genre");
-  const moodMatch = await findCompatibleOption(page, "mood");
   const colorMatch = await findCompatibleOption(page, "color");
 
-  expect(moodMatch.count).toBeGreaterThan(0);
   expect(colorMatch.count).toBeGreaterThan(0);
   await expect(catalogStatus(page)).toHaveText(
     new RegExp(`^[1-9]\\d* / ${ARCHIVE_TOTAL} works$`),

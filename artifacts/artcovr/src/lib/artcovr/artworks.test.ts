@@ -8,6 +8,7 @@ import {
   featuredArtworks,
   getArtworkBySlug,
   getCheckoutTotal,
+  getArtworkDiscoveryKeywords,
   isCheckoutReady,
   isPrivateStaging,
   isPromptReady,
@@ -140,6 +141,15 @@ describe("artwork helpers", () => {
 
     const exactMatch = searchArtworks("cart-of-hours", reviewCatalog);
     assert.ok(exactMatch.some((artwork) => artwork.slug === "cart-of-hours"));
+  });
+
+  test("connects editorial keywords to the audited visual descriptor corpus", () => {
+    const artwork = getArtworkBySlug("cart-of-hours");
+    assert.ok(artwork);
+    const keywords = getArtworkDiscoveryKeywords(artwork);
+    assert.ok(keywords.includes("surrealism"));
+    assert.ok(keywords.includes("Digital_Art"));
+    assert.ok(keywords.includes("uncanny"));
   });
 
   test("formats a checkout total from cents", () => {

@@ -1,0 +1,2512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Meta AI Art — Dataset Explorer & Analytics</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%236366f1'/%3E%3Ccircle cx='11' cy='11' r='5' fill='%23fbbf24'/%3E%3Ccircle cx='21' cy='13' r='4' fill='%2334d399'/%3E%3Ccircle cx='13' cy='21' r='3.5' fill='%23f472b6'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js for premium analytics visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg:       #090b10;
+      --surface:  #111520;
+      --surface2: #181e2d;
+      --border:   rgba(255,255,255,0.07);
+      --accent:   #6366f1;
+      --accent2:  #818cf8;
+      --glow:     rgba(99,102,241,0.12);
+      --text:     #f1f5f9;
+      --muted:    #94a3b8;
+      --dim:      #475569;
+      --card-r:   12px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow-x:hidden}
+
+    /* ── NAV ── */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:200;
+      height:65px;
+      background:rgba(9,11,16,0.75);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 1.5rem;gap:1.5rem;
+    }
+    .brand-group{display:flex;align-items:center;gap:.75rem}
+    .brand{font-size:1.15rem;font-weight:700;
+      background:linear-gradient(130deg,#fff 20%,var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .nav-badge{
+      background:var(--glow);border:1px solid rgba(99,102,241,.3);
+      color:var(--accent2);padding:.25rem .65rem;border-radius:9999px;
+      font-size:.72rem;font-weight:600;letter-spacing:.06em;white-space:nowrap
+    }
+    .nav-tabs{display:flex;gap:.5rem}
+    .nav-tab{
+      background:transparent;border:1px solid transparent;color:var(--muted);
+      padding:.45rem 1rem;border-radius:8px;font-family:inherit;font-size:.85rem;
+      font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem
+    }
+    .nav-tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+    .nav-tab.active{color:var(--text);background:var(--surface2);border-color:var(--border)}
+
+    .search-row{display:flex;align-items:center;gap:.5rem;flex:1;max-width:550px}
+    .search-wrap{flex:1;position:relative}
+    .search-input{
+      width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
+      padding:.55rem 1rem .55rem 2.4rem;border-radius:8px;
+      color:var(--text);font-family:inherit;font-size:.9rem;
+      transition:border-color .2s,box-shadow .2s
+    }
+    .search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+    .search-icon{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);
+      width:1rem;height:1rem;fill:var(--dim);pointer-events:none}
+    
+    /* Toggle Switch */
+    .search-mode-container{display:flex;align-items:center;gap:.5rem;background:var(--surface2);border:1px solid var(--border);padding:.3rem .5rem;border-radius:8px}
+    .search-mode-btn{
+      background:transparent;border:none;color:var(--muted);font-family:inherit;font-size:.75rem;font-weight:600;padding:.3rem .6rem;border-radius:5px;cursor:pointer;transition:all .2s
+    }
+    .search-mode-btn.active{background:var(--accent);color:#fff}
+
+    /* ── LAYOUT ── */
+    .view-panel{display:none;min-height:calc(100vh - 65px);margin-top:65px}
+    .view-panel.active{display:block}
+    .layout{display:flex}
+
+    /* ── SIDEBAR ── */
+    aside{
+      width:260px;flex-shrink:0;
+      position:fixed;top:65px;bottom:0;
+      overflow-y:auto;padding:1.5rem 1rem;
+      border-right:1px solid var(--border);
+      background:rgba(9,11,16,.6)
+    }
+    .filter-section{margin-bottom:1.6rem}
+    .filter-section h4{
+      font-size:.72rem;font-weight:600;text-transform:uppercase;
+      letter-spacing:.1em;color:var(--dim);margin-bottom:.6rem
+    }
+    select.fsel{
+      width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
+      padding:.5rem .75rem;border-radius:7px;color:var(--text);
+      font-family:inherit;font-size:.85rem;cursor:pointer;
+      -webkit-appearance:none;appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right .75rem center;
+      padding-right:2.2rem
+    }
+    select.fsel:focus{outline:none;border-color:var(--accent)}
+    select.fsel option{background:#111520}
+
+    /* color chips */
+    .chips{display:flex;flex-wrap:wrap;gap:.4rem}
+    .chip{
+      display:flex;align-items:center;gap:.35rem;
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      padding:.28rem .55rem;border-radius:6px;cursor:pointer;
+      font-size:.78rem;color:var(--muted);transition:all .15s
+    }
+    .chip:hover{border-color:var(--accent);color:var(--text)}
+    .chip.active{border-color:var(--accent);background:var(--glow);color:var(--accent2)}
+    .chip-dot{width:.65rem;height:.65rem;border-radius:50%;flex-shrink:0}
+
+    /* stat chips */
+    .stat-pills{display:flex;flex-wrap:wrap;gap:.35rem}
+    .s-pill{
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      padding:.22rem .5rem;border-radius:5px;cursor:pointer;
+      font-size:.78rem;color:var(--muted);transition:all .15s;white-space:nowrap
+    }
+    .s-pill:hover{border-color:var(--accent);color:var(--text)}
+    .s-pill.active{border-color:var(--accent);background:var(--glow);color:var(--accent2)}
+
+    /* reset */
+    .reset-btn{
+      width:100%;margin-top:1rem;padding:.55rem;border-radius:7px;
+      background:transparent;border:1px solid var(--border);
+      color:var(--dim);font-family:inherit;font-size:.85rem;cursor:pointer;
+      transition:all .2s
+    }
+    .reset-btn:hover{border-color:var(--accent);color:var(--text)}
+
+    /* ── MAIN ── */
+    main{margin-left:260px;flex:1;padding:1.25rem}
+    .toolbar{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:1rem;padding:.6rem 1rem;
+      background:var(--surface);border:1px solid var(--border);border-radius:8px
+    }
+    .toolbar span{font-size:.85rem;color:var(--muted)}
+    .toolbar strong{color:var(--text)}
+    .sort-row{display:flex;align-items:center;gap:.5rem}
+    .sort-label{font-size:.8rem;color:var(--dim)}
+    select.sort-sel{
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      padding:.3rem .6rem;border-radius:6px;color:var(--text);
+      font-family:inherit;font-size:.8rem;cursor:pointer
+    }
+    select.sort-sel option{background:#111520}
+
+    /* Background Ambient Mesh */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: 
+        radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.04) 0%, transparent 35%),
+        radial-gradient(circle at 85% 75%, rgba(139, 92, 246, 0.03) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* ── GRID ── */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:1rem
+    }
+    .card{
+      border-radius:var(--card-r);overflow:hidden;
+      background:var(--surface);border:1px solid var(--border);
+      cursor:pointer;position:relative;
+      transition:transform .3s cubic-bezier(0.16, 1, 0.3, 1), border-color .25s, box-shadow .25s;
+      aspect-ratio:auto;
+      animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .card:hover{
+      transform:translateY(-6px);
+      border-color:var(--dominant-glow, rgba(255,255,255,.15));
+      box-shadow:0 12px 30px rgba(0,0,0,.6), 0 0 15px -3px var(--dominant-glow, rgba(99,102,241,0.25));
+    }
+    .card-img-wrap{width:100%;overflow:hidden;background:#06080f}
+    .card-img-wrap img{width:100%;height:100%;object-fit:cover;
+      transition:transform .6s cubic-bezier(0.16, 1, 0.3, 1);display:block}
+    .card:hover .card-img-wrap img{transform:scale(1.04)}
+    .card-body{padding:.7rem .9rem .8rem}
+    .card-prompt-id{font-size:.68rem;font-weight:600;color:var(--accent2);
+      letter-spacing:.07em;margin-bottom:.2rem;display:flex;justify-content:space-between;align-items:center}
+    .card-similarity-badge{
+      background:rgba(99,102,241,0.25);
+      border:1px solid var(--accent);
+      color:#fff;
+      padding:0.05rem 0.3rem;
+      border-radius:4px;
+      font-size:0.65rem;
+      font-weight:700
+    }
+    .card-subject{font-size:.83rem;font-weight:500;color:var(--text);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .card-artist{font-size:.75rem;color:var(--muted);margin-top:.15rem;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .card-swatch{height:.35rem;border-radius:2px;flex:1}
+    .card-img-wrap{position:relative;} /* Ensure absolute positioning works for action button */
+    .card-hover-action {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(9, 11, 16, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      color: #fff;
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 10;
+      cursor: pointer;
+    }
+    .card:hover .card-hover-action {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .card-hover-action:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .card-hover-action svg {
+      width: 0.95rem;
+      height: 0.95rem;
+    }
+
+    /* ── DASHBOARD INSIGHTS PANEL ── */
+    .dashboard-container{
+      padding:2rem;max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:2rem
+    }
+    .stats-row{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem
+    }
+    .stat-box{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:0.25rem
+    }
+    .stat-box h5{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+    .stat-box .stat-num{font-size:2rem;font-weight:700;color:#fff}
+    .stat-box .stat-desc{font-size:0.75rem;color:var(--dim)}
+
+    .charts-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:1.5rem
+    }
+    .chart-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:1rem
+    }
+    .chart-card h4{font-size:0.9rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted)}
+    .chart-wrap{position:relative;height:300px;width:100%}
+
+    /* ── MODAL ── */
+    .modal-bg{
+      position:fixed;inset:0;z-index:300;
+      background:rgba(4,5,10,.88);
+      backdrop-filter:blur(14px);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;pointer-events:none;transition:opacity .25s
+    }
+    .modal-bg.open{opacity:1;pointer-events:auto}
+    .modal{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:16px;overflow:hidden;
+      display:flex;width:92vw;max-width:1140px;height:88vh;
+      transform:scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1)
+    }
+    .modal-bg.open .modal{transform:scale(1)}
+
+    /* left: image */
+    .modal-img-col{
+      flex:1.1;background:#06080f;display:flex;
+      align-items:center;justify-content:center;padding:1rem;position:relative
+    }
+    .modal-img-col img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+    .modal-close{
+      position:absolute;top:.75rem;right:.75rem;width:2.1rem;height:2.1rem;
+      background:rgba(255,255,255,.07);border:1px solid var(--border);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;color:var(--muted);font-size:1.1rem;
+      transition:all .2s
+    }
+    .modal-close:hover{background:rgba(255,255,255,.15);color:var(--text);transform:rotate(90deg)}
+
+    /* right: details */
+    .modal-detail{
+      flex:1;padding:1.75rem;overflow-y:auto;border-left:1px solid var(--border);
+      display:flex;flex-direction:column;gap:1.2rem
+    }
+    .detail-artist{font-size:.72rem;font-weight:700;color:var(--accent2);
+      text-transform:uppercase;letter-spacing:.1em}
+    .detail-subject{font-size:1.4rem;font-weight:700;color:#fff;line-height:1.2}
+    .detail-category{font-size:.8rem;color:var(--muted)}
+
+    .section-label{font-size:.68rem;font-weight:600;text-transform:uppercase;
+      letter-spacing:.1em;color:var(--dim);margin-bottom:.5rem}
+
+    /* prompt box */
+    .prompt-box{
+      background:rgba(255,255,255,.03);border:1px solid var(--border);
+      border-radius:8px;padding:.9rem;
+      font-size:.82rem;line-height:1.6;color:var(--text);
+      max-height:160px;overflow-y:auto;position:relative
+    }
+    .copy-btn{
+      position:absolute;top:.5rem;right:.5rem;
+      background:rgba(255,255,255,.06);border:1px solid var(--border);
+      color:var(--muted);padding:.2rem .5rem;border-radius:5px;
+      font-size:.72rem;cursor:pointer;font-family:inherit;
+      transition:all .15s
+    }
+    .copy-btn:hover{background:var(--glow);color:var(--accent2)}
+
+    /* palette bar */
+    .palette-bar{display:flex;border-radius:6px;overflow:hidden;height:2rem;cursor:pointer}
+    .pal-seg{height:100%;position:relative;transition:flex .3s}
+    .pal-seg:hover::after{
+      content:attr(data-tip);position:absolute;bottom:110%;left:50%;
+      transform:translateX(-50%);background:#000;color:#fff;
+      font-size:.7rem;padding:.2rem .4rem;border-radius:4px;white-space:nowrap;pointer-events:none
+    }
+
+    /* meta grid */
+    .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    .meta-card{
+      background:rgba(255,255,255,.025);border:1px solid var(--border);
+      border-radius:8px;padding:.7rem .9rem
+    }
+    .meta-card label{display:block;font-size:.68rem;color:var(--dim);
+      text-transform:uppercase;letter-spacing:.07em;margin-bottom:.25rem}
+    .meta-card span{font-size:.9rem;font-weight:500;color:var(--text)}
+    .harmony-badge{
+      display:inline-block;background:var(--glow);
+      border:1px solid rgba(99,102,241,.3);color:var(--accent2);
+      padding:.15rem .5rem;border-radius:5px;font-size:.78rem;font-weight:600
+    }
+
+    /* tags */
+    .tags-row{display:flex;flex-wrap:wrap;gap:.35rem}
+    .tag{
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      padding:.2rem .5rem;border-radius:5px;font-size:.75rem;color:var(--muted)
+    }
+
+    /* similar images */
+    .sim-thumb{position:relative;border-radius:6px;overflow:hidden;cursor:pointer;
+      border:1px solid var(--border);aspect-ratio:3/4;background:#06080f;
+      transition:all .2s}
+    .sim-thumb:hover{border-color:var(--accent);transform:scale(1.04)}
+    .sim-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+    /* color harmony ring legend */
+    .harmony-desc{font-size:.78rem;color:var(--muted);line-height:1.5;
+      background:rgba(255,255,255,.025);border:1px solid var(--border);
+      border-radius:6px;padding:.6rem .8rem}
+
+    /* ── AI Loading Overlay ── */
+    .ai-loading-overlay{
+      position:fixed;inset:0;background:rgba(9,11,16,0.9);backdrop-filter:blur(8px);
+      z-index:1000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem
+    }
+    .ai-loading-overlay.active{display:flex}
+    .spinner{
+      width:50px;height:50px;border:3px solid var(--border);border-top-color:var(--accent);
+      border-radius:50%;animation:spin 1s linear infinite
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-loading-text{font-size:1.1rem;font-weight:500}
+    .ai-loading-sub{font-size:0.85rem;color:var(--muted)}
+
+    /* scrollbar */
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+  </style>
+  <!-- MiniSearch & pre-compiled search index for instant ranked text search -->
+  <script src="https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/umd/index.min.js"></script>
+  <script src="search_index.js"></script>
+</head>
+<body>
+
+<!-- AI Loading Overlay -->
+<div class="ai-loading-overlay" id="ai-loading-overlay">
+  <div class="spinner"></div>
+  <div class="ai-loading-text" id="ai-loading-text">Initializing Cosmos AI Search...</div>
+  <div class="ai-loading-sub">Downloading quantized CLIP-VIT model (approx. 35MB, cached on completion).</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="brand-group">
+    <span class="brand">Meta AI Dataset Explorer</span>
+    <span class="nav-badge" id="badge-count">0 images</span>
+  </div>
+  
+  <div class="search-row">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input class="search-input" id="q" placeholder="Search prompts, artists, subjects, tags…">
+    </div>
+    <div class="search-mode-container">
+      <button class="search-mode-btn active" id="mode-text">Text</button>
+      <button class="search-mode-btn" id="mode-ai">AI Vector</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-view="gallery-view">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 2.5zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 2.5v3A1.5 1.5 0 0 1 10.5 5.5h3A.5.5 0 0 0 14 5v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v3zm-8 7A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>
+      Explorer
+    </button>
+    <button class="nav-tab" data-view="map-view">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+      Galaxy Map
+    </button>
+    <button class="nav-tab" data-view="dashboard-view">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/></svg>
+      Insights
+    </button>
+  </div>
+</nav>
+
+<!-- TAB 1: GALLERY EXPLORER -->
+<div class="view-panel active" id="gallery-view">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="filter-section">
+        <h4>Artist</h4>
+        <select class="fsel" id="f-artist"><option value="">All Artists</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Theme Category</h4>
+        <select class="fsel" id="f-category"><option value="">All Themes</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Art Medium</h4>
+        <select class="fsel" id="f-medium"><option value="">All Mediums</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Visual Mood</h4>
+        <select class="fsel" id="f-mood"><option value="">All Moods</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Art Style</h4>
+        <select class="fsel" id="f-style"><option value="">All Styles</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Palette Blend Style</h4>
+        <select class="fsel" id="f-blend-style"><option value="">All Palette Styles</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Artistic Genre</h4>
+        <select class="fsel" id="f-genre"><option value="">All Genres</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Aesthetic Era</h4>
+        <select class="fsel" id="f-era"><option value="">All Eras</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Orientation</h4>
+        <div class="stat-pills" id="f-orientation">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="Portrait">Portrait</div>
+          <div class="s-pill" data-val="Landscape">Landscape</div>
+          <div class="s-pill" data-val="Square">Square</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Color Temperature</h4>
+        <div class="chips" id="f-temp">
+          <div class="chip active" data-val=""><div class="chip-dot" style="background:linear-gradient(90deg,#f97316,#6366f1)"></div>All</div>
+          <div class="chip" data-val="Warm"><div class="chip-dot" style="background:#f97316"></div>Warm</div>
+          <div class="chip" data-val="Cool"><div class="chip-dot" style="background:#3b82f6"></div>Cool</div>
+          <div class="chip" data-val="Neutral"><div class="chip-dot" style="background:#94a3b8"></div>Neutral</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Dominant Color Family</h4>
+        <div class="chips" id="f-color"></div>
+      </div>
+      <div class="filter-section">
+        <h4>Custom Color Match</h4>
+        <div style="display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.02);border:1px solid var(--border);padding:.5rem;border-radius:6px;">
+          <input type="color" id="f-custom-color" value="#6366f1" style="width:2.2rem;height:2.2rem;border:1px solid var(--border);border-radius:4px;background:transparent;cursor:pointer;padding:0;outline:none;">
+          <span style="font-size:.78rem;color:var(--muted);line-height:1.2;">Select any custom color shade to match</span>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Tonal Key</h4>
+        <div class="stat-pills" id="f-tonal">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="High Key">High Key</div>
+          <div class="s-pill" data-val="Mid Key">Mid Key</div>
+          <div class="s-pill" data-val="Low Key">Low Key</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Duplicate Renders</h4>
+        <div class="stat-pills" id="f-dup">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="dup">Only duplicates</div>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);line-height:1.3;margin-top:.3rem;">
+          Shows the <span id="dup-count">…</span> non-canonical members of phash duplicate groups (nothing is deleted — see corpus_audit/duplicate_curation.md).
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Color Harmony</h4>
+        <div class="stat-pills" id="f-harmony">
+          <div class="s-pill active" data-val="">All</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Saturation</h4>
+        <div class="stat-pills" id="f-saturation">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="Vibrant">Vibrant</div>
+          <div class="s-pill" data-val="Balanced">Balanced</div>
+          <div class="s-pill" data-val="Muted">Muted</div>
+          <div class="s-pill" data-val="Pastel">Pastel</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Brightness</h4>
+        <div class="stat-pills" id="f-brightness">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="Bright">Bright</div>
+          <div class="s-pill" data-val="Balanced">Balanced</div>
+          <div class="s-pill" data-val="Dark">Dark</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Contrast</h4>
+        <div class="stat-pills" id="f-contrast">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="High">High</div>
+          <div class="s-pill" data-val="Medium">Medium</div>
+          <div class="s-pill" data-val="Low">Low</div>
+        </div>
+      </div>
+
+      <!-- FASTTEXT AI FILTERS (merged from fasttext_predictions.js) -->
+      <div class="filter-section" style="margin-top:1.8rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <h4 style="color:var(--accent2)">AI FastText Filters</h4>
+        <p style="font-size:.72rem;color:var(--dim);margin-bottom:.75rem;line-height:1.35">67 classifiers × 22,260 images. Cross-filter with metadata above.</p>
+      </div>
+      <div class="filter-section">
+        <h4>Subject (CLIP)</h4>
+        <select class="fsel" id="f-ft-subject"><option value="">All Subjects</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Period (CLIP)</h4>
+        <select class="fsel" id="f-ft-period"><option value="">All Periods</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Origin (CLIP)</h4>
+        <select class="fsel" id="f-ft-origin"><option value="">All Origins</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Lighting</h4>
+        <select class="fsel" id="f-ft-lighting"><option value="">All Lighting</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Camera View</h4>
+        <select class="fsel" id="f-ft-view"><option value="">All Views</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Weather</h4>
+        <select class="fsel" id="f-ft-weather"><option value="">All Weather</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Contains Person</h4>
+        <div class="stat-pills" id="f-ft-person">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="person">Person</div>
+          <div class="s-pill" data-val="no">No Person</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Visual Complexity</h4>
+        <select class="fsel" id="f-ft-complexity"><option value="">All Complexity</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Visual Setting</h4>
+        <div class="stat-pills" id="f-ft-setting">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="outdoors">Outdoors</div>
+          <div class="s-pill" data-val="indoors">Indoors</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Surface Material</h4>
+        <select class="fsel" id="f-ft-material"><option value="">All Materials</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Aesthetic Score (AI)</h4>
+        <div class="stat-pills" id="f-ft-aesthetic">
+          <div class="s-pill active" data-val="">All</div>
+          <div class="s-pill" data-val="High">High</div>
+          <div class="s-pill" data-val="Medium">Medium</div>
+          <div class="s-pill" data-val="Low">Low</div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <h4>Style × Medium</h4>
+        <select class="fsel" id="f-ft-style-medium"><option value="">All Combinations</option></select>
+      </div>
+      <div class="filter-section">
+        <h4>Mood × Lighting</h4>
+        <select class="fsel" id="f-ft-mood-lighting"><option value="">All Combinations</option></select>
+      </div>
+
+      <button class="reset-btn" id="reset-btn">↺ Reset All Filters</button>
+    </aside>
+
+    <!-- MAIN -->
+    <main>
+      <div class="toolbar">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <span>Showing <strong id="vis-count">0</strong> of <strong id="tot-count">0</strong> images</span>
+          <div id="color-filter-indicator" style="display:none;align-items:center;gap:.35rem;background:var(--surface2);border:1px solid var(--border);padding:.25rem .5rem;border-radius:6px;font-size:.78rem;">
+            <div id="color-indicator-swatch" style="width:.65rem;height:.65rem;border-radius:2px;"></div>
+            <span id="color-indicator-text">Matching color</span>
+            <span id="clear-color-filter" style="cursor:pointer;color:var(--muted);font-weight:700;margin-left:.25rem;user-select:none;">✕</span>
+          </div>
+        </div>
+        <div class="sort-row">
+          <span class="sort-label">Sort:</span>
+          <select class="sort-sel" id="sort-sel">
+            <option value="default">Default</option>
+            <option value="aesthetics_d">Aesthetics ↓</option>
+            <option value="prompt_id">Prompt #</option>
+            <option value="brightness">Brightness ↑</option>
+            <option value="brightness_d">Brightness ↓</option>
+            <option value="complexity">Complexity ↑</option>
+            <option value="complexity_d">Complexity ↓</option>
+            <!-- AI FastText sort modes -->
+            <option value="ft_aesthetic_d">AI Aesthetic ↓</option>
+            <option value="ft_complexity_d">AI Complexity ↓</option>
+            <option value="ft_sharp_d">AI Sharpness ↓</option>
+            <option value="ft_symmetry_d">AI Symmetry ↓</option>
+            <option value="ft_warm_d">AI Warmth ↓</option>
+            <option value="ft_colorful_d">AI Colorfulness ↓</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </main>
+  </div>
+</div>
+
+<!-- TAB 3: GALAXY MAP (UMAP EMBEDDING VISUALIZATION) -->
+<div class="view-panel" id="map-view" style="position: relative; height: calc(100vh - 56px); background: #090b10; overflow: hidden; padding: 0;">
+  <canvas id="umap-canvas" style="display: block; width: 100%; height: 100%; cursor: grab;"></canvas>
+  
+  <!-- Canvas HUD / Controls -->
+  <div style="position: absolute; top: 1rem; left: 1rem; background: rgba(17, 21, 32, 0.85); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: 8px; backdrop-filter: blur(12px); pointer-events: auto; z-index: 10; max-width: 350px;">
+    <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; color: #fff;">Dataset Galaxy Map</h4>
+    <p style="font-size: 0.75rem; color: var(--muted); line-height: 1.4;">Visual representation of the CLIP latent space. Drag to pan, scroll to zoom. Hover over any dot to inspect an image, click to open details.</p>
+    <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; font-size: 0.7rem; color: #fff; align-items: center;">
+      <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);"></div>
+      <span>Dots colored by dominant visual hue</span>
+    </div>
+  </div>
+
+  <!-- Interactive Hover Card -->
+  <div id="umap-hover-card" style="position: absolute; display: none; pointer-events: none; background: #111520; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem; width: 160px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 20;">
+    <img id="umap-hover-img" src="" style="width: 100%; border-radius: 4px; aspect-ratio: 1; object-fit: cover; background: #1a1e2d; margin-bottom: 0.4rem;">
+    <div id="umap-hover-artist" style="font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+    <div id="umap-hover-subject" style="font-size: 0.65rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;"></div>
+    <div id="umap-hover-score" style="font-size: 0.65rem; font-weight: 600; color: #34d399; margin-top: 0.25rem;"></div>
+  </div>
+</div>
+
+<!-- TAB 2: INSIGHTS DASHBOARD -->
+<div class="view-panel" id="dashboard-view">
+  <div class="dashboard-container">
+    <div class="stats-row">
+      <div class="stat-box">
+        <h5>Total Images</h5>
+        <div class="stat-num" id="dash-total-images">0</div>
+        <div class="stat-desc">Entire visual collection</div>
+      </div>
+      <div class="stat-box">
+        <h5>Categories</h5>
+        <div class="stat-num" id="dash-total-cats">0</div>
+        <div class="stat-desc">Unique theme mappings</div>
+      </div>
+      <div class="stat-box">
+        <h5>Unique Artists</h5>
+        <div class="stat-num" id="dash-total-artists">0</div>
+        <div class="stat-desc">Different art styles referenced</div>
+      </div>
+      <div class="stat-box">
+        <h5>Average Brightness</h5>
+        <div class="stat-num" id="dash-avg-brightness">0</div>
+        <div class="stat-desc">Overall luminous balance</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h4>Color Theme Distribution</h4>
+        <div class="chart-wrap">
+          <canvas id="colorPieChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>Color Harmony Breakdown</h4>
+        <div class="chart-wrap">
+          <canvas id="harmonyBarChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>Visual Orientation Profile</h4>
+        <div class="chart-wrap">
+          <canvas id="orientationDoughnutChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>Top Artists Represented</h4>
+        <div class="chart-wrap">
+          <canvas id="artistsBarChart"></canvas>
+        </div>
+      </div>
+      <!-- FastText AI distribution charts -->
+      <div class="chart-card">
+        <h4>AI Subject (CLIP)</h4>
+        <div class="chart-wrap"><canvas id="ftSubjectChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>AI Lighting Distribution</h4>
+        <div class="chart-wrap"><canvas id="ftLightingChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>AI Period Breakdown</h4>
+        <div class="chart-wrap"><canvas id="ftPeriodChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>AI Origin Breakdown</h4>
+        <div class="chart-wrap"><canvas id="ftOriginChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <!-- Image -->
+    <div class="modal-img-col">
+      <div class="modal-close" id="modal-close">✕</div>
+      <img id="m-img" src="" alt="">
+    </div>
+    <!-- Details -->
+    <div class="modal-detail" id="modal-detail">
+      <!-- filled dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- METADATA-CHUNKS:BEGIN -->
+<script src="chunks/metadata_0000.js"></script>
+<script src="chunks/metadata_0001.js"></script>
+<script src="chunks/metadata_0002.js"></script>
+<script src="chunks/metadata_0003.js"></script>
+<script src="chunks/metadata_0004.js"></script>
+<script src="chunks/metadata_0005.js"></script>
+<script src="chunks/metadata_0006.js"></script>
+<script src="chunks/metadata_0007.js"></script>
+<script src="chunks/metadata_0008.js"></script>
+<script src="chunks/metadata_0009.js"></script>
+<script src="chunks/metadata_0010.js"></script>
+<script src="chunks/metadata_0011.js"></script>
+<script src="chunks/metadata_0012.js"></script>
+<script src="chunks/metadata_0013.js"></script>
+<script src="chunks/metadata_0014.js"></script>
+<script src="chunks/metadata_0015.js"></script>
+<script src="chunks/metadata_0016.js"></script>
+<script src="chunks/metadata_0017.js"></script>
+<script src="chunks/metadata_0018.js"></script>
+<script src="chunks/metadata_0019.js"></script>
+<script src="chunks/metadata_0020.js"></script>
+<script src="chunks/metadata_0021.js"></script>
+<script src="chunks/metadata_0022.js"></script>
+<!-- METADATA-CHUNKS:END -->
+<script src="embeddings.js"></script>
+<script src="fasttext_predictions.js"></script>
+<script src="fasttext_stats.js"></script>
+<script src="fasttext_analysis.js"></script>
+<script src="duplicates.js"></script>
+<script>
+(async function () {
+// ?src=db loads the dataset from the corpus.db-backed /api/records instead of
+// the chunk scripts — the gallery and the corpus DB share one source of truth
+// (HTTP-only; file:// keeps the synchronous chunk path).
+const API_MODE = new URLSearchParams(location.search).get('src') === 'db';
+/* ── Path Resolution ── */
+// Old collection: relative paths (e.g. "Landscape/Red/meta_ai_0003.webp")
+// New collection: absolute Windows paths (e.g. "E:/ART_COLLECTION/NEW DOWNLOAD_COLLECTION_FULL/img.jpg")
+function resolveImgSrc(filename) {
+  if (!filename) return '';
+  // Absolute Windows drive path (e.g. "E:/ART_COLLECTION/NEW DOWNLOAD_COLLECTION_FULL/img.jpg")
+  if (/^[A-Za-z]:\//.test(filename)) {
+    // When the page is served over HTTP(S), browsers block file:// subresources —
+    // that is why these images showed as broken tiles even though the files exist.
+    // serve_gallery.py exposes E:/ART_COLLECTION under /art/, so re-point there.
+    // When the page is opened directly from disk (file://), keep the file:// form.
+    const http = location.protocol === 'http:' || location.protocol === 'https:';
+    const m = filename.replace(/\\/g, '/').match(/^[A-Za-z]:\/ART_COLLECTION\/(.+)$/);
+    if (http && m) {
+      return '/art/' + m[1].split('/').map(encodeURIComponent).join('/');
+    }
+    return 'file:///' + filename.replace(/\\/g, '/');
+  }
+  // Already a URL
+  if (filename.startsWith('http') || filename.startsWith('file://')) {
+    return filename;
+  }
+  // Relative path — served from same folder as gallery.html
+  return filename;
+}
+
+/* ── Constants ── */
+const COLOR_HEX = {
+  Red:'#ef4444',Orange:'#f97316',Yellow:'#eab308',Green:'#22c55e',
+  Blue:'#3b82f6',Purple:'#a855f7',Gray:'#6b7280',Black:'#374151',White:'#f3f4f6',Mixed:'#8b8cf8'
+};
+const HARMONY_DESC = {
+  Monochromatic:'Single hue, varying in tone and saturation — serene, unified.',
+  Complementary:'Opposite colors on the wheel — bold, high-contrast tension.',
+  Analogous:'Adjacent hues — harmonious, natural flow.',
+  Triadic:'Three evenly-spaced hues — vibrant, balanced energy.',
+  'Split-Complementary':'Base + two adjacent to complement — rich variety, low tension.'
+};
+
+/* ── State ── */
+const allData = API_MODE ? await loadAllFromApi('/api/records') : (window.galleryData || []);
+
+// Filename -> record map: used by the Similar Images row (similar.js keys are filenames)
+const byFilename = new Map(allData.map(d => [d.filename, d]));
+
+/* ── Similar Images row (driven by similar.json, the unified-space fingerprint oracle) ── */
+/* ── Duplicate renders (duplicates.js, phash hamming <= 5 groups) ── */
+const dupGroups = (window.DUPLICATE_GROUPS || { groups: [] });
+const dupRedundant = new Set();   // non-canonical members -> filtered by 'Only duplicates'
+const dupCanonical = new Set();   // canonical member of each group
+const dupByFile = new Map();      // filename -> { canonical, maxD, identical, groupIdx }
+dupGroups.groups.forEach((g, gi) => {
+  dupCanonical.add(g.canonical);
+  g.members.forEach(fn => dupByFile.set(fn, { canonical: g.canonical, maxD: g.max_d, identical: g.identical, groupIdx: gi }));
+  g.redundant.forEach(fn => dupRedundant.add(fn));
+});
+
+let similarMap = null;       // parsed similar.js; null = not loaded yet, {} = unavailable
+let similarLoading = false;
+
+// similar.js is injected as a <script> tag — the same pattern as every other
+// data file (metadata chunks, embeddings.js, search_index.js, fasttext_*,
+// duplicates.js all define window globals). Unlike fetch(), classic scripts are
+// NOT CORS-restricted, so the Similar Images row now works identically on
+// file:// pages (fetch('similar.json') was blocked from disk). The tag is
+// injected lazily on first modal open (25 MB), not at page load.
+function ensureSimilar() {
+  if (similarMap !== null || similarLoading) return;
+  similarLoading = true;
+  const s = document.createElement('script');
+  s.src = 'similar.js';
+  s.onload = () => {
+    similarMap = (window.similarData && typeof window.similarData === 'object') ? window.similarData : {};
+    similarLoading = false;
+  };
+  s.onerror = () => {
+    console.warn('similar.js unavailable — Similar Images row hidden');
+    similarMap = {};
+    similarLoading = false;
+  };
+  document.head.appendChild(s);
+}
+
+// Top neighbors for d from similar.json, excluding self, resolved to records.
+// Returns null while not loaded, otherwise an array (possibly empty).
+function similarNeighbors(d, limit) {
+  if (similarMap === null) return null;
+  const list = similarMap[d.filename];
+  if (!Array.isArray(list)) return [];
+  const out = [];
+  for (const n of list) {
+    if (n.filename === d.filename) continue;      // skip self (score 1.0)
+    const rec = byFilename.get(n.filename);
+    if (rec) out.push({ rec: rec, score: n.score });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+function escAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function similarThumbs(rows) {
+  if (!rows.length) {
+    return '<span style="color:var(--dim);font-size:.8rem">No similar images found for this record.</span>';
+  }
+  return rows.map(({ rec, score }) => `
+    <div class="sim-thumb" data-fn="${escAttr(rec.filename)}" title="${escAttr((rec.alt_text || rec.filename).slice(0, 140))} · ${(score * 100).toFixed(0)}% match">
+      <img src="${resolveImgSrc(rec.filename)}" loading="lazy" onerror="this.style.display='none'">
+      <span style="position:absolute;bottom:2px;right:4px;font-size:.62rem;background:rgba(0,0,0,.7);color:#fff;padding:1px 4px;border-radius:3px">${(score * 100).toFixed(0)}%</span>
+    </div>`).join('');
+}
+
+function renderSimilarRow(d) {
+  const host = document.getElementById('similar-row');
+  if (!host) return;
+  // The row node is rebuilt on every modal open, so wiring it here is safe (no duplicates).
+  host.addEventListener('click', e => {
+    const t = e.target.closest('.sim-thumb');
+    if (t) openSimilar(t.dataset.fn);
+  });
+  const fill = rows => { if (currentItem === d) host.innerHTML = rows; }; // only if the modal still shows d
+  const rows = similarNeighbors(d, 8);
+  if (rows) { fill(similarThumbs(rows)); return; }
+  fill('<span style="color:var(--dim);font-size:.8rem">Loading similar images…</span>');
+  ensureSimilar();
+  const tryFill = () => {
+    const now = similarNeighbors(d, 8);
+    if (now) fill(similarThumbs(now));
+    else if (similarLoading) setTimeout(tryFill, 100);
+    else fill('<span style="color:var(--dim);font-size:.8rem">Similar images unavailable (similar.js not reachable).</span>');
+  };
+  setTimeout(tryFill, 100);
+}
+
+function openSimilar(filename) {
+  const rec = byFilename.get(filename);
+  if (rec) openModal(rec);
+}
+
+// MiniSearch initialization
+let miniSearchIndex = null;
+if (window.MiniSearch && window.searchIndexDump) {
+  try {
+    miniSearchIndex = MiniSearch.loadJS(window.searchIndexDump, {
+      fields: ['original_prompt', 'alt_text', 'tags', 'artist', 'category', 'style', 'medium', 'mood', 'machine_caption'],
+      storeFields: []
+    });
+    console.log("MiniSearch pre-compiled index loaded successfully.");
+  } catch (e) {
+    console.error("Error loading MiniSearch index:", e);
+  }
+}
+
+let filtered = [];
+let loadedCount = 0;
+const PER_PAGE = 80;
+let currentItem = null;
+let activeSearchMode = 'text'; // 'text' or 'ai'
+
+// Vector Search cache variables
+let binaryEmbeddings = null;
+let tokenizerInstance = null;
+let textModelInstance = null;
+let isAiModelLoaded = false;
+let computedSimilarities = null; // Will store score mapping for current search
+
+const filters = {
+  q:'', artist:'', category:'', medium:'', mood:'', style:'', blend_style:'', orientation:'',
+  temp:'', color:'', tonal:'', harmony:'', saturation:'', brightness:'', contrast:'', genre:'', era:'',
+  // FastText AI filters (merged)
+  ft_subject:'', ft_period:'', ft_origin:'', ft_lighting:'', ft_view:'', ft_weather:'',
+  ft_person:'', ft_complexity:'', ft_setting:'', ft_material:'', ft_aesthetic:'',
+  ft_style_medium:'', ft_mood_lighting:'', duplicates:''
+};
+
+// FastText helpers — predictions cover all 22,260 images
+const ftPreds = window.fasttextPredictions || {};
+const ftStats = window.fasttextStats || {};
+const ftAnalysis = window.fasttextAnalysis || {};
+function getFt(d) {
+  return ftPreds[d.filename] || d.fasttext_predictions || {};
+}
+function getAnalysis(d) {
+  return ftAnalysis[d.filename] || {};
+}
+function ftLabel(pred, key) {
+  const p = pred && pred[key];
+  return p ? (p.label || '') : '';
+}
+// Rank-based score helper: maps label → numeric rank (High=2, Medium=1, Low=0)
+function ftRank(pred, key) {
+  const lbl = ftLabel(pred, key);
+  if (lbl === 'High' || lbl === 'Symmetric' || lbl === 'Sharp' || lbl === 'Warm' || lbl === 'Colorful' || lbl === 'Vibrant') return 2;
+  if (lbl === 'Medium' || lbl === 'Balanced' || lbl === 'Cool') return 1;
+  return 0;
+}
+// Direct numeric score (for *_bin tasks); falls back to rank
+function ftScore(pred, key) {
+  const p = pred && pred[key];
+  if (!p) return 0;
+  // weighted by confidence × rank
+  return (p.confidence || 0) * ftRank(p, key);
+}
+function fillFtSelect(id, taskKey) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const counts = ftStats[taskKey] || {};
+  Object.entries(counts)
+    .sort((a,b) => b[1] - a[1])
+    .forEach(([label, count]) => {
+      el.add(new Option(`${label.replace(/_/g,' ')} (${count})`, label));
+    });
+}
+
+/* ── Tab Management ── */
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+    
+    btn.classList.add('active');
+    const viewId = btn.dataset.view;
+    document.getElementById(viewId).classList.add('active');
+    
+    if (viewId === 'dashboard-view') {
+      renderDashboardCharts();
+    } else if (viewId === 'map-view') {
+      initUmapCanvas();
+    }
+  });
+});
+
+/* ── AI Vector Search Setup ── */
+document.getElementById('mode-text').addEventListener('click', () => {
+  activeSearchMode = 'text';
+  document.getElementById('mode-text').classList.add('active');
+  document.getElementById('mode-ai').classList.remove('active');
+  computedSimilarities = null;
+  applyFilters();
+});
+
+document.getElementById('mode-ai').addEventListener('click', async () => {
+  activeSearchMode = 'ai';
+  document.getElementById('mode-ai').classList.add('active');
+  document.getElementById('mode-text').classList.remove('active');
+  
+  if (!isAiModelLoaded) {
+    const overlay = document.getElementById('ai-loading-overlay');
+    overlay.classList.add('active');
+    try {
+      // 1. Decode embeddings from window.embeddingsBase64 (bypasses local filesystem CORS restriction)
+      if (!window.embeddingsBase64) {
+        throw new Error("window.embeddingsBase64 is not loaded. Make sure embeddings.js is in the folder.");
+      }
+      const binaryString = window.atob(window.embeddingsBase64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      binaryEmbeddings = new Float32Array(bytes.buffer);
+      
+      // 2. Load Transformers.js for CLIP Text Encoding
+      const { AutoTokenizer, CLIPTextModelWithProjection, env } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
+      env.allowLocalModels = false;
+      
+      tokenizerInstance = await AutoTokenizer.from_pretrained('Xenova/clip-vit-base-patch32');
+      textModelInstance = await CLIPTextModelWithProjection.from_pretrained('Xenova/clip-vit-base-patch32');
+      
+      isAiModelLoaded = true;
+    } catch (e) {
+      console.error("Failed to initialize AI search model", e);
+      alert("Error initializing AI search model. Check console logs.");
+      // Fallback to text mode
+      document.getElementById('mode-text').click();
+    } finally {
+      overlay.classList.remove('active');
+    }
+  }
+  
+  // Trigger search computation if query exists
+  if (filters.q.trim()) {
+    runVectorSearch(filters.q);
+  }
+});
+
+async function runVectorSearch(query) {
+  if (!isAiModelLoaded || !query.trim()) return;
+  
+  const textLoader = document.getElementById('ai-loading-overlay');
+  const loaderText = document.getElementById('ai-loading-text');
+  loaderText.textContent = "Analyzing query semantically...";
+  textLoader.classList.add('active');
+  
+  try {
+    // 1. Tokenize and extract text embedding
+    const inputs = tokenizerInstance([query], { padding: true, truncation: true });
+    const { text_embeds } = await textModelInstance(inputs);
+    
+    // Normalize text embedding
+    const rawEmbedding = text_embeds.data;
+    let sum = 0;
+    for (let i = 0; i < 512; i++) sum += rawEmbedding[i] * rawEmbedding[i];
+    const len = Math.sqrt(sum);
+    const textNorm = new Float32Array(512);
+    for (let i = 0; i < 512; i++) textNorm[i] = rawEmbedding[i] / len;
+    
+    // 2. Compute similarity against every image that has a CLIP vector.
+    //    (embeddings.js is rebuilt to cover all records, so every row has a
+    //    vector; the null-score branch below is a safety net if a future batch
+    //    is appended to metadata.js without re-running unify_embeddings.py.)
+    computedSimilarities = {};
+    const n = allData.length;
+    const vectorCount = binaryEmbeddings.length / 512;
+    for (let idx = 0; idx < n; idx++) {
+      const item = allData[idx];
+      if (idx >= vectorCount) {
+        computedSimilarities[item.filename] = null;
+        continue;
+      }
+      let dot = 0;
+      const offset = idx * 512;
+      for (let i = 0; i < 512; i++) {
+        dot += textNorm[i] * binaryEmbeddings[offset + i];
+      }
+      computedSimilarities[item.filename] = dot;
+    }
+    
+    // Sort and apply filters
+    applyFilters();
+  } catch (e) {
+    console.error("Vector search failed", e);
+  } finally {
+    textLoader.classList.remove('active');
+  }
+}
+
+function searchByImage(item) {
+  if (!binaryEmbeddings) {
+    if (!window.embeddingsBase64) return;
+    const binaryString = window.atob(window.embeddingsBase64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    binaryEmbeddings = new Float32Array(bytes.buffer);
+  }
+  
+  const idx = allData.indexOf(item);
+  if (idx === -1) return;
+  
+  const vectorCount = binaryEmbeddings.length / 512;
+  if (idx >= vectorCount) {
+    alert('This image has no CLIP vector (a future batch was added to metadata.js without rebuilding embeddings.js). Run unify_embeddings.py to fix.');
+    return;
+  }
+  
+  const queryEmbed = binaryEmbeddings.subarray(idx * 512, (idx + 1) * 512);
+  
+  computedSimilarities = {};
+  const n = allData.length;
+  for (let k = 0; k < n; k++) {
+    const item = allData[k];
+    if (k >= vectorCount) {
+      computedSimilarities[item.filename] = null;
+      continue;
+    }
+    let dot = 0;
+    const offset = k * 512;
+    for (let i = 0; i < 512; i++) {
+      dot += queryEmbed[i] * binaryEmbeddings[offset + i];
+    }
+    computedSimilarities[item.filename] = dot;
+  }
+  
+  activeSearchMode = 'ai';
+  document.getElementById('mode-ai').classList.add('active');
+  document.getElementById('mode-text').classList.remove('active');
+  document.getElementById('q').value = `Similar to: ${item.prompt_match?.subject || 'Selected Image'}`;
+  filters.q = document.getElementById('q').value;
+  
+  closeModal();
+  applyFilters();
+}
+
+// Debounce helper for AI search input
+let searchTimeout = null;
+document.getElementById('q').addEventListener('input', e => {
+  filters.q = e.target.value;
+  if (activeSearchMode === 'ai') {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      runVectorSearch(filters.q);
+    }, 600);
+  } else {
+    applyFilters();
+  }
+});
+
+/* ── Populate Sidebar Options ── */
+function initSidebar() {
+  const artists = new Set(), cats = new Set(), colors = new Set(), harmonies = new Set();
+  const mediums = new Set(), moods = new Set(), styles = new Set(), blendStyles = new Set();
+  const genres = new Set(), eras = new Set();
+  allData.forEach(d => {
+    const pm = d.prompt_match || {};
+    const ft = d.features || {};
+    if (pm.artist)        artists.add(pm.artist);
+    if (pm.category)      cats.add(pm.category);
+    if (ft.dominant_color) colors.add(ft.dominant_color);
+    if (ft.color_harmony)  harmonies.add(ft.color_harmony);
+    if (ft.classified_medium) mediums.add(ft.classified_medium);
+    if (ft.classified_mood)   moods.add(ft.classified_mood);
+    if (ft.classified_style)  styles.add(ft.classified_style);
+    if (ft.color_blend_style)  blendStyles.add(ft.color_blend_style);
+    if (d.genre_category)     genres.add(d.genre_category);
+    if (d.art_era)            eras.add(d.art_era);
+  });
+
+  const aEl = document.getElementById('f-artist');
+  [...artists].sort().forEach(a => aEl.add(new Option(a, a)));
+
+  const cEl = document.getElementById('f-category');
+  [...cats].sort().forEach(c => cEl.add(new Option(c, c)));
+
+  const mEl = document.getElementById('f-medium');
+  [...mediums].sort().forEach(m => mEl.add(new Option(m, m)));
+
+  const moEl = document.getElementById('f-mood');
+  [...moods].sort().forEach(mo => moEl.add(new Option(mo, mo)));
+
+  const sEl = document.getElementById('f-style');
+  [...styles].sort().forEach(s => sEl.add(new Option(s, s)));
+
+  const bEl = document.getElementById('f-blend-style');
+  [...blendStyles].sort().forEach(b => bEl.add(new Option(b, b)));
+
+  const gEl = document.getElementById('f-genre');
+  [...genres].sort().forEach(g => gEl.add(new Option(g, g)));
+
+  const eEl = document.getElementById('f-era');
+  [...eras].sort().forEach(e => eEl.add(new Option(e, e)));
+
+  // FastText AI filter options (from fasttext_stats.js)
+  fillFtSelect('f-ft-subject', 'subject');
+  fillFtSelect('f-ft-period', 'period');
+  fillFtSelect('f-ft-origin', 'origin');
+  fillFtSelect('f-ft-lighting', 'lighting');
+  fillFtSelect('f-ft-view', 'view');
+  fillFtSelect('f-ft-weather', 'weather');
+  fillFtSelect('f-ft-complexity', 'complexity');
+  fillFtSelect('f-ft-material', 'tag_material');
+  fillFtSelect('f-ft-style-medium', 'style_x_medium');
+  fillFtSelect('f-ft-mood-lighting', 'mood_x_lighting');
+
+  const colorChips = document.getElementById('f-color');
+  colorChips.innerHTML = '<div class="chip active" data-val=""><div class="chip-dot" style="background:linear-gradient(90deg,#ef4444,#3b82f6,#22c55e)"></div>All</div>';
+  [...colors].sort().forEach(col => {
+    const div = document.createElement('div');
+    div.className = 'chip';
+    div.dataset.val = col;
+    div.innerHTML = `<div class="chip-dot" style="background:${COLOR_HEX[col]||'#888'}"></div>${col}`;
+    colorChips.appendChild(div);
+  });
+
+  const harmRow = document.getElementById('f-harmony');
+  [...harmonies].sort().forEach(h => {
+    const d = document.createElement('div');
+    d.className = 's-pill';
+    d.dataset.val = h;
+    d.textContent = h;
+    harmRow.appendChild(d);
+  });
+}
+
+/* ── Filter + Sort ── */
+function applyFilters() {
+  let baseData = allData;
+  if (activeColorFilter) {
+    const targetRgb = hexToRgb(activeColorFilter);
+    baseData.forEach(d => {
+      const pal = d.features?.color_palette || [];
+      let minDistance = 999999;
+      pal.forEach(c => {
+        const rgb = c.rgb || hexToRgb(c.hex);
+        const dist = colorDistance(targetRgb, rgb);
+        if (dist < minDistance) minDistance = dist;
+      });
+      d._color_similarity = Math.max(0, 100 - (minDistance / 4.4167));
+    });
+    baseData = baseData.filter(d => d._color_similarity > 82); // 82% threshold
+  }
+
+  // Pre-calculate text search ranks if using MiniSearch
+  let textHits = null;
+  if (activeSearchMode === 'text' && filters.q && miniSearchIndex) {
+    // Boost machine_caption: it exists only on the 127 newest records (whose
+    // original prompts are ORIGINAL_PROMPT_UNKNOWN), so caption words surface
+    // them in the default text search instead of being drowned by common tokens.
+    const hits = miniSearchIndex.search(filters.q, { boost: { machine_caption: 2 } });
+    const hitMap = new Map();
+    // Key by filename, not index: when a color filter is active, `baseData`
+    // below is a subset of allData, so subset indices no longer match the
+    // allData-based MiniSearch doc ids.
+    hits.forEach((h, rank) => {
+      const doc = allData[Number(h.id)];
+      if (doc) hitMap.set(doc.filename, rank);
+    });
+    textHits = hitMap;
+  }
+
+  filtered = baseData.filter((d, idx) => {
+    const pm = d.prompt_match || {};
+    const ft = d.features || {};
+    if (filters.artist    && pm.artist    !== filters.artist)    return false;
+    if (filters.category  && pm.category  !== filters.category)  return false;
+    if (filters.medium    && ft.classified_medium !== filters.medium)  return false;
+    if (filters.mood      && ft.classified_mood   !== filters.mood)    return false;
+    if (filters.style     && ft.classified_style  !== filters.style)   return false;
+    if (filters.blend_style && ft.color_blend_style !== filters.blend_style) return false;
+    if (filters.genre     && d.genre_category !== filters.genre) return false;
+    if (filters.era       && d.art_era !== filters.era)          return false;
+    if (filters.orientation && ft.orientation !== filters.orientation) return false;
+    if (filters.temp      && ft.color_temperature !== filters.temp)    return false;
+    if (filters.color     && ft.dominant_color !== filters.color)      return false;
+    if (filters.tonal     && ft.tonal_key !== filters.tonal)           return false;
+    if (filters.harmony   && ft.color_harmony !== filters.harmony)     return false;
+    if (filters.saturation && ft.saturation !== filters.saturation)    return false;
+    if (filters.brightness && ft.brightness !== filters.brightness)    return false;
+    if (filters.contrast  && ft.contrast !== filters.contrast)         return false;
+    if (filters.duplicates && !dupRedundant.has(d.filename))           return false;
+
+    // FastText AI filters (all 22k+ images)
+    const ftp = getFt(d);
+    if (filters.ft_subject && ftLabel(ftp, 'subject') !== filters.ft_subject) return false;
+    if (filters.ft_period && ftLabel(ftp, 'period') !== filters.ft_period) return false;
+    if (filters.ft_origin && ftLabel(ftp, 'origin') !== filters.ft_origin) return false;
+    if (filters.ft_lighting && ftLabel(ftp, 'lighting') !== filters.ft_lighting) return false;
+    if (filters.ft_view && ftLabel(ftp, 'view') !== filters.ft_view) return false;
+    if (filters.ft_weather && ftLabel(ftp, 'weather') !== filters.ft_weather) return false;
+    if (filters.ft_person && ftLabel(ftp, 'has_person') !== filters.ft_person) return false;
+    if (filters.ft_complexity && ftLabel(ftp, 'complexity') !== filters.ft_complexity) return false;
+    if (filters.ft_setting && ftLabel(ftp, 'visual_setting') !== filters.ft_setting) return false;
+    if (filters.ft_material && ftLabel(ftp, 'tag_material') !== filters.ft_material) return false;
+    if (filters.ft_aesthetic && ftLabel(ftp, 'aesthetic_bin') !== filters.ft_aesthetic) return false;
+    if (filters.ft_style_medium && ftLabel(ftp, 'style_x_medium') !== filters.ft_style_medium) return false;
+    if (filters.ft_mood_lighting && ftLabel(ftp, 'mood_x_lighting') !== filters.ft_mood_lighting) return false;
+    
+    // MiniSearch ranked search fallback
+    if (activeSearchMode === 'text' && filters.q) {
+      if (textHits) {
+        if (!textHits.has(d.filename)) return false;
+      } else {
+        const text = [
+          d.original_prompt, pm.artist, pm.subject, pm.category,
+          (d.tags||[]).join(' '),
+          // Include AI analysis keywords for richer search
+          (getAnalysis(d).ai_keywords || []).join(' '),
+          getAnalysis(d).ai_title || '',
+          getAnalysis(d).ai_summary || ''
+        ].join(' ').toLowerCase();
+        if (!text.includes(filters.q.toLowerCase())) return false;
+      }
+    }
+    
+    return true;
+  });
+
+  // Sort logic
+  const sort = document.getElementById('sort-sel').value;
+  
+  if (activeSearchMode === 'ai' && computedSimilarities) {
+    // Override sorting: sort by computed similarity score descending
+    // (null = no vector for this image, sorts last)
+    filtered.sort((a, b) => {
+      const scoreA = computedSimilarities[a.filename] ?? -1;
+      const scoreB = computedSimilarities[b.filename] ?? -1;
+      return scoreB - scoreA;
+    });
+  } else if (activeSearchMode === 'text' && textHits && sort === 'default') {
+    // Sort by MiniSearch relevance rank
+    filtered.sort((a, b) => {
+      return (textHits.get(a.filename) ?? 999999) - (textHits.get(b.filename) ?? 999999);
+    });
+  } else if (sort === 'aesthetics_d') {
+    // Sort by aesthetic score descending
+    filtered.sort((a, b) => (b.aesthetic_score || 0) - (a.aesthetic_score || 0));
+  } else if (sort === 'default' && activeColorFilter) {
+    // Sort by color similarity score descending
+    filtered.sort((a, b) => b._color_similarity - a._color_similarity);
+  } else {
+    // Normal sorting
+    if (sort === 'prompt_id')    filtered.sort((a,b)=>(a.prompt_match?.prompt_id||0)-(b.prompt_match?.prompt_id||0));
+    else if (sort === 'brightness')   filtered.sort((a,b)=>(a.features?.brightness_score||0)-(b.features?.brightness_score||0));
+    else if (sort === 'brightness_d') filtered.sort((a,b)=>(b.features?.brightness_score||0)-(a.features?.brightness_score||0));
+    else if (sort === 'complexity')   filtered.sort((a,b)=>(a.features?.complexity_score||0)-(b.features?.complexity_score||0));
+    else if (sort === 'complexity_d') filtered.sort((a,b)=>(b.features?.complexity_score||0)-(a.features?.complexity_score||0));
+    // FastText AI sort modes
+    else if (sort === 'ft_aesthetic_d')   filtered.sort((a,b)=>ftScore(getFt(b),'aesthetic_bin')-ftScore(getFt(a),'aesthetic_bin'));
+    else if (sort === 'ft_complexity_d')  filtered.sort((a,b)=>ftScore(getFt(b),'complexity_bin')-ftScore(getFt(a),'complexity_bin'));
+    else if (sort === 'ft_sharp_d')       filtered.sort((a,b)=>ftScore(getFt(b),'sharp_bin')-ftScore(getFt(a),'sharp_bin'));
+    else if (sort === 'ft_symmetry_d')    filtered.sort((a,b)=>ftScore(getFt(b),'sym_h_bin')-ftScore(getFt(a),'sym_h_bin'));
+    else if (sort === 'ft_warm_d')        filtered.sort((a,b)=>ftScore(getFt(b),'warm_cool_bin')-ftScore(getFt(a),'warm_cool_bin'));
+    else if (sort === 'ft_colorful_d')    filtered.sort((a,b)=>ftScore(getFt(b),'colorful_bin')-ftScore(getFt(a),'colorful_bin'));
+  }
+
+  document.getElementById('vis-count').textContent = filtered.length;
+  document.getElementById('tot-count').textContent = allData.length;
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  loadedCount = 0;
+  loadMore();
+}
+
+/* ── Render Cards ── */
+function makeCard(d) {
+  const pm = d.prompt_match || {};
+  const ft = d.features || {};
+  const pal = (ft.color_palette || []).slice(0, 5);
+  const score = computedSimilarities ? computedSimilarities[d.filename] : null;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  const dominantHex = pal[0]?.hex || 'rgba(99,102,241,0.25)';
+  card.style.setProperty('--dominant-glow', dominantHex);
+
+  const imgWrap = document.createElement('div');
+  imgWrap.className = 'card-img-wrap';
+  imgWrap.style.aspectRatio = ft.aspect_ratio || '3/4';
+
+  const img = document.createElement('img');
+  img.loading = 'lazy';
+  img.src = resolveImgSrc(d.filename);
+  img.alt = pm.subject || '';
+  // Records whose bytes are missing (the 895 E-drive gaps) would otherwise
+  // render a broken-image icon; hide just the tile, keep the metadata card.
+  img.onerror = () => { img.style.display = 'none'; };
+  imgWrap.appendChild(img);
+
+  // Hover Similar Search Button
+  const hoverBtn = document.createElement('div');
+  hoverBtn.className = 'card-hover-action';
+  hoverBtn.title = "Find visually similar images";
+  hoverBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+  hoverBtn.addEventListener('click', e => {
+    e.stopPropagation(); // prevent modal opening
+    searchByImage(d);
+  });
+  imgWrap.appendChild(hoverBtn);
+
+  // Score Badge for Vector search
+  let scoreBadge = '';
+  if (score !== null) {
+    const pct = Math.round(score * 100);
+    scoreBadge = `<span class="card-similarity-badge">${pct}% match</span>`;
+  }
+
+  const body = document.createElement('div');
+  body.className = 'card-body';
+  const ftp = getFt(d);
+  const analysis = getAnalysis(d);
+  const aiTitle = analysis.ai_title || pm.subject || 'Untitled';
+  const ftTags = (analysis.ai_tags || []).slice(0, 3).map(t =>
+    `<span style="font-size:.65rem;background:rgba(99,102,241,.15);color:var(--accent2);padding:.12rem .35rem;border-radius:4px">${t}</span>`
+  ).join('');
+
+  body.innerHTML = `
+    <div class="card-prompt-id">
+      <span>#${pm.prompt_id || '?'} · ${ft.orientation||''}</span>
+      ${scoreBadge}
+    </div>
+    <div class="card-subject" title="${aiTitle}">${aiTitle}</div>
+    <div class="card-artist">${analysis.ai_summary || pm.artist || ''}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.25rem;margin:.35rem 0">${ftTags}</div>
+    <div class="card-swatches">${pal.map(c=>`<div class="card-swatch" style="background:${c.hex}" title="${c.color_category}"></div>`).join('')}</div>
+  `;
+
+  card.appendChild(imgWrap);
+  card.appendChild(body);
+  card.addEventListener('click', () => openModal(d));
+  return card;
+}
+
+function loadMore() {
+  if (loadedCount >= filtered.length) return;
+  const batch = filtered.slice(loadedCount, loadedCount + PER_PAGE);
+  const frag = document.createDocumentFragment();
+  batch.forEach((d, idx) => {
+    const card = makeCard(d);
+    card.style.animationDelay = `${(idx % 15) * 0.03}s`;
+    frag.appendChild(card);
+  });
+  document.getElementById('grid').appendChild(frag);
+  loadedCount += batch.length;
+}
+
+/* ── Color Similarity Search Helpers ── */
+let activeColorFilter = null;
+
+function hexToRgb(hex) {
+  const bigint = parseInt(hex.replace('#', ''), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return [r, g, b];
+}
+
+function colorDistance(rgb1, rgb2) {
+  return Math.sqrt(
+    Math.pow(rgb1[0] - rgb2[0], 2) +
+    Math.pow(rgb1[1] - rgb2[1], 2) +
+    Math.pow(rgb1[2] - rgb2[2], 2)
+  );
+}
+
+function searchByColorHex(hex) {
+  activeColorFilter = hex;
+  
+  // Show UI Indicator
+  const indicator = document.getElementById('color-filter-indicator');
+  const swatch = document.getElementById('color-indicator-swatch');
+  const text = document.getElementById('color-indicator-text');
+  
+  swatch.style.backgroundColor = hex;
+  text.textContent = `Matching palette color: ${hex.toUpperCase()}`;
+  indicator.style.display = 'inline-flex';
+  
+  // Apply sorting and filtering
+  applyFilters();
+}
+
+/* ── Modal ── */
+function openModal(d) {
+  currentItem = d;
+  const pm = d.prompt_match || {};
+  const ft = d.features || {};
+  
+  let pal = ft.color_palette || [];
+  if (pal.length === 0 && d.dominant_palette) {
+    pal = d.dominant_palette.map(hex => ({ hex: hex, percentage: 0.2, color_category: 'Dominant Color' }));
+  }
+  
+  const tags = d.tags || [];
+  const harmony = ft.color_harmony || 'Unknown';
+
+  const imgEl = document.getElementById('m-img');
+  imgEl.src = resolveImgSrc(d.filename);
+  imgEl.alt = d.alt_text || '';
+
+  const ftp = getFt(d);
+  const ftDetailKeys = [
+    ['style','Style'],['medium','Medium'],['mood','Mood'],['subject','Subject'],
+    ['period','Period'],['origin','Origin'],['lighting','Lighting'],['view','View'],
+    ['weather','Weather'],['has_person','Person'],['complexity','Complexity'],
+    ['aesthetic_bin','Aesthetic'],['tag_material','Material'],['visual_setting','Setting']
+  ];
+  const ftDetailHtml = ftDetailKeys.map(([k, label]) => {
+    const p = ftp[k];
+    if (!p || !p.label) return '';
+    return `<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <span style="color:var(--dim);font-size:.78rem">${label}</span>
+      <span style="color:var(--accent2);font-size:.78rem;font-weight:500">${String(p.label).replace(/_/g,' ')} <span style="color:var(--dim)">(${Math.round((p.confidence||0)*100)}%)</span></span>
+    </div>`;
+  }).join('');
+
+  const detail = document.getElementById('modal-detail');
+  detail.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div>
+        <div class="detail-artist">${pm.artist || 'Unknown Artist'}</div>
+        <div class="detail-subject">${pm.subject || 'Unknown Subject'}</div>
+        <div class="detail-category">${pm.category || ''}</div>
+      </div>
+      <button class="search-similar-btn" id="find-similar-gallery-btn" style="background: #3b82f6; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; font-size: 0.85rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        Search by Image
+      </button>
+      <button id="find-ft-similar-btn" style="background:rgba(99,102,241,.15);color:var(--accent2);border:1px solid rgba(99,102,241,.3);padding:0.6rem 1.2rem;border-radius:6px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;font-size:.85rem">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Find AI Similar
+      </button>
+    </div>
+
+    <div style="margin-bottom:1.25rem">
+      <div class="section-label">Similar Images <span style="color:var(--dim);font-weight:400;font-size:.68rem;text-transform:none">· CLIP neighbors from the unified-space fingerprint oracle</span></div>
+      <div id="similar-row" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.5rem;margin-top:.5rem"></div>
+    </div>
+
+    ${ftDetailHtml ? `
+    <div style="margin-bottom:1.25rem">
+      <div class="section-label">AI FastText Classification</div>
+      <div style="background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.15);border-radius:8px;padding:.5rem .75rem">
+        ${ftDetailHtml}
+      </div>
+    </div>` : ''}
+
+    ${(() => {
+      const a = getAnalysis(d);
+      if (!a || !a.ai_title) return '';
+      const tagsHtml = (a.ai_tags || []).map(t =>
+        `<span style="font-size:.75rem;background:rgba(99,102,241,.15);color:var(--accent2);padding:.2rem .5rem;border-radius:4px;cursor:pointer" onclick="document.getElementById('q').value='${t}';filters.q='${t}';applyFilters()">${t}</span>`
+      ).join(' ');
+      return `
+      <div style="margin-bottom:1.25rem">
+        <div class="section-label" style="color:var(--accent2)">✦ AI Generated Analysis</div>
+        <div style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(139,140,248,.04));border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:1rem">
+          <div style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:.5rem">${a.ai_title}</div>
+          <p style="font-size:.85rem;color:#cbd5e1;line-height:1.5;margin-bottom:.75rem">${a.ai_description}</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
+            <div>
+              <div style="font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem">Composition</div>
+              <p style="font-size:.78rem;color:var(--muted);line-height:1.4">${a.ai_composition}</p>
+            </div>
+            <div>
+              <div style="font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem">Color Story</div>
+              <p style="font-size:.78rem;color:var(--muted);line-height:1.4">${a.ai_color_story}</p>
+            </div>
+            <div>
+              <div style="font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem">Mood &amp; Atmosphere</div>
+              <p style="font-size:.78rem;color:var(--muted);line-height:1.4">${a.ai_mood_text}</p>
+            </div>
+            <div>
+              <div style="font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem">Technical</div>
+              <p style="font-size:.78rem;color:var(--muted);line-height:1.4">${a.ai_technical}</p>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem">${tagsHtml}</div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.72rem;color:var(--dim)">
+            <span>${a.ai_summary}</span>
+            <span style="background:rgba(16,185,129,.15);color:#10b981;padding:.15rem .4rem;border-radius:4px;font-weight:600">${Math.round((a.ai_confidence||0)*100)}% confidence</span>
+          </div>
+        </div>
+      </div>`;
+    })()}
+
+    <div>
+      <div class="section-label">Full Prompt</div>
+      <div class="prompt-box">
+        <button class="copy-btn" id="copy-btn">Copy</button>
+        <span id="prompt-text">${d.original_prompt || 'No prompt available.'}</span>
+      </div>
+    </div>
+
+    ${d.alt_text ? `
+    <div>
+      <div class="section-label" style="color: #cbd5e1; margin-top: 0.8rem;">Synthesized Alt Text</div>
+      <div class="caption-box" style="color: #cbd5e1; background: #181e2d; padding: 0.75rem; border-radius: 6px; border: 1px solid #334155; font-size: 0.9rem; margin-top: 0.4rem; line-height: 1.45;">
+        ${d.alt_text}
+      </div>
+    </div>
+    ` : ''}
+
+    ${ft.ai_caption ? `
+    <div>
+      <div class="section-label">AI Visual Caption</div>
+      <div class="caption-box" style="font-style: italic; color: #a1a1aa; background: #27272a; padding: 0.75rem; border-radius: 6px; border: 1px solid #3f3f46; font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.4;">
+        "${ft.ai_caption}"
+      </div>
+    </div>
+    ` : ''}
+
+    ${d.machine_caption ? `
+    <div>
+      <div class="section-label" style="color: #cbd5e1; margin-top: 0.8rem;">AI Detailed Caption <span style="color:var(--dim);font-weight:400;font-size:.68rem;text-transform:none">· Florence-2 MORE_DETAILED_CAPTION (newest batch)</span></div>
+      <div class="caption-box" style="color: #e2e8f0; background: #1e293b; padding: 0.75rem; border-radius: 6px; border: 1px solid #334155; font-size: 0.9rem; margin-top: 0.4rem; line-height: 1.5;">
+        ${d.machine_caption}
+      </div>
+    </div>
+    ` : ''}
+
+    <div style="margin-top: 1rem; border-top: 1px solid #334155; padding-top: 1rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+        ${d.genre_category ? `
+        <div style="background: rgba(30, 41, 59, 0.4); border: 1px solid #334155; padding: 0.75rem; border-radius: 8px; backdrop-filter: blur(8px);">
+          <div class="section-label" style="margin: 0 0 0.4rem 0; font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; border: none; padding: 0;">Artistic Genre</div>
+          <div style="font-weight: 600; color: #f8fafc; font-size: 0.95rem;">${d.genre_category}</div>
+        </div>
+        ` : ''}
+        ${d.art_era ? `
+        <div style="background: rgba(30, 41, 59, 0.4); border: 1px solid #334155; padding: 0.75rem; border-radius: 8px; backdrop-filter: blur(8px);">
+          <div class="section-label" style="margin: 0 0 0.4rem 0; font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; border: none; padding: 0;">Aesthetic Era</div>
+          <div style="font-weight: 600; color: #f8fafc; font-size: 0.95rem;">${d.art_era}</div>
+        </div>
+        ` : ''}
+      </div>
+
+      ${d.atmosphere_description ? `
+      <div style="margin-bottom: 0.8rem;">
+        <div class="section-label" style="color: #cbd5e1; border: none; padding: 0; margin-bottom: 0.3rem;">Lighting & Atmosphere</div>
+        <div style="color: #94a3b8; background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: 6px; border: 1px solid #334155; font-size: 0.88rem; line-height: 1.5; margin-top: 0.25rem;">
+          ${d.atmosphere_description}
+        </div>
+      </div>
+      ` : ''}
+
+      ${d.composition_description ? `
+      <div style="margin-bottom: 0.8rem;">
+        <div class="section-label" style="color: #cbd5e1; border: none; padding: 0; margin-bottom: 0.3rem;">Composition & Layout</div>
+        <div style="color: #94a3b8; background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: 6px; border: 1px solid #334155; font-size: 0.88rem; line-height: 1.5; margin-top: 0.25rem;">
+          ${d.composition_description}
+        </div>
+      </div>
+      ` : ''}
+
+      ${d.color_harmony_description ? `
+      <div style="margin-bottom: 1.2rem;">
+        <div class="section-label" style="color: #cbd5e1; border: none; padding: 0; margin-bottom: 0.3rem;">Color Theory & Harmony</div>
+        <div style="color: #94a3b8; background: rgba(15, 23, 42, 0.6); padding: 0.75rem; border-radius: 6px; border: 1px solid #334155; font-size: 0.88rem; line-height: 1.5; margin-top: 0.25rem;">
+          ${d.color_harmony_description}
+        </div>
+      </div>
+      ` : ''}
+    </div>
+
+    <div>
+      <div class="section-label">Dominant Color Palette (Click swatch to search)</div>
+      <div class="palette-bar" id="pal-bar">
+        ${pal.map(c=>`<div class="pal-seg" style="background:${c.hex};flex:${c.percentage};cursor:pointer;" data-hex="${c.hex}" title="Search for color: ${c.hex}" data-tip="${c.color_category} ${Math.round(c.percentage*100)}%"></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-card">
+        <label>Color Temperature</label>
+        <span>${ft.color_temperature || '—'}</span>
+      </div>
+      <div class="meta-card">
+        <label>Tonal Key</label>
+        <span>${ft.tonal_key || '—'}</span>
+      </div>
+      <div class="meta-card">
+        <label>Saturation</label>
+        <span>${ft.saturation || '—'}</span>
+      </div>
+      <div class="meta-card">
+        <label>Color Harmony</label>
+        <span class="harmony-badge">${harmony}</span>
+      </div>
+      <div class="meta-card">
+        <label>Brightness / Contrast</label>
+        <span>${ft.brightness || '—'} / ${ft.contrast || '—'}</span>
+      </div>
+      <div class="meta-card">
+        <label>Visual Complexity</label>
+        <span>${ft.complexity_score ?? '—'}</span>
+      </div>
+      <div class="meta-card">
+        <label>Dimensions</label>
+        <span>${d.width}×${d.height} (${ft.aspect_ratio})</span>
+      </div>
+      <div class="meta-card">
+        <label>Perceptual Hash</label>
+        <span style="font-family:monospace;font-size:.78rem">${ft.phash || '—'}</span>
+      </div>
+    </div>
+
+    <div class="harmony-desc">${HARMONY_DESC[harmony] || ''}</div>
+
+    <!-- Section: CLIP Zero-Shot Classification -->
+    <div>
+      <div class="section-label">CLIP Semantic Classification</div>
+      <div class="meta-grid" style="margin-top: 0.4rem; margin-bottom: 0.8rem;">
+        <div class="meta-card">
+          <label>Subject</label>
+          <span>${ft.clip_subject ? ft.clip_subject.charAt(0).toUpperCase() + ft.clip_subject.slice(1).replace('_', ' ') : '—'} <span style="font-size: 0.72rem; color: var(--muted)">(${Math.round((ft.clip_subject_score||0)*100)}%)</span></span>
+        </div>
+        <div class="meta-card">
+          <label>Aesthetic Score (1-10)</label>
+          <span>${d.aesthetic_score ? d.aesthetic_score + ' / 10' : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Cultural Origin</label>
+          <span>${ft.clip_origin ? ft.clip_origin.replace('_', ' ') : '—'} <span style="font-size: 0.72rem; color: var(--muted)">(${Math.round((ft.clip_origin_score||0)*100)}%)</span></span>
+        </div>
+        <div class="meta-card">
+          <label>Historical Period</label>
+          <span>${ft.clip_period ? ft.clip_period.charAt(0).toUpperCase() + ft.clip_period.slice(1) : '—'} <span style="font-size: 0.72rem; color: var(--muted)">(${Math.round((ft.clip_period_score||0)*100)}%)</span></span>
+        </div>
+        <div class="meta-card">
+          <label>Lighting Style</label>
+          <span>${ft.clip_lighting ? ft.clip_lighting.charAt(0).toUpperCase() + ft.clip_lighting.slice(1).replace('_', ' ') : '—'} <span style="font-size: 0.72rem; color: var(--muted)">(${Math.round((ft.clip_lighting_score||0)*100)}%)</span></span>
+        </div>
+        <div class="meta-card">
+          <label>Perspective View</label>
+          <span>${ft.clip_view ? ft.clip_view.charAt(0).toUpperCase() + ft.clip_view.slice(1).replace('_', ' ') : '—'} <span style="font-size: 0.72rem; color: var(--muted)">(${Math.round((ft.clip_view_score||0)*100)}%)</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Extended Art VQA -->
+    <div>
+      <div class="section-label">AI Visual VQA Analysis</div>
+      <div class="meta-grid" style="margin-top: 0.4rem; margin-bottom: 0.8rem;">
+        <div class="meta-card">
+          <label>Human Figure?</label>
+          <span>${ft.vqa2_has_person ? ft.vqa2_has_person.toUpperCase() : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Era Depicted</label>
+          <span>${ft.vqa2_period || '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Visible Textures</label>
+          <span>${ft.vqa2_textures || '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Emotional Tone</label>
+          <span>${ft.vqa2_tone || '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Sky / Upper Area</label>
+          <span>${ft.vqa2_sky || '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Spatial Depth</label>
+          <span>${ft.vqa2_depth || '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Atmospheric Weather</label>
+          <span>${ft.vqa2_weather || '—'}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Curator Agent Analysis -->
+    ${ft.vqa4_curatorial_caption ? `
+    <div>
+      <div class="section-label" style="color: #60a5fa;">Curator Catalog Entry</div>
+      <div class="caption-box" style="color: #93c5fd; background: #1e293b; padding: 0.75rem; border-radius: 6px; border: 1px solid #3b82f6; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5; font-family: 'Outfit', sans-serif;">
+        "${ft.vqa4_curatorial_caption}"
+      </div>
+    </div>
+    ` : ''}
+
+    ${ft.vqa4_curator_answers ? `
+    <div>
+      <div class="section-label" style="color: #60a5fa;">Curator Detailed Q&A</div>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; background: #18181b; padding: 1rem; border-radius: 8px; border: 1px solid #27272a;">
+        ${Object.values(ft.vqa4_curator_answers).map(qa => `
+          <div style="font-size: 0.88rem; line-height: 1.45;">
+            <div style="color: #f4f4f5; font-weight: 600; margin-bottom: 0.15rem;">Q: ${qa.question}</div>
+            <div style="color: #d4d4d8; padding-left: 0.5rem; border-left: 2px solid #3b82f6;">${qa.answer}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+
+    ${ft.vqa4_florence_detailed ? `
+    <div>
+      <div class="section-label" style="color: #34d399;">Detailed Art Transcription (Florence-2)</div>
+      <div class="caption-box" style="color: #a7f3d0; background: #064e3b; padding: 0.75rem; border-radius: 6px; border: 1px solid #059669; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5; font-family: 'Outfit', sans-serif;">
+        "${ft.vqa4_florence_detailed}"
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Section: Advanced Mathematical Features -->
+    <div>
+      <div class="section-label">Advanced Mathematical Features</div>
+      <div class="meta-grid" style="margin-top: 0.4rem; margin-bottom: 0.8rem;">
+        <div class="meta-card">
+          <label>Horizontal Symmetry</label>
+          <span>${ft.symmetry_h ? (ft.symmetry_h * 100).toFixed(1) + '%' : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Vertical Symmetry</label>
+          <span>${ft.symmetry_v ? (ft.symmetry_v * 100).toFixed(1) + '%' : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Sharpness Score</label>
+          <span>${ft.sharpness ? Math.round(ft.sharpness) : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Texture Detail Score</label>
+          <span>${ft.texture_detail ? ft.texture_detail.toFixed(1) : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Visual Entropy (Complexity)</label>
+          <span>${ft.visual_entropy ? ft.visual_entropy.toFixed(3) : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Warm / Cool Ratio</label>
+          <span>${ft.warm_cool_ratio ? ft.warm_cool_ratio.toFixed(2) : '—'}</span>
+        </div>
+        <div class="meta-card">
+          <label>Dominant Quadrant / Edge Bias</label>
+          <span>${ft.dominant_quadrant ? ft.dominant_quadrant.toUpperCase() : '—'} / ${ft.edge_bias || '—'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Visual Tags</div>
+      <div class="tags-row">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+
+  `;
+
+  // Copy button
+  document.getElementById('copy-btn').addEventListener('click', function() {
+    navigator.clipboard.writeText(document.getElementById('prompt-text').textContent);
+    this.textContent = 'Copied!';
+    setTimeout(() => this.textContent = 'Copy', 2000);
+  });
+
+  // Search by Image button
+  document.getElementById('find-similar-gallery-btn').addEventListener('click', () => {
+    searchByImage(d);
+  });
+
+  // AI FastText Similar button
+  const ftBtn = document.getElementById('find-ft-similar-btn');
+  if (ftBtn) ftBtn.addEventListener('click', () => { openFtSimilarModal(d); });
+
+  // Similar Images row (driven by similar.json — unified-space fingerprint oracle)
+  renderSimilarRow(d);
+
+  // Palette search click handler
+  document.getElementById('pal-bar').addEventListener('click', e => {
+    const seg = e.target.closest('.pal-seg');
+    if (!seg) return;
+    const hex = seg.dataset.hex;
+    closeModal();
+    searchByColorHex(hex);
+  });
+
+  document.getElementById('modal-bg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── Pill / Chip filter helpers ── */
+function setupPillGroup(id, filterKey) {
+  document.getElementById(id).addEventListener('click', e => {
+    const pill = e.target.closest('[data-val]');
+    if (!pill) return;
+    [...e.currentTarget.querySelectorAll('[data-val]')].forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    filters[filterKey] = pill.dataset.val;
+    applyFilters();
+  });
+}
+
+/* ── ANALYTICS DASHBOARD RENDERING ── */
+let chartInstances = {};
+function renderDashboardCharts() {
+  // 1. Core aggregates
+  const artists = new Set(), cats = new Set();
+  let brightnessSum = 0;
+  
+  const colorsCount = {};
+  const harmoniesCount = {};
+  const orientationsCount = {};
+  const artistCounts = {};
+
+  allData.forEach(d => {
+    const pm = d.prompt_match || {};
+    const ft = d.features || {};
+    if (pm.artist) {
+      artists.add(pm.artist);
+      artistCounts[pm.artist] = (artistCounts[pm.artist] || 0) + 1;
+    }
+    if (pm.category) cats.add(pm.category);
+    brightnessSum += ft.brightness_score || 0;
+
+    if (ft.dominant_color) colorsCount[ft.dominant_color] = (colorsCount[ft.dominant_color] || 0) + 1;
+    if (ft.color_harmony) harmoniesCount[ft.color_harmony] = (harmoniesCount[ft.color_harmony] || 0) + 1;
+    if (ft.orientation) orientationsCount[ft.orientation] = (orientationsCount[ft.orientation] || 0) + 1;
+  });
+
+  document.getElementById('dash-total-images').textContent = allData.length.toLocaleString();
+  document.getElementById('dash-total-cats').textContent = cats.size;
+  document.getElementById('dash-total-artists').textContent = artists.size;
+  document.getElementById('dash-avg-brightness').textContent = Math.round(brightnessSum / allData.length);
+
+  // Helper to destroy old charts before redrawing
+  const prepareChart = (id) => {
+    if (chartInstances[id]) chartInstances[id].destroy();
+  };
+
+  // Color Pie Chart
+  prepareChart('colorPieChart');
+  const colorLabels = Object.keys(colorsCount);
+  chartInstances['colorPieChart'] = new Chart(document.getElementById('colorPieChart'), {
+    type: 'pie',
+    data: {
+      labels: colorLabels,
+      datasets: [{
+        data: Object.values(colorsCount),
+        backgroundColor: colorLabels.map(col => COLOR_HEX[col] || '#94a3b8'),
+        borderColor: '#111520',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { color: '#94a3b8', font: { family: 'Outfit' } } }
+      }
+    }
+  });
+
+  // Harmony Bar Chart
+  prepareChart('harmonyBarChart');
+  chartInstances['harmonyBarChart'] = new Chart(document.getElementById('harmonyBarChart'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(harmoniesCount),
+      datasets: [{
+        label: 'Images',
+        data: Object.values(harmoniesCount),
+        backgroundColor: 'rgba(99, 102, 241, 0.65)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { family: 'Outfit' } } },
+        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { family: 'Outfit' } } }
+      }
+    }
+  });
+
+  // Orientation Doughnut
+  prepareChart('orientationDoughnutChart');
+  chartInstances['orientationDoughnutChart'] = new Chart(document.getElementById('orientationDoughnutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(orientationsCount),
+      datasets: [{
+        data: Object.values(orientationsCount),
+        backgroundColor: ['#6366f1', '#ec4899', '#f59e0b'],
+        borderColor: '#111520'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { color: '#94a3b8', font: { family: 'Outfit' } } }
+      }
+    }
+  });
+
+  // Artists Bar Chart (Top 12)
+  prepareChart('artistsBarChart');
+  const sortedArtists = Object.entries(artistCounts).sort((a,b)=>b[1]-a[1]).slice(0, 12);
+  chartInstances['artistsBarChart'] = new Chart(document.getElementById('artistsBarChart'), {
+    type: 'bar',
+    data: {
+      labels: sortedArtists.map(x=>x[0]),
+      datasets: [{
+        label: 'Generations',
+        data: sortedArtists.map(x=>x[1]),
+        backgroundColor: 'rgba(236, 72, 153, 0.65)',
+        borderColor: 'rgba(236, 72, 153, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { family: 'Outfit' } } },
+        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { family: 'Outfit' } } }
+      }
+    }
+  });
+
+  // FastText AI distribution charts (from fasttext_stats.js)
+  const ftPalettes = ['#6366f1','#818cf8','#ec4899','#f59e0b','#10b981','#06b6d4','#a855f7','#ef4444','#84cc16','#14b8a6','#f97316','#3b82f6'];
+  function renderFtChart(id, key, type='doughnut') {
+    prepareChart(id);
+    const counts = (window.fasttextStats || {})[key] || {};
+    const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0, 10);
+    chartInstances[id] = new Chart(document.getElementById(id), {
+      type,
+      data: {
+        labels: entries.map(e => e[0].replace(/_/g,' ')),
+        datasets: [{
+          data: entries.map(e => e[1]),
+          backgroundColor: ftPalettes,
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { color: '#94a3b8', font: { family: 'Outfit', size: 10 }, boxWidth: 10 } }
+        }
+      }
+    });
+  }
+  renderFtChart('ftSubjectChart', 'subject');
+  renderFtChart('ftLightingChart', 'lighting', 'bar');
+  renderFtChart('ftPeriodChart', 'period');
+  renderFtChart('ftOriginChart', 'origin');
+}
+
+/* ── AI FastText Similarity ── */
+// Find images sharing the most FastText labels with a given image
+function findSimilarByFt(targetD, topN = 60) {
+  const targetFt = getFt(targetD);
+  const keys = ['style','medium','mood','subject','period','origin','lighting','view',
+                'weather','has_person','complexity','colorblend','domcolor','tag_material'];
+  const targetLabels = {};
+  keys.forEach(k => { const l = ftLabel(targetFt, k); if (l) targetLabels[k] = l; });
+
+  const scored = allData.map(d => {
+    if (d.filename === targetD.filename) return { d, score: -1 };
+    const ft = getFt(d);
+    let score = 0;
+    for (const k of keys) {
+      if (targetLabels[k] && ftLabel(ft, k) === targetLabels[k]) score += 1;
+    }
+    return { d, score };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, topN).map(x => x.d);
+}
+
+function openFtSimilarModal(d) {
+  currentItem = d;
+  const similar = findSimilarByFt(d, 60);
+  const grid = similar.map(sd => {
+    const ft = getFt(sd);
+    const subject = ftLabel(ft, 'subject') || sd.prompt_match?.subject || '';
+    const style = ftLabel(ft, 'style') || '';
+    return `<div class="sim-thumb" data-fn="${sd.filename}" title="${subject} (${style})"
+              style="cursor:pointer;border:1px solid var(--border);border-radius:6px;overflow:hidden;aspect-ratio:3/4">
+      <img src="${resolveImgSrc(sd.filename)}" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+    </div>`;
+  }).join('');
+
+  let overlay = document.getElementById('ft-similar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'ft-similar-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(9,11,16,.92);backdrop-filter:blur(8px);z-index:300;display:none;overflow-y:auto;padding:2rem 1rem';
+    overlay.innerHTML = `
+      <div style="max-width:1100px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <div>
+            <h3 style="color:var(--accent2);font-size:1.1rem">AI Similar Images</h3>
+            <p style="font-size:.78rem;color:var(--dim)">Ranked by shared FastText labels (style, subject, lighting, period, origin, material…)</p>
+          </div>
+          <button id="ft-similar-close" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:.4rem .8rem;border-radius:6px;cursor:pointer">✕ Close</button>
+        </div>
+        <div id="ft-similar-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.5rem"></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#ft-similar-close').addEventListener('click', () => overlay.style.display = 'none');
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+    overlay.querySelector('#ft-similar-grid').addEventListener('click', e => {
+      const thumb = e.target.closest('[data-fn]');
+      if (!thumb) return;
+      const found = allData.find(x => x.filename === thumb.dataset.fn);
+      if (found) { overlay.style.display = 'none'; openModal(found); }
+    });
+  }
+  overlay.querySelector('#ft-similar-grid').innerHTML = grid;
+  overlay.style.display = 'block';
+}
+
+/* ── Init ── */
+function init() {
+  document.getElementById('badge-count').textContent = `${allData.length.toLocaleString()} images`;
+  initSidebar();
+  document.getElementById('dup-count').textContent = String(dupRedundant.size);
+  setupPillGroup('f-dup', 'duplicates');
+
+  // Dropdowns
+  document.getElementById('f-artist').addEventListener('change', e => { filters.artist = e.target.value; applyFilters(); });
+  document.getElementById('f-category').addEventListener('change', e => { filters.category = e.target.value; applyFilters(); });
+  document.getElementById('f-medium').addEventListener('change', e => { filters.medium = e.target.value; applyFilters(); });
+  document.getElementById('f-mood').addEventListener('change', e => { filters.mood = e.target.value; applyFilters(); });
+  document.getElementById('f-style').addEventListener('change', e => { filters.style = e.target.value; applyFilters(); });
+  document.getElementById('f-blend-style').addEventListener('change', e => { filters.blend_style = e.target.value; applyFilters(); });
+  document.getElementById('f-genre').addEventListener('change', e => { filters.genre = e.target.value; applyFilters(); });
+  document.getElementById('f-era').addEventListener('change', e => { filters.era = e.target.value; applyFilters(); });
+
+  // FastText AI dropdowns
+  const ftSelects = {
+    'f-ft-subject': 'ft_subject',
+    'f-ft-period': 'ft_period',
+    'f-ft-origin': 'ft_origin',
+    'f-ft-lighting': 'ft_lighting',
+    'f-ft-view': 'ft_view',
+    'f-ft-weather': 'ft_weather',
+    'f-ft-complexity': 'ft_complexity',
+    'f-ft-material': 'ft_material',
+    'f-ft-style-medium': 'ft_style_medium',
+    'f-ft-mood-lighting': 'ft_mood_lighting',
+  };
+  Object.entries(ftSelects).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', e => { filters[key] = e.target.value; applyFilters(); });
+  });
+
+  // Custom color picker search
+  document.getElementById('f-custom-color').addEventListener('input', e => {
+    searchByColorHex(e.target.value);
+  });
+
+  // Pill groups
+  setupPillGroup('f-orientation', 'orientation');
+  setupPillGroup('f-tonal',       'tonal');
+  setupPillGroup('f-harmony',     'harmony');
+  setupPillGroup('f-saturation',  'saturation');
+  setupPillGroup('f-brightness',  'brightness');
+  setupPillGroup('f-contrast',    'contrast');
+  setupPillGroup('f-ft-person',   'ft_person');
+  setupPillGroup('f-ft-setting',  'ft_setting');
+  setupPillGroup('f-ft-aesthetic','ft_aesthetic');
+
+  // Chip groups (temp + color)
+  ['f-temp','f-color'].forEach(id => {
+    const key = id === 'f-temp' ? 'temp' : 'color';
+    document.getElementById(id).addEventListener('click', e => {
+      const chip = e.target.closest('[data-val]');
+      if (!chip) return;
+      [...e.currentTarget.querySelectorAll('[data-val]')].forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      filters[key] = chip.dataset.val;
+      applyFilters();
+    });
+  });
+
+  // Sort
+  document.getElementById('sort-sel').addEventListener('change', applyFilters);
+
+  // Reset
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    Object.keys(filters).forEach(k => filters[k] = '');
+    document.getElementById('q').value = '';
+    document.getElementById('f-artist').value = '';
+    document.getElementById('f-category').value = '';
+    document.getElementById('f-medium').value = '';
+    document.getElementById('f-mood').value = '';
+    document.getElementById('f-style').value = '';
+    document.getElementById('f-blend-style').value = '';
+    document.getElementById('f-genre').value = '';
+    document.getElementById('f-era').value = '';
+    Object.keys(ftSelects).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.querySelectorAll('.s-pill, .chip').forEach(el => el.classList.toggle('active', el.dataset.val === ''));
+    computedSimilarities = null;
+    activeColorFilter = null;
+    document.getElementById('f-custom-color').value = '#6366f1';
+    document.getElementById('color-filter-indicator').style.display = 'none';
+    applyFilters();
+  });
+
+  // Clear Color Filter Swatch Click
+  document.getElementById('clear-color-filter').addEventListener('click', () => {
+    activeColorFilter = null;
+    document.getElementById('color-filter-indicator').style.display = 'none';
+    applyFilters();
+  });
+
+  // Modal close
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-bg').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Infinite scroll
+  window.addEventListener('scroll', () => {
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200) loadMore();
+  });
+
+  applyFilters();
+}
+
+/* ── Interactive UMAP Canvas Map ── */
+let umapCanvasInitialized = false;
+let umapCanvas = null;
+let umapCtx = null;
+let umapScale = 1;
+let umapOffsetX = 0;
+let umapOffsetY = 0;
+let isPanning = false;
+let startDragX = 0;
+let startDragY = 0;
+let hoveredItem = null;
+
+function initUmapCanvas() {
+  umapCanvas = document.getElementById('umap-canvas');
+  umapCtx = umapCanvas.getContext('2d');
+  
+  // Resize canvas to fill panel
+  const resizeCanvas = () => {
+    if (!umapCanvas) return;
+    const rect = umapCanvas.parentElement.getBoundingClientRect();
+    umapCanvas.width = rect.width;
+    umapCanvas.height = rect.height;
+    drawUmap();
+  };
+  
+  window.removeEventListener('resize', resizeCanvas);
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  if (umapCanvasInitialized) return;
+  umapCanvasInitialized = true;
+
+  // Mouse wheel zoom (centered on mouse)
+  umapCanvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const zoomFactor = 1.15;
+    const oldScale = umapScale;
+    
+    if (e.deltaY < 0) {
+      umapScale = Math.min(umapScale * zoomFactor, 40);
+    } else {
+      umapScale = Math.max(umapScale / zoomFactor, 0.4);
+    }
+    
+    const rect = umapCanvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    const worldX = (mouseX - umapCanvas.width/2 - umapOffsetX) / oldScale;
+    const worldY = (mouseY - umapCanvas.height/2 - umapOffsetY) / oldScale;
+    
+    umapOffsetX = mouseX - umapCanvas.width/2 - worldX * umapScale;
+    umapOffsetY = mouseY - umapCanvas.height/2 - worldY * umapScale;
+    
+    drawUmap();
+  });
+
+  // Drag pan
+  umapCanvas.addEventListener('mousedown', e => {
+    isPanning = true;
+    startDragX = e.clientX - umapOffsetX;
+    startDragY = e.clientY - umapOffsetY;
+    umapCanvas.style.cursor = 'grabbing';
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (isPanning) {
+      umapOffsetX = e.clientX - startDragX;
+      umapOffsetY = e.clientY - startDragY;
+      drawUmap();
+    } else if (umapCanvas && umapCanvas.offsetParent !== null) {
+      const rect = umapCanvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      
+      let closest = null;
+      let minDist = 12; // hover threshold in pixels
+      
+      allData.forEach(d => {
+        if (d.umap_x === undefined) return;
+        const cx = (d.umap_x - 50) * umapScale * (umapCanvas.width / 110) + umapCanvas.width / 2 + umapOffsetX;
+        const cy = (d.umap_y - 50) * umapScale * (umapCanvas.height / 110) + umapCanvas.height / 2 + umapOffsetY;
+        const dist = Math.hypot(mouseX - cx, mouseY - cy);
+        if (dist < minDist) {
+          minDist = dist;
+          closest = d;
+        }
+      });
+      
+      const card = document.getElementById('umap-hover-card');
+      if (closest) {
+        if (hoveredItem !== closest) {
+          hoveredItem = closest;
+          drawUmap();
+          
+          document.getElementById('umap-hover-img').src = resolveImgSrc(closest.filename);
+          document.getElementById('umap-hover-artist').textContent = closest.prompt_match?.artist || 'Unknown';
+          document.getElementById('umap-hover-subject').textContent = closest.prompt_match?.subject || '—';
+          document.getElementById('umap-hover-score').textContent = closest.aesthetic_score ? `Aesthetics: ${closest.aesthetic_score}/10` : '';
+        }
+        
+        card.style.display = 'block';
+        card.style.left = `${e.clientX - rect.left + 15}px`;
+        card.style.top = `${e.clientY - rect.top + 15}px`;
+      } else {
+        if (hoveredItem !== null) {
+          hoveredItem = null;
+          drawUmap();
+        }
+        card.style.display = 'none';
+      }
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isPanning) {
+      isPanning = false;
+      if (umapCanvas) umapCanvas.style.cursor = 'grab';
+    }
+  });
+
+  umapCanvas.addEventListener('click', e => {
+    if (hoveredItem) {
+      openModal(hoveredItem);
+    }
+  });
+}
+
+function drawUmap() {
+  if (!umapCtx || !umapCanvas) return;
+  
+  umapCtx.fillStyle = '#090b10';
+  umapCtx.fillRect(0, 0, umapCanvas.width, umapCanvas.height);
+  
+  const w = umapCanvas.width;
+  const h = umapCanvas.height;
+  const scaleMultiplier = w / 110;
+  const dotRadius = Math.max(1.8, Math.min(1.8 * Math.sqrt(umapScale), 6));
+  
+  allData.forEach(d => {
+    if (d.umap_x === undefined) return;
+    
+    const cx = (d.umap_x - 50) * umapScale * scaleMultiplier + w / 2 + umapOffsetX;
+    const cy = (d.umap_y - 50) * umapScale * scaleMultiplier + h / 2 + umapOffsetY;
+    
+    if (cx < -10 || cx > w + 10 || cy < -10 || cy > h + 10) return;
+    
+    umapCtx.beginPath();
+    umapCtx.arc(cx, cy, dotRadius, 0, 2 * Math.PI);
+    umapCtx.fillStyle = d.dominant_palette?.[0] || '#6366f1';
+    umapCtx.fill();
+  });
+  
+  if (hoveredItem) {
+    const cx = (hoveredItem.umap_x - 50) * umapScale * scaleMultiplier + w / 2 + umapOffsetX;
+    const cy = (hoveredItem.umap_y - 50) * umapScale * scaleMultiplier + h / 2 + umapOffsetY;
+    
+    umapCtx.beginPath();
+    umapCtx.arc(cx, cy, dotRadius * 2.2, 0, 2 * Math.PI);
+    umapCtx.fillStyle = '#ffffff';
+    umapCtx.fill();
+    
+    umapCtx.beginPath();
+    umapCtx.arc(cx, cy, dotRadius * 1.5, 0, 2 * Math.PI);
+    umapCtx.fillStyle = hoveredItem.dominant_palette?.[0] || '#6366f1';
+    umapCtx.fill();
+  }
+}
+
+async function loadAllFromApi(base) {
+  const out = [];
+  let offset = 0;
+  const limit = 1000;              // same page size order as the chunk files
+  for (;;) {
+    const res = await fetch(`${base}?offset=${offset}&limit=${limit}`);
+    if (!res.ok) throw new Error('api ' + res.status + ': ' + await res.text());
+    const page = await res.json();
+    out.push(...page.records);
+    if (out.length >= page.total || page.records.length === 0) break;
+    offset += page.records.length;
+  }
+  return out;
+}
+if (API_MODE) {
+  init();                          // data already awaited above; no onload wait
+} else {
+  window.onload = init;
+}
+})();
+</script>
+</body>
+</html>
