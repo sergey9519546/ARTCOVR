@@ -29,6 +29,37 @@ export function displayFacetLabel(value: string) {
   return humanizeVisualLabel(value);
 }
 
+const STYLE_DISPLAY_LABELS: Record<string, string> = {
+  "Digital / Computational": "Digital",
+  "Graphic / Illustration / Print": "Graphic",
+  "Material / Sculptural / Organic": "Sculptural",
+  "Minimal / Abstract": "Minimal",
+  "Mixed Media / Collage": "Collage",
+  "Painterly / Illustrative": "Painterly",
+  "Surreal / Hybrid": "Surreal",
+};
+
+export function displayStyleLabel(value: string) {
+  return STYLE_DISPLAY_LABELS[value] ?? displayFacetLabel(value);
+}
+
+const MOOD_DISPLAY_LABELS: Record<string, string> = {
+  "Vibrant__Energetic": "Vibrant",
+  "Melancholic__Solitary": "Melancholic",
+  "Majestic__Epic": "Majestic",
+  "Eerie__Dark": "Eerie",
+  "Mysterious__Dreamy": "Mysterious",
+  "Serene__Peaceful": "Serene",
+};
+
+function getArtworkMood(artwork: Artwork): string | null {
+  return getVisualEntry(artwork.slug)?.labels.mood?.label ?? artwork.moodTags[0] ?? null;
+}
+
+export function displayMoodLabel(value: string) {
+  return MOOD_DISPLAY_LABELS[value] ?? displayFacetLabel(value);
+}
+
 function colorSwatch(value: string) {
   if (value.startsWith("#")) return value;
   const swatches: Record<string, string> = {
@@ -49,10 +80,10 @@ export function getCatalogFacets(items: readonly Artwork[]) {
   const categories = [...new Set(items.map((item) => item.category))].sort();
   const colors = [...new Set(items.map(getArtworkColor).filter((value): value is string => Boolean(value)))]
     .sort((left, right) => displayFacetLabel(left).localeCompare(displayFacetLabel(right)));
-  const moods = [...new Set(items.flatMap((item) => item.moodTags))]
+  const moods = [...new Set(items.map(getArtworkMood).filter((value): value is string => Boolean(value)))]
     .map((tag) => ({
       tag,
-      count: items.filter((item) => item.moodTags.includes(tag)).length,
+      count: items.filter((item) => getArtworkMood(item) === tag).length,
     }))
     .sort((left, right) => right.count - left.count || left.tag.localeCompare(right.tag))
     .slice(0, 12)
@@ -70,7 +101,7 @@ export function applyCatalogView(
     .filter((artwork) => {
       if (view.category && artwork.category !== view.category) return false;
       if (view.color && getArtworkColor(artwork) !== view.color) return false;
-      if (view.mood && !artwork.moodTags.includes(view.mood)) return false;
+      if (view.mood && getArtworkMood(artwork) !== view.mood) return false;
       return true;
     })
     .sort((left, right) => (orderIndex.get(left.slug) ?? 0) - (orderIndex.get(right.slug) ?? 0));
@@ -191,7 +222,11 @@ export function CatalogControls({
                   swatchOnly={key === "color"}
                   ariaLabel={key === "color" ? `Color: ${displayFacetLabel(option)}` : undefined}
                 >
-                  {key === "color" ? null : displayFacetLabel(option)}
+                  {key === "color"
+                    ? null
+                    : key === "category"
+                      ? displayStyleLabel(option)
+                      : displayMoodLabel(option)}
                 </Chip>
               ))}
               </div>
