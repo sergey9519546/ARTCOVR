@@ -90,7 +90,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
       ) : filteredItems.length === 0 ? (
         <div className="mt-12 border border-current/20 px-6 py-12 text-center">
           <p className="text-xl font-bold">No works match those filters.</p>
-          <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different style, color, or mood.</p>
+          <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different genre, color, or mood.</p>
         </div>
       ) : (
         <div className="mt-12">

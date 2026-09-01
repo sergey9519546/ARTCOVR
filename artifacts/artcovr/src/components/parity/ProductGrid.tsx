@@ -73,7 +73,7 @@ export function ProductGrid() {
 
   if (displayArtworks.length === 0) return null;
   const isDefaultView =
-    view.category === null &&
+    view.genre === null &&
     view.color === null &&
     view.mood === null;
   const isPartialCatalog = hasRange(4, 7);
@@ -106,7 +106,7 @@ export function ProductGrid() {
         <div className="mt-10 border border-current/20 px-6 py-12 text-center">
           <p className="text-xl font-bold">No covers match those controls.</p>
           <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">
-            Clear a style, color, or mood filter to see more.
+            Clear a genre, color, or mood filter to see more.
           </p>
         </div>
       ) : isDefaultView ? (
