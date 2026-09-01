@@ -10,10 +10,12 @@ import {
   CATALOG_INTELLIGENCE_VERSION,
   getCatalogIntelligenceRecord,
   getExternalPayloadReadiness,
+  INTELLIGENCE_METADATA_CHUNK_FILES,
   INTELLIGENCE_PAYLOAD_CONTRACT,
   intersectCatalogFacetSlugs,
   summarizeCatalogIntelligence,
 } from "./catalog-intelligence.ts";
+import { validateCatalogIntelligencePayload } from "./catalog-payload.ts";
 import { visualIndex } from "./visual-index.ts";
 
 describe("catalog intelligence", () => {
@@ -23,7 +25,7 @@ describe("catalog intelligence", () => {
     assert.equal(index.records.size, artworks.length);
 
     for (const artwork of artworks) {
-      const record = index.records.get(artwork.slug);
+      const record = getCatalogIntelligenceRecord(artwork);
       assert.ok(record, `${artwork.slug}: intelligence record is missing`);
       assert.equal(record.source, "approved-public");
       assert.equal(record.assetKey, artwork.image.split("/").pop());
@@ -81,5 +83,66 @@ describe("catalog intelligence", () => {
     const readiness = getExternalPayloadReadiness(Object.values(INTELLIGENCE_PAYLOAD_CONTRACT));
     assert.equal(readiness.mode, "external-payload-ready");
     assert.deepEqual(readiness.missing, []);
+  });
+
+  test("recognizes all individual metadata chunks as the complete metadata family", () => {
+    const readiness = getExternalPayloadReadiness([
+      ...INTELLIGENCE_METADATA_CHUNK_FILES,
+      ...Object.values(INTELLIGENCE_PAYLOAD_CONTRACT).filter(
+        (payload) => payload !== INTELLIGENCE_PAYLOAD_CONTRACT.metadataChunks,
+      ),
+    ]);
+    assert.equal(readiness.mode, "external-payload-ready");
+    assert.equal(readiness.families.metadata, "available");
+    assert.deepEqual(readiness.missing, []);
+  });
+
+  test("rejects stale, orphaned, dimension-mismatched, and unapproved payload records", () => {
+    const catalog = [
+      {
+        slug: "approved-work",
+        image: "/assets/artworks/approved-work.jpg",
+        rightsApproved: true,
+        published: true,
+      },
+      {
+        slug: "staging-work",
+        image: "/private/staging-work.jpg",
+        rightsApproved: false,
+        published: false,
+      },
+    ];
+    const result = validateCatalogIntelligencePayload({
+      catalog,
+      payload: {
+        metadata: [{ slug: "approved-work", filename: "old-name.jpg" }],
+        fasttextPredictions: { "unknown.jpg": {} },
+        fasttextIndex: { style: { Graphic: ["unknown.jpg"] } },
+        fasttextStats: {},
+        fasttextAnalysis: {},
+        search: { slugs: ["approved-work"] },
+        vectors: { slugs: ["approved-work"], dimensions: 768 },
+        related: { "approved-work.jpg": { related: ["unknown.jpg"] } },
+        approvedPublic: [{ slug: "staging-work", filename: "staging-work.jpg" }],
+        duplicates: {
+          groups: [{ canonical: "approved-work.jpg", members: ["other.jpg"] }],
+        },
+      },
+      options: { expectedCorpusSize: 2 },
+    });
+
+    assert.equal(result.ok, false);
+    assert.equal(result.completeness, "incomplete");
+    assert.equal(result.integrity, "invalid");
+    assert.ok(result.issues.some(({ code }) => code === "STALE_RECORD"));
+    assert.ok(result.issues.some(({ code }) => code === "ORPHAN_PAYLOAD"));
+    assert.ok(result.issues.some(({ code }) => code === "DIMENSION_MISMATCH"));
+    assert.ok(result.issues.some(({ code }) => code === "RELATED_ORPHAN"));
+    assert.ok(result.issues.some(({ code }) => code === "UNAPPROVED_PUBLIC"));
+    assert.equal(result.reports.fasttextIndex.status, "invalid");
+    assert.equal(result.reports.vectors.status, "invalid");
+    assert.equal(result.reports.vectors.completeness, "incomplete");
+    assert.equal(result.reports.vectors.integrity, "invalid");
+    assert.equal(result.reports.duplicates.status, "invalid");
   });
 });

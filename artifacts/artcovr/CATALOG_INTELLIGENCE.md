@@ -41,9 +41,76 @@ The attached viewers reference these payload families:
 
 The HTML files do not contain those payloads. The application reports the
 payload set as incomplete instead of silently treating missing data as empty.
-A future import must validate identity coverage, approval isolation, vector
-dimensions, related-link targets, duplicate canonicality, and keyword/index
-alignment before the data can be used.
+
+## Import and integrity boundary
+
+`src/lib/artcovr/catalog-payload.ts` is the import boundary for a decoded
+bundle. `validateCatalogIntelligencePayload` requires the full
+`FULL_CATALOG_SIZE` (22,260) by default and validates each layer before use:
+
+- metadata, FastText predictions, analysis, search, vectors, and related
+  neighbors must cover every catalog identity exactly once;
+- FastText indexes must point only at known filenames;
+- vectors must declare 512 dimensions;
+- related targets must resolve to known slugs/filenames;
+- duplicate groups must include one canonical member and cannot reuse members;
+- stale slug/filename joins, orphan records, missing records, and an
+  unapproved `approvedPublic` projection produce explicit issues.
+
+Each family reports `missing`, `incomplete`, `invalid`, or `valid` status.
+`integrity: "valid"` and `completeness: "complete"` are both required before
+the bundle is trusted. A smaller fixture or intentionally scoped staging
+import must opt into an explicit `expectedCorpusSize`.
+
+The validator returns `projection.approvedPublic` and
+`projection.privateStaging` as separate identity lists. The public list is
+identity-only and contains no raw vectors, prompts, local paths, or private
+metadata. The full bundle is not imported by storefront code; the checked-in
+public artifacts remain the bounded customer-facing source.
+
+## Regeneration manifest
+
+When the external bundle is regenerated, create and verify a manifest before
+an owner-side import. The command reads the bundle as bytes; it does not
+import JavaScript payloads or copy the full corpus into the storefront:
+
+```sh
+pnpm --filter @workspace/artcovr run catalog-intelligence:manifest -- \
+  generate \
+  --bundle-dir /path/to/external-bundle \
+  --catalog-file /path/to/catalog-identities.json \
+  --source-version catalog-export@SOURCE_REVISION \
+  --out /path/to/catalog-intelligence-manifest.json
+
+pnpm --filter @workspace/artcovr run catalog-intelligence:manifest -- \
+  verify \
+  --bundle-dir /path/to/external-bundle \
+  --catalog-file /path/to/catalog-identities.json \
+  --source-version catalog-export@SOURCE_REVISION \
+  --manifest /path/to/catalog-intelligence-manifest.json
+```
+
+`catalog-identities.json` is the source catalog array containing `slug` and
+one of `assetKey`, `filename`, `displayPath`, or `image`. The manifest records
+the source revision, the stable slug/filename identity source, corpus count,
+slug and filename coverage, a canonical identity hash, the 512-dimensional
+vector contract, and SHA-256 plus byte counts for every metadata chunk,
+FastText output, search index, vector, related-neighbor, and duplicate-group
+file. Verification fails on stale identity data, a changed source revision,
+missing or extra files, substituted files, and hash/byte mismatches.
+
+Keep the manifest and the raw external bundle in the owner-side import
+workspace; do not check either into the storefront bundle. The owner-side
+import entry point is `importCatalogIntelligenceBundle` in
+`src/lib/artcovr/catalog-manifest.ts`: supply the manifest, the raw
+`manifestFiles`, the catalog source revision, and a `decodePayload` callback.
+It verifies the raw file hashes first and only then decodes and validates the
+payload. A changed, substituted, missing, or unexpected file returns the
+specific manifest issue and an empty projection; it must not be partially
+imported. Callers that already decoded a payload may use
+`validateCatalogIntelligenceBundle`, which applies the same manifest-first
+short-circuit. Both entry points keep the raw bundle and manifest outside the
+storefront artifact.
 
 ## Safe uses
 

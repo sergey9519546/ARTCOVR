@@ -11,6 +11,11 @@ import {
   type VisualDescriptor,
   type VisualRelated,
 } from "./visual-index.ts";
+import {
+  CATALOG_PAYLOAD_FAMILIES,
+  FULL_CATALOG_SIZE,
+  type CatalogPayloadFamily,
+} from "./catalog-payload.ts";
 
 export const CATALOG_INTELLIGENCE_VERSION = "artcovr-catalog-intelligence-v1";
 
@@ -26,6 +31,10 @@ export const INTELLIGENCE_PAYLOAD_CONTRACT = {
   duplicates: "duplicates.js",
 } as const;
 
+export const INTELLIGENCE_METADATA_CHUNK_FILES = Array.from(
+  { length: 23 },
+  (_, index) => `chunks/metadata_${String(index).padStart(4, "0")}.js`,
+);
 export type CatalogFacetKey = "genre" | "color" | "mood" | "style";
 
 export type CatalogIntelligenceRecord = {
@@ -65,6 +74,10 @@ export type ExternalPayloadReadiness = {
   mode: "native-approved-projection" | "external-payload-ready";
   available: string[];
   missing: string[];
+  completeness: "incomplete" | "complete";
+  integrity: "unvalidated";
+  families: Record<CatalogPayloadFamily, "missing" | "available">;
+  expectedCorpusSize: number;
   message: string;
 };
 
@@ -216,12 +229,37 @@ export function getExternalPayloadReadiness(
 ): ExternalPayloadReadiness {
   const available = new Set(availablePayloads);
   const required = Object.values(INTELLIGENCE_PAYLOAD_CONTRACT);
-  const missing = required.filter((payload) => !available.has(payload));
+  const metadataChunksAvailable =
+    available.has(INTELLIGENCE_PAYLOAD_CONTRACT.metadataChunks) ||
+    INTELLIGENCE_METADATA_CHUNK_FILES.every((payload) => available.has(payload));
+  const familyFiles: Record<CatalogPayloadFamily, boolean> = {
+    metadata: metadataChunksAvailable,
+    fasttextPredictions: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.fasttextPredictions),
+    fasttextIndex: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.fasttextIndex),
+    fasttextStats: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.fasttextStats),
+    fasttextAnalysis: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.fasttextAnalysis),
+    search: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.searchIndex),
+    vectors: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.embeddings),
+    related: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.similar),
+    duplicates: available.has(INTELLIGENCE_PAYLOAD_CONTRACT.duplicates),
+  };
+  const missing = required.filter((payload) =>
+    payload === INTELLIGENCE_PAYLOAD_CONTRACT.metadataChunks
+      ? !metadataChunksAvailable
+      : !available.has(payload),
+  );
+  const complete = missing.length === 0;
   if (missing.length === 0) {
     return {
       mode: "external-payload-ready",
       available: [...required],
       missing: [],
+      completeness: "complete",
+      integrity: "unvalidated",
+      families: Object.fromEntries(
+        CATALOG_PAYLOAD_FAMILIES.map((family) => [family, "available"]),
+      ) as Record<CatalogPayloadFamily, "missing" | "available">,
+      expectedCorpusSize: FULL_CATALOG_SIZE,
       message: "All referenced gallery payload families are available for validation.",
     };
   }
@@ -229,6 +267,12 @@ export function getExternalPayloadReadiness(
     mode: "native-approved-projection",
     available: required.filter((payload) => available.has(payload)),
     missing,
+    completeness: complete ? "complete" : "incomplete",
+    integrity: "unvalidated",
+    families: Object.fromEntries(
+      CATALOG_PAYLOAD_FAMILIES.map((family) => [family, familyFiles[family] ? "available" : "missing"]),
+    ) as Record<CatalogPayloadFamily, "missing" | "available">,
+    expectedCorpusSize: FULL_CATALOG_SIZE,
     message:
       "External viewer payloads are incomplete. ARTCOVR is using its approved projection and will not treat missing payloads as empty data.",
   };

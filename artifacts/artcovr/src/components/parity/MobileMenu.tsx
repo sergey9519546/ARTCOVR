@@ -12,6 +12,9 @@ const items = [
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
+  const visibleItems = isSignedIn
+    ? [...items, { label: "curation", href: "/catalog-intelligence" }]
+    : items;
   const dialog = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   // The modal effect below must survive parent re-renders that hand down a
@@ -112,7 +115,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
           Close
         </button>
         <ul className="my-6 flex w-full flex-col text-[clamp(2rem,10vw,3rem)] font-normal leading-[.94] tracking-tight md:my-12 md:text-6xl">
-          {items.map((item, index) => (
+          {visibleItems.map((item, index) => (
             <li key={item.label} className="overflow-hidden">
               <a
                 className="link-hover block w-fit py-2"

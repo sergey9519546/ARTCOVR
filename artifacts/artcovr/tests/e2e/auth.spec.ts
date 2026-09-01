@@ -6,6 +6,7 @@ test("signed-out visitors can still browse the public storefront", async ({
   await page.goto("/archive", { waitUntil: "domcontentloaded" });
   await expect(page.locator('section[aria-label="Artwork archive"]')).toBeVisible();
   await expect(page.getByRole("link", { name: "ARTCOVR home" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Curation" })).toHaveCount(0);
 });
 
 test("signed-out visitors are sent to the Clerk sign-in route", async ({
