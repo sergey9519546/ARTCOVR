@@ -165,7 +165,7 @@ export function FacetOrbit() {
             facet.visibleCount,
           );
           return (
-            <article className="facet-orbit__card" key={facet.key}>
+            <article className="facet-orbit__card" data-facet={facet.key} key={facet.key}>
               <header className="facet-orbit__card-head">
                 <p className="facet-orbit__label">{facet.label}</p>
                 <p className="facet-orbit__index">
@@ -187,18 +187,22 @@ export function FacetOrbit() {
                     type="button"
                     key={choice}
                     className="facet-orbit__choice"
+                    data-has-swatch={facet.swatches?.[choice] ? "true" : undefined}
+                    data-color-choice={facet.key === "color" ? "true" : undefined}
                     data-active={active[facet.key] === choice}
                     aria-pressed={active[facet.key] === choice}
+                    aria-label={facet.key === "color" ? `Color: ${choice}` : undefined}
                     onClick={() => setActive((current) => ({ ...current, [facet.key]: choice }))}
                   >
-                    {facet.swatches?.[choice] ? (
+                    {facet.key === "color" ? (
                       <span
                         className="facet-orbit__swatch"
                         aria-hidden="true"
-                        style={{ background: facet.swatches[choice] }}
+                        style={{ background: facet.swatches?.[choice] }}
                       />
-                    ) : null}
-                    {choice}
+                    ) : (
+                      choice
+                    )}
                   </button>
                 ))}
               </div>

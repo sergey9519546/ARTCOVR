@@ -1,3 +1,27 @@
+@font-face {
+  font-family: "ARTCOVR Grotesk";
+  src: url("/__mockup/assets/NeueHaasGroteskTextPro-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ARTCOVR Grotesk";
+  src: url("/__mockup/assets/NeueHaasGroteskTextPro-Medium.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ARTCOVR Grotesk";
+  src: url("/__mockup/assets/NeueHaasGroteskTextPro-Bold.woff2") format("woff2");
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --artcovr-paper: #f3ecd9;
   --artcovr-ink: #080808;
@@ -12,11 +36,16 @@
 }
 
 * { box-sizing: border-box; }
+html {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 body {
   margin: 0;
   background: var(--artcovr-paper);
   color: var(--artcovr-ink);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "ARTCOVR Grotesk", Arial, sans-serif;
 }
 button { font: inherit; }
 
@@ -41,13 +70,13 @@ button { font: inherit; }
 .facet-orbit__index,
 .facet-orbit__note {
   margin: 0;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: .14em;
   line-height: 1.25;
   text-transform: uppercase;
 }
-.facet-orbit__eyebrow { font-size: 12px; letter-spacing: .16em; }
+.facet-orbit__eyebrow { font-size: 13px; letter-spacing: .16em; }
 .facet-orbit__title {
   max-width: 760px;
   margin: 12px 0 0;
@@ -101,7 +130,7 @@ button { font: inherit; }
   padding-bottom: 18px;
   border-bottom: 2px solid var(--artcovr-ink);
 }
-.facet-orbit__label { font-size: 12px; }
+.facet-orbit__label { font-size: 14px; }
 .facet-orbit__index { color: var(--artcovr-muted); }
 .facet-orbit__choices {
   display: grid;
@@ -109,11 +138,15 @@ button { font: inherit; }
   gap: 0 18px;
   padding-top: 16px;
 }
+.facet-orbit__card[data-facet="color"] .facet-orbit__choices {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 10px;
+}
 .facet-orbit__choice {
   position: relative;
   display: flex;
   min-width: 0;
-  min-height: 44px;
+  min-height: 54px;
   align-items: center;
   gap: 9px;
   padding: 8px 0 9px;
@@ -122,7 +155,7 @@ button { font: inherit; }
   background: transparent;
   color: var(--artcovr-muted);
   cursor: pointer;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: .08em;
   line-height: 1.1;
@@ -155,11 +188,24 @@ button { font: inherit; }
   outline-offset: 3px;
 }
 .facet-orbit__swatch {
-  width: 9px;
-  height: 9px;
+  width: 15px;
+  height: 15px;
   flex: 0 0 auto;
   border: 1px solid currentColor;
-  border-radius: 50%;
+  border-radius: 0;
+}
+.facet-orbit__choice[data-has-swatch="true"]::before { display: none; }
+.facet-orbit__card[data-facet="color"] .facet-orbit__choice[data-color-choice="true"] {
+  justify-content: center;
+  min-height: 58px;
+}
+.facet-orbit__card[data-facet="color"] .facet-orbit__choice[data-color-choice="true"]::before {
+  display: none;
+}
+.facet-orbit__card[data-facet="color"] .facet-orbit__choice[data-color-choice="true"] .facet-orbit__swatch {
+  width: 25px;
+  height: 25px;
+  border-width: 2px;
 }
 .facet-orbit__footer {
   display: flex;
@@ -207,9 +253,13 @@ button { font: inherit; }
 
 @media (max-width: 760px) {
   .facet-orbit { padding: 24px 18px 34px; }
-  .facet-orbit__masthead { align-items: flex-start; }
+  .facet-orbit__masthead { display: block; }
   .facet-orbit__title { font-size: 54px; }
-  .facet-orbit__meta { max-width: 12ch; }
+  .facet-orbit__meta {
+    max-width: 12ch;
+    margin-top: 16px;
+    text-align: left;
+  }
   .facet-orbit__intro { display: block; }
   .facet-orbit__hint { margin-top: 18px; text-align: left; }
   .facet-orbit__grid { grid-template-columns: 1fr; gap: 12px; }
