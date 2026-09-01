@@ -123,8 +123,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
  * Keep the hero mark below its clipped plate until the entrance timeline is
  * ready. This CSS-side state is what the browser paints before React effects
  * run; the media query deliberately excludes every static presentation mode.
- * The entrance tween keeps its final inline transform so this start state does
- * not re-apply after the reveal completes.
+ * The entrance tween clears its transform after the reveal; the html.loaded
+ * guard removes this start state before that cleanup runs.
  */
 @media (prefers-reduced-motion: no-preference) and (pointer: fine) and (min-width: 768px) {
   html:not(.loaded) .artcovr-hero-wordmark { transform: translateY(105%); }

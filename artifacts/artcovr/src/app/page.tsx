@@ -94,10 +94,7 @@ export default function Home() {
         .fromTo(
           ".artcovr-wordmark",
           { yPercent: 105 },
-          // Keep the final inline transform. The pre-animation CSS rule hides
-          // the mark, and clearing this property would re-apply that hidden
-          // rule as soon as the reveal finishes.
-          { yPercent: 0, duration: 0.8 },
+          { yPercent: 0, duration: 0.8, clearProps: "transform" },
         )
         .fromTo(
           "#hero-line",
