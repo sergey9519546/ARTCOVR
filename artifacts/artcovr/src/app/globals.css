@@ -182,6 +182,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
   grid-template-columns: 5.5rem minmax(0, 1fr);
   gap: 1.25rem;
 }
+@media (min-width: 768px) {
+  .artcovr-catalog-facet[data-facet="category"] .artcovr-catalog-facet-choices,
+  .artcovr-catalog-facet[data-facet="mood"] .artcovr-catalog-facet-choices,
+  .artcovr-catalog-facet[data-facet="color"] .artcovr-catalog-facet-choices {
+    justify-content: space-between;
+  }
+}
 
 .artcovr-filter-control {
   position: relative;

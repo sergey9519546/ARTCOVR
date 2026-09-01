@@ -53,7 +53,21 @@ const STYLE_DISPLAY_LABELS: Record<string, string> = {
 };
 
 export function displayStyleLabel(value: string) {
-  return STYLE_DISPLAY_LABELS[value] ?? displayFacetLabel(value);
+  return STYLE_DISPLAY_LABELS[value] ?? VISUAL_STYLE_DISPLAY_LABELS[value] ?? displayFacetLabel(value);
+}
+
+const VISUAL_STYLE_DISPLAY_LABELS: Record<string, string> = {
+  Surrealism: "Surrealist",
+  Abstract: "Abstract",
+  Minimalism: "Minimalist",
+  Impressionism: "Impressionist",
+  Expressionism: "Expressionist",
+  Baroque: "Baroque",
+};
+
+function getArtworkStyles(artwork: Artwork): string[] {
+  const visualStyle = getVisualEntry(artwork.slug)?.labels.style?.label;
+  return [...new Set([artwork.category, visualStyle].filter((value): value is string => Boolean(value)))];
 }
 
 const MOOD_DISPLAY_LABELS: Record<string, string> = {
@@ -105,7 +119,8 @@ function colorSwatch(value: string) {
 }
 
 export function getCatalogFacets(items: readonly Artwork[]) {
-  const categories = [...new Set(items.map((item) => item.category))].sort();
+  const categories = [...new Set(items.flatMap(getArtworkStyles))]
+    .sort((left, right) => displayStyleLabel(left).localeCompare(displayStyleLabel(right)));
   const colors = [...new Set(items.flatMap(getArtworkColors))]
     .sort((left, right) => displayFacetLabel(left).localeCompare(displayFacetLabel(right)));
   const moods = [...new Set(items.flatMap(getArtworkMoods))]
@@ -127,7 +142,7 @@ export function applyCatalogView(
 ) {
   return [...items]
     .filter((artwork) => {
-      if (view.category && artwork.category !== view.category) return false;
+      if (view.category && !getArtworkStyles(artwork).includes(view.category)) return false;
       if (view.color && !getArtworkColors(artwork).includes(view.color)) return false;
       if (view.mood && !getArtworkMoods(artwork).includes(view.mood)) return false;
       return true;
@@ -197,8 +212,8 @@ export function CatalogControls({
   };
 
   const rows: { key: FacetKey; label: string; options: string[]; visibleCount: number }[] = [
-    { key: "category", label: "Style", options: facets.categories, visibleCount: 7 },
-    { key: "mood", label: "Mood", options: facets.moods, visibleCount: 8 },
+    { key: "category", label: "Style", options: facets.categories, visibleCount: 10 },
+    { key: "mood", label: "Mood", options: facets.moods, visibleCount: 10 },
     { key: "color", label: "Color", options: facets.colors, visibleCount: 12 },
   ];
 
