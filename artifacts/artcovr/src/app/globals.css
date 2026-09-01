@@ -94,6 +94,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
   border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
   padding: 1.35rem 0 1.65rem;
 }
+.artcovr-catalog-controls[data-compact="true"] {
+  border-top: 0;
+  padding-top: .4rem;
+}
+.artcovr-catalog-controls[data-compact="true"] .artcovr-catalog-facets {
+  margin-top: 0;
+}
 .artcovr-catalog-header {
   display: flex;
   align-items: center;

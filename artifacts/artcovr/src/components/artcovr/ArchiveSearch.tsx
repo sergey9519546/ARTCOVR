@@ -26,6 +26,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     const textMatched = hybridSearch(query, items);
     return applyCatalogView(textMatched, view, orderIndex);
   }, [items, query, view, orderIndex]);
+  const hasActiveSearch = query.length > 0 || Object.values(view).some(Boolean);
 
   return (
     <>
@@ -34,6 +35,23 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
           <label htmlFor="archive-search" className="text-[11px] font-bold uppercase tracking-[.12em] text-current/70">
             Search archive
           </label>
+          <div className="flex items-center gap-5">
+            <p className="text-[11px] font-bold uppercase tracking-[.1em] text-current/50" role="status" aria-live="polite">
+              {filteredItems.length} / {items.length} works
+            </p>
+            {hasActiveSearch ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setView(DEFAULT_CATALOG_VIEW);
+                }}
+                className="text-[11px] font-bold uppercase tracking-[.1em] underline underline-offset-4 text-current/70 hover:text-current"
+              >
+                Clear all
+              </button>
+            ) : null}
+          </div>
         </div>
         <div className="mt-4 flex items-center gap-3 rounded-full border border-current/20 bg-transparent px-4 py-3 text-base md:max-w-xl">
           <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0 opacity-70">
@@ -64,6 +82,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
           }}
           resultCount={filteredItems.length}
           totalCount={items.length}
+           showHeader={false}
         />
       </div>
 
