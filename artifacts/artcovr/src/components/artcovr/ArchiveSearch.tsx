@@ -2,12 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
-import { ArtworkCard } from "@/components/artcovr/ArtworkCard";
 import {
   applyCatalogView,
   CatalogControls,
   DEFAULT_CATALOG_VIEW,
-  groupArtworks,
   type CatalogView,
 } from "@/components/artcovr/CatalogControls";
 import type { Artwork } from "@/lib/artcovr/artworks";
@@ -74,31 +72,11 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
       ) : filteredItems.length === 0 ? (
         <div className="mt-12 border border-current/20 px-6 py-12 text-center">
           <p className="text-xl font-bold">No works match those filters.</p>
-          <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different mood, category, or price.</p>
-        </div>
-      ) : view.group === "none" ? (
-        <div className="mt-12">
-          <ArtworkGrid items={filteredItems} />
+          <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different style, color, or mood.</p>
         </div>
       ) : (
-        <div className="mt-12 space-y-16 md:space-y-24">
-          {groupArtworks(filteredItems, view.group).map((group) => (
-            <section key={group.key} aria-label={`${group.label} group`}>
-              <div className="mb-5 flex items-baseline justify-between gap-4 border-t-2 border-current pt-3">
-                <h2 className="text-sm font-bold uppercase tracking-[.08em]">
-                  {group.label}
-                </h2>
-                <span className="text-xs uppercase tracking-[.1em] text-current/50">
-                  {group.items.length} {group.items.length === 1 ? "work" : "works"}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16">
-                {group.items.map((artwork, index) => (
-                  <ArtworkCard key={artwork.id} artwork={artwork} priority={index < 2} />
-                ))}
-              </div>
-            </section>
-          ))}
+        <div className="mt-12">
+          <ArtworkGrid items={filteredItems} />
         </div>
       )}
     </>
