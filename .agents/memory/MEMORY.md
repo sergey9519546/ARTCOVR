@@ -1,1 +1,2 @@
 - [Artifact-scoped browser tooling](browser-test-tooling.md) — add test dependencies through the pnpm workspace filter rather than the generic root installer.
+- [Hero animation gating](hero-animation-gating.md) — pair the CSS hidden state with the loaded class before allowing GSAP to clear the final transform.

@@ -61,8 +61,8 @@ body {
 .artcovr-hero-wordmark {
   /*
    * This fill-mode is the sandbox equivalent of the production CSS start
-   * state. The end transform stays at 0 instead of being cleared, so the
-   * hidden start rule cannot snap back after the reveal.
+   * state. In production, html.loaded removes the hidden selector before GSAP
+   * clears the completed transform, so the wordmark cannot snap back.
    */
   animation: artcovr-wordmark-reveal .8s var(--motion-ease) both;
 }
