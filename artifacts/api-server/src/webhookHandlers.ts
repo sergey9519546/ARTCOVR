@@ -1,9 +1,5 @@
 import { fulfillCheckoutSession } from "./commerceService";
-import {
-  getStripeSync,
-  getStripeWebhookSecret,
-  getUncachableStripeClient,
-} from "./stripeClient";
+import { retrieveStripeEvent } from "./stripeClient";
 
 export class WebhookHandlers {
   static async processWebhook(payload: Buffer, signature: string): Promise<void> {
@@ -11,16 +7,15 @@ export class WebhookHandlers {
       throw new Error("Stripe webhook payload must be a Buffer.");
     }
 
-    const webhookSecret = await getStripeWebhookSecret();
-    const stripe = await getUncachableStripeClient();
-    const event = stripe.webhooks.constructEvent(
-      payload,
-      signature,
-      webhookSecret,
-    );
+    if (!signature.trim()) {
+      throw new Error("Stripe webhook signature is missing.");
+    }
+    const envelope = JSON.parse(payload.toString("utf8")) as { id?: unknown };
+    if (typeof envelope.id !== "string" || !envelope.id.startsWith("evt_")) {
+      throw new Error("Stripe webhook event ID is invalid.");
+    }
 
-    const sync = await getStripeSync();
-    await sync.processWebhook(payload, signature);
+    const event = await retrieveStripeEvent(envelope.id);
     await fulfillCheckoutSession(event);
   }
 }

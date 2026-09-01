@@ -9,7 +9,10 @@ import {
 } from "../commerceService";
 import { logger } from "../lib/logger";
 import { getStripePriceForArtwork, StripeCatalogError } from "../stripeService";
-import { getUncachableStripeClient } from "../stripeClient";
+import {
+  createCheckoutSession,
+  retrieveCheckoutSession,
+} from "../stripeClient";
 
 const router: IRouter = Router();
 const checkoutBody = z.object({
@@ -62,8 +65,7 @@ router.post("/checkout", async (req, res): Promise<void> => {
     }
 
     if (existingOrder.stripeCheckoutSessionId) {
-      const stripe = await getUncachableStripeClient();
-      const session = await stripe.checkout.sessions.retrieve(
+      const session = await retrieveCheckoutSession(
         existingOrder.stripeCheckoutSessionId,
       );
       if (session.url) {
@@ -109,18 +111,12 @@ router.post("/checkout", async (req, res): Promise<void> => {
   }
 
   try {
-    const [stripe, price] = await Promise.all([
-      getUncachableStripeClient(),
-      getStripePriceForArtwork(artwork),
-    ]);
+    const price = await getStripePriceForArtwork(artwork);
     const origin = requestOrigin(req);
-    const session = await stripe.checkout.sessions.create(
+    const session = await createCheckoutSession(
       {
-        mode: "payment",
-        line_items: [{ price: price.id, quantity: 1 }],
-        customer_creation: "always",
-        allow_promotion_codes: false,
-        client_reference_id: order.id,
+        orderId: order.id,
+        priceId: price.id,
         metadata: {
           order_id: order.id,
           artwork_id: artwork.id,
@@ -128,10 +124,10 @@ router.post("/checkout", async (req, res): Promise<void> => {
           included_credits: String(order.includedCredits),
           sale_mode: order.saleMode,
         },
-        success_url: `${origin}/checkout/${artwork.slug}?status=success&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/checkout/${artwork.slug}?status=cancelled`,
+        successUrl: `${origin}/checkout/${artwork.slug}?status=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${origin}/checkout/${artwork.slug}?status=cancelled`,
       },
-      { idempotencyKey: parsed.data.idempotencyKey },
+      parsed.data.idempotencyKey,
     );
 
     if (!session.url) {

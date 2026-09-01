@@ -1,6 +1,9 @@
 import type Stripe from "stripe";
 import type { PublicCatalogArtwork } from "./catalog";
-import { getUncachableStripeClient } from "./stripeClient";
+import {
+  listStripePrices,
+  listStripeProducts,
+} from "./stripeClient";
 
 export class StripeCatalogError extends Error {
   readonly code = "stripe_price_missing";
@@ -14,11 +17,10 @@ export class StripeCatalogError extends Error {
 export async function getStripePriceForArtwork(
   artwork: PublicCatalogArtwork,
 ): Promise<Stripe.Price> {
-  const stripe = await getUncachableStripeClient();
-  const products = await stripe.products.search({
-    query: `metadata['artwork_id']:'${artwork.id}' AND active:'true'`,
-  });
-  const product = products.data[0];
+  const products = await listStripeProducts();
+  const product = products.find(
+    (candidate) => candidate.metadata.artwork_id === artwork.id,
+  );
 
   if (!product) {
     throw new StripeCatalogError(
@@ -26,13 +28,8 @@ export async function getStripePriceForArtwork(
     );
   }
 
-  const prices = await stripe.prices.list({
-    product: product.id,
-    active: true,
-    type: "one_time",
-    limit: 100,
-  });
-  const price = prices.data.find(
+  const prices = await listStripePrices(product.id);
+  const price = prices.find(
     (candidate) =>
       candidate.currency === "usd" &&
       candidate.unit_amount === artwork.priceCents,
