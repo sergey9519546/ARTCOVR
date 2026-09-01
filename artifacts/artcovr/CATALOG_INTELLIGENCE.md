@@ -68,6 +68,43 @@ identity-only and contains no raw vectors, prompts, local paths, or private
 metadata. The full bundle is not imported by storefront code; the checked-in
 public artifacts remain the bounded customer-facing source.
 
+## Regeneration manifest
+
+When the external bundle is regenerated, create and verify a manifest before
+an owner-side import. The command reads the bundle as bytes; it does not
+import JavaScript payloads or copy the full corpus into the storefront:
+
+```sh
+pnpm --filter @workspace/artcovr run catalog-intelligence:manifest -- \
+  generate \
+  --bundle-dir /path/to/external-bundle \
+  --catalog-file /path/to/catalog-identities.json \
+  --source-version catalog-export@SOURCE_REVISION \
+  --out /path/to/catalog-intelligence-manifest.json
+
+pnpm --filter @workspace/artcovr run catalog-intelligence:manifest -- \
+  verify \
+  --bundle-dir /path/to/external-bundle \
+  --catalog-file /path/to/catalog-identities.json \
+  --source-version catalog-export@SOURCE_REVISION \
+  --manifest /path/to/catalog-intelligence-manifest.json
+```
+
+`catalog-identities.json` is the source catalog array containing `slug` and
+one of `assetKey`, `filename`, `displayPath`, or `image`. The manifest records
+the source revision, the stable slug/filename identity source, corpus count,
+slug and filename coverage, a canonical identity hash, the 512-dimensional
+vector contract, and SHA-256 plus byte counts for every metadata chunk,
+FastText output, search index, vector, related-neighbor, and duplicate-group
+file. Verification fails on stale identity data, a changed source revision,
+missing or extra files, substituted files, and hash/byte mismatches.
+
+Keep the manifest and the raw external bundle in the owner-side import
+workspace; do not check either into the storefront bundle. The importer should
+run `verifyCatalogIntelligenceManifest` together with
+`validateCatalogIntelligencePayload`, or use
+`validateCatalogIntelligenceBundle` to require both gates.
+
 ## Safe uses
 
 Public discovery may use approved visual labels, palette/color descriptors,

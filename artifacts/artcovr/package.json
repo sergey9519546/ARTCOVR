@@ -9,7 +9,8 @@
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test src/lib/artcovr/*.test.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "catalog-intelligence:manifest": "tsx scripts/catalog-intelligence-manifest.ts"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",

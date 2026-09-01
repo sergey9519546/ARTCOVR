@@ -45,7 +45,8 @@ export type CatalogPayloadIssueCode =
   | "RELATED_ORPHAN"
   | "DUPLICATE_CANONICALITY"
   | "INDEX_MISMATCH"
-  | "CORPUS_SIZE_MISMATCH";
+   | "CORPUS_SIZE_MISMATCH"
+   | "MANIFEST_MISMATCH";
 
 export type CatalogPayloadIssue = {
   family: CatalogPayloadFamily | "catalog";

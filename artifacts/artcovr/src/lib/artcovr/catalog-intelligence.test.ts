@@ -15,9 +15,7 @@ import {
   intersectCatalogFacetSlugs,
   summarizeCatalogIntelligence,
 } from "./catalog-intelligence.ts";
-import {
-  validateCatalogIntelligencePayload,
-} from "./catalog-payload.ts";
+import { validateCatalogIntelligencePayload } from "./catalog-payload.ts";
 import { visualIndex } from "./visual-index.ts";
 
 describe("catalog intelligence", () => {
@@ -27,7 +25,7 @@ describe("catalog intelligence", () => {
     assert.equal(index.records.size, artworks.length);
 
     for (const artwork of artworks) {
-    const record = getCatalogIntelligenceRecord(first);
+      const record = getCatalogIntelligenceRecord(artwork);
       assert.ok(record, `${artwork.slug}: intelligence record is missing`);
       assert.equal(record.source, "approved-public");
       assert.equal(record.assetKey, artwork.image.split("/").pop());
@@ -74,47 +72,17 @@ describe("catalog intelligence", () => {
   });
 
   test("reports missing external viewer payloads explicitly", () => {
-    const readiness = getExternalPayloadReadiness([
-      ...INTELLIGENCE_METADATA_CHUNK_FILES,
-      ...Object.values(INTELLIGENCE_PAYLOAD_CONTRACT).filter(
-        (payload) => payload !== INTELLIGENCE_PAYLOAD_CONTRACT.metadataChunks,
-      ),
-    ]);
+    const readiness = getExternalPayloadReadiness();
+    assert.equal(readiness.mode, "native-approved-projection");
+    assert.ok(readiness.missing.includes(INTELLIGENCE_PAYLOAD_CONTRACT.embeddings));
+    assert.ok(readiness.missing.includes(INTELLIGENCE_PAYLOAD_CONTRACT.duplicates));
+    assert.match(readiness.message, /incomplete/i);
+  });
 
-    const catalog = [
-      {
-        slug: "approved-work",
-        image: "/assets/artworks/approved-work.jpg",
-        rightsApproved: true,
-        published: true,
-      },
-      {
-        slug: "staging-work",
-        image: "/private/staging-work.jpg",
-        rightsApproved: false,
-        published: false,
-      },
-    ];
-
-    const catalog = [
-      {
-        slug: "approved-work",
-        image: "/assets/artworks/approved-work.jpg",
-        rightsApproved: true,
-        published: true,
-      },
-      {
-        slug: "staging-work",
-        image: "/private/staging-work.jpg",
-        rightsApproved: false,
-        published: false,
-      },
-    ];
+  test("recognizes a complete external payload contract", () => {
+    const readiness = getExternalPayloadReadiness(Object.values(INTELLIGENCE_PAYLOAD_CONTRACT));
     assert.equal(readiness.mode, "external-payload-ready");
     assert.deepEqual(readiness.missing, []);
-    assert.equal(readiness.completeness, "complete");
-    assert.equal(readiness.integrity, "unvalidated");
-    assert.equal(readiness.families.vectors, "available");
   });
 
   test("recognizes all individual metadata chunks as the complete metadata family", () => {
@@ -124,7 +92,12 @@ describe("catalog intelligence", () => {
         (payload) => payload !== INTELLIGENCE_PAYLOAD_CONTRACT.metadataChunks,
       ),
     ]);
+    assert.equal(readiness.mode, "external-payload-ready");
+    assert.equal(readiness.families.metadata, "available");
+    assert.deepEqual(readiness.missing, []);
+  });
 
+  test("rejects stale, orphaned, dimension-mismatched, and unapproved payload records", () => {
     const catalog = [
       {
         slug: "approved-work",
@@ -139,21 +112,24 @@ describe("catalog intelligence", () => {
         published: false,
       },
     ];
-
-    const catalog = [
-      {
-        slug: "approved-work",
-        image: "/assets/artworks/approved-work.jpg",
-        rightsApproved: true,
-        published: true,
+    const result = validateCatalogIntelligencePayload({
+      catalog,
+      payload: {
+        metadata: [{ slug: "approved-work", filename: "old-name.jpg" }],
+        fasttextPredictions: { "unknown.jpg": {} },
+        fasttextIndex: { style: { Graphic: ["unknown.jpg"] } },
+        fasttextStats: {},
+        fasttextAnalysis: {},
+        search: { slugs: ["approved-work"] },
+        vectors: { slugs: ["approved-work"], dimensions: 768 },
+        related: { "approved-work.jpg": { related: ["unknown.jpg"] } },
+        approvedPublic: [{ slug: "staging-work", filename: "staging-work.jpg" }],
+        duplicates: {
+          groups: [{ canonical: "approved-work.jpg", members: ["other.jpg"] }],
+        },
       },
-      {
-        slug: "staging-work",
-        image: "/private/staging-work.jpg",
-        rightsApproved: false,
-        published: false,
-      },
-    ];
+      options: { expectedCorpusSize: 2 },
+    });
 
     assert.equal(result.ok, false);
     assert.equal(result.completeness, "incomplete");
@@ -170,59 +146,3 @@ describe("catalog intelligence", () => {
     assert.equal(result.reports.duplicates.status, "invalid");
   });
 });
-
-    const result = validateCatalogIntelligencePayload({
-      catalog,
-      payload: {
-        metadata: [{ slug: "approved-work", filename: "old-name.jpg" }],
-        fasttextPredictions: { "unknown.jpg": {} },
-        fasttextIndex: {},
-        fasttextStats: {},
-        fasttextAnalysis: {},
-        search: { slugs: ["approved-work"] },
-        vectors: { slugs: ["approved-work"], dimensions: 768 },
-        related: { "approved-work.jpg": { related: ["unknown.jpg"] } },
-        approvedPublic: [{ slug: "staging-work", filename: "staging-work.jpg" }],
-        duplicates: {
-          groups: [{ canonical: "approved-work.jpg", members: ["other.jpg"] }],
-        },
-      },
-    });
-
-    const payload = {
-      metadata: [
-        { slug: "approved-work", filename: "approved-work.jpg" },
-        { slug: "staging-work", filename: "staging-work.jpg" },
-      ],
-      fasttextPredictions: {
-        "approved-work.jpg": { style: { label: "Graphic" } },
-        "staging-work.jpg": { style: { label: "Painterly" } },
-      },
-      fasttextIndex: {
-        style: {
-          Graphic: ["approved-work.jpg"],
-          Painterly: ["staging-work.jpg"],
-        },
-      },
-      fasttextStats: { style: { Graphic: 1, Painterly: 1 } },
-      fasttextAnalysis: {
-        "approved-work.jpg": { ai_title: "Approved" },
-        "staging-work.jpg": { ai_title: "Staging" },
-      },
-      search: { slugs: ["approved-work", "staging-work"] },
-      vectors: {
-        slugs: ["approved-work", "staging-work"],
-        dimensions: 512,
-      },
-      related: {
-        "approved-work.jpg": { related: ["staging-work.jpg"] },
-        "staging-work.jpg": { related: [] },
-      },
-      duplicates: {
-        groups: [{
-          canonical: "approved-work.jpg",
-          members: ["approved-work.jpg", "staging-work.jpg"],
-          redundant: ["staging-work.jpg"],
-        }],
-      },
-    };
