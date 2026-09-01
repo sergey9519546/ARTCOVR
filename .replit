@@ -27,3 +27,6 @@ packages = ["glib", "nss", "nspr", "atk", "cups", "dbus", "expat", "fontconfig",
 
 [userenv.development]
 ARTCOVR_SEED_CATALOG = "true"
+
+[objectStorage]
+defaultBucketID = "replit-objstore-c311aff8-a345-424e-b7ae-16f216acd26c"
