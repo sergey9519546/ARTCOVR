@@ -5,3 +5,4 @@
 - [Dependency patch maturity](dependency-patch-maturity.md) — security fixes must satisfy the workspace release-age policy; prefer the newest already-mature patched version.
 - [Archived Bun lockfiles](archived-bun-lockfiles.md) — Bun 1.3 cannot safely override multiple transitive major lines; do not retain vulnerable locks for retired backups.
 - [Exclusive checkout integrity](exclusive-checkout-integrity.md) — reservation locks must expire with Stripe sessions, and late conflicting payments must be refunded idempotently.
+- [Vite route HTML emission](vite-route-html-emission.md) — clone transformed SPA shells only after Vite writes index.html; Rollup bundle hooks may run too early.
