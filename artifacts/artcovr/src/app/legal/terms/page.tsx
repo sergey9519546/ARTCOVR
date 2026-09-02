@@ -16,9 +16,11 @@ export default function TermsPage() {
         webhook; a browser success page alone does not prove fulfillment.
       </p>
       <p className="mt-4">
-        Exclusive artwork may be reserved for up to 15 minutes during checkout and is
-        removed from ARTCOVR after verified payment. Repeatable artwork remains available
-        for other customers under separate non-exclusive licenses.
+        Exclusive artwork is reserved for one checkout at a time for about 30 minutes
+        and is removed from ARTCOVR after verified payment. An expired or failed
+        reservation is released. A cover that is already reserved or sold cannot be
+        purchased again. Repeatable artwork remains available for other customers under
+        separate non-exclusive licenses.
       </p>
 
       <h2 className="mt-10 text-xl font-bold">Commercial license</h2>
