@@ -1,5 +1,5 @@
 import path from 'path';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
@@ -17,6 +17,7 @@ import {
   type RouteArtwork,
   type RouteMetadata,
 } from './src/lib/artcovr/route-metadata';
+import { renderStaticRoute } from './src/lib/artcovr/static-render';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -72,10 +73,10 @@ function privateCatalogIsolationPlugin() {
 
 function discoveryPlugin(siteUrl: string) {
   const files = {
-    ...(siteUrl ? { 'sitemap.xml': buildSitemapXml(publicCatalog, siteUrl) } : {}),
+    'sitemap.xml': buildSitemapXml(publicCatalog, siteUrl),
     'llms.txt': buildLlmsTxt(discoveryCatalog, siteUrl),
     'llms-full.txt': buildLlmsFullTxt(discoveryCatalog, siteUrl),
-    'robots.txt': `User-agent: *\nAllow: /\n${siteUrl ? `Sitemap: ${siteUrl}/sitemap.xml\n` : ''}`,
+    'robots.txt': `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`,
   };
 
   return {
@@ -101,11 +102,56 @@ function discoveryPlugin(siteUrl: string) {
         this.emitFile({ type: 'asset', fileName, source });
       }
     },
+    async writeBundle() {
+      for (const fileName of ['sitemap.xml', 'robots.txt']) {
+        try {
+          await access(path.join(path.resolve(import.meta.dirname, 'dist/public'), fileName));
+        } catch {
+          throw new Error(`Required discovery file was not emitted: ${fileName}`);
+        }
+      }
+
+      const sitemap = await readFile(
+        path.resolve(import.meta.dirname, 'dist/public/sitemap.xml'),
+        'utf8',
+      );
+      const robots = await readFile(
+        path.resolve(import.meta.dirname, 'dist/public/robots.txt'),
+        'utf8',
+      );
+      const rootLocation = `<loc>${escapeXmlForAssertion(`${siteUrl}/`)}</loc>`;
+      if (!sitemap.includes(rootLocation)) {
+        throw new Error(
+          `sitemap.xml does not use the configured canonical origin: expected ${siteUrl}`,
+        );
+      }
+      if (!robots.includes(`Sitemap: ${siteUrl}/sitemap.xml`)) {
+        throw new Error('robots.txt does not advertise the canonical sitemap URL.');
+      }
+    },
   };
+}
+
+function escapeXmlForAssertion(value: string) {
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&apos;',
+      })[character]!,
+  );
 }
 
 const ROUTE_META_PATTERN =
   /<!-- ARTCOVR_ROUTE_META_START -->[\s\S]*?<!-- ARTCOVR_ROUTE_META_END -->/;
+const STATIC_CONTENT_PATTERN =
+  /<!-- ARTCOVR_STATIC_CONTENT_START -->[\s\S]*?<!-- ARTCOVR_STATIC_CONTENT_END -->/;
+const STRUCTURED_DATA_PATTERN =
+  /<!-- ARTCOVR_ROUTE_STRUCTURED_DATA_START -->[\s\S]*?<!-- ARTCOVR_ROUTE_STRUCTURED_DATA_END -->/;
 
 function escapeHtml(value: string) {
   return value.replace(
@@ -121,18 +167,43 @@ function escapeHtml(value: string) {
   );
 }
 
-function cleanSiteUrl(value: string) {
+function resolveSiteUrl(value: string, productionBuild: boolean) {
+  if (!value) {
+    if (productionBuild) {
+      throw new Error(
+        'VITE_SITE_URL is required for production builds. Set it to the canonical HTTPS site origin.',
+      );
+    }
+    return 'https://artcovr.local';
+  }
+
   try {
     const url = new URL(value);
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
-    url.pathname = '';
-    url.search = '';
-    url.hash = '';
-    url.username = '';
-    url.password = '';
-    return url.toString().replace(/\/$/, '');
-  } catch {
-    return '';
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      throw new Error('VITE_SITE_URL must use http or https.');
+    }
+    if (productionBuild && url.protocol !== 'https:') {
+      throw new Error('VITE_SITE_URL must use HTTPS for production builds.');
+    }
+    if (
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash ||
+      (url.pathname !== '' && url.pathname !== '/')
+    ) {
+      throw new Error(
+        'VITE_SITE_URL must be an origin only, without credentials, a path, a query, or a hash.',
+      );
+    }
+    return url.origin;
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('VITE_SITE_URL')) {
+      throw error;
+    }
+    throw new Error(
+      `Invalid VITE_SITE_URL "${value}". Set it to the canonical site origin, for example https://artcovr.com.`,
+    );
   }
 }
 
@@ -191,6 +262,22 @@ function routeMetadataPlugin(
     getRouteMetadata(routePath, publicCatalog, (artwork) =>
       getArtworkGenres(artwork).map(displayGenreLabel),
     );
+  const routeDocument = (html: string, routePath: string) => {
+    const metadata = metadataForPath(routePath);
+    const rendered = renderStaticRoute({
+      artworks: publicCatalog,
+      siteUrl,
+      metadata,
+      getGenres: (artwork) => getArtworkGenres(artwork).map(displayGenreLabel),
+    });
+    return html
+      .replace(
+        ROUTE_META_PATTERN,
+        renderRouteMetadata(metadata, siteUrl, indexingDisabled),
+      )
+      .replace(STATIC_CONTENT_PATTERN, rendered.bodyHtml)
+      .replace(STRUCTURED_DATA_PATTERN, rendered.structuredDataHtml);
+  };
 
   return {
     name: 'artcovr-route-metadata',
@@ -214,13 +301,15 @@ function routeMetadataPlugin(
       if (!ROUTE_META_PATTERN.test(shell)) {
         throw new Error('The route metadata markers are missing from index.html.');
       }
+      if (!STATIC_CONTENT_PATTERN.test(shell)) {
+        throw new Error('The static content markers are missing from index.html.');
+      }
+      if (!STRUCTURED_DATA_PATTERN.test(shell)) {
+        throw new Error('The structured data markers are missing from index.html.');
+      }
 
       for (const routePath of paths) {
-        const metadata = metadataForPath(routePath);
-        const html = shell.replace(
-          ROUTE_META_PATTERN,
-          renderRouteMetadata(metadata, siteUrl, indexingDisabled),
-        );
+        const html = routeDocument(shell, routePath);
         const fileName =
           routePath === '/' ? 'index.html' : routeHtmlFileName(routePath);
         const outputPath = path.resolve(outputDirectory, fileName);
@@ -231,12 +320,11 @@ function routeMetadataPlugin(
         await writeFile(outputPath, html);
       }
 
-      const notFoundMetadata = getRouteMetadata('/404', publicCatalog);
       await writeFile(
         path.join(outputDirectory, '404.html'),
-        shell.replace(
-          ROUTE_META_PATTERN,
-          renderRouteMetadata(notFoundMetadata, siteUrl, true),
+        routeDocument(shell, '/404').replace(
+          `content="index, follow"`,
+          `content="noindex, nofollow, noarchive"`,
         ),
       );
     },
@@ -245,9 +333,8 @@ function routeMetadataPlugin(
 
 export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, path.resolve(import.meta.dirname), '');
-  const discoverySiteUrl = env.VITE_SITE_URL || process.env.VITE_SITE_URL || '';
-  const metadataSiteUrl =
-    cleanSiteUrl(discoverySiteUrl) || 'https://artcovr.com';
+  const configuredSiteUrl = env.VITE_SITE_URL || process.env.VITE_SITE_URL || '';
+  const metadataSiteUrl = resolveSiteUrl(configuredSiteUrl, mode === 'production');
   const indexingDisabled =
     env.ARTCOVR_ALLOW_INDEXING === '0' ||
     env.VITE_ARTCOVR_PRIVATE_STAGING === '1';
@@ -257,7 +344,7 @@ export default defineConfig(async ({ mode }) => {
     base: basePath,
     plugins: [
       privateCatalogIsolationPlugin(),
-      discoveryPlugin(discoverySiteUrl),
+      discoveryPlugin(metadataSiteUrl),
       routeMetadataPlugin(metadataSiteUrl, indexingDisabled, outputDirectory),
       react(),
       tailwindcss({ optimize: false }),

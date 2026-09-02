@@ -100,5 +100,6 @@ from = "/*"
 to = "/404.html"
 
 [services.env]
+VITE_SITE_URL = "https://artcovr.com"
 PORT = "22424"
 BASE_PATH = "/"

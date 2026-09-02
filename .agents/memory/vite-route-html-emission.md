@@ -7,4 +7,4 @@ When generating route-specific HTML from Vite’s transformed SPA shell, read an
 
 **Why:** In this workspace’s Vite version, application chunks were available during `generateBundle`, but the transformed HTML asset was not yet present. Route generation there made an otherwise valid production build fail.
 
-**How to apply:** Use the HTML transform hook for route-aware development responses, then a post-write build hook for static route files. Keep metadata markers in every transformed shell so the post-write replacement remains deterministic.
+**How to apply:** Use the HTML transform hook for route-aware development responses, then a post-write build hook for static route files. Preserve separate metadata, structured-data, and body markers in the transformed shell so every crawler-facing document can be replaced deterministically.

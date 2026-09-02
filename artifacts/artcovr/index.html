@@ -24,37 +24,23 @@
     <meta name="twitter:image:alt" content="ARTCOVR curated cover art" />
     <link rel="canonical" href="https://artcovr.com/" />
     <!-- ARTCOVR_ROUTE_META_END -->
+    <!-- ARTCOVR_ROUTE_STRUCTURED_DATA_START -->
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "Organization",
-            "@id": "https://artcovr.com/#organization",
-            "name": "ARTCOVR",
-            "url": "https://artcovr.com/",
-            "logo": "https://artcovr.com/icon-512.png",
-            "description": "ARTCOVR is a storefront for owner-approved cover artwork with commercial licensing and prompt-based image editing."
-          },
-          {
-            "@type": "WebSite",
-            "@id": "https://artcovr.com/#website",
-            "name": "ARTCOVR",
-            "url": "https://artcovr.com/",
-            "publisher": { "@id": "https://artcovr.com/#organization" },
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": "https://artcovr.com/archive?query={search_term_string}",
-              "query-input": "required name=search_term_string"
-            }
-          }
-        ]
-      }
+      {"@context":"https://schema.org","@type":"WebSite","name":"ARTCOVR","url":"https://artcovr.com/"}
     </script>
+    <!-- ARTCOVR_ROUTE_STRUCTURED_DATA_END -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- ARTCOVR_STATIC_CONTENT_START -->
+      <main>
+        <h1>Cover art that becomes yours.</h1>
+        <p>Browse owner-approved ARTCOVR cover artwork with clear commercial license terms.</p>
+        <a href="/archive">Explore the cover art archive</a>
+      </main>
+      <!-- ARTCOVR_STATIC_CONTENT_END -->
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
