@@ -2,3 +2,4 @@
 - [Hero animation gating](hero-animation-gating.md) — keep the entrance CSS-owned and start it beneath the preloader curtain; JS/CSS transform handoffs cause visible jumps.
 - [Catalog intelligence joins](catalog-intelligence-import.md) — connect each cover by slug/filename across editorial metadata, visual labels, keywords, vector identity, and related works.
 - [Artifact API startup](artifact-api-startup.md) — listen on the injected PORT before optional external-service initialization so workflow readiness is observable.
+- [Dependency patch maturity](dependency-patch-maturity.md) — security fixes must satisfy the workspace release-age policy; prefer the newest already-mature patched version.
