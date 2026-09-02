@@ -103,3 +103,5 @@ to = "/404.html"
 VITE_SITE_URL = "https://artcovr.com"
 PORT = "22424"
 BASE_PATH = "/"
+
+ARTCOVR_PREVIEW_PROXY = "1"

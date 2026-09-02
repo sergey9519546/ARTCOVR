@@ -36,7 +36,8 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const basePath = process.env.BASE_PATH;
-const replitDevDomain = process.env.REPLIT_DEV_DOMAIN;
+
+const usePreviewProxyHmr = process.env.ARTCOVR_PREVIEW_PROXY === '1';
 
 if (!basePath) {
   throw new Error(
@@ -386,13 +387,7 @@ export default defineConfig(async ({ mode }) => {
       strictPort: true,
       host: '0.0.0.0',
       allowedHosts: true,
-      hmr: replitDevDomain
-        ? {
-            protocol: 'wss',
-            host: replitDevDomain,
-            clientPort: 443,
-          }
-        : undefined,
+      ...(usePreviewProxyHmr ? { hmr: { clientPort: 80 } } : {}),
       fs: {
         strict: true,
       },
