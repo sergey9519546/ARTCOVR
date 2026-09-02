@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -14,6 +14,8 @@ import {
   type JourneyStore,
 } from "./journey";
 
+const JOURNEY_STATIC_MEDIA_QUERY = `${STATIC_MEDIA_QUERY}, (max-width: 767px)`;
+
 export function ScrollJourney({ enabled }: { enabled: boolean }) {
   const rootRef = useRef<HTMLElement | null>(null);
   const triggerRef = useRef<ReturnType<typeof ScrollTrigger.create> | null>(
@@ -21,13 +23,16 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
   );
   const updatersRef = useRef<Set<(progress: number) => void>>(new Set());
   const currentPRef = useRef(0);
-  const [staticMode, setStaticMode] = useState(false);
+  const [staticMode, setStaticMode] = useState(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia(JOURNEY_STATIC_MEDIA_QUERY).matches
+  );
   const [motionFailed, setMotionFailed] = useState(false);
   const [consts] = useState<JourneyConsts>(() =>
     makeJourneyConsts(featuredArtworks.length),
   );
   useEffect(() => {
-    const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
+    const mediaQuery = window.matchMedia(JOURNEY_STATIC_MEDIA_QUERY);
     const updateMode = () => setStaticMode(mediaQuery.matches);
     updateMode();
     mediaQuery.addEventListener("change", updateMode);
@@ -48,7 +53,7 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
     [consts],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled || staticMode || motionFailed || !rootRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
@@ -89,6 +94,9 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
     });
 
     return () => {
+      // ScrollTrigger's pin wraps and moves the section in the DOM. A layout
+      // effect cleanup runs before React removes that subtree, giving GSAP time
+      // to restore the original structure while every node is still attached.
       triggerRef.current?.kill();
       triggerRef.current = null;
     };
