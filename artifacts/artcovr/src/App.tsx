@@ -72,7 +72,7 @@ const clerkAppearance = {
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
     headerTitle: "text-[#f3ecd9] font-extrabold tracking-tight",
     headerSubtitle: "text-[#b5ad9b]",
-    socialButtonsBlockButtonText: "text-[#f3ecd9] font-bold",
+    socialButtonsBlockButtonText: "text-[#000000] font-extrabold",
     formFieldLabel: "text-[#f3ecd9] font-bold",
     footerActionLink: "text-[#f3ecd9] font-bold underline underline-offset-4",
     footerActionText: "text-[#b5ad9b]",
@@ -82,7 +82,7 @@ const clerkAppearance = {
     alertText: "text-[#a11212]",
     logoBox: "h-12",
     logoImage: "max-h-12",
-    socialButtonsBlockButton: "border border-[#f3ecd9]/30 !bg-transparent",
+    socialButtonsBlockButton: "border border-[#f3ecd9]/30 !bg-[#f3ecd9]",
     formButtonPrimary: "bg-[#f3ecd9] text-[#0b0b0b] rounded-none hover:bg-[#fffdf5]",
     formFieldInput: "border border-[#f3ecd9]/30 !bg-transparent text-[#f3ecd9] rounded-none",
     footerAction: "!bg-transparent",
@@ -210,6 +210,7 @@ function ClerkProviderWithRoutes() {
             subtitle: "Start making your next cover yours",
           },
         },
+        socialButtonsBlockButton: "CONTINUE WITH GOOGLE",
       }}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}

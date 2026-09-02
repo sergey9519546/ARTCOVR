@@ -22,7 +22,7 @@ test("the branded sign-in screen offers email and Google authentication", async 
 }) => {
   await page.goto("/sign-in", { waitUntil: "domcontentloaded" });
   await expect(page.locator('input[name="identifier"]')).toBeVisible();
-  await expect(page.getByRole("button", { name: /google/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: "CONTINUE WITH GOOGLE" })).toBeVisible();
 });
 
 test("signed-out checkout prompts account creation with a return path", async ({
