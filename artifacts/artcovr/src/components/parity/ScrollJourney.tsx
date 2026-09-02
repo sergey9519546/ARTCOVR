@@ -52,12 +52,14 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
     }),
     [consts],
   );
+  const layered = !staticMode && !motionFailed;
 
   useLayoutEffect(() => {
-    if (!enabled || staticMode || motionFailed || !rootRef.current) return;
+    if (!enabled || !layered || !rootRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
     const root = rootRef.current;
+    let disposed = false;
 
     triggerRef.current = ScrollTrigger.create({
       trigger: root,
@@ -67,9 +69,11 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
       scrub: 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
+        if (disposed) return;
         const P = self.progress;
         currentPRef.current = P;
         for (const updater of updatersRef.current) {
+          if (disposed) return;
           try {
             updater(P);
           } catch (error) {
@@ -80,8 +84,10 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
         }
       },
       onLeaveBack: () => {
+        if (disposed) return;
         currentPRef.current = 0;
         for (const updater of updatersRef.current) {
+          if (disposed) return;
           try {
             updater(0);
           } catch (error) {
@@ -97,34 +103,41 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
       // ScrollTrigger's pin wraps and moves the section in the DOM. A layout
       // effect cleanup runs before React removes that subtree, giving GSAP time
       // to restore the original structure while every node is still attached.
-      triggerRef.current?.kill();
+      disposed = true;
+      const trigger = triggerRef.current;
       triggerRef.current = null;
+      trigger?.kill(true);
     };
-  }, [enabled, staticMode, motionFailed, consts.total]);
+  }, [enabled, layered, consts.total]);
 
   if (featuredArtworks.length < 2) return null;
-  if (staticMode || motionFailed) {
-    return (
-      <>
-        <TiltedCarousel />
-        <SpiralScroll />
-      </>
-    );
-  }
 
   return (
     <section
       ref={rootRef}
-      aria-label="ARTCOVR archive journey"
-      className="relative h-screen w-full overflow-hidden"
-      style={{
-        background: "var(--background)",
-        color: "var(--foreground)",
-        perspective: "1400px",
-      }}
+      aria-label={layered ? "ARTCOVR archive journey" : undefined}
+      className={layered ? "relative h-screen w-full overflow-hidden" : "contents"}
+      style={
+        layered
+          ? {
+              background: "var(--background)",
+              color: "var(--foreground)",
+              perspective: "1400px",
+            }
+          : undefined
+      }
     >
-      <TiltedCarousel journey={journey} />
-      <SpiralScroll journey={journey} />
+      {layered ? (
+        <>
+          <TiltedCarousel journey={journey} />
+          <SpiralScroll journey={journey} />
+        </>
+      ) : (
+        <>
+          <TiltedCarousel />
+          <SpiralScroll />
+        </>
+      )}
     </section>
   );
 }

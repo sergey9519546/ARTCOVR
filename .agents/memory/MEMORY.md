@@ -8,3 +8,4 @@
 - [Vite route HTML emission](vite-route-html-emission.md) — clone transformed SPA shells only after Vite writes index.html; Rollup bundle hooks may run too early.
 - [Replit preview HMR proxy](replit-preview-hmr.md) — target the shared preview proxy on port 80 for development HMR, not the artifact's internal service port.
 - [Initial paint contract](initial-paint-contract.md) — let the React preloader own the first visible homepage frame; no static wordmark/counter shell.
+- [GSAP pinned journey lifecycle](gsap-pinned-journey-lifecycle.md) — keep the pin host mounted across mode swaps and disable it before animated route transitions.

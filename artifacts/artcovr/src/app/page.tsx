@@ -225,7 +225,9 @@ export default function Home() {
           <ProductGrid />
         </ErrorBoundary>
         <ErrorBoundary label="journey">
-          <ScrollJourney enabled={preloaderDone && motionAllowed} />
+          <ScrollJourney
+            enabled={preloaderDone && motionAllowed && !transitionActive}
+          />
         </ErrorBoundary>
         <ErrorBoundary label="editorial">
           <FullScreenSnap />
