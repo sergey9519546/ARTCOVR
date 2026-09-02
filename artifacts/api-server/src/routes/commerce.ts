@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { getAuth } from "@clerk/express";
 import { Router, type IRouter, type Request } from "express";
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
@@ -15,13 +16,13 @@ import {
   createCheckoutSession,
   retrieveCheckoutSession,
 } from "../stripeClient";
-import { getAuthenticatedUserId, requireAuth } from "../middlewares/auth";
 
 const router: IRouter = Router();
 const checkoutBody = z.object({
   artworkId: z.string().trim().min(1).max(200),
   idempotencyKey: z.string().uuid(),
   selectedPreviewId: z.string().trim().min(1).max(200).optional().nullable(),
+  email: z.string().trim().email().max(320).optional().nullable(),
 });
 
 const exclusiveInventoryStatuses = ["reserved", "paid"] as const;
@@ -31,13 +32,21 @@ function requestOrigin(req: Request) {
   return `${forwardedProto || req.protocol}://${req.get("host")}`;
 }
 
-router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
-  const clerkUserId = getAuthenticatedUserId(req);
+router.post("/checkout", async (req, res): Promise<void> => {
+  const clerkUserId = getAuth(req).userId ?? null;
   const parsed = checkoutBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
       code: "invalid_request",
       message: "Choose a valid artwork before starting checkout.",
+    });
+    return;
+  }
+  const customerEmail = parsed.data.email?.trim().toLowerCase() || null;
+  if (!clerkUserId && !customerEmail) {
+    res.status(400).json({
+      code: "email_required",
+      message: "Enter a valid email address for your receipt.",
     });
     return;
   }
@@ -59,10 +68,7 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
     .select()
     .from(artcovrOrders)
     .where(
-      and(
-        eq(artcovrOrders.idempotencyKey, parsed.data.idempotencyKey),
-        eq(artcovrOrders.clerkUserId, clerkUserId),
-      ),
+      eq(artcovrOrders.idempotencyKey, parsed.data.idempotencyKey),
     )
     .limit(1);
 
@@ -117,6 +123,7 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
   const orderValues = createOrderValues({
     id: orderId,
     clerkUserId,
+    customerEmail,
     artworkId: artwork.id,
     artworkSlug: artwork.slug,
     amountCents: artwork.priceCents,
@@ -178,6 +185,7 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
         successUrl: `${origin}/checkout/${artwork.slug}?status=success&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${origin}/checkout/${artwork.slug}?status=cancelled`,
         expiresAt: reservationExpiresAt,
+        customerEmail: customerEmail ?? undefined,
       },
       parsed.data.idempotencyKey,
     );

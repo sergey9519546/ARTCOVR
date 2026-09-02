@@ -13,13 +13,13 @@ import {
 import {
   shouldRotateCheckoutIdempotencyKey as shouldRotateCheckoutKey,
 } from "@/lib/artcovr/checkout-errors";
-import { ArtcovrApiError, createCheckout, getGenerationStatus } from "@/lib/artcovr/functions";
+import { createCheckout, getGenerationStatus } from "@/lib/artcovr/functions";
 
 export function CheckoutReview({ artwork }: { artwork: Artwork }) {
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [authPrompt, setAuthPrompt] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
   const [selectedImage, setSelectedImage] = useState<string>();
   const { isLoaded, isSignedIn } = useAuth();
   const checkoutReady = isCheckoutReady(artwork);
@@ -27,7 +27,7 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
     ? "/"
     : `${window.location.pathname}${window.location.search}${window.location.hash}`;
   const authRedirect = `?redirect_url=${encodeURIComponent(checkoutRedirect)}`;
-  const accountRequired = authPrompt || (isLoaded && !isSignedIn);
+  const guestEmailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail.trim());
   const licenseMode = artwork.saleMode === "exclusive"
     ? "Exclusive commercial license"
     : artwork.saleMode === "repeatable"
@@ -64,16 +64,11 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
 
   async function continueToCheckout() {
     if (!checkoutReady || !isLoaded) return;
-    if (!isSignedIn) {
-      setAuthPrompt(true);
-      setError("");
-      return;
-    }
+    if (!isSignedIn && !guestEmailIsValid) return;
     const keyName = `artcovr:checkout-key:${artwork.id}`;
     try {
       setLoading(true);
       setError("");
-      setAuthPrompt(false);
       const previewKey = `artcovr:selected-preview:${artwork.id}`;
       let idempotencyKey = sessionStorage.getItem(keyName);
       if (!idempotencyKey) {
@@ -85,18 +80,14 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
         artwork.id,
         idempotencyKey,
         selectedPreviewId,
+        isSignedIn ? undefined : guestEmail.trim().toLowerCase(),
       );
       window.location.assign(checkoutUrl);
     } catch (reason) {
       if (shouldRotateCheckoutKey(reason)) {
         sessionStorage.removeItem(keyName);
       }
-      setError(reason instanceof ArtcovrApiError && reason.code === "unauthorized"
-        ? ""
-        : reason instanceof Error ? reason.message : "Checkout is unavailable.");
-      if (reason instanceof ArtcovrApiError && reason.code === "unauthorized") {
-        setAuthPrompt(true);
-      }
+      setError(reason instanceof Error ? reason.message : "Checkout is unavailable.");
       setLoading(false);
     }
   }
@@ -129,27 +120,55 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} disabled={!checkoutReady} className="mt-1 size-4 accent-[var(--foreground)]" />
             <span>I agree to the <Link href="/license" className="underline underline-offset-4">commercial license</Link> and <Link href="/legal/terms" className="underline underline-offset-4">terms</Link>.</span>
           </label>
-          {accountRequired ? (
+          {isLoaded && !isSignedIn ? (
             <section
-              aria-label="Account required"
+              aria-label="Guest checkout"
               className="mt-7 border-y-2 border-current py-5"
             >
-              <p className="font-bold">Create an account to complete checkout.</p>
+              <p className="font-bold">Checkout as a guest</p>
               <p className="mt-2 max-w-[45ch] text-sm leading-6 opacity-70">
-                Sign up first so your purchase, license, and downloads stay connected to your ARTCOVR account.
+                Enter your email for your Stripe receipt and purchase records. No account required.
               </p>
-              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
-                <Link
-                  href={`/sign-up${authRedirect}`}
-                  className="artcovr-button inline-block px-5 py-4 text-xs font-bold uppercase tracking-[0.08em]"
+              <form
+                className="mt-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void continueToCheckout();
+                }}
+              >
+                <label htmlFor="guest-checkout-email" className="text-xs font-bold uppercase tracking-[0.08em]">
+                  Email for receipt
+                </label>
+                <input
+                  id="guest-checkout-email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={guestEmail}
+                  onChange={(event) => setGuestEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  className="mt-2 w-full rounded-none border border-current/30 bg-transparent px-4 py-4 text-base outline-none focus:border-current"
+                />
+                <button
+                  type="submit"
+                  disabled={!checkoutReady || !accepted || loading || !guestEmailIsValid}
+                  className="artcovr-button mt-4 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Sign up to continue
-                </Link>
+                  {loading ? "Opening checkout…" : "Checkout as guest"}
+                </button>
+              </form>
+              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link
                   href={`/sign-in${authRedirect}`}
                   className="link-hover text-xs font-bold uppercase tracking-[0.08em]"
                 >
                   Already have an account? Sign in
+                </Link>
+                <Link
+                  href={`/sign-up${authRedirect}`}
+                  className="link-hover text-xs font-bold uppercase tracking-[0.08em]"
+                >
+                  Create an account
                 </Link>
               </div>
             </section>

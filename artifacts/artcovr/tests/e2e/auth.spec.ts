@@ -25,15 +25,14 @@ test("the branded sign-in screen offers email and Google authentication", async 
   await expect(page.getByRole("button", { name: "CONTINUE WITH GOOGLE" })).toBeVisible();
 });
 
-test("signed-out checkout prompts account creation with a return path", async ({
+test("signed-out checkout offers guest checkout with an email receipt", async ({
   page,
 }) => {
   await page.goto("/checkout/cart-of-hours", { waitUntil: "domcontentloaded" });
-  const accountPrompt = page.locator('section[aria-label="Account required"]');
-  await expect(accountPrompt).toBeVisible({ timeout: 20_000 });
-  await expect(accountPrompt.getByText("Create an account to complete checkout.")).toBeVisible();
-  await expect(accountPrompt.getByRole("link", { name: "Sign up to continue" }))
-    .toHaveAttribute("href", "/sign-up?redirect_url=%2Fcheckout%2Fcart-of-hours");
-  await expect(accountPrompt.getByRole("link", { name: /already have an account/i }))
+  const guestCheckout = page.locator('section[aria-label="Guest checkout"]');
+  await expect(guestCheckout).toBeVisible({ timeout: 20_000 });
+  await expect(guestCheckout.getByLabel("Email for receipt")).toHaveAttribute("type", "email");
+  await expect(guestCheckout.getByRole("button", { name: "Checkout as guest" })).toBeDisabled();
+  await expect(guestCheckout.getByRole("link", { name: /already have an account/i }))
     .toHaveAttribute("href", "/sign-in?redirect_url=%2Fcheckout%2Fcart-of-hours");
 });
