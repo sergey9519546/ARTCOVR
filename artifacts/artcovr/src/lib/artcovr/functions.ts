@@ -251,6 +251,13 @@ export function getMyImages() {
   return request<AccountData>("/functions/v1/my-images", { method: "GET" });
 }
 
+export function claimGuestPurchases() {
+  return request<{
+    claimedOrderIds: string[];
+    claimedCredits: number;
+  }>("/functions/v1/claim-guest-purchases", { method: "POST" });
+}
+
 export function getOwnerCatalogIntelligenceAccess() {
   return request<OwnerCatalogIntelligenceAccess>(
     "/owner/catalog-intelligence",

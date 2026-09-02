@@ -58,6 +58,9 @@ export const artcovrOrders = pgTable(
     clerkUserIdx: index("artcovr_orders_clerk_user_id_idx").on(
       table.clerkUserId,
     ),
+    customerEmailIdx: index("artcovr_orders_customer_email_idx").on(
+      table.customerEmail,
+    ),
   }),
 );
 

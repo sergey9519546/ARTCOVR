@@ -11,6 +11,7 @@ import {
 } from "@workspace/db";
 import {
   checkoutReservationMs,
+  claimGuestPurchases,
   createOrderValues,
   expireStaleExclusiveReservations,
   fulfillCheckoutSession,
@@ -24,15 +25,22 @@ function orderValues(input: {
   stripeCheckoutSessionId?: string;
   stripePaymentIntentId?: string;
   reservationExpiresAt?: Date;
+  clerkUserId?: string | null;
+  customerEmail?: string | null;
+  saleMode?: "exclusive" | "repeatable";
 }) {
   return {
     ...createOrderValues({
       id: input.id,
-      clerkUserId: `user_${input.id}`,
+      clerkUserId:
+        input.clerkUserId === undefined
+          ? `user_${input.id}`
+          : input.clerkUserId,
+      customerEmail: input.customerEmail,
       artworkId: input.artworkId,
       artworkSlug: `slug-${input.artworkId}`,
       amountCents: 10_000,
-      saleMode: "exclusive",
+      saleMode: input.saleMode ?? "exclusive",
       idempotencyKey: input.idempotencyKey,
       reservationExpiresAt:
         input.reservationExpiresAt ??
@@ -71,6 +79,86 @@ test("simultaneous exclusive reservations create only one active order", async (
     await db
       .delete(artcovrOrders)
       .where(inArray(artcovrOrders.id, orderIds));
+  }
+});
+
+test("guest purchases claim only for a matching verified email and move credits once", async () => {
+  const suffix = randomUUID();
+  const artworkId = `guest-claim-${suffix}`;
+  const orderId = `order-guest-${suffix}`;
+  const ledgerId = `credit-guest-${suffix}`;
+  const sourceId = `checkout:guest-${suffix}`;
+  const buyerEmail = "buyer@example.test";
+
+  try {
+    await db.insert(artcovrOrders).values(
+      orderValues({
+        id: orderId,
+        artworkId,
+        idempotencyKey: suffix,
+        status: "paid",
+        clerkUserId: null,
+        customerEmail: buyerEmail,
+        saleMode: "repeatable",
+      }),
+    );
+    await db.insert(artcovrCreditLedger).values({
+      id: ledgerId,
+      accountKey: buyerEmail,
+      orderId,
+      entryType: "grant",
+      amount: 3,
+      reason: "Cover purchase credit grant",
+      sourceId,
+    });
+
+    const mismatched = await claimGuestPurchases("user-wrong", [
+      "other@example.test",
+    ]);
+    assert.deepEqual(mismatched, { claimedOrderIds: [], claimedCredits: 0 });
+
+    const claimed = await claimGuestPurchases("user-buyer", [
+      "BUYER@EXAMPLE.TEST",
+    ]);
+    assert.deepEqual(claimed, {
+      claimedOrderIds: [orderId],
+      claimedCredits: 3,
+    });
+
+    const [claimedOrder] = await db
+      .select({
+        clerkUserId: artcovrOrders.clerkUserId,
+        status: artcovrOrders.status,
+      })
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.id, orderId));
+    const [claimedCredit] = await db
+      .select({ accountKey: artcovrCreditLedger.accountKey })
+      .from(artcovrCreditLedger)
+      .where(eq(artcovrCreditLedger.id, ledgerId));
+    assert.deepEqual(claimedOrder, { clerkUserId: "user-buyer", status: "paid" });
+    assert.deepEqual(claimedCredit, { accountKey: "user-buyer" });
+
+    const competingClaim = await claimGuestPurchases("user-other", [
+      buyerEmail,
+    ]);
+    const retry = await claimGuestPurchases("user-buyer", [buyerEmail]);
+    assert.deepEqual(competingClaim, { claimedOrderIds: [], claimedCredits: 0 });
+    assert.deepEqual(retry, { claimedOrderIds: [], claimedCredits: 0 });
+
+    const grants = await db
+      .select({
+        accountKey: artcovrCreditLedger.accountKey,
+        amount: artcovrCreditLedger.amount,
+      })
+      .from(artcovrCreditLedger)
+      .where(eq(artcovrCreditLedger.orderId, orderId));
+    assert.deepEqual(grants, [{ accountKey: "user-buyer", amount: 3 }]);
+  } finally {
+    await db
+      .delete(artcovrCreditLedger)
+      .where(eq(artcovrCreditLedger.id, ledgerId));
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
   }
 });
 
