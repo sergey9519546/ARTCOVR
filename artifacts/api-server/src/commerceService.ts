@@ -218,7 +218,8 @@ export async function expireStaleExclusiveReservations(
 
 export function createOrderValues(input: {
   id: string;
-  clerkUserId: string;
+  clerkUserId: string | null;
+  customerEmail?: string | null;
   artworkId: string;
   artworkSlug: string;
   amountCents: number;
@@ -230,6 +231,7 @@ export function createOrderValues(input: {
   return {
     id: input.id,
     clerkUserId: input.clerkUserId,
+    customerEmail: input.customerEmail,
     artworkId: input.artworkId,
     artworkSlug: input.artworkSlug,
     idempotencyKey: input.idempotencyKey,

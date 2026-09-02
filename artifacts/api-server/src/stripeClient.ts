@@ -150,6 +150,7 @@ export async function createCheckoutSession(
     cancelUrl: string;
     expiresAt: Date;
     metadata: Record<string, string>;
+    customerEmail?: string;
   },
   idempotencyKey: string,
 ) {
@@ -164,6 +165,9 @@ export async function createCheckoutSession(
     cancel_url: input.cancelUrl,
     expires_at: String(Math.floor(input.expiresAt.getTime() / 1000)),
   });
+  if (input.customerEmail) {
+    form.set("customer_email", input.customerEmail);
+  }
   for (const [key, value] of Object.entries(input.metadata)) {
     form.set(`metadata[${key}]`, value);
   }

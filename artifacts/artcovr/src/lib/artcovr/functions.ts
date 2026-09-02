@@ -230,6 +230,7 @@ export function createCheckout(
   artworkId: string,
   idempotencyKey: string,
   selectedPreviewId?: string,
+  email?: string,
 ) {
   return localRequest<{
     purchaseId: string;
@@ -241,6 +242,7 @@ export function createCheckout(
       artworkId,
       idempotencyKey,
       selectedPreviewId: selectedPreviewId || null,
+      email: email || null,
     }),
   });
 }
