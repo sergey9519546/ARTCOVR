@@ -22,45 +22,6 @@
         color: #f3ecd9;
       }
       body { overflow-x: hidden; }
-      #static-fallback {
-        position: relative;
-        display: grid;
-        min-height: 100vh;
-        place-items: center;
-        overflow: hidden;
-        background: transparent;
-        color: inherit;
-        font-family: Arial, sans-serif;
-      }
-      #static-fallback .static-fallback__wordmark {
-        font-size: clamp(2.8rem, 9vw, 8.5rem);
-        font-weight: 800;
-        letter-spacing: -.08em;
-        line-height: .85;
-      }
-      #static-fallback .static-fallback__counter {
-        position: absolute;
-        top: clamp(1.5rem, 5vw, 3rem);
-        right: clamp(1rem, 5vw, 4rem);
-        font-size: 1.5rem;
-        line-height: 1;
-      }
-      #static-fallback .static-fallback__bar {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        height: 3px;
-        background: color-mix(in srgb, currentColor 12%, transparent);
-      }
-      #static-fallback .static-fallback__copy {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
-      }
     </style>
     <!-- ARTCOVR_ROUTE_META_START -->
     <title>ARTCOVR | Curated Cover Art</title>
@@ -95,15 +56,10 @@
   <body>
     <div id="root">
       <!-- ARTCOVR_STATIC_CONTENT_START -->
-      <main id="static-fallback" aria-label="Loading ARTCOVR">
-        <div class="static-fallback__wordmark" aria-hidden="true">ARTCOVR</div>
-        <div class="static-fallback__counter" aria-hidden="true">001</div>
-        <div class="static-fallback__bar" aria-hidden="true"></div>
-        <div class="static-fallback__copy">
-          <h1>Cover art that becomes yours.</h1>
-          <p>Browse owner-approved ARTCOVR cover artwork with clear commercial license terms.</p>
-          <a href="/archive">Explore the cover art archive</a>
-        </div>
+      <main hidden>
+        <h1>Cover art that becomes yours.</h1>
+        <p>Browse owner-approved ARTCOVR cover artwork with clear commercial license terms.</p>
+        <a href="/archive">Explore the cover art archive</a>
       </main>
       <!-- ARTCOVR_STATIC_CONTENT_END -->
     </div>
