@@ -207,6 +207,52 @@ test("homepage journey survives repeated reloads and route transitions", async (
   expect(journeyErrors).toEqual([]);
 });
 
+test("archive journey recovers after browser back and forward navigation", async ({
+  page,
+}) => {
+  const journeyErrors: string[] = [];
+  const recordJourneyError = (message: string) => {
+    if (/removeChild|Invalid hook call/i.test(message)) {
+      journeyErrors.push(message);
+    }
+  };
+
+  page.on("console", (message) => recordJourneyError(message.text()));
+  page.on("pageerror", (error) => recordJourneyError(error.message));
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+    timeout: 8_000,
+  });
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  await page.locator("#hero-link").click();
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  await page.goForward();
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  expect(journeyErrors).toEqual([]);
+});
+
 test("curation workspace redirects signed-out visitors to sign in", async ({ page }) => {
   await page.goto("/catalog-intelligence");
   await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcatalog-intelligence/);
