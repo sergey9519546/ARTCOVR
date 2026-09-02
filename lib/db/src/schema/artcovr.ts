@@ -7,6 +7,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { z } from "zod/v4";
 
 export const artcovrOrders = pgTable(
@@ -20,6 +21,7 @@ export const artcovrOrders = pgTable(
     artworkSlug: text("artwork_slug").notNull(),
     stripeCheckoutSessionId: text("stripe_checkout_session_id"),
     stripePaymentIntentId: text("stripe_payment_intent_id"),
+    stripeRefundId: text("stripe_refund_id"),
     stripeCustomerId: text("stripe_customer_id"),
     customerEmail: text("customer_email"),
     idempotencyKey: text("idempotency_key").notNull(),
@@ -30,10 +32,14 @@ export const artcovrOrders = pgTable(
     includedCredits: integer("included_credits").notNull(),
     selectedPreviewId: text("selected_preview_id"),
     status: text("status").notNull().default("reserved"),
+    reservationExpiresAt: timestamp("reservation_expires_at", {
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
+    refundedAt: timestamp("refunded_at", { withTimezone: true }),
   },
   (table) => ({
     idempotencyKeyIdx: uniqueIndex("artcovr_orders_idempotency_key_idx").on(
@@ -42,6 +48,13 @@ export const artcovrOrders = pgTable(
     checkoutSessionIdx: uniqueIndex(
       "artcovr_orders_checkout_session_id_idx",
     ).on(table.stripeCheckoutSessionId),
+    exclusiveArtworkAvailabilityIdx: uniqueIndex(
+      "artcovr_orders_exclusive_artwork_availability_idx",
+    )
+      .on(table.artworkId)
+      .where(
+        sql`${table.saleMode} = 'exclusive' and ${table.status} in ('reserved', 'paid')`,
+      ),
     clerkUserIdx: index("artcovr_orders_clerk_user_id_idx").on(
       table.clerkUserId,
     ),
@@ -83,6 +96,7 @@ export const artcovrWebhookEvents = pgTable("artcovr_webhook_events", {
 export const insertArtcovrOrderSchema = createInsertSchema(artcovrOrders).omit({
   createdAt: true,
   paidAt: true,
+  refundedAt: true,
 });
 export type InsertArtcovrOrder = z.infer<typeof insertArtcovrOrderSchema>;
 export type ArtcovrOrder = typeof artcovrOrders.$inferSelect;

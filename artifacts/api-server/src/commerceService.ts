@@ -1,5 +1,5 @@
 import type Stripe from "stripe";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, isNull, lte, ne, or } from "drizzle-orm";
 import {
   artcovrCreditLedger,
   artcovrOrders,
@@ -8,6 +8,18 @@ import {
 } from "@workspace/db";
 import { commerceConfig, licenseTermsForSaleMode } from "./commerce-config";
 import { logger } from "./lib/logger";
+import { refundPaymentIntent } from "./stripeClient";
+
+export const checkoutReservationMs = 31 * 60_000;
+const activeExclusiveStatuses = ["reserved", "paid"] as const;
+
+type FulfillmentDependencies = {
+  refundPaymentIntent: typeof refundPaymentIntent;
+};
+
+const fulfillmentDependencies: FulfillmentDependencies = {
+  refundPaymentIntent,
+};
 
 function stripeId(value: string | { id: string } | null | undefined) {
   return typeof value === "string" ? value : value?.id;
@@ -23,6 +35,7 @@ function customerEmail(session: Stripe.Checkout.Session) {
 
 export async function fulfillCheckoutSession(
   event: Stripe.Event,
+  dependencies: FulfillmentDependencies = fulfillmentDependencies,
 ): Promise<void> {
   if (
     event.type !== "checkout.session.completed" &&
@@ -63,40 +76,112 @@ export async function fulfillCheckoutSession(
       email ||
       `stripe-session:${session.id}`;
 
+    const [existingExclusiveOrder] =
+      paid && order.saleMode === "exclusive" && order.status !== "paid"
+        ? await tx
+            .select({
+              id: artcovrOrders.id,
+              status: artcovrOrders.status,
+            })
+            .from(artcovrOrders)
+            .where(
+              and(
+                eq(artcovrOrders.artworkId, order.artworkId),
+                eq(artcovrOrders.saleMode, "exclusive"),
+                inArray(artcovrOrders.status, activeExclusiveStatuses),
+                ne(artcovrOrders.id, order.id),
+              ),
+            )
+            .limit(1)
+        : [];
+
     if (paid && order.status !== "paid") {
+      const paymentIntentId = stripeId(session.payment_intent);
+
+      if (existingExclusiveOrder?.status === "reserved") {
+        await tx
+          .update(artcovrOrders)
+          .set({ status: "expired" })
+          .where(
+            and(
+              eq(artcovrOrders.id, existingExclusiveOrder.id),
+              eq(artcovrOrders.status, "reserved"),
+            ),
+          );
+      }
+
+      if (existingExclusiveOrder?.status === "paid") {
+        if (!paymentIntentId) {
+          throw new Error(
+            `Stripe session ${session.id} has no payment intent to refund`,
+          );
+        }
+
+        const refund = await dependencies.refundPaymentIntent(
+          {
+            paymentIntentId,
+            orderId: order.id,
+          },
+          `exclusive-conflict:${order.id}`,
+        );
+
+        await tx
+          .update(artcovrOrders)
+          .set({
+            status: "refunded_conflict",
+            stripePaymentIntentId: paymentIntentId,
+            stripeCustomerId: sessionCustomerId,
+            customerEmail: email,
+            stripeRefundId: refund.id,
+            paidAt: new Date(),
+            refundedAt: new Date(),
+          })
+          .where(eq(artcovrOrders.id, order.id));
+
+        logger.warn(
+          {
+            orderId: order.id,
+            artworkId: order.artworkId,
+            existingOrderId: existingExclusiveOrder.id,
+            refundId: refund.id,
+          },
+          "ARTCOVR automatically refunded conflicting exclusive payment",
+        );
+      } else {
       await tx
         .update(artcovrOrders)
         .set({
           status: "paid",
-          stripePaymentIntentId: stripeId(session.payment_intent),
+          stripePaymentIntentId: paymentIntentId,
           stripeCustomerId: sessionCustomerId,
           customerEmail: email,
           paidAt: new Date(),
         })
         .where(eq(artcovrOrders.id, order.id));
 
-      await tx
-        .insert(artcovrCreditLedger)
-        .values({
-          id: `credit_${crypto.randomUUID()}`,
-          accountKey,
-          orderId: order.id,
-          entryType: "grant",
-          amount: order.includedCredits,
-          reason: "Cover purchase credit grant",
-          sourceId: `checkout:${session.id}`,
-          stripeEventId: event.id,
-        })
-        .onConflictDoNothing();
+        await tx
+          .insert(artcovrCreditLedger)
+          .values({
+            id: `credit_${crypto.randomUUID()}`,
+            accountKey,
+            orderId: order.id,
+            entryType: "grant",
+            amount: order.includedCredits,
+            reason: "Cover purchase credit grant",
+            sourceId: `checkout:${session.id}`,
+            stripeEventId: event.id,
+          })
+          .onConflictDoNothing();
 
-      logger.info(
-        {
-          orderId: order.id,
-          artworkId: order.artworkId,
-          includedCredits: order.includedCredits,
-        },
-        "ARTCOVR purchase fulfilled",
-      );
+        logger.info(
+          {
+            orderId: order.id,
+            artworkId: order.artworkId,
+            includedCredits: order.includedCredits,
+          },
+          "ARTCOVR purchase fulfilled",
+        );
+      }
     }
 
     await tx
@@ -104,6 +189,31 @@ export async function fulfillCheckoutSession(
       .set({ status: paid ? "processed" : "received", processedAt: new Date() })
       .where(eq(artcovrWebhookEvents.id, event.id));
   });
+}
+
+export async function expireStaleExclusiveReservations(
+  artworkId: string,
+  now = new Date(),
+) {
+  const legacyCutoff = new Date(now.getTime() - checkoutReservationMs);
+  return db
+    .update(artcovrOrders)
+    .set({ status: "expired" })
+    .where(
+      and(
+        eq(artcovrOrders.artworkId, artworkId),
+        eq(artcovrOrders.saleMode, "exclusive"),
+        eq(artcovrOrders.status, "reserved"),
+        or(
+          lte(artcovrOrders.reservationExpiresAt, now),
+          and(
+            isNull(artcovrOrders.reservationExpiresAt),
+            lte(artcovrOrders.createdAt, legacyCutoff),
+          ),
+        ),
+      ),
+    )
+    .returning({ id: artcovrOrders.id });
 }
 
 export function createOrderValues(input: {
@@ -115,6 +225,7 @@ export function createOrderValues(input: {
   saleMode: "exclusive" | "repeatable";
   selectedPreviewId?: string;
   idempotencyKey: string;
+  reservationExpiresAt: Date;
 }) {
   return {
     id: input.id,
@@ -129,5 +240,6 @@ export function createOrderValues(input: {
     includedCredits: commerceConfig.includedCreditsPerCover,
     selectedPreviewId: input.selectedPreviewId,
     status: "reserved",
+    reservationExpiresAt: input.reservationExpiresAt,
   } as const;
 }

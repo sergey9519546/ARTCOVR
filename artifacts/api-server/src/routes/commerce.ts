@@ -1,11 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { Router, type IRouter, type Request } from "express";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { artcovrOrders, db } from "@workspace/db";
 import { getPublicArtworkById } from "../catalog";
 import {
+  checkoutReservationMs,
   createOrderValues,
+  expireStaleExclusiveReservations,
 } from "../commerceService";
 import { logger } from "../lib/logger";
 import { getStripePriceForArtwork, StripeCatalogError } from "../stripeService";
@@ -21,6 +23,8 @@ const checkoutBody = z.object({
   idempotencyKey: z.string().uuid(),
   selectedPreviewId: z.string().trim().min(1).max(200).optional().nullable(),
 });
+
+const exclusiveInventoryStatuses = ["reserved", "paid"] as const;
 
 function requestOrigin(req: Request) {
   const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
@@ -47,6 +51,10 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  if (artwork.saleMode === "exclusive") {
+    await expireStaleExclusiveReservations(artwork.id);
+  }
+
   const existing = await db
     .select()
     .from(artcovrOrders)
@@ -71,6 +79,14 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
       return;
     }
 
+    if (existingOrder.status === "expired") {
+      res.status(409).json({
+        code: "idempotency_expired",
+        message: "That checkout reservation has expired. Start checkout again.",
+      });
+      return;
+    }
+
     if (existingOrder.stripeCheckoutSessionId) {
       const session = await retrieveCheckoutSession(
         existingOrder.stripeCheckoutSessionId,
@@ -79,7 +95,10 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
         res.json({
           purchaseId: existingOrder.id,
           checkoutUrl: session.url,
-          expiresAt: new Date(existingOrder.createdAt.getTime() + 30 * 60_000).toISOString(),
+          expiresAt: (
+            existingOrder.reservationExpiresAt ??
+            new Date(existingOrder.createdAt.getTime() + checkoutReservationMs)
+          ).toISOString(),
           includedCredits: existingOrder.includedCredits,
         });
         return;
@@ -94,6 +113,7 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
   }
 
   const orderId = `order_${randomUUID()}`;
+  const reservationExpiresAt = new Date(Date.now() + checkoutReservationMs);
   const orderValues = createOrderValues({
     id: orderId,
     clerkUserId,
@@ -103,6 +123,7 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
     saleMode: artwork.saleMode,
     selectedPreviewId: parsed.data.selectedPreviewId ?? undefined,
     idempotencyKey: parsed.data.idempotencyKey,
+    reservationExpiresAt,
   });
   const [order] = await db
     .insert(artcovrOrders)
@@ -111,6 +132,28 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
     .returning();
 
   if (!order) {
+    if (artwork.saleMode === "exclusive") {
+      const [activeExclusiveOrder] = await db
+        .select({ id: artcovrOrders.id })
+        .from(artcovrOrders)
+        .where(
+          and(
+            eq(artcovrOrders.artworkId, artwork.id),
+            eq(artcovrOrders.saleMode, "exclusive"),
+            inArray(artcovrOrders.status, exclusiveInventoryStatuses),
+          ),
+        )
+        .limit(1);
+
+      if (activeExclusiveOrder) {
+        res.status(409).json({
+          code: "artwork_unavailable",
+          message: "That exclusive cover has already been reserved or sold.",
+        });
+        return;
+      }
+    }
+
     res.status(409).json({
       code: "checkout_in_progress",
       message: "That checkout is still being prepared. Try again in a moment.",
@@ -134,6 +177,7 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
         },
         successUrl: `${origin}/checkout/${artwork.slug}?status=success&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${origin}/checkout/${artwork.slug}?status=cancelled`,
+        expiresAt: reservationExpiresAt,
       },
       parsed.data.idempotencyKey,
     );
@@ -150,9 +194,7 @@ router.post("/checkout", requireAuth, async (req, res): Promise<void> => {
     res.json({
       purchaseId: order.id,
       checkoutUrl: session.url,
-      expiresAt: new Date(
-        order.createdAt.getTime() + 30 * 60_000,
-      ).toISOString(),
+      expiresAt: reservationExpiresAt.toISOString(),
       includedCredits: order.includedCredits,
     });
   } catch (error) {

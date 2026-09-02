@@ -2,7 +2,7 @@ import { ArchiveSearch } from "@/components/artcovr/ArchiveSearch";
 import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { SiteFooter } from "@/components/artcovr/SiteFooter";
 import { SiteHeader } from "@/components/artcovr/SiteHeader";
-import { displayArtworks, isPrivateStaging } from "@/lib/artcovr/artworks";
+import { displayArtworks } from "@/lib/artcovr/artworks";
 import {
   absoluteSiteUrl,
   getSiteUrl,
@@ -42,9 +42,9 @@ export default function ArchivePage() {
             COVER ART.
           </h1>
           <p className="mt-7 max-w-[53ch] text-sm leading-6">
-            {isPrivateStaging
-              ? "A private visual-review selection from the owner's collection. Availability, commercial rights, license mode, and pricing activate only after final approval."
-              : `${displayArtworks.length} owner-approved square cover artworks, searchable by music genre, mood, color, and visual topic. Each published work has its own commercial license terms.`}
+            {displayArtworks.length} owner-approved square cover artworks,
+            searchable by music genre, mood, color, and visual topic. Each
+            published work has its own commercial license terms.
           </p>
         </div>
         <section aria-label="Artwork archive" className="mt-20">

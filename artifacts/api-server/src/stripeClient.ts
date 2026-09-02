@@ -148,6 +148,7 @@ export async function createCheckoutSession(
     priceId: string;
     successUrl: string;
     cancelUrl: string;
+    expiresAt: Date;
     metadata: Record<string, string>;
   },
   idempotencyKey: string,
@@ -161,11 +162,31 @@ export async function createCheckoutSession(
     client_reference_id: input.orderId,
     success_url: input.successUrl,
     cancel_url: input.cancelUrl,
+    expires_at: String(Math.floor(input.expiresAt.getTime() / 1000)),
   });
   for (const [key, value] of Object.entries(input.metadata)) {
     form.set(`metadata[${key}]`, value);
   }
   return stripeRequest<Stripe.Checkout.Session>("/v1/checkout/sessions", {
+    method: "POST",
+    form,
+    idempotencyKey,
+  });
+}
+
+export async function refundPaymentIntent(
+  input: {
+    paymentIntentId: string;
+    orderId: string;
+  },
+  idempotencyKey: string,
+) {
+  const form = new URLSearchParams({
+    payment_intent: input.paymentIntentId,
+    "metadata[order_id]": input.orderId,
+    "metadata[reason]": "exclusive_inventory_conflict",
+  });
+  return stripeRequest<Stripe.Refund>("/v1/refunds", {
     method: "POST",
     form,
     idempotencyKey,
