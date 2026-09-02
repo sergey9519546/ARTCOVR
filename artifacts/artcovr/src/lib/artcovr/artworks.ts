@@ -1,7 +1,5 @@
 import curatedPublic from "./curated-public.json" with { type: "json" };
 import ownerPicksJson from "./owner-picks.json" with { type: "json" };
-import curatedReview from "./curated-review.json" with { type: "json" };
-import stagingIntroJson from "./staging-intro.json" with { type: "json" };
 import productionIntroJson from "./production-intro.json" with { type: "json" };
 import commerceConfigJson from "./commerce-config.json" with { type: "json" };
 import { selectPublicCatalog } from "./catalog-visibility.ts";
@@ -35,12 +33,7 @@ export type Artwork = {
   rightsApproved: boolean;
   published: boolean;
   accentColor?: string;
-  /**
-   * Owner display tier. Only "featured" works may appear on the home page;
-   * "archive" works live on the archive page. Optional because the private
-   * staging catalog predates the field — see `artworkTier` for the fail-open
-   * default that keeps staging previews whole.
-   */
+  /** Only featured works appear on the home page; archive works remain searchable. */
   tier?: "featured" | "archive";
 };
 
@@ -48,32 +41,12 @@ export const includedCreditsPerCover = (
   commerceConfigJson as { includedCreditsPerCover: number }
 ).includedCreditsPerCover;
 
-/**
- * Tier accessor with the staging default: a record without a tier (the private
- * review catalog) counts as featured so staging previews render everything.
- * Public records always carry an explicit tier from the projection.
- */
+/** Public projection rows carry a tier; older test fixtures default to featured. */
 export function artworkTier(artwork: Artwork): "featured" | "archive" {
   return artwork.tier ?? "featured";
 }
 
 /**
- * The private staging selection preserves the owner's 100-image launch review.
- * Public production routes must use `artworks`, which includes only rows that
- * passed both rights and publication approval.
- */
-export const isPrivateStaging =
-  import.meta.env?.VITE_ARTCOVR_PRIVATE_STAGING === "1";
-
-/**
- * The unapproved review catalog may exist ONLY inside explicit private-staging
- * builds. The conditional below is statically resolvable (VITE_* env is
- * inlined at build time), so production bundles tree-shake the entire
- * curated-review.json module: no unapproved slug, title, or image URL may ship
- * in any public asset. scripts/catalog/verify-export-isolation.ts enforces
- * this against the built export on every production build.
- */
-/*
  * The catalog JSON is validated at generation time (catalog-projection.ts /
  * catalog-import.ts enforce sale modes, prices, and approval gates before a
  * row can be projected), so the cast below is backed by a real pipeline gate.
@@ -81,9 +54,6 @@ export const isPrivateStaging =
  * saleMode to `string`, which fails against the literal union the moment the
  * catalog is populated — the exact launch state.
  */
-export const stagingArtworks: Artwork[] = isPrivateStaging
-  ? (curatedReview as Artwork[])
-  : [];
 const approvedPublicArtworks: Artwork[] = selectPublicCatalog(
   curatedPublic as Artwork[],
 );
@@ -91,9 +61,9 @@ const approvedPublicArtworks: Artwork[] = selectPublicCatalog(
  * Production catalog: strictly the rights- and publication-approved projection.
  * There is deliberately NO fallback to the staging review catalog — an empty
  * approved catalog must render an empty public storefront, never leak
- * unapproved review works into public pages, the sitemap, or search indexing.
- * The staging catalog is reachable only through the explicit
- * VITE_ARTCOVR_PRIVATE_STAGING=1 owner-review flag.
+ * unapproved review works into public pages, browser assets, the sitemap, or
+ * search indexing. Private review data is intentionally absent from this
+ * browser-reachable module; owner-side review tooling reads it directly.
  */
 export const artworks = approvedPublicArtworks;
 
@@ -179,9 +149,7 @@ function deferCobaltCover(ordered: Artwork[]) {
 }
 
 export const displayArtworks = (() => {
-  const ordered = orderForDisplay(
-    isPrivateStaging ? stagingArtworks : artworks,
-  );
+  const ordered = orderForDisplay(artworks);
   return deferCobaltCover(ordered);
 })();
 
@@ -194,7 +162,7 @@ export const displayArtworks = (() => {
  */
 export const featuredArtworks = deferCobaltCover(
   orderForDisplay(
-    (isPrivateStaging ? stagingArtworks : artworks).filter(
+    artworks.filter(
       (artwork) => artworkTier(artwork) === "featured",
     ),
   ),
@@ -239,29 +207,18 @@ export function searchArtworks(query: string, items: readonly Artwork[] = displa
 }
 
 /**
- * Intro preference slugs reference staging works, so the defaults may only
- * exist in private-staging builds; production folds this to an empty list and
- * relies on the category-priority fallback.
- */
-export const stagingIntroSlugs: readonly string[] = isPrivateStaging
-  ? (stagingIntroJson as string[])
-  : [];
-/**
  * Owner-curated intro covers for production. Unlike the staging intro list,
  * this set ships in every public build and is deliberately chosen for
  * visibility (brightness/contrast) and category spread so the preloader never
  * opens on a near-black or flat cover that reads as a loading failure.
  */
-export const productionIntroSlugs: readonly string[] = !isPrivateStaging
-  ? (productionIntroJson as string[])
-  : [];
+export const productionIntroSlugs: readonly string[] =
+  productionIntroJson as string[];
 
 export function pickIntroArtworks(
   items: readonly Artwork[] = displayArtworks,
   count = 18,
-  preferredIntroSlugs: readonly string[] = isPrivateStaging
-    ? stagingIntroSlugs
-    : productionIntroSlugs,
+  preferredIntroSlugs: readonly string[] = productionIntroSlugs,
 ) {
   if (items.length <= count) return [...items];
 

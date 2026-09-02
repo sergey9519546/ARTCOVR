@@ -40,6 +40,28 @@ const discoveryCatalog = (curatedPublic as typeof curatedPublic).map((item) => (
   genres: getArtworkGenres(item).map(displayGenreLabel),
 }));
 
+const PRIVATE_BROWSER_MODULES = [
+  '/curated-review.json',
+  '/staging-intro.json',
+] as const;
+
+function privateCatalogIsolationPlugin() {
+  return {
+    name: 'artcovr-private-catalog-isolation',
+    moduleParsed(info: { id: string }) {
+      const normalizedId = info.id.replaceAll('\\', '/').split('?')[0];
+      const forbidden = PRIVATE_BROWSER_MODULES.find((suffix) =>
+        normalizedId.endsWith(suffix),
+      );
+      if (forbidden) {
+        throw new Error(
+          `Private catalog module ${forbidden} entered the public browser build.`,
+        );
+      }
+    },
+  };
+}
+
 function discoveryPlugin(siteUrl: string) {
   const files = {
     ...(siteUrl ? { 'sitemap.xml': buildSitemapXml(publicCatalog, siteUrl) } : {}),
@@ -81,6 +103,7 @@ export default defineConfig(async ({ mode }) => {
   return {
     base: basePath,
     plugins: [
+      privateCatalogIsolationPlugin(),
       discoveryPlugin(discoverySiteUrl),
       react(),
       tailwindcss({ optimize: false }),

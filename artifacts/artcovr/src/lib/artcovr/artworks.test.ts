@@ -11,11 +11,9 @@ import {
   getArtworkDiscoveryKeywords,
   getRelatedArtworks,
   isCheckoutReady,
-  isPrivateStaging,
   isPromptReady,
   pickIntroArtworks,
   searchArtworks,
-  stagingArtworks,
   type Artwork,
 } from "./artworks.ts";
 import { LAUNCH_REVIEW_SIZE } from "./catalog-review.ts";
@@ -29,12 +27,6 @@ describe("artwork helpers", () => {
     assert.ok(reviewArtwork);
   });
 
-  test("staging catalog is empty outside the explicit staging flag", () => {
-    if (!isPrivateStaging) {
-      assert.equal(stagingArtworks.length, 0);
-    }
-  });
-
   test("returns undefined for an unknown artwork", () => {
     assert.equal(getArtworkBySlug("missing-work"), undefined);
   });
@@ -46,21 +38,18 @@ describe("artwork helpers", () => {
     }
     // With zero approved works, the public catalog must be empty rather than
     // falling back to the unapproved staging review set.
-    if (artworks.length === 0 && !isPrivateStaging) {
+    if (artworks.length === 0) {
       assert.equal(displayArtworks.length, 0);
     }
   });
 
-  test("displayArtworks only exposes staging works under the explicit staging flag", () => {
-    if (!isPrivateStaging) {
-      for (const artwork of displayArtworks) {
-        assert.equal(artwork.rightsApproved && artwork.published, true);
-      }
+  test("displayArtworks contains only approved public works", () => {
+    for (const artwork of displayArtworks) {
+      assert.equal(artwork.rightsApproved && artwork.published, true);
     }
   });
 
   test("the owner picks lead while the cobalt cover stays in row four", () => {
-    if (isPrivateStaging) return;
     assert.deepEqual(
       featuredArtworks.slice(0, 3).map(({ slug }) => slug),
       [
