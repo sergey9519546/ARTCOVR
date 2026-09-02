@@ -36,6 +36,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const basePath = process.env.BASE_PATH;
+const replitDevDomain = process.env.REPLIT_DEV_DOMAIN;
 
 if (!basePath) {
   throw new Error(
@@ -385,6 +386,13 @@ export default defineConfig(async ({ mode }) => {
       strictPort: true,
       host: '0.0.0.0',
       allowedHosts: true,
+      hmr: replitDevDomain
+        ? {
+            protocol: 'wss',
+            host: replitDevDomain,
+            clientPort: 443,
+          }
+        : undefined,
       fs: {
         strict: true,
       },
