@@ -1,6 +1,7 @@
 "use client";
 
 import { SignIn } from "@clerk/react";
+import { getSafeAuthRedirect } from "@/lib/artcovr/auth-redirect";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -11,7 +12,7 @@ export default function SignInPage() {
         routing="path"
         path={`${basePath}/sign-in`}
         signUpUrl={`${basePath}/sign-up`}
-        fallbackRedirectUrl={`${basePath}/my-images`}
+        fallbackRedirectUrl={getSafeAuthRedirect(`${basePath}/my-images`)}
       />
     </main>
   );
