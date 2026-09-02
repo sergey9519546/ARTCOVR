@@ -253,6 +253,44 @@ test("archive journey recovers after browser back and forward navigation", async
   expect(journeyErrors).toEqual([]);
 });
 
+test("archive journey recovers after viewing an artwork", async ({ page }) => {
+  const journeyErrors: string[] = [];
+  const recordJourneyError = (message: string) => {
+    if (/removeChild|Invalid hook call/i.test(message)) {
+      journeyErrors.push(message);
+    }
+  };
+
+  page.on("console", (message) => recordJourneyError(message.text()));
+  page.on("pageerror", (error) => recordJourneyError(error.message));
+
+  await page.goto("/archive", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  const artworkLink = page
+    .locator('section[aria-label="Artwork archive"] article a')
+    .first();
+  await expect(artworkLink).toHaveAttribute("href", /\/product\/.+/);
+  await artworkLink.click();
+  await expect(page).toHaveURL(/\/product\/[^/]+$/);
+  await expect(page.locator("main h1")).toBeVisible();
+
+  await page
+    .getByRole("navigation", { name: "Breadcrumb" })
+    .getByRole("link", { name: "Archive", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  expect(journeyErrors).toEqual([]);
+});
+
 test("curation workspace redirects signed-out visitors to sign in", async ({ page }) => {
   await page.goto("/catalog-intelligence");
   await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcatalog-intelligence/);
