@@ -3,4 +3,5 @@
 - [Catalog intelligence joins](catalog-intelligence-import.md) — connect each cover by slug/filename across editorial metadata, visual labels, keywords, vector identity, and related works.
 - [Artifact API startup](artifact-api-startup.md) — listen on the injected PORT before optional external-service initialization so workflow readiness is observable.
 - [Dependency patch maturity](dependency-patch-maturity.md) — security fixes must satisfy the workspace release-age policy; prefer the newest already-mature patched version.
+- [Archived Bun lockfiles](archived-bun-lockfiles.md) — Bun 1.3 cannot safely override multiple transitive major lines; do not retain vulnerable locks for retired backups.
 - [Exclusive checkout integrity](exclusive-checkout-integrity.md) — reservation locks must expire with Stripe sessions, and late conflicting payments must be refunded idempotently.
