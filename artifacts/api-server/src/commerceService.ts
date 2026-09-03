@@ -156,6 +156,7 @@ export async function fulfillCheckoutSession(
           stripeCustomerId: sessionCustomerId,
           customerEmail: email,
           paidAt: new Date(),
+          entitlementExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
         })
         .where(eq(artcovrOrders.id, order.id));
 
@@ -216,9 +217,69 @@ export async function expireStaleExclusiveReservations(
     .returning({ id: artcovrOrders.id });
 }
 
+export async function claimGuestPurchases(
+  clerkUserId: string,
+  verifiedEmails: readonly string[],
+) {
+  const emails = [...new Set(
+    verifiedEmails
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean),
+  )];
+
+  if (emails.length === 0) {
+    return { claimedOrderIds: [], claimedCredits: 0 };
+  }
+
+  return db.transaction(async (tx) => {
+    const [firstEmail, ...remainingEmails] = emails;
+    const emailCondition = remainingEmails.length
+      ? inArray(artcovrOrders.customerEmail, emails)
+      : eq(artcovrOrders.customerEmail, firstEmail);
+    const claimed = await tx
+      .update(artcovrOrders)
+      .set({ clerkUserId })
+      .where(
+        and(
+          eq(artcovrOrders.status, "paid"),
+          isNull(artcovrOrders.clerkUserId),
+          emailCondition,
+        ),
+      )
+      .returning({
+        id: artcovrOrders.id,
+        includedCredits: artcovrOrders.includedCredits,
+      });
+
+    if (claimed.length === 0) {
+      return { claimedOrderIds: [], claimedCredits: 0 };
+    }
+
+    const orderIds = claimed.map((order) => order.id);
+    await tx
+      .update(artcovrCreditLedger)
+      .set({ accountKey: clerkUserId })
+      .where(
+        and(
+          inArray(artcovrCreditLedger.orderId, orderIds),
+          eq(artcovrCreditLedger.entryType, "grant"),
+        ),
+      );
+
+    return {
+      claimedOrderIds: orderIds,
+      claimedCredits: claimed.reduce(
+        (total, order) => total + order.includedCredits,
+        0,
+      ),
+    };
+  });
+}
+
 export function createOrderValues(input: {
   id: string;
-  clerkUserId: string;
+  clerkUserId: string | null;
+  customerEmail?: string | null;
   artworkId: string;
   artworkSlug: string;
   amountCents: number;
@@ -230,6 +291,7 @@ export function createOrderValues(input: {
   return {
     id: input.id,
     clerkUserId: input.clerkUserId,
+    customerEmail: input.customerEmail,
     artworkId: input.artworkId,
     artworkSlug: input.artworkSlug,
     idempotencyKey: input.idempotencyKey,
