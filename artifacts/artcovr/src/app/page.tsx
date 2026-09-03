@@ -195,6 +195,9 @@ export default function Home() {
         />
       </ErrorBoundary>
       <main id="page" aria-hidden={pageBlocked} inert={pageBlocked ? true : undefined}>
+        <ErrorBoundary label="hero">
+          <Hero />
+        </ErrorBoundary>
         {displayArtworks.length === 0 ? (
           <section
             aria-label="Catalog status"
@@ -225,9 +228,6 @@ export default function Home() {
         </ErrorBoundary>
         <ErrorBoundary label="editorial">
           <FullScreenSnap />
-        </ErrorBoundary>
-        <ErrorBoundary label="hero">
-          <Hero />
         </ErrorBoundary>
         <ErrorBoundary label="footer">
           <Footer />
