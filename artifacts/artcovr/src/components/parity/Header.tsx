@@ -65,7 +65,7 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
                  aria-expanded={menuOpen}
                  aria-controls="mobile-menu"
                >
-                 {menuOpen ? "Close" : "Menu"}
+                  {menuOpen ? "Close" : "menu"}
                </button>
              </li>
            </ul>
