@@ -115,18 +115,18 @@ function renderHome({ artworks }: RenderContext) {
     .join("");
 
   return pageLayout(`<main id="page">
+    <section aria-labelledby="home-title">
+      <p>ARTCOVR</p>
+      <h1 id="home-title">Cover art that becomes yours.</h1>
+      <p>Select an artwork, describe any change in one freeform prompt, and keep iterating from the visible result. Purchase the direction you want and download your images.</p>
+      <p>${link("/archive", "Explore the cover art archive")} ${link("/license", "Read the commercial license")}</p>
+    </section>
     <section aria-labelledby="featured-title">
       <p>Curated collection</p>
       <h2 id="featured-title">Distinctive square cover art.</h2>
       <p>Browse owner-approved artwork for music releases and creative projects. Every published work includes clear license terms.</p>
       <ul>${cards}</ul>
       <p>${link("/archive", `Browse all ${artworks.length} cover artworks`)}</p>
-    </section>
-    <section aria-labelledby="home-title">
-      <p>ARTCOVR</p>
-      <h1 id="home-title">Cover art that becomes yours.</h1>
-      <p>Select an artwork, describe any change in one freeform prompt, and keep iterating from the visible result. Purchase the direction you want and download your images.</p>
-      <p>${link("/archive", "Explore the cover art archive")} ${link("/license", "Read the commercial license")}</p>
     </section>
   </main>`);
 }
