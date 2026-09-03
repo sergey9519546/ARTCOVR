@@ -68,6 +68,16 @@ export function SeoHead() {
       : absoluteSiteUrl("/og-image.png", siteUrl);
     const imageAlt = metadata.image?.alt ?? "ARTCOVR curated cover art";
 
+    // Static route rendering puts JSON-LD in the document head for crawlers.
+    // The interactive pages render their own route-specific JSON-LD in the
+    // page body, so remove the prerendered copy after the SPA mounts. React
+    // then removes the body copy naturally when the route changes.
+    document.head
+      .querySelectorAll<HTMLScriptElement>(
+        'script[type="application/ld+json"][data-artcovr-static-structured-data="true"]',
+      )
+      .forEach((script) => script.remove());
+
     document.title = metadata.title;
     upsertMeta("name", "description", metadata.description);
     upsertMeta("name", "robots", shouldIndex ? "index, follow" : "noindex, nofollow, noarchive");

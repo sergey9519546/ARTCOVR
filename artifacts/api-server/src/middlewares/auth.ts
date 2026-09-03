@@ -1,4 +1,4 @@
-import { getAuth } from "@clerk/express";
+import { clerkClient, getAuth } from "@clerk/express";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 
 export type AuthenticatedRequest = Request & {
@@ -25,4 +25,12 @@ export const requireAuth: RequestHandler = (
 
 export function getAuthenticatedUserId(req: Request) {
   return (req as AuthenticatedRequest).clerkUserId;
+}
+
+export async function getVerifiedClerkEmails(userId: string) {
+  const user = await clerkClient.users.getUser(userId);
+  return user.emailAddresses
+    .filter((email) => email.verification?.status === "verified")
+    .map((email) => email.emailAddress.trim().toLowerCase())
+    .filter(Boolean);
 }

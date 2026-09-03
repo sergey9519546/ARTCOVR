@@ -10,6 +10,11 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- API trust policy: set `ARTCOVR_PUBLIC_ORIGIN` to the canonical HTTPS storefront
+  origin and `ARTCOVR_STOREFRONT_ORIGINS` to the comma-separated browser
+  allowlist. State-changing `/api` requests require a matching trusted
+  `Origin` or `Referer`; Stripe webhooks are verified separately from their
+  raw body and signature.
 
 ## Stack
 

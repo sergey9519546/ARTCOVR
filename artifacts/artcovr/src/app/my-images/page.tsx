@@ -5,7 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PurchasedGenerationStudio } from "@/components/artcovr/PurchasedGenerationStudio";
 import { PublicPage } from "@/components/artcovr/PublicPage";
 import { getArtworkBySlug } from "@/lib/artcovr/artworks";
-import { ArtcovrApiError, getMyImages, type AccountData } from "@/lib/artcovr/functions";
+import {
+  ArtcovrApiError,
+  claimGuestPurchases,
+  getMyImages,
+  type AccountData,
+} from "@/lib/artcovr/functions";
 
 function formatDate(value: string | null) {
   return value
@@ -27,10 +32,26 @@ export default function MyImagesPage() {
     };
   }, []);
 
-  const loadAccount = useCallback(async (quiet = false) => {
+  const loadAccount = useCallback(async (quiet = false, claimPurchases = false) => {
     if (!quiet && mounted.current) setState("loading");
 
     try {
+      if (claimPurchases) {
+        try {
+          await claimGuestPurchases();
+        } catch (error) {
+          // An unverified account can still view its own account data. It just
+          // cannot claim a guest checkout until Clerk verifies its email.
+          if (
+            !(
+              error instanceof ArtcovrApiError &&
+              error.code === "verified_email_required"
+            )
+          ) {
+            throw error;
+          }
+        }
+      }
       const account = await getMyImages();
       if (mounted.current) {
         setData(account);
@@ -56,7 +77,7 @@ export default function MyImagesPage() {
   }, [loadAccount]);
 
   useEffect(() => {
-    void loadAccount();
+    void loadAccount(false, true);
   }, [loadAccount]);
 
   useEffect(() => {
