@@ -38,6 +38,7 @@ if (Number.isNaN(port) || port <= 0) {
 const basePath = process.env.BASE_PATH;
 
 const usePreviewProxyHmr = process.env.ARTCOVR_PREVIEW_PROXY === '1';
+const apiProxyTarget = process.env.PLAYWRIGHT_API_URL;
 
 if (!basePath) {
   throw new Error(
@@ -387,6 +388,16 @@ export default defineConfig(async ({ mode }) => {
       strictPort: true,
       host: '0.0.0.0',
       allowedHosts: true,
+      ...(apiProxyTarget
+        ? {
+            proxy: {
+              '/api': {
+                target: apiProxyTarget,
+                changeOrigin: false,
+              },
+            },
+          }
+        : {}),
       ...(usePreviewProxyHmr ? { hmr: { clientPort: 80 } } : {}),
       fs: {
         strict: true,
