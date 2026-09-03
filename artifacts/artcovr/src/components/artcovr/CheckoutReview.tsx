@@ -2,7 +2,7 @@
 
 import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
-import { useAuth } from "@clerk/react";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import { useEffect, useState } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import {
@@ -21,7 +21,7 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
   const [error, setError] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [selectedImage, setSelectedImage] = useState<string>();
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
   const checkoutReady = isCheckoutReady(artwork);
   const checkoutRedirect = typeof window === "undefined"
     ? "/"

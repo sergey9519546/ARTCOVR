@@ -6,10 +6,14 @@ _Replace the heading above with the project's name, and this line with one sente
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
+- `pnpm run verify:ci` — full typecheck plus unit and API tests
+- `pnpm run test:e2e` — deterministic storefront Playwright suite; starts isolated API and Vite servers
+- `pnpm run verify:release` — portable checks followed by the storefront browser suite
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Optional browser-test env: `PLAYWRIGHT_BASE_URL` targets an already-running storefront; otherwise the Playwright config uses isolated local ports. Failure traces and screenshots are retained under `/tmp/artcovr-playwright-results`.
 - API trust policy: set `ARTCOVR_PUBLIC_ORIGIN` to the canonical HTTPS storefront
   origin and `ARTCOVR_STOREFRONT_ORIGINS` to the comma-separated browser
   allowlist. State-changing `/api` requests require a matching trusted

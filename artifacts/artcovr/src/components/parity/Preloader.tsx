@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
 import {
   PRELOADER_COMPLETE_TIME_MS,
-  REDUCED_MOTION_QUERY,
+  STATIC_MEDIA_QUERY,
 } from "@/lib/artcovr/motion";
 
 const INTRO_FINAL_SLUG = "graphic-surreal-pop";
@@ -41,10 +41,13 @@ type PreloaderProps = {
 };
 
 export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
-  const [visibleImages, setVisibleImages] = useState(0);
-  const [counter, setCounter] = useState(0);
-  const [exited, setExited] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const staticPresentation = window.matchMedia(STATIC_MEDIA_QUERY).matches;
+  const [visibleImages, setVisibleImages] = useState(
+    staticPresentation ? PRELOADER_IMAGES.length : 0,
+  );
+  const [counter, setCounter] = useState(staticPresentation ? 100 : 0);
+  const [exited, setExited] = useState(staticPresentation);
+  const [dismissed, setDismissed] = useState(staticPresentation);
   const onExitStartRef = useRef(onExitStart);
   const onCompleteRef = useRef(onComplete);
 
@@ -58,9 +61,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
 
   useEffect(() => {
     document.documentElement.classList.add("ready");
-    const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches;
-
-    if (reducedMotion) {
+    if (staticPresentation) {
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);

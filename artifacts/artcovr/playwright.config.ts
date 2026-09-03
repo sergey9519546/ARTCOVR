@@ -14,7 +14,9 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // HMR coverage edits source files, so every local and CI run must keep those
+  // mutations isolated from the deterministic storefront journeys.
+  workers: 1,
   reporter: "list",
   expect: { timeout: 10_000 },
   use: {
@@ -34,7 +36,7 @@ export default defineConfig({
           timeout: 120_000,
         },
         {
-          command: `PLAYWRIGHT_API_URL=http://127.0.0.1:${apiPort} PORT=${port} BASE_PATH=/ pnpm exec vite --config vite.config.ts --host 127.0.0.1 --port ${port}`,
+          command: `VITE_E2E_AUTH=1 PLAYWRIGHT_API_URL=http://127.0.0.1:${apiPort} PORT=${port} BASE_PATH=/ pnpm exec vite --config vite.config.ts --host 127.0.0.1 --port ${port}`,
           url: `http://127.0.0.1:${port}`,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,

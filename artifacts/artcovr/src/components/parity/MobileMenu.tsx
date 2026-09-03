@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useAuth, useClerk } from "@clerk/react";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import Link from "@/components/compat/Link";
 
 const items = [
@@ -10,8 +10,7 @@ const items = [
 ];
 
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { signOut } = useClerk();
+  const { isLoaded, isSignedIn, signOut } = useArtcovrAuth();
   const visibleItems = isSignedIn
     ? [...items, { label: "curation", href: "/catalog-intelligence" }]
     : items;

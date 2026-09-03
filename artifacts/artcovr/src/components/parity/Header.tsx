@@ -2,7 +2,7 @@
 
 import Link from "@/components/compat/Link";
 import { useLocation } from "wouter";
-import { useAuth, useClerk } from "@clerk/react";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import { useEffect, useState } from "react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 
@@ -16,8 +16,7 @@ export function Header({
    const [pathname] = useLocation();
 const archiveSelected = pathname === "/archive" || pathname.startsWith("/product/");
    const accountSelected = pathname === "/my-images";
-    const { isLoaded, isSignedIn } = useAuth();
-    const { signOut } = useClerk();
+    const { isLoaded, isSignedIn, signOut } = useArtcovrAuth();
     const [showBrand, setShowBrand] = useState(false);
 
     useEffect(() => {

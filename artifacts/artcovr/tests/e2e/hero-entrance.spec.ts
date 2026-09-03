@@ -165,8 +165,10 @@ test.describe("static presentations keep the hero wordmark visible without the e
 
         await expect(page.locator(".artcovr-hero-wordmark")).toBeVisible();
         await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
-          timeout: 8_000,
+          timeout: presentation.name === "reduced motion" ? 8_000 : 1_000,
         });
+        await expect(page.locator("#page")).not.toHaveAttribute("aria-hidden", "true");
+        await expect(page.locator("#page")).not.toHaveAttribute("inert", "");
         const after = await readHeroState(page);
         expect(after.transform).toBe("none");
         expect(after.wordmarkTop).toBeLessThan(after.clipBottom);
