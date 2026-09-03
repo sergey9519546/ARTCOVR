@@ -10,15 +10,25 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: checkout
+    description: Guest and authenticated checkout operations
   - name: account
-    description: Authenticated customer operations
+    description: Authenticated customer account and purchase operations
+  - name: generation
+    description: Authenticated image generation operations
+  - name: media
+    description: Authenticated reference-media operations
+  - name: inquiry
+    description: Authenticated customer inquiry operations
+  - name: intelligence
+    description: Protected owner curation operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
+      description: Returns server health status.
       responses:
         "200":
           description: Healthy
@@ -26,27 +36,209 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /checkout:
+    post:
+      operationId: createCheckout
+      tags: [checkout]
+      summary: Start a checkout
+      description: >
+        Starts or resumes a Stripe checkout for one published artwork. Signed-in
+        customers may omit email; guests must provide an email address for their
+        receipt and for later purchase claiming after they create an account.
+      security:
+        - clerkSession: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequest"
+      responses:
+        "200":
+          description: Checkout session created or resumed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutResponse"
+        "400":
+          description: Invalid checkout input or a guest email is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Artwork is unavailable for purchase.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: The idempotency key or artwork reservation conflicts with an existing checkout.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Stripe could not open checkout.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: The artwork is not fully configured for checkout.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
   /functions/v1/my-images:
     get:
       operationId: getMyImages
       tags: [account]
       summary: Load the signed-in customer's account data
+      description: >
+        Returns purchases, generation records, and authorized signed media
+        downloads for the authenticated Clerk user. Download URLs are private
+        and expire with the purchase entitlement.
       security:
         - clerkSession: []
       responses:
         "200":
-          description: Account data scoped to the signed-in Clerk user
+          description: Account data scoped to the signed-in Clerk user.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccountData"
         "401":
-          description: Authentication required
-  /checkout:
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Account media could not be loaded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/claim-guest-purchases:
     post:
-      operationId: createCheckout
+      operationId: claimGuestPurchases
       tags: [account]
-      summary: Start an authenticated checkout
+      summary: Claim guest purchases after signing in
+      description: >
+        Attaches eligible guest purchases to the authenticated Clerk user when
+        the user has a verified email address matching the checkout email.
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Guest purchases claimed, or no matching purchases found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimGuestPurchasesResult"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: A verified email address is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Guest purchase claiming failed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/upload-reference:
+    post:
+      operationId: uploadReference
+      tags: [media]
+      summary: Upload a style reference image
+      description: >
+        Uploads one JPEG, PNG, or WebP image as an opaque, single-use reference
+        for a later generation. The server validates and normalizes the image.
+      security:
+        - clerkSession: []
+      parameters:
+        - $ref: "#/components/parameters/ArtworkId"
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          image/png:
+            schema:
+              type: string
+              format: binary
+          image/webp:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          description: Reference upload accepted.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferenceUploadResponse"
+        "400":
+          description: Missing or invalid artwork, empty image, or invalid image bytes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: The reference image exceeds 8 MB.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "415":
+          description: The media type is not JPEG, PNG, or WebP, or does not match the file contents.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Reference storage is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/generate-image:
+    post:
+      operationId: createGeneration
+      tags: [generation]
+      summary: Start an image generation
+      description: Starts an asynchronous preview or purchased image generation.
       security:
         - clerkSession: []
       requestBody:
@@ -54,35 +246,405 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [artworkId, idempotencyKey]
-              properties:
-                artworkId:
-                  type: string
-                idempotencyKey:
-                  type: string
-                  format: uuid
-                selectedPreviewId:
-                  type: [string, "null"]
+              $ref: "#/components/schemas/GenerationRequest"
+      responses:
+        "202":
+          description: Generation queued or running.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerationResponse"
+        "400":
+          description: Invalid request, prompt, cover text, or conflicting references.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: The purchase or referenced result is not entitled to this operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Artwork or referenced generation was not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: A generation or reference is already in use, expired, or not current.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Generation rate or daily limit reached.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: The generation service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/generation-status:
+    get:
+      operationId: getGenerationStatus
+      tags: [generation]
+      summary: Get generation status
+      security:
+        - clerkSession: []
+      parameters:
+        - $ref: "#/components/parameters/GenerationId"
       responses:
         "200":
-          description: Checkout session created
+          description: Generation status and any currently authorized signed result URLs.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerationStatus"
+        "400":
+          description: A generation ID is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "401":
-          description: Authentication required
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Generation was not found for this user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: The generation service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    post:
+      operationId: getGenerationStatusPost
+      tags: [generation]
+      summary: Get generation status with a JSON body
+      description: Compatibility form of the status operation for browser clients.
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerationStatusRequest"
+      responses:
+        "200":
+          description: Generation status and any currently authorized signed result URLs.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerationStatus"
+        "400":
+          description: A generation ID is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Generation was not found for this user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: The generation service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/submit-inquiry:
+    post:
+      operationId: submitInquiry
+      tags: [inquiry]
+      summary: Submit a custom-work inquiry
+      description: Sends an inquiry from the authenticated user's verified email address.
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InquiryRequest"
+      responses:
+        "201":
+          description: Inquiry received.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InquiryResponse"
+        "400":
+          description: Invalid message or the account has no verified email.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: The user has submitted five inquiries in the last hour.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Inquiry submission is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /owner/catalog-intelligence:
+    get:
+      operationId: getOwnerCatalogIntelligenceAccess
+      tags: [intelligence]
+      summary: Check owner catalog-intelligence access
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: The authenticated user has owner curation access.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OwnerCatalogIntelligenceAccess"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "403":
+          description: Owner or curator access is required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
 components:
   securitySchemes:
     clerkSession:
       type: apiKey
       in: cookie
       name: __session
+  parameters:
+    ArtworkId:
+      name: artworkId
+      in: query
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 200
+    GenerationId:
+      name: generationId
+      in: query
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 200
   schemas:
+    ApiError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required: [code, message]
+
     HealthStatus:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
+
+    CheckoutRequest:
+      type: object
+      properties:
+        artworkId:
+          type: string
+          minLength: 1
+          maxLength: 200
+        idempotencyKey:
+          type: string
+          format: uuid
+        selectedPreviewId:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 200
+        email:
+          type: [string, "null"]
+          format: email
+          maxLength: 320
+      required: [artworkId, idempotencyKey]
+
+    CheckoutResponse:
+      type: object
+      properties:
+        purchaseId:
+          type: string
+        checkoutUrl:
+          type: string
+          format: uri
+        expiresAt:
+          type: string
+          format: date-time
+        includedCredits:
+          type: integer
+          minimum: 0
+      required: [purchaseId, checkoutUrl, expiresAt, includedCredits]
+
+    ClaimGuestPurchasesResult:
+      type: object
+      properties:
+        claimedOrderIds:
+          type: array
+          items:
+            type: string
+        claimedCredits:
+          type: integer
+          minimum: 0
+      required: [claimedOrderIds, claimedCredits]
+
+    ReferenceUploadResponse:
+      type: object
+      properties:
+        referenceUploadId:
+          type: string
+      required: [referenceUploadId]
+
+    GenerationRequest:
+      type: object
+      properties:
+        artworkId:
+          type: string
+          minLength: 1
+          maxLength: 200
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 12000
+        purchaseId:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 200
+        referenceGenerationId:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 200
+        referenceUploadId:
+          type: [string, "null"]
+          minLength: 1
+          maxLength: 200
+        coverText:
+          oneOf:
+            - type: object
+              properties:
+                title:
+                  type: [string, "null"]
+                  maxLength: 120
+                artistName:
+                  type: [string, "null"]
+                  maxLength: 120
+            - type: "null"
+        styleMode:
+          type: [string, "null"]
+          enum: [exact, expand, null]
+        resetToBase:
+          type: boolean
+      required: [artworkId, prompt]
+
+    GenerationResponse:
+      type: object
+      properties:
+        generationId:
+          type: string
+        status:
+          type: string
+          enum: [queued, running]
+        statusUrl:
+          type: string
+      required: [generationId, status, statusUrl]
+
+    GenerationStatusRequest:
+      type: object
+      properties:
+        generationId:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required: [generationId]
+
+    GenerationStatus:
+      type: object
+      properties:
+        generationId:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, succeeded, blocked, failed, timed_out]
+        previewUrl:
+          type: string
+          format: uri
+        cleanUrl:
+          type: string
+          format: uri
+        errorCode:
+          type: [string, "null"]
+        finishedAt:
+          type: [string, "null"]
+          format: date-time
+      required: [generationId, status, errorCode, finishedAt]
+
     AccountData:
       type: object
       properties:
@@ -93,29 +655,160 @@ components:
         generations:
           type: array
           items:
-            type: object
+            $ref: "#/components/schemas/AccountGeneration"
         downloads:
           type: array
+          description: Authorized signed download URLs for base artwork and generated results.
           items:
-            type: object
+            $ref: "#/components/schemas/AccountDownload"
       required: [purchases, generations, downloads]
+
     AccountPurchase:
       type: object
       properties:
-        id: { type: string }
-        artworkId: { type: string }
-        artworkTitle: { type: string }
-        artworkSlug: { type: string }
-        saleMode: { type: string }
-        status: { type: string }
-        amountCents: { type: integer }
-        currency: { type: string }
-        paidAt: { type: [string, "null"], format: date-time }
-        entitlementExpiresAt: { type: [string, "null"], format: date-time }
-        selectedPreviewGenerationId: { type: [string, "null"] }
-        resetSource: { type: string }
-        accessRevokedAt: { type: [string, "null"], format: date-time }
-        accessRevocationReason: { type: [string, "null"] }
-        remainingGenerations: { type: integer }
-      required: [id, artworkId, artworkTitle, artworkSlug, saleMode, status, amountCents, currency, remainingGenerations]
+        id:
+          type: string
+        artworkId:
+          type: string
+        artworkTitle:
+          type: string
+        artworkSlug:
+          type: string
+        saleMode:
+          type: string
+          enum: [exclusive, repeatable]
+        status:
+          type: string
+          enum: [reserved, pending, paid, expired, refunded, refunded_conflict]
+        amountCents:
+          type: integer
+        currency:
+          type: string
+        paidAt:
+          type: [string, "null"]
+          format: date-time
+        entitlementExpiresAt:
+          type: [string, "null"]
+          format: date-time
+        selectedPreviewGenerationId:
+          type: [string, "null"]
+        resetSource:
+          type: string
+          enum: [original]
+        accessRevokedAt:
+          type: [string, "null"]
+          format: date-time
+        accessRevocationReason:
+          type: [string, "null"]
+        remainingGenerations:
+          type: integer
+          minimum: 0
+      required:
+        - id
+        - artworkId
+        - artworkTitle
+        - artworkSlug
+        - saleMode
+        - status
+        - amountCents
+        - currency
+        - paidAt
+        - entitlementExpiresAt
+        - selectedPreviewGenerationId
+        - resetSource
+        - accessRevokedAt
+        - accessRevocationReason
+        - remainingGenerations
 
+    AccountGeneration:
+      type: object
+      properties:
+        id:
+          type: string
+        artworkId:
+          type: string
+        purchaseId:
+          type: [string, "null"]
+        prompt:
+          type: string
+        phase:
+          type: string
+          enum: [preview, purchased]
+        status:
+          type: string
+          enum: [queued, running, succeeded, blocked, failed, timed_out]
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        previewUrl:
+          type: string
+          format: uri
+        cleanUrl:
+          type: string
+          format: uri
+      required: [id, artworkId, purchaseId, prompt, phase, status, createdAt, expiresAt]
+
+    AccountDownload:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [base, selected_preview, purchased_result]
+        purchaseId:
+          type: string
+        artworkId:
+          type: string
+        generationId:
+          type: [string, "null"]
+        expiresAt:
+          type: string
+          format: date-time
+        url:
+          type: string
+          format: uri
+      required: [kind, purchaseId, artworkId, generationId, expiresAt, url]
+
+    InquiryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required: [message]
+
+    InquiryResponse:
+      type: object
+      properties:
+        inquiryId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [inquiryId, createdAt]
+
+    OwnerCatalogIntelligenceAccess:
+      type: object
+      properties:
+        authorized:
+          type: boolean
+          const: true
+        role:
+          type: string
+          enum: [curator]
+        capabilities:
+          type: object
+          properties:
+            aggregateInsights:
+              type: boolean
+            visualDiversityMap:
+              type: boolean
+            duplicateReview:
+              type: boolean
+          required: [aggregateInsights, visualDiversityMap, duplicateReview]
+      required: [authorized, role, capabilities]

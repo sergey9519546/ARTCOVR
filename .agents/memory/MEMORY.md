@@ -6,6 +6,7 @@
 - [Archived Bun lockfiles](archived-bun-lockfiles.md) — Bun 1.3 cannot safely override multiple transitive major lines; do not retain vulnerable locks for retired backups.
 - [Exclusive checkout integrity](exclusive-checkout-integrity.md) — reservation locks must expire with Stripe sessions, and late conflicting payments must be refunded idempotently.
 - [Vite route HTML emission](vite-route-html-emission.md) — clone transformed SPA shells only after Vite writes index.html; Rollup bundle hooks may run too early.
+- [Orval Zod compatibility](orval-zod-compatibility.md) — pin generated Zod validators to the workspace runtime major instead of relying on Orval auto-detection.
 - [Replit preview HMR proxy](replit-preview-hmr.md) — target the shared preview proxy on port 80 for development HMR, not the artifact's internal service port.
 - [Initial paint contract](initial-paint-contract.md) — let the React preloader own the first visible homepage frame; no static wordmark/counter shell.
 - [GSAP pinned journey lifecycle](gsap-pinned-journey-lifecycle.md) — keep the pin host mounted across mode swaps and disable it before animated route transitions.

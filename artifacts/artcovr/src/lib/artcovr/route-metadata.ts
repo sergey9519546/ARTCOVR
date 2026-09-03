@@ -133,6 +133,20 @@ export function getRouteMetadata(
   artworks: readonly RouteArtwork[],
   getGenres: (artwork: RouteArtwork) => readonly string[] = (artwork) => [artwork.category],
 ): RouteMetadata {
+  const checkoutMatch = path.match(/^\/checkout\/([^/]+)$/);
+  if (checkoutMatch) {
+    const artwork = artworks.find((candidate) => candidate.slug === decodeSlug(checkoutMatch[1]));
+    if (artwork) {
+      return {
+        title: "Secure Checkout | ARTCOVR",
+        description: `Complete your ${artwork.title} cover art purchase through secure checkout.`,
+        path,
+        index: false,
+        image: { url: artwork.image, alt: artwork.alt },
+      };
+    }
+  }
+
   const productMatch = path.match(/^\/product\/([^/]+)$/);
   if (productMatch) {
     const artwork = artworks.find((candidate) => candidate.slug === decodeSlug(productMatch[1]));
@@ -160,6 +174,9 @@ export function getPrerenderedRoutePaths(artworks: readonly RouteArtwork[]) {
   const productPaths = artworks
     .filter((artwork) => artwork.published && artwork.rightsApproved)
     .map((artwork) => `/product/${encodeURIComponent(artwork.slug)}`);
+  const checkoutPaths = artworks
+    .filter((artwork) => artwork.published && artwork.rightsApproved)
+    .map((artwork) => `/checkout/${encodeURIComponent(artwork.slug)}`);
 
-  return [...new Set(["/", ...Object.keys(STATIC_METADATA), ...productPaths])];
+  return [...new Set(["/", ...Object.keys(STATIC_METADATA), ...productPaths, ...checkoutPaths])];
 }

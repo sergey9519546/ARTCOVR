@@ -371,7 +371,8 @@ export function renderStaticRoute(context: RenderContext) {
       metadata.path.startsWith("/sign-up") ||
       metadata.path.startsWith("/my-images") ||
       metadata.path.startsWith("/catalog-intelligence") ||
-      metadata.path.startsWith("/checkout") ||
+      metadata.path === "/checkout" ||
+      (metadata.path.startsWith("/checkout/") && metadata.title === "Secure Checkout | ARTCOVR") ||
       metadata.path === "/auth/callback" ||
       metadata.path === "/bag" ||
       metadata.path === "/shipping-and-return")
@@ -380,6 +381,6 @@ export function renderStaticRoute(context: RenderContext) {
   }
   return {
     bodyHtml: body ?? renderNotFound(),
-    structuredDataHtml: `<script type="application/ld+json">${serializeJsonLd(structuredDataForRoute(context))}</script>`,
+    structuredDataHtml: `<script type="application/ld+json" data-artcovr-static-structured-data="true">${serializeJsonLd(structuredDataForRoute(context))}</script>`,
   };
 }
