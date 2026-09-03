@@ -9,6 +9,7 @@
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test src/lib/artcovr/*.test.ts scripts/catalog-intelligence-import.test.ts",
+    "optimize:artworks": "node scripts/optimize-artworks.mjs",
     "test:e2e": "playwright test",
     "catalog-intelligence:manifest": "tsx scripts/catalog-intelligence-manifest.ts",
     "catalog-intelligence:import": "tsx scripts/catalog-intelligence-import.ts"
