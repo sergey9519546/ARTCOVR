@@ -314,6 +314,13 @@ function routeMetadataPlugin(
         throw new Error('The structured data markers are missing from index.html.');
       }
 
+      const homepage = routeDocument(shell, '/');
+      if (/<main\b/.test(homepage)) {
+        throw new Error(
+          'Homepage static content would paint before the React preloader. Keep the homepage root empty.',
+        );
+      }
+
       for (const routePath of paths) {
         const html = routeDocument(shell, routePath);
         const fileName =
