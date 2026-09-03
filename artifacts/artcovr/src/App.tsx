@@ -137,6 +137,31 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
+function ScrollToTop() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    window.history.scrollRestoration = "manual";
+
+    const lenis = (
+      window as Window & {
+        __lenis?: {
+          scrollTo: (
+            target: number,
+            options?: { immediate?: boolean; force?: boolean },
+          ) => void;
+        };
+      }
+    ).__lenis;
+    lenis?.scrollTo(0, { immediate: true, force: true });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location]);
+
+  return null;
+}
+
 function CheckoutRoute() {
   return <CheckoutPageComponent />;
 }
@@ -223,6 +248,7 @@ function ClerkProviderWithRoutes() {
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
       {!deterministicAuth ? <ClerkQueryClientCacheInvalidator /> : null}
+      <ScrollToTop />
       <SeoHead />
       <Router />
     </ArtcovrAuthProvider>
