@@ -286,5 +286,11 @@
     "priceCents": 3500,
     "tier": "archive",
     "rightsApproved": true
+  },
+  "graphic-surreal-pop": {
+    "saleMode": "repeatable",
+    "priceCents": 3500,
+    "tier": "featured",
+    "rightsApproved": true
   }
 }
