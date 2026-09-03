@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 
 const port = Number(process.env.PLAYWRIGHT_PORT || 45180);
+const apiPort = Number(process.env.PLAYWRIGHT_API_PORT || port + 1);
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
 
 export default defineConfig({
@@ -13,7 +14,9 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // HMR coverage edits source files, so every local and CI run must keep those
+  // mutations isolated from the deterministic storefront journeys.
+  workers: 1,
   reporter: "list",
   expect: { timeout: 10_000 },
   use: {
@@ -25,12 +28,20 @@ export default defineConfig({
   },
   webServer: externalBaseUrl
     ? undefined
-    : {
-        command: `PORT=${port} BASE_PATH=/ pnpm exec vite --config vite.config.ts --host 127.0.0.1 --port ${port}`,
-        url: `http://127.0.0.1:${port}`,
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-      },
+    : [
+        {
+          command: `ARTCOVR_STOREFRONT_ORIGINS=http://127.0.0.1:${port} ARTCOVR_PUBLIC_ORIGIN=http://127.0.0.1:${port} PORT=${apiPort} pnpm --filter @workspace/api-server run dev`,
+          url: `http://127.0.0.1:${apiPort}/api/healthz`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+        {
+          command: `VITE_E2E_AUTH=1 PLAYWRIGHT_API_URL=http://127.0.0.1:${apiPort} PORT=${port} BASE_PATH=/ pnpm exec vite --config vite.config.ts --host 127.0.0.1 --port ${port}`,
+          url: `http://127.0.0.1:${port}`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+      ],
   projects: [
     {
       name: "chromium",
