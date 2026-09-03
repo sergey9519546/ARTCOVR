@@ -21,7 +21,6 @@ import { useLenis } from "@/hooks/artcovr/useLenis";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 import {
   PRELOADER_FAILSAFE_TIME_MS,
-  REDUCED_MOTION_QUERY,
   STATIC_MEDIA_QUERY,
 } from "@/lib/artcovr/motion";
 
@@ -38,21 +37,19 @@ export default function Home() {
   useEffect(() => {
     setHydrated(true);
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
-    const reducedMotionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
     const updateMode = () => {
-      const allowed = !mediaQuery.matches;
+      const staticPresentation = mediaQuery.matches;
+      const allowed = !staticPresentation;
       setMotionAllowed(allowed);
-      if (reducedMotionQuery.matches) {
+      if (staticPresentation) {
         setHeroEntranceReady(true);
         setPreloaderDone(true);
       }
     };
     updateMode();
     mediaQuery.addEventListener("change", updateMode);
-    reducedMotionQuery.addEventListener("change", updateMode);
     return () => {
       mediaQuery.removeEventListener("change", updateMode);
-      reducedMotionQuery.removeEventListener("change", updateMode);
     };
   }, []);
 

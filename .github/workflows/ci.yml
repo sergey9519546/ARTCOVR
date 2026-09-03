@@ -73,7 +73,7 @@ jobs:
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
 
-      # playwright.config.ts starts `npx next dev` itself via its webServer block.
+      # playwright.config.ts starts the API and Vite servers via its webServer block.
       - name: Browser journeys
         run: bun run test:e2e
 

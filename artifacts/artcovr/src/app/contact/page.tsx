@@ -2,7 +2,7 @@
 
 import Link from "@/components/compat/Link";
 import { type FormEvent, useState } from "react";
-import { useAuth } from "@clerk/react";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import { PublicPage } from "@/components/artcovr/PublicPage";
 import { ArtcovrApiError, submitInquiry } from "@/lib/artcovr/functions";
 
@@ -11,7 +11,7 @@ export default function ContactPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [needsSignIn, setNeedsSignIn] = useState(false);
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

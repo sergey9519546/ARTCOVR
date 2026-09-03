@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ClerkProvider, useAuth, useClerk } from "@clerk/react";
+import { useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -24,6 +24,10 @@ import RefundsPage from "@/app/refunds/page";
 import SignInPage from "@/app/sign-in/page";
 import SignUpPage from "@/app/sign-up/page";
 import { SeoHead } from "@/components/artcovr/SeoHead";
+import {
+  ArtcovrAuthProvider,
+  useArtcovrAuth,
+} from "@/lib/artcovr/auth";
 import { Route, Switch, Redirect, useLocation, Router as WouterRouter } from "wouter";
 
 const queryClient = new QueryClient();
@@ -138,13 +142,13 @@ function CheckoutRoute() {
 }
 
 function HomeEntry() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
   if (isLoaded && isSignedIn) return <Redirect to="/my-images" />;
   return <Home />;
 }
 
 function ProtectedMyImagesRoute() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
   if (!isLoaded) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm opacity-60" aria-live="polite">
@@ -157,7 +161,7 @@ function ProtectedMyImagesRoute() {
 }
 
 function ProtectedCatalogIntelligenceRoute() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
   if (!isLoaded) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm opacity-60" aria-live="polite">
@@ -189,9 +193,12 @@ function ClerkQueryClientCacheInvalidator() {
 
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
+  const deterministicAuth = import.meta.env.DEV &&
+    import.meta.env.VITE_E2E_AUTH === "1" &&
+    window.localStorage.getItem("artcovr:e2e-auth") === "signed-in";
 
   return (
-    <ClerkProvider
+    <ArtcovrAuthProvider
       publishableKey={clerkPubKey}
       proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
@@ -215,10 +222,10 @@ function ClerkProviderWithRoutes() {
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
-      <ClerkQueryClientCacheInvalidator />
+      {!deterministicAuth ? <ClerkQueryClientCacheInvalidator /> : null}
       <SeoHead />
       <Router />
-    </ClerkProvider>
+    </ArtcovrAuthProvider>
   );
 }
 
