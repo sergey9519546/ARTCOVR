@@ -126,6 +126,7 @@ test.describe("static presentations keep the hero wordmark visible without the e
   const presentations = [
     {
       name: "reduced motion",
+      preloader: "skip" as const,
       options: {
         viewport: { width: 1440, height: 1000 },
         reducedMotion: "reduce" as const,
@@ -134,6 +135,7 @@ test.describe("static presentations keep the hero wordmark visible without the e
     },
     {
       name: "coarse pointer",
+      preloader: "complete" as const,
       options: {
         viewport: { width: 1440, height: 1000 },
         reducedMotion: "no-preference" as const,
@@ -143,6 +145,7 @@ test.describe("static presentations keep the hero wordmark visible without the e
     },
     {
       name: "narrow screen",
+      preloader: "complete" as const,
       options: {
         viewport: { width: 640, height: 900 },
         reducedMotion: "no-preference" as const,
@@ -165,7 +168,7 @@ test.describe("static presentations keep the hero wordmark visible without the e
 
         await expect(page.locator(".artcovr-hero-wordmark")).toBeVisible();
         await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
-          timeout: presentation.name === "reduced motion" ? 8_000 : 1_000,
+          timeout: presentation.preloader === "skip" ? 1_000 : 8_000,
         });
         await expect(page.locator("#page")).not.toHaveAttribute("aria-hidden", "true");
         await expect(page.locator("#page")).not.toHaveAttribute("inert", "");

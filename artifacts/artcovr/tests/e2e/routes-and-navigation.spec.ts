@@ -90,11 +90,11 @@ test("product review moves into checkout without a blank transition", async ({
   await assertUsablePage(page);
 });
 
-test("mobile intro is immediately usable and menu restores keyboard focus", async ({
+test("mobile intro stays visible until it completes and then restores keyboard focus", async ({
   browser,
 }) => {
   const context = await browser.newContext({
-    viewport: { width: 640, height: 900 },
+    viewport: { width: 402, height: 874 },
     hasTouch: true,
     isMobile: true,
     reducedMotion: "no-preference",
@@ -102,9 +102,13 @@ test("mobile intro is immediately usable and menu restores keyboard focus", asyn
   const page = await context.newPage();
   try {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
-      timeout: 1_000,
-    });
+    const preloader = page.locator("#artcovr-preloader");
+    await expect(preloader).toBeVisible();
+    await expect(preloader).toHaveAttribute("aria-label", /Loading \d+ percent/);
+    await expect(page.locator("#page")).toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator("#page")).toHaveAttribute("inert", "");
+
+    await expect(preloader).toHaveCount(0, { timeout: 8_000 });
     await expect(page.locator("#page")).not.toHaveAttribute("aria-hidden", "true");
     await expect(page.locator("#page")).not.toHaveAttribute("inert", "");
 
@@ -118,6 +122,26 @@ test("mobile intro is immediately usable and menu restores keyboard focus", asyn
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(opener).toBeFocused();
+  } finally {
+    await context.close();
+  }
+});
+
+test("reduced motion bypasses the mobile intro", async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 402, height: 874 },
+    hasTouch: true,
+    isMobile: true,
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
+  try {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+      timeout: 1_000,
+    });
+    await expect(page.locator("#page")).not.toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator("#page")).not.toHaveAttribute("inert", "");
   } finally {
     await context.close();
   }
