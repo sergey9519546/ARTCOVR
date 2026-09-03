@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
 import {
   PRELOADER_COMPLETE_TIME_MS,
-  STATIC_MEDIA_QUERY,
+  PRELOADER_STATIC_MEDIA_QUERY,
 } from "@/lib/artcovr/motion";
 
 const INTRO_FINAL_SLUG = "graphic-surreal-pop";
@@ -41,7 +41,7 @@ type PreloaderProps = {
 };
 
 export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
-  const staticPresentation = window.matchMedia(STATIC_MEDIA_QUERY).matches;
+  const staticPresentation = window.matchMedia(PRELOADER_STATIC_MEDIA_QUERY).matches;
   const [visibleImages, setVisibleImages] = useState(
     staticPresentation ? PRELOADER_IMAGES.length : 0,
   );
