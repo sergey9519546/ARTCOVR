@@ -10,6 +10,8 @@ export type PublicCatalogArtwork = {
   saleMode: "exclusive" | "repeatable" | null;
   rightsApproved: boolean;
   published: boolean;
+  category?: string;
+  moodTags?: string[];
 };
 
 const publicCatalog = (curatedPublic as PublicCatalogArtwork[]).filter(

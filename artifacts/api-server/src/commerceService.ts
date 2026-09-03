@@ -156,6 +156,7 @@ export async function fulfillCheckoutSession(
           stripeCustomerId: sessionCustomerId,
           customerEmail: email,
           paidAt: new Date(),
+          entitlementExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
         })
         .where(eq(artcovrOrders.id, order.id));
 

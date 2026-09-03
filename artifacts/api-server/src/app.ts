@@ -72,4 +72,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
+app.use((error: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (error && typeof error === "object" && "type" in error && error.type === "entity.too.large") {
+    res.status(413).json({ code: "reference_too_large", message: "Reference images must be 8 MB or smaller." });
+    return;
+  }
+  next(error);
+});
+
 export default app;
