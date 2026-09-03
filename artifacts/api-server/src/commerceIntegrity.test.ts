@@ -16,6 +16,7 @@ import {
   expireStaleExclusiveReservations,
   fulfillCheckoutSession,
 } from "./commerceService";
+import { checkoutReturnUrls } from "./routes/commerce";
 
 function orderValues(input: {
   id: string;
@@ -51,6 +52,23 @@ function orderValues(input: {
     stripePaymentIntentId: input.stripePaymentIntentId,
   };
 }
+
+test("checkout return URLs use the configured public origin, never a forwarded host", () => {
+  const urls = checkoutReturnUrls(
+    "midnight-cover",
+    "https://artcovr.example",
+  );
+
+  assert.equal(
+    urls.successUrl,
+    "https://artcovr.example/checkout/midnight-cover?status=success&session_id={CHECKOUT_SESSION_ID}",
+  );
+  assert.equal(
+    urls.cancelUrl,
+    "https://artcovr.example/checkout/midnight-cover?status=cancelled",
+  );
+  assert.equal(urls.successUrl.includes("forwarded"), false);
+});
 
 test("simultaneous exclusive reservations create only one active order", async () => {
   const suffix = randomUUID();

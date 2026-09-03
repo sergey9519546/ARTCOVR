@@ -11,6 +11,11 @@ import {
   clerkProxyMiddleware,
   getClerkProxyHost,
 } from "./middlewares/clerkProxyMiddleware";
+import {
+  browserMutationProtection,
+  disallowUnknownPreflight,
+  trustedCorsOptions,
+} from "./middlewares/trustBoundary";
 
 const app: Express = express();
 
@@ -58,7 +63,8 @@ app.post(
 );
 
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
-app.use(cors({ credentials: true, origin: true }));
+app.use(disallowUnknownPreflight);
+app.use(cors(trustedCorsOptions()));
 app.use(
   clerkMiddleware((req) => ({
     publishableKey: publishableKeyFromHost(
@@ -67,6 +73,10 @@ app.use(
     ),
   })),
 );
+// The Stripe webhook is intentionally above this middleware. Stripe is a
+// server-to-server caller and must be verified from its raw body/signature,
+// not by browser Origin/Referer headers.
+app.use("/api", browserMutationProtection);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

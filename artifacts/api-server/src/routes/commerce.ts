@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { getAuth } from "@clerk/express";
-import { Router, type IRouter, type Request } from "express";
+import { Router, type IRouter } from "express";
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { artcovrOrders, db } from "@workspace/db";
@@ -16,6 +16,7 @@ import {
   createCheckoutSession,
   retrieveCheckoutSession,
 } from "../stripeClient";
+import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
 
 const router: IRouter = Router();
 const checkoutBody = z.object({
@@ -27,9 +28,12 @@ const checkoutBody = z.object({
 
 const exclusiveInventoryStatuses = ["reserved", "paid"] as const;
 
-function requestOrigin(req: Request) {
-  const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  return `${forwardedProto || req.protocol}://${req.get("host")}`;
+export function checkoutReturnUrls(artworkSlug: string, publicOrigin: string) {
+  const origin = getTrustedPublicOrigin({ ARTCOVR_PUBLIC_ORIGIN: publicOrigin });
+  return {
+    successUrl: `${origin}/checkout/${artworkSlug}?status=success&session_id={CHECKOUT_SESSION_ID}`,
+    cancelUrl: `${origin}/checkout/${artworkSlug}?status=cancelled`,
+  };
 }
 
 router.post("/checkout", async (req, res): Promise<void> => {
@@ -170,7 +174,10 @@ router.post("/checkout", async (req, res): Promise<void> => {
 
   try {
     const price = await getStripePriceForArtwork(artwork);
-    const origin = requestOrigin(req);
+    const returnUrls = checkoutReturnUrls(
+      artwork.slug,
+      getTrustedPublicOrigin(),
+    );
     const session = await createCheckoutSession(
       {
         orderId: order.id,
@@ -182,8 +189,8 @@ router.post("/checkout", async (req, res): Promise<void> => {
           included_credits: String(order.includedCredits),
           sale_mode: order.saleMode,
         },
-        successUrl: `${origin}/checkout/${artwork.slug}?status=success&session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${origin}/checkout/${artwork.slug}?status=cancelled`,
+        successUrl: returnUrls.successUrl,
+        cancelUrl: returnUrls.cancelUrl,
         expiresAt: reservationExpiresAt,
         customerEmail: customerEmail ?? undefined,
       },
