@@ -273,12 +273,15 @@ function routeMetadataPlugin(
       metadata,
       getGenres: (artwork) => getArtworkGenres(artwork).map(displayGenreLabel),
     });
+    // The homepage has a React-owned preloader. Any static body content here
+    // would paint before React mounts and flash as a false first frame.
+    const staticBody = routePath === "/" ? "" : rendered.bodyHtml;
     return html
       .replace(
         ROUTE_META_PATTERN,
         renderRouteMetadata(metadata, siteUrl, indexingDisabled),
       )
-      .replace(STATIC_CONTENT_PATTERN, rendered.bodyHtml)
+      .replace(STATIC_CONTENT_PATTERN, staticBody)
       .replace(STRUCTURED_DATA_PATTERN, rendered.structuredDataHtml);
   };
 
