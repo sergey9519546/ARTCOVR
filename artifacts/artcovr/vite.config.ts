@@ -79,7 +79,7 @@ function discoveryPlugin(siteUrl: string) {
     'sitemap.xml': buildSitemapXml(publicCatalog, siteUrl),
     'llms.txt': buildLlmsTxt(discoveryCatalog, siteUrl),
     'llms-full.txt': buildLlmsFullTxt(discoveryCatalog, siteUrl),
-    'robots.txt': `User-agent: *\nAllow: /\nSitemap: ${siteUrl}/sitemap.xml\n`,
+    'robots.txt': `User-agent: *\nAllow: /\n\nUser-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`,
   };
 
   return {
@@ -222,9 +222,12 @@ function renderRouteMetadata(
   const canonical = absoluteUrl(metadata.path, siteUrl);
   const imageUrl = absoluteUrl(metadata.image?.url ?? '/og-image.png', siteUrl);
   const imageAlt = metadata.image?.alt ?? 'ARTCOVR curated cover art';
+  const imageWidth = metadata.image?.width ?? 1200;
+  const imageHeight = metadata.image?.height ?? 630;
+  const imageType = metadata.image?.type ?? 'image/png';
   const robots =
     metadata.index && !indexingDisabled
-      ? 'index, follow'
+      ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
       : 'noindex, nofollow, noarchive';
   const openGraphType = metadata.path.startsWith('/product/') ? 'product' : 'website';
 
@@ -239,14 +242,17 @@ function renderRouteMetadata(
     <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="${escapeHtml(canonical)}" />
     <meta property="og:image" content="${escapeHtml(imageUrl)}" />
+    <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}" />
     <meta property="og:image:alt" content="${escapeHtml(imageAlt)}" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content="${imageWidth}" />
+    <meta property="og:image:height" content="${imageHeight}" />
+    <meta property="og:image:type" content="${escapeHtml(imageType)}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(metadata.title)}" />
     <meta name="twitter:description" content="${escapeHtml(metadata.description)}" />
     <meta name="twitter:image" content="${escapeHtml(imageUrl)}" />
     <meta name="twitter:image:alt" content="${escapeHtml(imageAlt)}" />
+    <link rel="image_src" href="${escapeHtml(imageUrl)}" />
     <link rel="canonical" href="${escapeHtml(canonical)}" />
     <!-- ARTCOVR_ROUTE_META_END -->`;
 }

@@ -14,7 +14,13 @@ export type RouteMetadata = {
   description: string;
   path: string;
   index: boolean;
-  image?: { url: string; alt: string };
+  image?: {
+    url: string;
+    alt: string;
+    width?: number;
+    height?: number;
+    type?: string;
+  };
 };
 
 export const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
@@ -142,7 +148,13 @@ export function getRouteMetadata(
         description: `Complete your ${artwork.title} cover art purchase through secure checkout.`,
         path,
         index: false,
-        image: { url: artwork.image, alt: artwork.alt },
+        image: {
+          url: artwork.image,
+          alt: artwork.alt,
+          width: 1200,
+          height: 1200,
+          type: "image/jpeg",
+        },
       };
     }
   }
@@ -157,7 +169,13 @@ export function getRouteMetadata(
         description: `${artwork.title} is ${genres.join(" and ")} cover artwork from ARTCOVR’s approved catalog. Review its commercial license and prompt-based editing options.`,
         path,
         index: artwork.published && artwork.rightsApproved,
-        image: { url: artwork.image, alt: artwork.alt },
+        image: {
+          url: artwork.image,
+          alt: artwork.alt,
+          width: 1200,
+          height: 1200,
+          type: "image/jpeg",
+        },
       };
     }
   }

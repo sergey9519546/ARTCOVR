@@ -17,11 +17,16 @@ function cleanSiteUrl(siteUrl: string) {
 }
 
 export function buildSitemapXml(
-  items: readonly Pick<Artwork, "slug">[],
+  items: readonly Pick<Artwork, "slug" | "title" | "image" | "alt">[],
   siteUrl: string,
 ) {
   const base = cleanSiteUrl(siteUrl);
-  const routes = [
+  const routes: Array<{
+    path: string;
+    changefreq: string;
+    priority: string;
+    image?: Pick<Artwork, "slug" | "title" | "image" | "alt">;
+  }> = [
     { path: "/", changefreq: "weekly", priority: "1.0" },
     { path: "/archive", changefreq: "weekly", priority: "0.9" },
     { path: "/about", changefreq: "monthly", priority: "0.6" },
@@ -35,16 +40,21 @@ export function buildSitemapXml(
       path: `/product/${encodeURIComponent(item.slug)}`,
       changefreq: "monthly",
       priority: "0.7",
+      image: item,
     })),
   ];
 
   const urls = routes
     .map(
-      ({ path, changefreq, priority }) =>
-        `  <url><loc>${escapeXml(`${base}${path}`)}</loc><changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`,
+      ({ path, changefreq, priority, image }) => {
+        const imageXml = image
+          ? `<image:image><image:loc>${escapeXml(`${base}${image.image}`)}</image:loc><image:title>${escapeXml(`${image.title} cover artwork`)}</image:title><image:caption>${escapeXml(image.alt)}</image:caption><image:license>${escapeXml(`${base}/license`)}</image:license></image:image>`
+          : "";
+        return `  <url><loc>${escapeXml(`${base}${path}`)}</loc><changefreq>${changefreq}</changefreq><priority>${priority}</priority>${imageXml}</url>`;
+      },
     )
     .join("\n");
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n</urlset>\n`;
 }
 
 export function buildLlmsTxt(
@@ -87,7 +97,7 @@ export function buildLlmsFullTxt(
   items: readonly (
     Pick<
       Artwork,
-      "slug" | "title" | "description" | "category" | "alt" | "moodTags" | "saleMode" | "priceCents"
+      "slug" | "title" | "description" | "category" | "image" | "alt" | "moodTags" | "saleMode" | "priceCents"
     > & { genres?: string[] }
   )[],
   siteUrl: string,
@@ -106,6 +116,8 @@ export function buildLlmsFullTxt(
 - URL: ${base}/product/${encodeURIComponent(item.slug)}
 - Description: ${item.description}
 - Image alt text: ${item.alt}
+- Image URL: ${base}${item.image}
+- Image license: ${base}/license
 - Visual category: ${item.category}
 - Music genres: ${item.genres?.join(", ") || "Experimental"}
 - Mood: ${item.moodTags.join(", ")}

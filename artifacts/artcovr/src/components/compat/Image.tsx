@@ -32,13 +32,17 @@ export default function Image({
     ? { position: "absolute", inset: 0, width: "100%", height: "100%" }
     : {};
   const optimizedSources = optimizedArtworkSources(src);
+  const isCatalogArtwork = Boolean(optimizedSources);
   const image = (
     <img
       {...props}
       src={src}
+      width={props.width ?? (isCatalogArtwork ? 1200 : undefined)}
+      height={props.height ?? (isCatalogArtwork ? 1200 : undefined)}
       className={className}
       style={{ ...fillStyle, ...style }}
       loading={priority || preload ? "eager" : props.loading}
+      fetchPriority={priority || preload ? "high" : props.fetchPriority}
       decoding={props.decoding ?? "async"}
     />
   );
