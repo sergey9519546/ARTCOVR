@@ -1,4 +1,4 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 pnpm install --frozen-lockfile
-pnpm --filter @workspace/db run migrate
+bash scripts/db/migrate-development.sh
