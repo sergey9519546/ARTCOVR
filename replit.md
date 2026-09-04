@@ -1,6 +1,6 @@
-# [Project name]
+# ARTCOVR
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+ARTCOVR is a curated cover-art catalog and storefront with commercial licensing and prompt-based editing.
 
 ## Run & Operate
 
@@ -9,10 +9,16 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm run verify:ci` — full typecheck plus unit and API tests
 - `pnpm run test:e2e` — deterministic storefront Playwright suite; starts isolated API and Vite servers
 - `pnpm run verify:release` — portable checks followed by the storefront browser suite
+- `pnpm run verify:live-release` — non-mutating smoke checks against `ARTCOVR_RELEASE_URL`; rejects missing/invalid webhooks without creating a payment
+- `pnpm run verify:database` — read-only PostgreSQL readiness and required-commerce-table check
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Production API also requires `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `ARTCOVR_PUBLIC_ORIGIN`, `ARTCOVR_STOREFRONT_ORIGINS`, and `STRIPE_WEBHOOK_SECRET`. Missing values fail API startup with the variable names.
+- The production web artifact is static at `/` and proxies `/api` to the API service. The API startup probe is `/api/healthz`; it checks PostgreSQL readiness rather than only process liveness.
+- `VITE_SITE_URL` must be the canonical HTTPS origin only. `BASE_PATH` is currently `/`; changing it requires updating the artifact rewrites and release smoke target together.
+- Stripe webhook verification uses the raw request bytes, a configured signing secret, a five-minute timestamp tolerance, and event-id retrieval through the server-side Stripe connector. Duplicate event IDs are ignored transactionally.
 - Optional browser-test env: `PLAYWRIGHT_BASE_URL` targets an already-running storefront; otherwise the Playwright config uses isolated local ports. Failure traces and screenshots are retained under `/tmp/artcovr-playwright-results`.
 - API trust policy: set `ARTCOVR_PUBLIC_ORIGIN` to the canonical HTTPS storefront
   origin and `ARTCOVR_STOREFRONT_ORIGINS` to the comma-separated browser
@@ -30,25 +36,26 @@ _Replace the heading above with the project's name, and this line with one sente
 - Build: esbuild (CJS bundle)
 
 ## Where things live
-
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Web storefront: `artifacts/artcovr`
+- API and commerce: `artifacts/api-server`
+- PostgreSQL schema: `lib/db/src/schema`
+- API contract: `lib/api-spec/openapi.yaml`
+- Release checks: `scripts/release` and `scripts/db/verify-database.sh`
 
 ## Architecture decisions
-
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- The storefront is static and prerendered; the API is a separate `/api` service.
+- Checkout prices and entitlements are derived from server-side catalog data.
+- Stripe webhooks require cryptographic signature verification before server-side event retrieval.
 
 ## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Browse, search, license, purchase, and edit curated cover artwork.
 
 ## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
+No standing preferences recorded.
 
 ## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- `verify:release` is safe for CI and local development; `verify:live-release` is the only check that contacts a deployed URL.
+- `verify:database` is read-only. Schema changes use the explicit Drizzle push command and are not silently performed by release checks.
 
 ## Pointers
-
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details

@@ -2,6 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureStripeWebhook } from "./stripeClient";
 import { seedStripeCatalog } from "./catalogSeeder";
+import { validateProductionEnvironment } from "./runtimeConfig";
 
 const rawPort = process.env["PORT"];
 
@@ -17,7 +18,13 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
+validateProductionEnvironment();
+
 async function initStripe() {
+  if (process.env.ARTCOVR_SKIP_STRIPE_INIT === "1") {
+    logger.warn("ARTCOVR_SKIP_STRIPE_INIT=1; Stripe endpoint setup was skipped.");
+    return;
+  }
   const domain = process.env.REPLIT_DOMAINS?.split(",")[0]?.trim();
   if (domain) {
     await ensureStripeWebhook(`https://${domain}/api/stripe/webhook`);

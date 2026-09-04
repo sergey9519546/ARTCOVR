@@ -36,6 +36,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+        "503":
+          description: API is running but its database is not ready.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
 
   /checkout:
     post:

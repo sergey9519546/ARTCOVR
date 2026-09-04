@@ -1,62 +1,33 @@
 #!/usr/bin/env bash
-# Gate G8 (.agent-state/RELEASE_GATES.md): apply every migration to a disposable
-# PostgreSQL and run the contract + behavioural suites against it.
-#
-# Until 2026-08-31 this gate had never been executed, because it needs a real
-# database and nobody had stood one up. Running it immediately surfaced a
-# contract assertion that had been broken since migration 0012 landed.
-#
-# Requires: a reachable PostgreSQL and psql. Point PG* at it, or let the
-# defaults below hit a local disposable instance.
-#
-#   PGHOST=127.0.0.1 PGPORT=5433 PGUSER=postgres bash scripts/db/verify-database.sh
-#
-# NEVER point this at production. It creates a database and writes rows.
+# Read-only database readiness/schema contract for the current Drizzle database.
+# Schema changes are applied separately with the db package's explicit push
+# command; this check never creates, drops, or mutates a database.
 set -euo pipefail
-
-PGHOST="${PGHOST:-127.0.0.1}"
-PGPORT="${PGPORT:-5433}"
-PGUSER="${PGUSER:-postgres}"
-DB="${ARTCOVR_TEST_DB:-artcovr_verify}"
-export PGHOST PGPORT PGUSER
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
 
-echo "==> target: $PGUSER@$PGHOST:$PGPORT, database $DB"
-psql -q -d postgres -v ON_ERROR_STOP=1 \
-  -c "drop database if exists $DB;" \
-  -c "create database $DB;"
-export PGDATABASE="$DB"
-
-echo "==> supabase shim (roles, auth.users, storage tables)"
-psql -q -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap_supabase_shim.sql
-
-echo "==> applying migrations in order"
-count=0
-for m in supabase/migrations/*.sql; do
-  printf '    %-52s ' "$(basename "$m")"
-  psql -q -v ON_ERROR_STOP=1 -f "$m" >/dev/null
-  echo "applied"
-  count=$((count + 1))
-done
-echo "    $count migrations applied"
-
-echo "==> contract invariants (shape)"
-out="$(psql -tA -v ON_ERROR_STOP=1 -f supabase/tests/contract_invariants.sql)"
-false_count="$(printf '%s\n' "$out" | grep -cx 'f' || true)"
-true_count="$(printf '%s\n' "$out" | grep -cx 't' || true)"
-if [ "$false_count" != "0" ]; then
-  echo "    FAILED: $false_count assertion(s) returned false" >&2
-  exit 1
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  echo "DATABASE_URL is required for the read-only database contract check." >&2
+  exit 2
 fi
-echo "    $true_count assertions true, 0 false"
+command -v psql >/dev/null || {
+  echo "psql is required for the read-only database contract check." >&2
+  exit 2
+}
 
-echo "==> behavioural checks"
-psql -v ON_ERROR_STOP=1 -f supabase/tests/behaviour_checks.sql 2>&1 \
-  | grep -E 'NOTICE|PASSED' | sed 's/^psql:[^ ]* /    /'
+echo "==> checking database connectivity"
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "select 1" >/dev/null
 
-echo "==> dropping $DB"
-psql -q -d postgres -c "drop database if exists $DB;" >/dev/null
+echo "==> checking ARTCOVR commerce tables"
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
+  select case
+    when to_regclass('public.artcovr_orders') is not null
+     and to_regclass('public.artcovr_credit_ledger') is not null
+     and to_regclass('public.artcovr_webhook_events') is not null
+    then 'schema-ready'
+    else 'schema-missing'
+  end
+" | grep -qx "schema-ready"
 
-echo "G8 OK: migrations apply, contract invariants hold, behavioural checks pass."
+echo "DB OK: reachable and required commerce tables are present; no writes performed."

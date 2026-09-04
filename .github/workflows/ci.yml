@@ -46,6 +46,9 @@ jobs:
       - name: Verify (portable gate set)
         run: bun run verify:ci
 
+      - name: Verify production runtime contract
+        run: node scripts/release/verify-runtime-contract.mjs
+
   # G5 in .agent-state/RELEASE_GATES.md. Until now this only ever ran when
   # somebody remembered to run it by hand, so a regression in the browser
   # journeys could reach the default branch unnoticed. Kept a separate job so a

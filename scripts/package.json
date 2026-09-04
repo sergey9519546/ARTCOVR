@@ -6,6 +6,8 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed:artcovr-products": "tsx ./src/seed-products.ts",
+    "verify:runtime-contract": "node ./release/verify-runtime-contract.mjs",
+    "verify:live-release": "node ./release/verify-live-release.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
