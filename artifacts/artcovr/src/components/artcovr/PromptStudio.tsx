@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "@/components/compat/Image";
+import Link from "@/components/compat/Link";
 import { useEffect, useRef, useState } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { isPromptReady } from "@/lib/artcovr/artworks";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import {
   createGeneration,
   getGenerationStatus,
@@ -32,11 +34,14 @@ function referenceRejection(file: File) {
 
 function terminalMessage(status: "blocked" | "failed" | "timed_out") {
   if (status === "blocked") return "That request could not be generated. Try a different prompt.";
-  if (status === "timed_out") return "Generation timed out. Your allowance was not used.";
-  return "Generation failed. Your allowance was not used.";
+  if (status === "timed_out") {
+    return "Generation timed out. Your allowance was not used. Choose Generate image to try again.";
+  }
+  return "Generation failed. Your allowance was not used. Choose Generate image to try again.";
 }
 
 export function PromptStudio({ artwork }: { artwork: Artwork }) {
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
   const [prompt, setPrompt] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [result, setResult] = useState<string>();
@@ -48,7 +53,12 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const pendingPrompt = useRef("");
   const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
   const pendingStyleMode = useRef<"exact" | "expand">("exact");
-  const ready = isPromptReady(prompt) && !restoring;
+  const ready = isPromptReady(prompt) && !restoring && isLoaded && isSignedIn;
+  const authRedirect =
+    typeof window === "undefined"
+      ? `/product/${artwork.slug}`
+      : `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const authRedirectQuery = `?redirect_url=${encodeURIComponent(authRedirect)}`;
   const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
   const [coverTitle, setCoverTitle] = useState(artwork.title);
   const [coverArtist, setCoverArtist] = useState("");
@@ -542,8 +552,17 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-            <span aria-live="polite" className="min-w-0 flex-1 opacity-70">
-              {message || (restoring ? "Restoring your selected preview…" : ready ? "Sign in to request a preview." : "Enter at least eight characters.")}
+             <span aria-live="polite" className="min-w-0 flex-1 opacity-70">
+               {message ||
+                 (restoring
+                   ? "Restoring your selected preview…"
+                   : !isLoaded
+                     ? "Checking your account…"
+                     : !isSignedIn
+                       ? "Sign in to request a preview."
+                       : ready
+                         ? "Ready to request a preview."
+                         : "Enter at least eight characters.")}
             </span>
             <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
               Reset
@@ -554,6 +573,23 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             </span>
           </div>
         </div>
+
+         {isLoaded && !isSignedIn ? (
+           <section className="mt-4 border-y border-current/20 py-4" aria-label="Preview account access">
+             <p className="text-sm font-bold">Sign in to make a preview.</p>
+             <p className="mt-2 max-w-[52ch] text-xs leading-5 opacity-70">
+               Your prompt and this artwork will still be here when you return. Preview generation is available to signed-in accounts.
+             </p>
+             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold uppercase tracking-[0.08em]">
+               <Link href={`/sign-in${authRedirectQuery}`} className="link-hover">
+                 Sign in
+               </Link>
+               <Link href={`/sign-up${authRedirectQuery}`} className="link-hover">
+                 Create an account
+               </Link>
+             </div>
+           </section>
+         ) : null}
 
         <PromptComposer
           artwork={artwork}

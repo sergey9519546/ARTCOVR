@@ -6,7 +6,8 @@ import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import { useEffect, useState } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import {
-  getCheckoutTotal,
+  getArtworkLicenseLabel,
+  getArtworkPriceLabel,
   includedCreditsPerCover,
   isCheckoutReady,
 } from "@/lib/artcovr/artworks";
@@ -28,11 +29,7 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
     : `${window.location.pathname}${window.location.search}${window.location.hash}`;
   const authRedirect = `?redirect_url=${encodeURIComponent(checkoutRedirect)}`;
   const guestEmailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail.trim());
-  const licenseMode = artwork.saleMode === "exclusive"
-    ? "Exclusive commercial license"
-    : artwork.saleMode === "repeatable"
-      ? "Non-exclusive commercial license"
-      : "License mode pending";
+  const licenseMode = getArtworkLicenseLabel(artwork);
 
   useEffect(() => {
     let active = true;
@@ -70,12 +67,22 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
       setLoading(true);
       setError("");
       const previewKey = `artcovr:selected-preview:${artwork.id}`;
-      let idempotencyKey = sessionStorage.getItem(keyName);
-      if (!idempotencyKey) {
-        idempotencyKey = crypto.randomUUID();
-        sessionStorage.setItem(keyName, idempotencyKey);
+      let idempotencyKey: string | null = null;
+      let selectedPreviewId: string | undefined;
+      try {
+        idempotencyKey = sessionStorage.getItem(keyName);
+        if (!idempotencyKey) {
+          idempotencyKey = crypto.randomUUID();
+          sessionStorage.setItem(keyName, idempotencyKey);
+        }
+        selectedPreviewId = sessionStorage.getItem(previewKey) || undefined;
+      } catch {
+        setError(
+          "Checkout needs browser storage to protect your payment attempt. Enable site storage and try again.",
+        );
+        setLoading(false);
+        return;
       }
-      const selectedPreviewId = sessionStorage.getItem(previewKey) || undefined;
       const { checkoutUrl } = await createCheckout(
         artwork.id,
         idempotencyKey,
@@ -85,7 +92,11 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
       window.location.assign(checkoutUrl);
     } catch (reason) {
       if (shouldRotateCheckoutKey(reason)) {
-        sessionStorage.removeItem(keyName);
+        try {
+          sessionStorage.removeItem(keyName);
+        } catch {
+          // The error below remains actionable even when browser storage is locked.
+        }
       }
       setError(reason instanceof Error ? reason.message : "Checkout is unavailable.");
       setLoading(false);
@@ -109,18 +120,34 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
             <div className="flex justify-between gap-6 py-4"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending owner approval"}</dd></div>
             <div className="flex justify-between gap-6 py-4"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
             <div className="flex justify-between gap-6 py-4"><dt>Studio credits</dt><dd className="text-right">{includedCreditsPerCover} included</dd></div>
-            <div className="flex justify-between py-4 font-bold"><dt>Total</dt><dd>{getCheckoutTotal(artwork.priceCents)}</dd></div>
+            <div className="flex justify-between py-4 font-bold"><dt>Total</dt><dd>{getArtworkPriceLabel(artwork)}</dd></div>
           </dl>
           <p className="mt-8 max-w-[45ch] text-sm leading-6 opacity-70">
             {checkoutReady
               ? "Your purchase includes the original artwork, your selected preview when present, and successful purchased generations during the access period."
               : "Checkout activates after the owner approves commercial rights, price, license mode, and publication."}
           </p>
+          {checkoutReady ? (
+            <aside className="mt-6 border-l-2 border-current/30 pl-4 text-xs leading-5 opacity-70">
+              <p>
+                Next, you’ll continue to Stripe’s secure checkout. Signed-in purchases are linked to your account; guest purchases use the email above for the Stripe receipt and purchase record.
+              </p>
+              <p className="mt-2">
+                Need help with an interrupted checkout?{" "}
+                <Link href="/contact" className="link-hover font-bold">Contact support</Link>
+                {" "}or review the <Link href="/refunds" className="link-hover font-bold">refund policy</Link>.
+              </p>
+            </aside>
+          ) : null}
           <label className="mt-7 flex gap-3 text-sm leading-5">
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} disabled={!checkoutReady} className="mt-1 size-4 accent-[var(--foreground)]" />
             <span>I agree to the <Link href="/license" className="underline underline-offset-4">commercial license</Link> and <Link href="/legal/terms" className="underline underline-offset-4">terms</Link>.</span>
           </label>
-          {isLoaded && !isSignedIn ? (
+          {!isLoaded ? (
+            <p className="mt-7 border-y border-current/20 py-5 text-sm opacity-70" role="status">
+              Checking account and checkout readiness…
+            </p>
+          ) : isLoaded && !isSignedIn ? (
             <section
               aria-label="Guest checkout"
               className="mt-7 border-y-2 border-current py-5"
@@ -177,7 +204,19 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
               {checkoutReady ? (loading ? "Opening checkout…" : "Continue to checkout") : "Checkout pending owner approval"}
             </button>
           )}
-          {error && <p role="alert" className="mt-3 text-sm text-[#a11212] dark:text-[#ff6b6b]">{error}</p>}
+          {error && (
+            <div role="alert" className="mt-4 border-l-2 border-[#a11212] pl-4 text-sm text-[#a11212] dark:border-[#ff6b6b] dark:text-[#ff6b6b]">
+              <p>{error}</p>
+              <button
+                type="button"
+                onClick={() => void continueToCheckout()}
+                disabled={!checkoutReady || !accepted || loading || (!isSignedIn && !guestEmailIsValid)}
+                className="mt-3 font-bold underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Try checkout again
+              </button>
+            </div>
+          )}
         </section>
       </div>
     </main>

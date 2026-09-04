@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import {
-  absoluteSiteUrl,
   getSiteUrl,
   isSearchIndexingDisabled,
 } from "@/lib/artcovr/seo";
@@ -10,7 +9,10 @@ import {
   getArtworkGenres,
   displayGenreLabel,
 } from "@/lib/artcovr/artworks";
-import { getRouteMetadata } from "@/lib/artcovr/route-metadata";
+import {
+  getRouteMetadata,
+  getSocialPreviewMetadata,
+} from "@/lib/artcovr/route-metadata";
 
 function routePath(location: string) {
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -65,7 +67,7 @@ export function SeoHead() {
       getArtworkGenres(artwork).map(displayGenreLabel),
     );
     const siteUrl = getSiteUrl();
-    const canonical = absoluteSiteUrl(metadata.path, siteUrl);
+    const social = getSocialPreviewMetadata(metadata, siteUrl);
     const catalogRoute =
       metadata.path === "/" ||
       metadata.path === "/archive" ||
@@ -74,11 +76,6 @@ export function SeoHead() {
       metadata.index &&
       !isSearchIndexingDisabled() &&
       (!catalogRoute || displayArtworks.length > 0);
-    const imageUrl = metadata.image
-      ? absoluteSiteUrl(metadata.image.url, siteUrl)
-      : absoluteSiteUrl("/og-image.png", siteUrl);
-    const imageAlt = metadata.image?.alt ?? "ARTCOVR curated cover art";
-
     // Static route rendering puts JSON-LD in the document head for crawlers.
     // The interactive pages render their own route-specific JSON-LD in the
     // page body, so remove the prerendered copy after the SPA mounts. React
@@ -89,28 +86,28 @@ export function SeoHead() {
       )
       .forEach((script) => script.remove());
 
-    document.title = metadata.title;
-    upsertMeta("name", "description", metadata.description);
+    document.title = social.title;
+    upsertMeta("name", "description", social.description);
     upsertMeta("name", "robots", shouldIndex ? "index, follow" : "noindex, nofollow, noarchive");
-    upsertMeta("property", "og:title", metadata.title);
-    upsertMeta("property", "og:description", metadata.description);
-    upsertMeta("property", "og:url", canonical);
+    upsertMeta("property", "og:title", social.title);
+    upsertMeta("property", "og:description", social.description);
+    upsertMeta("property", "og:url", social.canonical);
     upsertMeta("property", "og:site_name", "ARTCOVR");
     upsertMeta("property", "og:locale", "en_US");
-    upsertMeta("property", "og:type", metadata.path.startsWith("/product/") ? "product" : "website");
-    upsertMeta("property", "og:image", imageUrl);
-    upsertMeta("property", "og:image:secure_url", imageUrl);
-    upsertMeta("property", "og:image:alt", imageAlt);
-    upsertMeta("property", "og:image:width", String(metadata.image?.width ?? 1200));
-    upsertMeta("property", "og:image:height", String(metadata.image?.height ?? 630));
-    upsertMeta("property", "og:image:type", metadata.image?.type ?? "image/png");
+    upsertMeta("property", "og:type", social.openGraphType);
+    upsertMeta("property", "og:image", social.imageUrl);
+    upsertMeta("property", "og:image:secure_url", social.imageUrl);
+    upsertMeta("property", "og:image:alt", social.imageAlt);
+    upsertMeta("property", "og:image:width", String(social.imageWidth));
+    upsertMeta("property", "og:image:height", String(social.imageHeight));
+    upsertMeta("property", "og:image:type", social.imageType);
     upsertMeta("name", "twitter:card", "summary_large_image");
-    upsertMeta("name", "twitter:title", metadata.title);
-    upsertMeta("name", "twitter:description", metadata.description);
-    upsertMeta("name", "twitter:image", imageUrl);
-    upsertMeta("name", "twitter:image:alt", imageAlt);
-    updateCanonical(canonical);
-    updateImageSource(imageUrl);
+    upsertMeta("name", "twitter:title", social.title);
+    upsertMeta("name", "twitter:description", social.description);
+    upsertMeta("name", "twitter:image", social.imageUrl);
+    upsertMeta("name", "twitter:image:alt", social.imageAlt);
+    updateCanonical(social.canonical);
+    updateImageSource(social.imageUrl);
   }, [location]);
 
   return null;

@@ -1,3 +1,5 @@
+import { absoluteSiteUrl } from "./seo";
+
 export type RouteArtwork = {
   slug: string;
   title: string;
@@ -22,6 +24,40 @@ export type RouteMetadata = {
     type?: string;
   };
 };
+
+/**
+ * Shared contract for the interactive head and crawler-facing static head.
+ * Keep title, description, canonical, and image values derived here so social
+ * previews cannot diverge between the two rendering paths.
+ */
+export type SocialPreviewMetadata = {
+  title: string;
+  description: string;
+  canonical: string;
+  imageUrl: string;
+  imageAlt: string;
+  imageWidth: number;
+  imageHeight: number;
+  imageType: string;
+  openGraphType: "product" | "website";
+};
+
+export function getSocialPreviewMetadata(
+  metadata: RouteMetadata,
+  siteUrl: string,
+): SocialPreviewMetadata {
+  return {
+    title: metadata.title,
+    description: metadata.description,
+    canonical: absoluteSiteUrl(metadata.path, siteUrl),
+    imageUrl: absoluteSiteUrl(metadata.image?.url ?? "/og-image.png", siteUrl),
+    imageAlt: metadata.image?.alt ?? "ARTCOVR curated cover art",
+    imageWidth: metadata.image?.width ?? 1200,
+    imageHeight: metadata.image?.height ?? 630,
+    imageType: metadata.image?.type ?? "image/png",
+    openGraphType: metadata.path.startsWith("/product/") ? "product" : "website",
+  };
+}
 
 export const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
   "/": {
