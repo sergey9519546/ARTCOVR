@@ -88,15 +88,11 @@ jobs:
           path: /tmp/artcovr-playwright-results/
           retention-days: 7
 
-  # G8 in .agent-state/RELEASE_GATES.md. This gate had never been executed —
-  # it needs a real database and nobody had stood one up — so a contract
-  # assertion broken since migration 0012 went unnoticed. It now runs on every
-  # push against a disposable PostgreSQL 16, the same version Supabase runs.
+  # The database gate runs on every push against a disposable PostgreSQL 16.
   #
   # Scope: this proves the migrations apply cleanly, the schema contract holds,
-  # and the guards behave. It proves NOTHING about what is applied to the live
-  # Supabase project — a green run here and a stale production database are
-  # entirely compatible.
+  # and the release check can distinguish an outage from schema drift. It does
+  # not connect to or mutate a production database.
   database:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -116,14 +112,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
+      - uses: pnpm/action-setup@v4
         with:
-          bun-version: 1.3.11
+          version: 10.26.1
 
-      - name: Migrations, contract invariants, behavioural checks
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply versioned migrations
         env:
-          PGHOST: 127.0.0.1
-          PGPORT: 5432
-          PGUSER: postgres
-          PGPASSWORD: postgres
-        run: bun run db:verify
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+        run: pnpm run db:migrate
+
+      - name: Verify database contract
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+        run: pnpm run verify:database
