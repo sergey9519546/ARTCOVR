@@ -129,6 +129,11 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
         run: pnpm run db:migrate
 
+      - name: Test database verifier classifications
+        env:
+          TEST_DATABASE_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+        run: pnpm run test:database
+
       - name: Verify database contract
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
