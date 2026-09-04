@@ -36,3 +36,18 @@ test("signed-out checkout offers guest checkout with an email receipt", async ({
   await expect(guestCheckout.getByRole("link", { name: /already have an account/i }))
     .toHaveAttribute("href", "/sign-in?redirect_url=%2Fcheckout%2Fcart-of-hours");
 });
+
+test("signed-out visitors see account actions before preview generation", async ({
+  page,
+}) => {
+  await page.goto("/product/cart-of-hours", { waitUntil: "domcontentloaded" });
+  const access = page.locator('section[aria-label="Preview account access"]');
+
+  await expect(access).toBeVisible({ timeout: 20_000 });
+  await expect(access.getByText("Sign in to make a preview.")).toBeVisible();
+  await expect(access.getByRole("link", { name: "Sign in", exact: true }))
+    .toHaveAttribute("href", "/sign-in?redirect_url=%2Fproduct%2Fcart-of-hours");
+  await expect(access.getByRole("link", { name: "Create an account", exact: true }))
+    .toHaveAttribute("href", "/sign-up?redirect_url=%2Fproduct%2Fcart-of-hours");
+  await expect(page.getByRole("button", { name: "Generate image" })).toBeDisabled();
+});

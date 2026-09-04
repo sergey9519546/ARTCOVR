@@ -9,16 +9,27 @@ import {
 test("guest checkout validates email and surfaces a service failure", async ({
   page,
 }) => {
-  await page.route("**/api/checkout", (route) =>
-    fulfillJson(
-      route,
-      {
-        code: "artwork_unavailable",
-        message: "That exclusive cover has already been reserved or sold.",
-      },
-      409,
-    ),
-  );
+  let attempts = 0;
+  await page.route("**/api/checkout", async (route) => {
+    attempts += 1;
+    if (attempts === 1) {
+      await fulfillJson(
+        route,
+        {
+          code: "artwork_unavailable",
+          message: "That exclusive cover has already been reserved or sold.",
+        },
+        409,
+      );
+      return;
+    }
+    await fulfillJson(route, {
+      purchaseId: "purchase-retry",
+      checkoutUrl: "/archive",
+      expiresAt: "2030-09-20T12:00:00.000Z",
+      includedCredits: 3,
+    });
+  });
   await page.goto("/checkout/cart-of-hours", { waitUntil: "domcontentloaded" });
   const guest = page.locator('section[aria-label="Guest checkout"]');
   const checkout = guest.getByRole("button", { name: "Checkout as guest" });
@@ -28,10 +39,13 @@ test("guest checkout validates email and surfaces a service failure", async ({
 
   await guest.getByLabel("Email for receipt").fill("buyer@example.test");
   await checkout.click();
-  await expect(page.getByRole("alert")).toHaveText(
+  await expect(page.getByRole("alert").getByText(
     "That exclusive cover has already been reserved or sold.",
-  );
+  )).toBeVisible();
   await expect(checkout).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Try checkout again" })).toBeEnabled();
+  await page.getByRole("button", { name: "Try checkout again" }).click();
+  await expect(page).toHaveURL(/\/archive$/);
 });
 
 test("signed-in checkout sends no guest identity and follows the response", async ({
