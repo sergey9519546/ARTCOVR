@@ -126,6 +126,10 @@ function trimTitle(value: string, maxLength = 60) {
   return value.length <= maxLength ? value : `${value.slice(0, maxLength - 1).trimEnd()}…`;
 }
 
+function trimDescription(value: string, maxLength = 160) {
+  return value.length <= maxLength ? value : `${value.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
 function decodeSlug(value: string) {
   try {
     return decodeURIComponent(value);
@@ -166,7 +170,9 @@ export function getRouteMetadata(
       const genres = getGenres(artwork).slice(0, 2);
       return {
         title: trimTitle(`${artwork.title} | ${genres.join(" · ")} Cover Art | ARTCOVR`),
-        description: `${artwork.title} is ${genres.join(" and ")} cover artwork from ARTCOVR’s approved catalog. Review its commercial license and prompt-based editing options.`,
+        description: trimDescription(
+          `${artwork.title} is ${genres.join(" and ")} cover artwork from ARTCOVR’s approved catalog. Review its commercial license and prompt-based editing options.`,
+        ),
         path,
         index: artwork.published && artwork.rightsApproved,
         image: {

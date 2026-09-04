@@ -104,7 +104,7 @@ function Router() {
     // survives a page crash.
     <RoutedErrorBoundary>
       <Switch>
-        <Route path="/" component={HomeEntry} />
+        <Route path="/" component={Home} />
         <Route path="/about" component={AboutPage} />
         <Route path="/archive" component={ArchivePage} />
         <Route path="/auth/callback" component={AuthCallbackPage} />
@@ -164,12 +164,6 @@ function ScrollToTop() {
 
 function CheckoutRoute() {
   return <CheckoutPageComponent />;
-}
-
-function HomeEntry() {
-  const { isLoaded, isSignedIn } = useArtcovrAuth();
-  if (isLoaded && isSignedIn) return <Redirect to="/my-images" />;
-  return <Home />;
 }
 
 function ProtectedMyImagesRoute() {
