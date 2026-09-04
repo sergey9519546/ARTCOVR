@@ -12,7 +12,8 @@
     "optimize:artworks": "node scripts/optimize-artworks.mjs",
     "test:e2e": "playwright test",
     "catalog-intelligence:manifest": "tsx scripts/catalog-intelligence-manifest.ts",
-    "catalog-intelligence:import": "tsx scripts/catalog-intelligence-import.ts"
+    "catalog-intelligence:import": "tsx scripts/catalog-intelligence-import.ts",
+    "prospects:validate": "tsx scripts/validate-prospect-reports.ts"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
