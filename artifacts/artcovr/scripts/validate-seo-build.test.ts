@@ -7,6 +7,7 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with {
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
 import {
+  getIndexableRoutePaths,
   getRouteMetadata,
   getSocialPreviewMetadata,
 } from "../src/lib/artcovr/route-metadata";
@@ -50,15 +51,9 @@ const specialCharacterFixture = {
   genres: ["R&B"],
 };
 const publicRouteFixtures = [
-  "/",
-  "/about",
-  "/archive",
-  "/faq",
-  "/license",
-  "/refunds",
-  "/contact",
-  "/legal/privacy",
-  "/legal/terms",
+  ...getIndexableRoutePaths(publicCatalog).filter(
+    (publicRoute) => !publicRoute.startsWith("/product/"),
+  ),
 ].map((publicRoute) => ({
   route: publicRoute,
   metadata: getRouteMetadata(

@@ -240,3 +240,9 @@ export function getPrerenderedRoutePaths(artworks: readonly RouteArtwork[]) {
 
   return [...new Set(["/", ...Object.keys(STATIC_METADATA), ...productPaths, ...checkoutPaths])];
 }
+
+export function getIndexableRoutePaths(artworks: readonly RouteArtwork[]) {
+  return getPrerenderedRoutePaths(artworks).filter((route) =>
+    getRouteMetadata(route, artworks).index,
+  );
+}
