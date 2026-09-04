@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 import curatedPublic from "../src/lib/artcovr/curated-public.json" with { type: "json" };
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
-import { getRouteMetadata } from "../src/lib/artcovr/route-metadata";
+import {
+  getRouteMetadata,
+  getSocialPreviewMetadata,
+} from "../src/lib/artcovr/route-metadata";
 
 const outputDirectory = path.resolve(import.meta.dirname, "../dist/public");
 const publicCatalog = selectPublicCatalog(curatedPublic);
@@ -202,9 +205,9 @@ export function validateRoute(
   html: string,
   siteUrl: string,
   expectedTypes: string[],
-  productExpectation?: {
+  routeExpectation?: {
     metadata: ReturnType<typeof getRouteMetadata>;
-    artwork: (typeof publicCatalog)[number];
+    artwork?: (typeof publicCatalog)[number];
   },
 ) {
   const titleTags = [...html.matchAll(/<title\b[^>]*>([\s\S]*?)<\/title>/gi)];
@@ -221,12 +224,12 @@ export function validateRoute(
     "title length",
     `${title.length} characters; expected ${titleRange.min}-${titleRange.max}`,
   );
-  if (productExpectation) {
+  if (routeExpectation) {
     check(
-      title === productExpectation.metadata.title,
+      title === routeExpectation.metadata.title,
       route,
-      "product title",
-      `expected "${productExpectation.metadata.title}"`,
+      routeExpectation.artwork ? "product title" : "route title",
+      `expected "${routeExpectation.metadata.title}"`,
     );
   }
 
@@ -249,12 +252,12 @@ export function validateRoute(
     "meta description length",
     `${description.length} characters; expected ${descriptionRange.min}-${descriptionRange.max}`,
   );
-  if (productExpectation) {
+  if (routeExpectation) {
     check(
-      description === productExpectation.metadata.description,
+      description === routeExpectation.metadata.description,
       route,
-      "product description",
-      `expected "${productExpectation.metadata.description}"`,
+      routeExpectation.artwork ? "product description" : "route description",
+      `expected "${routeExpectation.metadata.description}"`,
     );
   }
 
@@ -270,7 +273,8 @@ export function validateRoute(
     `expected one canonical link, found ${canonicalTags.length}`,
   );
   check(
-    attribute(canonicalTags[0], "href") === canonicalUrlFor(route, siteUrl),
+    decodeHtml(attribute(canonicalTags[0], "href") ?? "") ===
+      canonicalUrlFor(route, siteUrl),
     route,
     "canonical URL",
     `expected ${canonicalUrlFor(route, siteUrl)}`,
@@ -287,19 +291,19 @@ export function validateRoute(
     )
     .filter(Boolean);
   check(
-    productExpectation ? headings.length === 1 : headings.length > 0,
+    routeExpectation?.artwork ? headings.length === 1 : headings.length > 0,
     route,
     "crawler-visible H1",
-    productExpectation
+    routeExpectation?.artwork
       ? `expected one H1, found ${headings.length}`
       : undefined,
   );
-  if (productExpectation) {
+  if (routeExpectation?.artwork) {
     check(
-      headings[0] === productExpectation.artwork.title,
+      headings[0] === routeExpectation.artwork.title,
       route,
       "crawler-visible H1 content",
-      `expected "${productExpectation.artwork.title}"`,
+      `expected "${routeExpectation.artwork.title}"`,
     );
   }
   if (route === "/") {
@@ -309,17 +313,14 @@ export function validateRoute(
   }
 
   const entities = validateStructuredData(route, html, expectedTypes);
-  if (productExpectation) {
-    const canonical = canonicalUrlFor(route, siteUrl);
-    const metadataImage = productExpectation.metadata.image;
-    check(metadataImage, route, "route metadata image", "image is missing");
-    const imageUrl = canonicalUrlFor(metadataImage.url, siteUrl);
+  if (routeExpectation) {
+    const social = getSocialPreviewMetadata(routeExpectation.metadata, siteUrl);
     validateMetaTag(
       route,
       html,
       "property",
       "og:title",
-      productExpectation.metadata.title,
+      social.title,
       "Open Graph title",
     );
     validateMetaTag(
@@ -327,7 +328,7 @@ export function validateRoute(
       html,
       "property",
       "og:description",
-      productExpectation.metadata.description,
+      social.description,
       "Open Graph description",
     );
     validateMetaTag(
@@ -335,7 +336,7 @@ export function validateRoute(
       html,
       "property",
       "og:url",
-      canonical,
+      social.canonical,
       "Open Graph URL",
     );
     validateMetaTag(
@@ -343,7 +344,7 @@ export function validateRoute(
       html,
       "property",
       "og:image",
-      imageUrl,
+      social.imageUrl,
       "Open Graph image",
     );
     validateMetaTag(
@@ -351,7 +352,7 @@ export function validateRoute(
       html,
       "property",
       "og:type",
-      "product",
+      social.openGraphType,
       "Open Graph type",
     );
     validateMetaTag(
@@ -367,7 +368,7 @@ export function validateRoute(
       html,
       "name",
       "twitter:title",
-      productExpectation.metadata.title,
+      social.title,
       "Twitter title",
     );
     validateMetaTag(
@@ -375,7 +376,7 @@ export function validateRoute(
       html,
       "name",
       "twitter:description",
-      productExpectation.metadata.description,
+      social.description,
       "Twitter description",
     );
     validateMetaTag(
@@ -383,7 +384,7 @@ export function validateRoute(
       html,
       "name",
       "twitter:image",
-      imageUrl,
+      social.imageUrl,
       "Twitter image",
     );
     validateMetaTag(
@@ -391,24 +392,30 @@ export function validateRoute(
       html,
       "name",
       "twitter:image:alt",
-      metadataImage.alt,
+      social.imageAlt,
       "Twitter image alt",
     );
+  }
+  if (routeExpectation?.artwork) {
+    const canonical = canonicalUrlFor(route, siteUrl);
+    const metadataImage = routeExpectation.metadata.image;
+    check(metadataImage, route, "route metadata image", "image is missing");
+    const imageUrl = canonicalUrlFor(metadataImage.url, siteUrl);
     const product = entities.find((entity) => entity["@type"] === "Product");
     check(product, route, "Product JSON-LD entity");
     check(
-      product.name === productExpectation.artwork.title,
+      product.name === routeExpectation.artwork.title,
       route,
       "Product JSON-LD name",
-      `expected "${productExpectation.artwork.title}"`,
+      `expected "${routeExpectation.artwork.title}"`,
     );
     check(
-      product.description === productExpectation.artwork.description,
+      product.description === routeExpectation.artwork.description,
       route,
       "Product JSON-LD description",
-      `expected "${productExpectation.artwork.description}"`,
+      `expected "${routeExpectation.artwork.description}"`,
     );
-    check(product.sku === productExpectation.artwork.slug, route, "Product JSON-LD SKU");
+    check(product.sku === routeExpectation.artwork.slug, route, "Product JSON-LD SKU");
     check(product.url === canonical, route, "Product JSON-LD URL", `expected ${canonical}`);
 
     const image = entities.find((entity) => entity["@type"] === "ImageObject");
@@ -416,10 +423,10 @@ export function validateRoute(
     check(image.contentUrl === imageUrl, route, "ImageObject content URL", `expected ${imageUrl}`);
     check(image.url === imageUrl, route, "ImageObject URL", `expected ${imageUrl}`);
     check(
-      image.caption === productExpectation.artwork.alt,
+      image.caption === routeExpectation.artwork.alt,
       route,
       "ImageObject caption",
-      `expected "${productExpectation.artwork.alt}"`,
+      `expected "${routeExpectation.artwork.alt}"`,
     );
     check(
       image.acquireLicensePage === canonical,
@@ -445,11 +452,11 @@ export function validateRoute(
     check(
       lastBreadcrumb &&
         typeof lastBreadcrumb === "object" &&
-        lastBreadcrumb.name === productExpectation.artwork.title &&
+        lastBreadcrumb.name === routeExpectation.artwork.title &&
         lastBreadcrumb.item === canonical,
       route,
       "BreadcrumbList product item",
-      `expected "${productExpectation.artwork.title}" at ${canonical}`,
+      `expected "${routeExpectation.artwork.title}" at ${canonical}`,
     );
   }
 }
@@ -627,7 +634,9 @@ async function main() {
       "WebSite",
       "CollectionPage",
       "ImageObject",
-    ]),
+    ], {
+      metadata: getRouteMetadata("/", publicCatalog),
+    }),
   );
   await collectFailure(failures, "/archive", async () =>
     validateRoute("/archive", await readRoute("/archive"), siteUrl, [
@@ -635,8 +644,32 @@ async function main() {
       "WebSite",
       "CollectionPage",
       "ImageObject",
-    ]),
+    ], {
+      metadata: getRouteMetadata("/archive", publicCatalog),
+    }),
   );
+
+  const publicInformationalRoutes = siteRoutes.filter(
+    (route) => route !== "/" && route !== "/archive",
+  );
+  let informationalRoutesValidated = 0;
+  for (const publicRoute of publicInformationalRoutes) {
+    await collectFailure(failures, publicRoute, async () => {
+      const metadata = getRouteMetadata(publicRoute, publicCatalog);
+      const expectedTypes =
+        publicRoute === "/faq"
+          ? ["Organization", "WebSite", "FAQPage"]
+          : ["Organization", "WebSite", "WebPage"];
+      validateRoute(
+        publicRoute,
+        await readRoute(publicRoute),
+        siteUrl,
+        expectedTypes,
+        { metadata },
+      );
+      informationalRoutesValidated += 1;
+    });
+  }
 
   let productRoutesValidated = 0;
   for (const artwork of publicCatalog) {
@@ -667,7 +700,7 @@ async function main() {
   if (reportFailures(failures)) return;
 
   console.log(
-    `[SEO] validated /, /archive, ${productRoutesValidated} product routes, robots.txt, sitemap.xml (${publicCatalog.length} catalog images)`,
+    `[SEO] validated /, /archive, ${informationalRoutesValidated} informational routes, ${productRoutesValidated} product routes, robots.txt, sitemap.xml (${publicCatalog.length} catalog images)`,
   );
 }
 

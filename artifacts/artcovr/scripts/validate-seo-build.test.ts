@@ -49,6 +49,33 @@ const specialCharacterFixture = {
   artwork: specialCharacterArtwork,
   genres: ["R&B"],
 };
+const publicRouteFixtures = [
+  "/",
+  "/about",
+  "/archive",
+  "/faq",
+  "/license",
+  "/refunds",
+  "/contact",
+  "/legal/privacy",
+  "/legal/terms",
+].map((publicRoute) => ({
+  route: publicRoute,
+  metadata: getRouteMetadata(
+    publicRoute,
+    publicCatalog,
+    (candidate) => getArtworkGenres(candidate).map(displayGenreLabel),
+  ),
+}));
+const escapedPublicFixture = {
+  route: "/about",
+  metadata: {
+    ...getRouteMetadata("/about", publicCatalog),
+    title: `About O'Brien & Sons "Live" | ARTCOVR`,
+    description:
+      `ARTCOVR's "direct" cover-art process & license for artists.`,
+  },
+};
 
 function renderGeneratedProductDocument(fixture = catalogFixture) {
   const { route: fixtureRoute, metadata: fixtureMetadata, artwork: fixtureArtwork } = fixture;
@@ -70,6 +97,46 @@ function renderGeneratedProductDocument(fixture = catalogFixture) {
     ${rendered.structuredDataHtml}
   </body>
 </html>`;
+}
+
+function renderGeneratedPublicDocument(fixture: (typeof publicRouteFixtures)[number]) {
+  const rendered = renderStaticRoute({
+    artworks: publicCatalog,
+    siteUrl,
+    metadata: fixture.metadata,
+    getGenres: (candidate) =>
+      getArtworkGenres(candidate).map(displayGenreLabel),
+  });
+
+  return `<!doctype html>
+<html>
+  <head>
+    ${renderStaticRouteMetadata(fixture.metadata, siteUrl, false)}
+  </head>
+  <body>
+    ${rendered.bodyHtml}
+    ${rendered.structuredDataHtml}
+  </body>
+</html>`;
+}
+
+function validatePublicDocument(
+  fixture: (typeof publicRouteFixtures)[number],
+  generatedDocument: string,
+) {
+  const expectedTypes =
+    fixture.route === "/faq"
+      ? ["Organization", "WebSite", "FAQPage"]
+      : fixture.route === "/archive"
+        ? ["Organization", "WebSite", "CollectionPage", "ImageObject"]
+        : ["Organization", "WebSite", "WebPage"];
+  validateRoute(
+    fixture.route,
+    generatedDocument,
+    siteUrl,
+    expectedTypes,
+    { metadata: fixture.metadata },
+  );
 }
 
 function validateProductDocument(html: string, fixture = catalogFixture) {
@@ -111,43 +178,72 @@ function readCanonical(html: string) {
   return decodeHtml(match[1]);
 }
 
+function assertSocialPreviewParity(
+  generatedDocument: string,
+  fixtureMetadata: ReturnType<typeof getRouteMetadata>,
+) {
+  const social = getSocialPreviewMetadata(fixtureMetadata, siteUrl);
+  const expected = {
+    title: social.title,
+    description: social.description,
+    image: social.imageUrl,
+    canonical: social.canonical,
+  };
+
+  assert.deepEqual(
+    {
+      openGraph: {
+        title: readMeta(generatedDocument, "property", "og:title"),
+        description: readMeta(generatedDocument, "property", "og:description"),
+        image: readMeta(generatedDocument, "property", "og:image"),
+        canonical: readMeta(generatedDocument, "property", "og:url"),
+      },
+      twitter: {
+        title: readMeta(generatedDocument, "name", "twitter:title"),
+        description: readMeta(generatedDocument, "name", "twitter:description"),
+        image: readMeta(generatedDocument, "name", "twitter:image"),
+      },
+      canonical: readCanonical(generatedDocument),
+    },
+    {
+      openGraph: expected,
+      twitter: {
+        title: expected.title,
+        description: expected.description,
+        image: expected.image,
+      },
+      canonical: expected.canonical,
+    },
+  );
+}
+
 test("keeps interactive and static social previews equivalent for catalog products", () => {
   for (const fixture of [catalogFixture, specialCharacterFixture]) {
-    const social = getSocialPreviewMetadata(fixture.metadata, siteUrl);
     const generatedDocument = renderGeneratedProductDocument(fixture);
-    const expected = {
-      title: social.title,
-      description: social.description,
-      image: social.imageUrl,
-      canonical: social.canonical,
-    };
+    assertSocialPreviewParity(generatedDocument, fixture.metadata);
+  }
+});
 
-    assert.deepEqual(
-      {
-        openGraph: {
-          title: readMeta(generatedDocument, "property", "og:title"),
-          description: readMeta(generatedDocument, "property", "og:description"),
-          image: readMeta(generatedDocument, "property", "og:image"),
-          canonical: readMeta(generatedDocument, "property", "og:url"),
-        },
-        twitter: {
-          title: readMeta(generatedDocument, "name", "twitter:title"),
-          description: readMeta(generatedDocument, "name", "twitter:description"),
-          image: readMeta(generatedDocument, "name", "twitter:image"),
-        },
-        canonical: readCanonical(generatedDocument),
-      },
-      {
-        openGraph: expected,
-        twitter: {
-          title: expected.title,
-          description: expected.description,
-          image: expected.image,
-        },
-        canonical: expected.canonical,
-      },
+test("keeps interactive and static social previews equivalent for public informational routes", () => {
+  for (const fixture of publicRouteFixtures) {
+    const generatedDocument = renderGeneratedPublicDocument(fixture);
+    assertSocialPreviewParity(generatedDocument, fixture.metadata);
+    if (fixture.route !== "/") {
+      validatePublicDocument(fixture, generatedDocument);
+    }
+    assert.equal(
+      getSocialPreviewMetadata(fixture.metadata, siteUrl).imageUrl,
+      `${siteUrl}/og-image.png`,
     );
   }
+});
+
+test("decodes escaped informational metadata equivalently across preview paths", () => {
+  const generatedDocument = renderGeneratedPublicDocument(escapedPublicFixture);
+
+  assert.match(generatedDocument, /O&#39;Brien &amp; Sons &quot;Live&quot;/);
+  assert.match(generatedDocument, /ARTCOVR&#39;s &quot;direct&quot; cover-art process &amp; license/);
+  assertSocialPreviewParity(generatedDocument, escapedPublicFixture.metadata);
 });
 
 test("reports the product route and Open Graph signal when a generated tag is removed", () => {
