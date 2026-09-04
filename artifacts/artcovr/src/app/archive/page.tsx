@@ -5,18 +5,23 @@ import { SiteHeader } from "@/components/artcovr/SiteHeader";
 import { displayArtworks } from "@/lib/artcovr/artworks";
 import {
   buildArtworkCollectionStructuredData,
+  buildOrganizationStructuredData,
+  combineStructuredData,
   getSiteUrl,
   serializeJsonLd,
 } from "@/lib/artcovr/seo";
 
 export default function ArchivePage() {
   const siteUrl = getSiteUrl();
-  const jsonLd = buildArtworkCollectionStructuredData(displayArtworks, siteUrl, {
-    path: "/archive",
-    name: "ARTCOVR cover art archive",
-    description:
-      "A searchable archive of owner-approved square cover artwork organized by genre, mood, color, and visual topic.",
-  });
+  const jsonLd = combineStructuredData(
+    buildOrganizationStructuredData(siteUrl),
+    buildArtworkCollectionStructuredData(displayArtworks, siteUrl, {
+      path: "/archive",
+      name: "ARTCOVR cover art archive",
+      description:
+        "A searchable archive of owner-approved square cover artwork organized by genre, mood, color, and visual topic.",
+    }),
+  );
 
   return (
     <>

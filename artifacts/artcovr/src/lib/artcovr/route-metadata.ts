@@ -25,15 +25,15 @@ export type RouteMetadata = {
 
 export const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
   "/": {
-    title: "ARTCOVR | Curated Cover Art",
+    title: "Curated Cover Art for Music Releases and Artists | ARTCOVR",
     description:
-      "ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing.",
+      "ARTCOVR is a curated storefront for distinctive square cover art for music releases, with commercial licensing and prompt-based editing for artists.",
     index: true,
   },
   "/archive": {
-    title: "Cover Art Archive | ARTCOVR",
+    title: "Curated Cover Art Archive for Music Releases | ARTCOVR",
     description:
-      "Browse 187 owner-approved cover artworks by music genre, mood, color, and visual topic. Each published work includes clear license terms.",
+      "Browse 187 owner-approved cover artworks for music releases by genre, mood, color, and visual topic. Compare each work's commercial license and editing options.",
     index: true,
   },
   "/about": {

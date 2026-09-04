@@ -155,6 +155,8 @@ const STATIC_CONTENT_PATTERN =
   /<!-- ARTCOVR_STATIC_CONTENT_START -->[\s\S]*?<!-- ARTCOVR_STATIC_CONTENT_END -->/;
 const STRUCTURED_DATA_PATTERN =
   /<!-- ARTCOVR_ROUTE_STRUCTURED_DATA_START -->[\s\S]*?<!-- ARTCOVR_ROUTE_STRUCTURED_DATA_END -->/;
+const HOME_NOSCRIPT_PATTERN =
+  /<!-- ARTCOVR_HOME_NOSCRIPT_START -->[\s\S]*?<!-- ARTCOVR_HOME_NOSCRIPT_END -->/;
 
 function escapeHtml(value: string) {
   return value.replace(
@@ -288,7 +290,13 @@ function routeMetadataPlugin(
         renderRouteMetadata(metadata, siteUrl, indexingDisabled),
       )
       .replace(STATIC_CONTENT_PATTERN, staticBody)
-      .replace(STRUCTURED_DATA_PATTERN, rendered.structuredDataHtml);
+      .replace(STRUCTURED_DATA_PATTERN, rendered.structuredDataHtml)
+      .replace(
+        HOME_NOSCRIPT_PATTERN,
+        routePath === "/"
+          ? `<!-- ARTCOVR_HOME_NOSCRIPT_START -->\n    <noscript>\n      <h1>Curated cover art for music releases and artists.</h1>\n      <p>ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing.</p>\n      <p><a href="/archive">Browse the cover art archive</a> · <a href="/license">Read the commercial license</a></p>\n    </noscript>\n    <!-- ARTCOVR_HOME_NOSCRIPT_END -->`
+          : "",
+      );
   };
 
   return {
@@ -318,6 +326,9 @@ function routeMetadataPlugin(
       }
       if (!STRUCTURED_DATA_PATTERN.test(shell)) {
         throw new Error('The structured data markers are missing from index.html.');
+      }
+      if (!HOME_NOSCRIPT_PATTERN.test(shell)) {
+        throw new Error('The homepage noscript marker is missing from index.html.');
       }
 
       const homepage = routeDocument(shell, '/');

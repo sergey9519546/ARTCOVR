@@ -3,6 +3,7 @@ import {
   buildArtworkStructuredData,
   buildFaqStructuredData,
   buildOrganizationStructuredData,
+  combineStructuredData,
   serializeJsonLd,
 } from "./seo";
 
@@ -321,23 +322,26 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
       name: "ARTCOVR curated cover art",
       description: metadata.description,
     });
-    return {
-      "@context": "https://schema.org",
-      "@graph": [...organization["@graph"], ...gallery["@graph"]],
-    };
+    return combineStructuredData(organization, gallery);
   }
   if (metadata.path === "/faq") {
-    return buildFaqStructuredData(
-      FAQ_QUESTIONS.map(([question, answer]) => ({ question, answer })),
-      siteUrl,
+    return combineStructuredData(
+      buildOrganizationStructuredData(siteUrl),
+      buildFaqStructuredData(
+        FAQ_QUESTIONS.map(([question, answer]) => ({ question, answer })),
+        siteUrl,
+      ),
     );
   }
   if (metadata.path === "/archive") {
-    return buildArtworkCollectionStructuredData(artworks, siteUrl, {
-      path: "/archive",
-      name: "ARTCOVR cover art archive",
-      description: metadata.description,
-    });
+    return combineStructuredData(
+      buildOrganizationStructuredData(siteUrl),
+      buildArtworkCollectionStructuredData(artworks, siteUrl, {
+        path: "/archive",
+        name: "ARTCOVR cover art archive",
+        description: metadata.description,
+      }),
+    );
   }
   if (metadata.path.startsWith("/product/")) {
     const slug = metadata.path.slice("/product/".length);
@@ -348,20 +352,25 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
       artwork = undefined;
     }
     if (artwork) {
-      return buildArtworkStructuredData(
-        { ...artwork, genres: [...getGenres(artwork)] },
-        siteUrl,
+      return combineStructuredData(
+        buildOrganizationStructuredData(siteUrl),
+        buildArtworkStructuredData(
+          { ...artwork, genres: [...getGenres(artwork)] },
+          siteUrl,
+        ),
       );
     }
   }
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "@id": `${absoluteUrl(metadata.path, siteUrl)}#webpage`,
-    url: absoluteUrl(metadata.path, siteUrl),
-    name: metadata.title,
-    description: metadata.description,
-  };
+  return combineStructuredData(
+    buildOrganizationStructuredData(siteUrl),
+    {
+      "@type": "WebPage",
+      "@id": `${absoluteUrl(metadata.path, siteUrl)}#webpage`,
+      url: absoluteUrl(metadata.path, siteUrl),
+      name: metadata.title,
+      description: metadata.description,
+    },
+  );
 }
 
 export function renderStaticRoute(context: RenderContext) {
