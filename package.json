@@ -10,6 +10,7 @@
     "test": "pnpm -r --filter \"./artifacts/**\" --if-present run test",
     "test:e2e": "pnpm --filter @workspace/artcovr run test:e2e",
     "test:database": "bash scripts/db/verify-database.test.sh",
+    "test:database:baseline": "bash scripts/db/baseline-development.test.sh",
     "verify:ci": "pnpm run typecheck && pnpm run test",
     "verify:release": "pnpm run verify:ci && pnpm run test:e2e && pnpm --filter @workspace/scripts run verify:runtime-contract",
     "verify:live-release": "pnpm --filter @workspace/scripts run verify:live-release",
