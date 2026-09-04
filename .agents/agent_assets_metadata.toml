@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "XjeBxPZO_ep-lA_Xey5vi"
+uri = "file://artifacts/artcovr/reports/artcovr-prospect-list.csv"
+type = "table"
+title = "ARTCOVR Prospect List"
+description = "45 public, source-backed music and creative prospects, tiered by fit with triggers, buyer roles, and evidence links."
+logical_id = "2e6e0298-d3a9-4a5e-ad71-4db7c2917543"
+content_hash = "sha256:074be41415de3d68fb13da75caaf94ec095dc5162d2327ad5e05147f8c9c1e94"
+size = 29883
+mtime_ms = 1788543874237
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:a8fb1401-f6a6-4b42-80e9-268ff8dc0fb4/2e6e0298-d3a9-4a5e-ad71-4db7c2917543/a459d737-da17-44e8-9763-59ad5e8f4bb3"
+storage_version_token = "1788543874945509"
+content_type = "text/csv"
