@@ -16,6 +16,8 @@ import {
 } from "@/lib/artcovr/artworks";
 import {
   buildArtworkStructuredData,
+  buildOrganizationStructuredData,
+  combineStructuredData,
   serializeJsonLd,
 } from "@/lib/artcovr/seo";
 import {
@@ -38,7 +40,10 @@ export default function ProductPage() {
     ...art.moodTags,
     ...getVisualKeywords(art.slug).map(displayVisualLabel),
   ])];
-  const jsonLd = buildArtworkStructuredData({ ...art, genres });
+  const jsonLd = combineStructuredData(
+    buildOrganizationStructuredData(),
+    buildArtworkStructuredData({ ...art, genres }),
+  );
   const checkoutReady = isCheckoutReady(art);
   const licenseMode = art.saleMode === "exclusive"
     ? "Exclusive commercial license"

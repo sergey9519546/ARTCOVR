@@ -41,6 +41,14 @@
     <link rel="apple-touch-icon" href="%BASE_URL%apple-touch-icon.png" />
   </head>
   <body>
+    <!-- No-JavaScript crawlers get a semantic homepage without affecting the React preloader frame. -->
+    <!-- ARTCOVR_HOME_NOSCRIPT_START -->
+    <noscript>
+      <h1>Curated cover art for music releases and artists.</h1>
+      <p>ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing.</p>
+      <p><a href="/archive">Browse the cover art archive</a> · <a href="/license">Read the commercial license</a></p>
+    </noscript>
+    <!-- ARTCOVR_HOME_NOSCRIPT_END -->
     <div id="root">
       <!-- ARTCOVR_STATIC_CONTENT_START -->
       <!-- ARTCOVR_STATIC_CONTENT_END -->

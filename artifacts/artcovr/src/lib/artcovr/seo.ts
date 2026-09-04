@@ -53,6 +53,17 @@ export function serializeJsonLd(value: unknown): string {
     .replace(/\u2029/g, "\\u2029");
 }
 
+export function combineStructuredData(
+  ...values: Record<string, unknown>[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@graph": values.flatMap((value) =>
+      Array.isArray(value["@graph"]) ? value["@graph"] : [value],
+    ),
+  };
+}
+
 type PageMetadataOptions = {
   title: string;
   description: string;
