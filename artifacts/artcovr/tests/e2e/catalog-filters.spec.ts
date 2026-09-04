@@ -143,6 +143,19 @@ test("searching a displayed genre finds the filtered artwork", async ({
   ).toHaveCount(1);
 });
 
+test("empty archive results explain how to recover", async ({ page }) => {
+  await page.goto("/archive");
+  await page.locator("#archive-search").fill("no-match-for-this-catalog");
+
+  const empty = page.getByRole("region", { name: "No matching artwork" });
+  await expect(empty).toBeVisible();
+  await expect(empty).toContainText("No works match those filters.");
+  await expect(empty.getByRole("button", { name: "Clear filters" })).toBeVisible();
+
+  await empty.getByRole("button", { name: "Clear filters" }).click();
+  await expect(catalogStatus(page)).toHaveText(`${ARCHIVE_TOTAL} / ${ARCHIVE_TOTAL} works`);
+});
+
 test("archive search and facets restore from the URL", async ({ page }) => {
   await page.goto("/archive");
   const genreChoice = choices(facet(page, "genre")).first();

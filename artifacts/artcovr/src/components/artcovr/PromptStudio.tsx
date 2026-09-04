@@ -552,7 +552,12 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-             <span aria-live="polite" className="min-w-0 flex-1 opacity-70">
+              <span
+                role={phase === "error" ? "alert" : "status"}
+                aria-live={phase === "error" ? "assertive" : "polite"}
+                aria-atomic="true"
+                className="min-w-0 flex-1 opacity-70"
+              >
                {message ||
                  (restoring
                    ? "Restoring your selected preview…"

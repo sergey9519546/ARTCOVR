@@ -25,8 +25,10 @@ type Phase = "idle" | "generating" | "complete" | "error";
 
 function terminalMessage(status: "blocked" | "failed" | "timed_out") {
   if (status === "blocked") return "That request could not be generated. Try a different prompt.";
-  if (status === "timed_out") return "Generation timed out. Your allowance was not used.";
-  return "Generation failed. Your allowance was not used.";
+  if (status === "timed_out") {
+    return "Generation timed out. Your allowance was not used. Choose Generate image to try again.";
+  }
+  return "Generation failed. Your allowance was not used. Choose Generate image to try again.";
 }
 
 export function PurchasedGenerationStudio({
@@ -258,7 +260,12 @@ export function PurchasedGenerationStudio({
             <button type="button" onClick={reset} disabled={phase === "generating"} className="link-hover text-xs font-bold uppercase tracking-[.08em] disabled:cursor-not-allowed disabled:opacity-40">
               Reset
             </button>
-            <span aria-live="polite" className="text-xs opacity-60">
+            <span
+              role={phase === "error" ? "alert" : "status"}
+              aria-live={phase === "error" ? "assertive" : "polite"}
+              aria-atomic="true"
+              className="text-xs opacity-60"
+            >
               {message || `${purchase.remainingGenerations} generations remaining.`}
             </span>
           </div>

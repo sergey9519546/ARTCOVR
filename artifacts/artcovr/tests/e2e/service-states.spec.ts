@@ -206,6 +206,37 @@ test("inquiry errors remain actionable and a retry can succeed", async ({ page }
   await expect(page.getByRole("status")).toContainText("inquiry has been received");
 });
 
+test("My Images account failures announce a retry and empty accounts can browse", async ({
+  page,
+}) => {
+  await useDeterministicSignIn(page);
+  let attempts = 0;
+  await page.route("**/api/functions/v1/claim-guest-purchases", (route) =>
+    fulfillJson(route, { claimedOrderIds: [], claimedCredits: 0 }),
+  );
+  await page.route("**/api/functions/v1/my-images", async (route) => {
+    attempts += 1;
+    if (attempts === 1) {
+      await fulfillJson(route, { code: "temporarily_unavailable", message: "Account data is temporarily unavailable." }, 503);
+      return;
+    }
+    await fulfillJson(route, { purchases: [], generations: [], downloads: [] });
+  });
+  await page.goto("/my-images", { waitUntil: "domcontentloaded" });
+
+  const alert = page.getByRole("alert");
+  await expect(alert).toContainText("Account data is temporarily unavailable.");
+  await expect(alert.getByRole("button", { name: "Try again" })).toBeEnabled();
+
+  await alert.getByRole("button", { name: "Try again" }).click();
+  const empty = page.getByRole("region", { name: "Empty image library" });
+  await expect(empty).toBeVisible();
+  await expect(empty.getByRole("link", { name: "Browse the archive" })).toHaveAttribute(
+    "href",
+    "/archive",
+  );
+});
+
 test("My Images renders owned purchases, generations, and downloads only", async ({
   page,
 }) => {
