@@ -261,6 +261,11 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
         return { id: refundId } as Stripe.Refund;
       },
     });
+    await fulfillCheckoutSession(event, {
+      refundPaymentIntent: async () => {
+        throw new Error("duplicate webhook must not refund twice");
+      },
+    });
 
     const [lateOrder] = await db
       .select()
