@@ -3,6 +3,8 @@ import path from "node:path";
 
 import curatedPublic from "../src/lib/artcovr/curated-public.json" with { type: "json" };
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
+import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
+import { getRouteMetadata } from "../src/lib/artcovr/route-metadata";
 
 const outputDirectory = path.resolve(import.meta.dirname, "../dist/public");
 const publicCatalog = selectPublicCatalog(curatedPublic);
@@ -130,6 +132,11 @@ function validateStructuredData(
       `found ${[...types].sort().join(", ") || "no entity types"}`,
     );
   }
+
+  return entities.filter(
+    (entity): entity is Record<string, unknown> =>
+      Boolean(entity) && typeof entity === "object" && !Array.isArray(entity),
+  );
 }
 
 function validateRoute(
@@ -137,6 +144,11 @@ function validateRoute(
   html: string,
   siteUrl: string,
   expectedTypes: string[],
+  productExpectation?: {
+    title: string;
+    description: string;
+    artwork: (typeof publicCatalog)[number];
+  },
 ) {
   const titleTags = [...html.matchAll(/<title\b[^>]*>([\s\S]*?)<\/title>/gi)];
   check(
@@ -152,6 +164,14 @@ function validateRoute(
     "title length",
     `${title.length} characters; expected ${titleRange.min}-${titleRange.max}`,
   );
+  if (productExpectation) {
+    check(
+      title === productExpectation.title,
+      route,
+      "product title",
+      `expected "${productExpectation.title}"`,
+    );
+  }
 
   const descriptionTags = collectTags(html, "meta").filter(
     (tag) => attribute(tag, "name")?.toLowerCase() === "description",
@@ -172,6 +192,14 @@ function validateRoute(
     "meta description length",
     `${description.length} characters; expected ${descriptionRange.min}-${descriptionRange.max}`,
   );
+  if (productExpectation) {
+    check(
+      description === productExpectation.description,
+      route,
+      "product description",
+      `expected "${productExpectation.description}"`,
+    );
+  }
 
   const canonicalTags = collectTags(html, "link").filter((tag) =>
     attribute(tag, "rel")
@@ -197,16 +225,94 @@ function validateRoute(
   const headings = [
     ...contentWithoutScripts.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi),
   ]
-    .map((match) => match[1].replace(/<[^>]+>/g, "").trim())
+    .map((match) =>
+      decodeHtml(match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()),
+    )
     .filter(Boolean);
-  check(headings.length > 0, route, "crawler-visible H1");
+  check(
+    productExpectation ? headings.length === 1 : headings.length > 0,
+    route,
+    "crawler-visible H1",
+    productExpectation
+      ? `expected one H1, found ${headings.length}`
+      : undefined,
+  );
+  if (productExpectation) {
+    check(
+      headings[0] === productExpectation.artwork.title,
+      route,
+      "crawler-visible H1 content",
+      `expected "${productExpectation.artwork.title}"`,
+    );
+  }
   if (route === "/") {
     const noscript =
       /<noscript\b[\s\S]*?<h1\b[^>]*>[\s\S]*?<\/h1>[\s\S]*?<\/noscript>/i;
     check(noscript.test(html), route, "no-JavaScript H1 fallback");
   }
 
-  validateStructuredData(route, html, expectedTypes);
+  const entities = validateStructuredData(route, html, expectedTypes);
+  if (productExpectation) {
+    const canonical = canonicalUrlFor(route, siteUrl);
+    const product = entities.find((entity) => entity["@type"] === "Product");
+    check(product, route, "Product JSON-LD entity");
+    check(
+      product.name === productExpectation.artwork.title,
+      route,
+      "Product JSON-LD name",
+      `expected "${productExpectation.artwork.title}"`,
+    );
+    check(
+      product.description === productExpectation.artwork.description,
+      route,
+      "Product JSON-LD description",
+      `expected "${productExpectation.artwork.description}"`,
+    );
+    check(product.sku === productExpectation.artwork.slug, route, "Product JSON-LD SKU");
+    check(product.url === canonical, route, "Product JSON-LD URL", `expected ${canonical}`);
+
+    const image = entities.find((entity) => entity["@type"] === "ImageObject");
+    check(image, route, "ImageObject JSON-LD entity");
+    const imageUrl = canonicalUrlFor(productExpectation.artwork.image, siteUrl);
+    check(image.contentUrl === imageUrl, route, "ImageObject content URL", `expected ${imageUrl}`);
+    check(image.url === imageUrl, route, "ImageObject URL", `expected ${imageUrl}`);
+    check(
+      image.caption === productExpectation.artwork.alt,
+      route,
+      "ImageObject caption",
+      `expected "${productExpectation.artwork.alt}"`,
+    );
+    check(
+      image.acquireLicensePage === canonical,
+      route,
+      "ImageObject acquisition URL",
+      `expected ${canonical}`,
+    );
+
+    const breadcrumb = entities.find(
+      (entity) => entity["@type"] === "BreadcrumbList",
+    );
+    check(breadcrumb, route, "BreadcrumbList JSON-LD entity");
+    const breadcrumbItems = breadcrumb.itemListElement;
+    check(
+      Array.isArray(breadcrumbItems) && breadcrumbItems.length === 2,
+      route,
+      "BreadcrumbList items",
+      "expected archive and product items",
+    );
+    const lastBreadcrumb = Array.isArray(breadcrumbItems)
+      ? breadcrumbItems[1]
+      : undefined;
+    check(
+      lastBreadcrumb &&
+        typeof lastBreadcrumb === "object" &&
+        lastBreadcrumb.name === productExpectation.artwork.title &&
+        lastBreadcrumb.item === canonical,
+      route,
+      "BreadcrumbList product item",
+      `expected "${productExpectation.artwork.title}" at ${canonical}`,
+    );
+  }
 }
 
 function decodeXml(value: string) {
@@ -373,18 +479,31 @@ async function main() {
     "ImageObject",
   ]);
 
-  const productRoute = `/product/${encodeURIComponent(publicCatalog[0].slug)}`;
-  validateRoute(productRoute, await readRoute(productRoute), siteUrl, [
-    "Organization",
-    "WebSite",
-    "ImageObject",
-    "BreadcrumbList",
-    "Product",
-  ]);
+  let productRoutesValidated = 0;
+  for (const artwork of publicCatalog) {
+    const productRoute = `/product/${encodeURIComponent(artwork.slug)}`;
+    const metadata = getRouteMetadata(
+      productRoute,
+      publicCatalog,
+      (candidate) => getArtworkGenres(candidate).map(displayGenreLabel),
+    );
+    validateRoute(
+      productRoute,
+      await readRoute(productRoute),
+      siteUrl,
+      ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "Product"],
+      {
+        title: metadata.title,
+        description: metadata.description,
+        artwork,
+      },
+    );
+    productRoutesValidated += 1;
+  }
   await validateDiscoveryFiles(siteUrl);
 
   console.log(
-    `[SEO] validated /, /archive, ${productRoute}, robots.txt, sitemap.xml (${publicCatalog.length} catalog images)`,
+    `[SEO] validated /, /archive, ${productRoutesValidated} product routes, robots.txt, sitemap.xml (${publicCatalog.length} catalog images)`,
   );
 }
 
