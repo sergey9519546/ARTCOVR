@@ -21,6 +21,7 @@ const siteRoutes = [
 ] as const;
 const titleRange = { min: 20, max: 60 };
 const descriptionRange = { min: 70, max: 160 };
+const maxReportedFailures = 20;
 
 function seoFailure(route: string, signal: string, detail?: string): never {
   throw new Error(`[SEO] ${route}: ${signal}${detail ? ` (${detail})` : ""}`);
@@ -88,6 +89,39 @@ function routeFile(route: string) {
     route.replace(/^\/+|\/+$/g, ""),
     "index.html",
   );
+}
+
+function failureMessage(error: unknown, route: string) {
+  if (error instanceof Error && error.message) return error.message;
+  return `[SEO] ${route}: validation failed (${String(error)})`;
+}
+
+async function collectFailure(
+  failures: string[],
+  route: string,
+  validate: () => void | Promise<void>,
+) {
+  try {
+    await validate();
+  } catch (error) {
+    failures.push(failureMessage(error, route));
+  }
+}
+
+function reportFailures(failures: string[]) {
+  if (failures.length === 0) return false;
+
+  console.error(`[SEO] validation failed with ${failures.length} issue(s):`);
+  for (const failure of failures.slice(0, maxReportedFailures)) {
+    console.error(`- ${failure}`);
+  }
+  if (failures.length > maxReportedFailures) {
+    console.error(
+      `- ... ${failures.length - maxReportedFailures} additional issue(s) omitted`,
+    );
+  }
+  process.exitCode = 1;
+  return true;
 }
 
 async function readRoute(route: string) {
@@ -539,71 +573,97 @@ async function validateDiscoveryFiles(siteUrl: string) {
 }
 
 async function main() {
-  check(
-    publicCatalog.length === 187,
-    "catalog",
-    "approved catalog count",
-    `${publicCatalog.length} items`,
+  const failures: string[] = [];
+  await collectFailure(failures, "catalog", () =>
+    check(
+      publicCatalog.length === 187,
+      "catalog",
+      "approved catalog count",
+      `${publicCatalog.length} items`,
+    ),
   );
 
-  const homepage = await readRoute("/");
+  let homepage: string;
+  try {
+    homepage = await readRoute("/");
+  } catch (error) {
+    failures.push(failureMessage(error, "/"));
+    reportFailures(failures);
+    return;
+  }
   const homepageCanonical = collectTags(homepage, "link").find((tag) =>
     attribute(tag, "rel")
       ?.split(/\s+/)
       .some((rel) => rel.toLowerCase() === "canonical"),
   );
-  check(
-    homepageCanonical,
-    "/",
-    "canonical URL",
-    "homepage canonical link is missing",
+  await collectFailure(failures, "/", () =>
+    check(
+      homepageCanonical,
+      "/",
+      "canonical URL",
+      "homepage canonical link is missing",
+    ),
   );
+  if (!homepageCanonical) {
+    reportFailures(failures);
+    return;
+  }
   let siteUrl: string;
   try {
     const canonical = new URL(attribute(homepageCanonical, "href") ?? "");
     siteUrl = canonical.origin;
   } catch {
-    seoFailure(
-      "/",
-      "canonical URL",
-      "homepage canonical link is not an absolute URL",
+    failures.push(
+      `[SEO] /: canonical URL (homepage canonical link is not an absolute URL)`,
     );
+    reportFailures(failures);
+    return;
   }
 
-  validateRoute("/", homepage, siteUrl, [
-    "Organization",
-    "WebSite",
-    "CollectionPage",
-    "ImageObject",
-  ]);
-  validateRoute("/archive", await readRoute("/archive"), siteUrl, [
-    "Organization",
-    "WebSite",
-    "CollectionPage",
-    "ImageObject",
-  ]);
+  await collectFailure(failures, "/", () =>
+    validateRoute("/", homepage, siteUrl, [
+      "Organization",
+      "WebSite",
+      "CollectionPage",
+      "ImageObject",
+    ]),
+  );
+  await collectFailure(failures, "/archive", async () =>
+    validateRoute("/archive", await readRoute("/archive"), siteUrl, [
+      "Organization",
+      "WebSite",
+      "CollectionPage",
+      "ImageObject",
+    ]),
+  );
 
   let productRoutesValidated = 0;
   for (const artwork of publicCatalog) {
     const productRoute = `/product/${encodeURIComponent(artwork.slug)}`;
-    const metadata = getRouteMetadata(
-      productRoute,
-      publicCatalog,
-      (candidate) => getArtworkGenres(candidate).map(displayGenreLabel),
-    );
-    validateRoute(
-      productRoute,
-      await readRoute(productRoute),
-      siteUrl,
-      ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "Product"],
-      {
-        metadata,
-        artwork,
-      },
-    );
-    productRoutesValidated += 1;
+    await collectFailure(failures, productRoute, async () => {
+      const metadata = getRouteMetadata(
+        productRoute,
+        publicCatalog,
+        (candidate) => getArtworkGenres(candidate).map(displayGenreLabel),
+      );
+      validateRoute(
+        productRoute,
+        await readRoute(productRoute),
+        siteUrl,
+        ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "Product"],
+        {
+          metadata,
+          artwork,
+        },
+      );
+      productRoutesValidated += 1;
+    });
   }
-  await validateDiscoveryFiles(siteUrl);
+  await collectFailure(failures, "robots.txt / sitemap.xml", () =>
+    validateDiscoveryFiles(siteUrl),
+  );
+
+  if (reportFailures(failures)) return;
 
   console.log(
     `[SEO] validated /, /archive, ${productRoutesValidated} product routes, robots.txt, sitemap.xml (${publicCatalog.length} catalog images)`,
