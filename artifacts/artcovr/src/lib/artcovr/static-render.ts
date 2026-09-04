@@ -73,6 +73,51 @@ function absoluteUrl(value: string, siteUrl: string) {
   return new URL(value, `${siteUrl}/`).toString();
 }
 
+export function renderStaticRouteMetadata(
+  metadata: RouteRenderMetadata,
+  siteUrl: string,
+  indexingDisabled: boolean,
+) {
+  const canonical = absoluteUrl(metadata.path, siteUrl);
+  const imageUrl = absoluteUrl(metadata.image?.url ?? "/og-image.png", siteUrl);
+  const imageAlt = metadata.image?.alt ?? "ARTCOVR curated cover art";
+  const imageWidth = metadata.image?.width ?? 1200;
+  const imageHeight = metadata.image?.height ?? 630;
+  const imageType = metadata.image?.type ?? "image/png";
+  const robots =
+    metadata.index && !indexingDisabled
+      ? "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+      : "noindex, nofollow, noarchive";
+  const openGraphType = metadata.path.startsWith("/product/")
+    ? "product"
+    : "website";
+
+  return `<!-- ARTCOVR_ROUTE_META_START -->
+    <title>${escapeHtml(metadata.title)}</title>
+    <meta name="description" content="${escapeHtml(metadata.description)}" />
+    <meta name="robots" content="${robots}" />
+    <meta property="og:title" content="${escapeHtml(metadata.title)}" />
+    <meta property="og:description" content="${escapeHtml(metadata.description)}" />
+    <meta property="og:type" content="${openGraphType}" />
+    <meta property="og:site_name" content="ARTCOVR" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="${escapeHtml(canonical)}" />
+    <meta property="og:image" content="${escapeHtml(imageUrl)}" />
+    <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}" />
+    <meta property="og:image:alt" content="${escapeHtml(imageAlt)}" />
+    <meta property="og:image:width" content="${imageWidth}" />
+    <meta property="og:image:height" content="${imageHeight}" />
+    <meta property="og:image:type" content="${escapeHtml(imageType)}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(metadata.title)}" />
+    <meta name="twitter:description" content="${escapeHtml(metadata.description)}" />
+    <meta name="twitter:image" content="${escapeHtml(imageUrl)}" />
+    <meta name="twitter:image:alt" content="${escapeHtml(imageAlt)}" />
+    <link rel="image_src" href="${escapeHtml(imageUrl)}" />
+    <link rel="canonical" href="${escapeHtml(canonical)}" />
+    <!-- ARTCOVR_ROUTE_META_END -->`;
+}
+
 function link(href: string, label: string, className = "link-hover") {
   return `<a href="${escapeHtml(href)}"${className ? ` class="${className}"` : ""}>${escapeHtml(label)}</a>`;
 }

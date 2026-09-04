@@ -7,6 +7,10 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with {
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
 import { getRouteMetadata } from "../src/lib/artcovr/route-metadata";
+import {
+  renderStaticRoute,
+  renderStaticRouteMetadata,
+} from "../src/lib/artcovr/static-render";
 import { validateRoute } from "./validate-seo-build";
 
 const publicCatalog = selectPublicCatalog(curatedPublic);
@@ -30,85 +34,37 @@ const specialCharacterMetadata = getRouteMetadata(
   [specialCharacterArtwork],
   () => ["R&B"],
 );
-const catalogFixture = { route, metadata, artwork };
+const catalogFixture = {
+  route,
+  metadata,
+  artwork,
+  genres: getArtworkGenres(artwork).map(displayGenreLabel),
+};
 const specialCharacterFixture = {
   route: specialCharacterRoute,
   metadata: specialCharacterMetadata,
   artwork: specialCharacterArtwork,
+  genres: ["R&B"],
 };
 
-function escapeHtml(value: string) {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[character]!,
-  );
-}
-
-function renderGeneratedProductDocument(
-  fixture = catalogFixture,
-  escapeText = false,
-) {
+function renderGeneratedProductDocument(fixture = catalogFixture) {
   const { route: fixtureRoute, metadata: fixtureMetadata, artwork: fixtureArtwork } = fixture;
   assert.ok(fixtureMetadata.image, "fixture metadata should include a product image");
-  const text = escapeText ? escapeHtml : (value: string) => value;
-  const canonical = new URL(fixtureRoute, `${siteUrl}/`).toString();
-  const imageUrl = new URL(fixtureMetadata.image.url, `${siteUrl}/`).toString();
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      { "@type": "Organization", name: "ARTCOVR" },
-      { "@type": "WebSite", name: "ARTCOVR", url: siteUrl },
-      {
-        "@type": "ImageObject",
-        contentUrl: imageUrl,
-        url: imageUrl,
-        caption: fixtureArtwork.alt,
-        acquireLicensePage: canonical,
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Archive", item: `${siteUrl}/archive` },
-          { "@type": "ListItem", position: 2, name: fixtureArtwork.title, item: canonical },
-        ],
-      },
-      {
-        "@type": "Product",
-        name: fixtureArtwork.title,
-        description: fixtureArtwork.description,
-        sku: fixtureArtwork.slug,
-        url: canonical,
-      },
-    ],
-  };
+  const rendered = renderStaticRoute({
+    artworks: [fixtureArtwork],
+    siteUrl,
+    metadata: fixtureMetadata,
+    getGenres: () => fixture.genres,
+  });
 
   return `<!doctype html>
 <html>
   <head>
-    <title>${text(fixtureMetadata.title)}</title>
-    <meta name="description" content="${text(fixtureMetadata.description)}" />
-    <meta property="og:title" content="${text(fixtureMetadata.title)}" />
-    <meta property="og:description" content="${text(fixtureMetadata.description)}" />
-    <meta property="og:url" content="${canonical}" />
-    <meta property="og:image" content="${imageUrl}" />
-    <meta property="og:type" content="product" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${text(fixtureMetadata.title)}" />
-    <meta name="twitter:description" content="${text(fixtureMetadata.description)}" />
-    <meta name="twitter:image" content="${imageUrl}" />
-    <meta name="twitter:image:alt" content="${text(fixtureMetadata.image.alt)}" />
-    <link rel="canonical" href="${canonical}" />
+    ${renderStaticRouteMetadata(fixtureMetadata, siteUrl, false)}
   </head>
   <body>
-    <h1>${text(fixtureArtwork.title)}</h1>
-    <script type="application/ld+json">${JSON.stringify(structuredData)}</script>
+    ${rendered.bodyHtml}
+    ${rendered.structuredDataHtml}
   </body>
 </html>`;
 }
@@ -156,11 +112,8 @@ test("reports the product route and Twitter signal when a generated tag changes"
   assert.doesNotThrow(() => validateProductDocument(generatedDocument));
 });
 
-test("accepts escaped special characters in isolated Open Graph and Twitter fixtures", () => {
-  const generatedDocument = renderGeneratedProductDocument(
-    specialCharacterFixture,
-    true,
-  );
+test("accepts escaped special characters in static product Open Graph and Twitter metadata", () => {
+  const generatedDocument = renderGeneratedProductDocument(specialCharacterFixture);
 
   assert.match(generatedDocument, /O&#39;Brien &amp; Sons &quot;Live&quot;/);
   assert.doesNotThrow(() =>
@@ -169,19 +122,14 @@ test("accepts escaped special characters in isolated Open Graph and Twitter fixt
 });
 
 test("reports the exact route and social signal when an escaped value decodes incorrectly", () => {
-  const generatedDocument = renderGeneratedProductDocument(
-    specialCharacterFixture,
-    true,
-  );
-  const escapedTitle = escapeHtml(specialCharacterMetadata.title);
-  const escapedDescription = escapeHtml(specialCharacterMetadata.description);
+  const generatedDocument = renderGeneratedProductDocument(specialCharacterFixture);
   const wrongOpenGraphDocument = generatedDocument.replace(
-    `<meta property="og:title" content="${escapedTitle}" />`,
-    `<meta property="og:title" content="${escapeHtml("Wrong & title")}" />`,
+    /(<meta property="og:title" content=")[^"]*(" \/>)/,
+    "$1Wrong &amp; title$2",
   );
   const wrongTwitterDocument = generatedDocument.replace(
-    `<meta name="twitter:description" content="${escapedDescription}" />`,
-    `<meta name="twitter:description" content="${escapeHtml("Wrong & description")}" />`,
+    /(<meta name="twitter:description" content=")[^"]*(" \/>)/,
+    "$1Wrong &amp; description$2",
   );
 
   assert.throws(
