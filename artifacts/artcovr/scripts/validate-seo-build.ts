@@ -45,6 +45,29 @@ function attribute(tag: string, name: string) {
   return new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`, "i").exec(tag)?.[1];
 }
 
+function validateMetaTag(
+  route: string,
+  html: string,
+  attributeName: string,
+  attributeValue: string,
+  expected: string,
+  signal: string,
+) {
+  const tags = collectTags(html, "meta").filter(
+    (tag) =>
+      attribute(tag, attributeName)?.toLowerCase() ===
+      attributeValue.toLowerCase(),
+  );
+  check(
+    tags.length === 1,
+    route,
+    signal,
+    `expected one meta ${attributeName}="${attributeValue}", found ${tags.length}`,
+  );
+  const actual = decodeHtml(attribute(tags[0], "content") ?? "");
+  check(actual === expected, route, signal, `expected "${expected}"`);
+}
+
 function decodeHtml(value: string) {
   return value
     .replace(/&amp;/g, "&")
@@ -145,8 +168,7 @@ function validateRoute(
   siteUrl: string,
   expectedTypes: string[],
   productExpectation?: {
-    title: string;
-    description: string;
+    metadata: ReturnType<typeof getRouteMetadata>;
     artwork: (typeof publicCatalog)[number];
   },
 ) {
@@ -166,10 +188,10 @@ function validateRoute(
   );
   if (productExpectation) {
     check(
-      title === productExpectation.title,
+      title === productExpectation.metadata.title,
       route,
       "product title",
-      `expected "${productExpectation.title}"`,
+      `expected "${productExpectation.metadata.title}"`,
     );
   }
 
@@ -194,10 +216,10 @@ function validateRoute(
   );
   if (productExpectation) {
     check(
-      description === productExpectation.description,
+      description === productExpectation.metadata.description,
       route,
       "product description",
-      `expected "${productExpectation.description}"`,
+      `expected "${productExpectation.metadata.description}"`,
     );
   }
 
@@ -254,6 +276,89 @@ function validateRoute(
   const entities = validateStructuredData(route, html, expectedTypes);
   if (productExpectation) {
     const canonical = canonicalUrlFor(route, siteUrl);
+    const metadataImage = productExpectation.metadata.image;
+    check(metadataImage, route, "route metadata image", "image is missing");
+    const imageUrl = canonicalUrlFor(metadataImage.url, siteUrl);
+    validateMetaTag(
+      route,
+      html,
+      "property",
+      "og:title",
+      productExpectation.metadata.title,
+      "Open Graph title",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "property",
+      "og:description",
+      productExpectation.metadata.description,
+      "Open Graph description",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "property",
+      "og:url",
+      canonical,
+      "Open Graph URL",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "property",
+      "og:image",
+      imageUrl,
+      "Open Graph image",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "property",
+      "og:type",
+      "product",
+      "Open Graph type",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "name",
+      "twitter:card",
+      "summary_large_image",
+      "Twitter card",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "name",
+      "twitter:title",
+      productExpectation.metadata.title,
+      "Twitter title",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "name",
+      "twitter:description",
+      productExpectation.metadata.description,
+      "Twitter description",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "name",
+      "twitter:image",
+      imageUrl,
+      "Twitter image",
+    );
+    validateMetaTag(
+      route,
+      html,
+      "name",
+      "twitter:image:alt",
+      metadataImage.alt,
+      "Twitter image alt",
+    );
     const product = entities.find((entity) => entity["@type"] === "Product");
     check(product, route, "Product JSON-LD entity");
     check(
@@ -273,7 +378,6 @@ function validateRoute(
 
     const image = entities.find((entity) => entity["@type"] === "ImageObject");
     check(image, route, "ImageObject JSON-LD entity");
-    const imageUrl = canonicalUrlFor(productExpectation.artwork.image, siteUrl);
     check(image.contentUrl === imageUrl, route, "ImageObject content URL", `expected ${imageUrl}`);
     check(image.url === imageUrl, route, "ImageObject URL", `expected ${imageUrl}`);
     check(
@@ -493,8 +597,7 @@ async function main() {
       siteUrl,
       ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "Product"],
       {
-        title: metadata.title,
-        description: metadata.description,
+        metadata,
         artwork,
       },
     );
