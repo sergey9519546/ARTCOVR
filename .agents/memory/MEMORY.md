@@ -15,3 +15,4 @@
 - [Public artwork delivery](public-artwork-delivery.md) — optimize static catalog images with responsive derivatives before considering App Storage.
 - [Artwork GEO contract](artwork-geo-contract.md) — every public cover is a licensed ImageObject and image-sitemap record tied to its canonical product page.
 - [Drizzle migration output](drizzle-migration-output.md) — keep the Drizzle migration output path package-relative so repeated generation can read its metadata.
+- [Legacy database baseline](legacy-database-baseline.md) — only mark a matching existing development schema; fresh and partial databases take different paths.
