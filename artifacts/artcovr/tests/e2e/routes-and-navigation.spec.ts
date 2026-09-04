@@ -127,6 +127,13 @@ test("mobile intro stays visible until it completes and then restores keyboard f
     const dialog = page.getByRole("dialog", { name: "Navigation menu" });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
+    for (const label of ["home", "archive", "my images", "about"]) {
+      await expect(dialog.getByRole("link", { name: label, exact: true })).toBeVisible();
+    }
+    await expect(
+      dialog.getByRole("button", { name: "Switch to dark theme" }),
+    ).toBeVisible();
+    await expect(dialog.getByRole("link", { name: "curation", exact: true })).toHaveCount(0);
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();

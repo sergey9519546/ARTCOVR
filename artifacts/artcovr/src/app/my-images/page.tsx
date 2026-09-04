@@ -73,7 +73,7 @@ export default function MyImagesPage() {
   }, []);
 
   const refreshAccount = useCallback(async () => {
-    await loadAccount(true);
+    await loadAccount(false);
   }, [loadAccount]);
 
   useEffect(() => {
@@ -110,9 +110,28 @@ export default function MyImagesPage() {
           </Link>
         </section>
       )}
-      {state === "error" && <p role="alert" className="border-l-2 border-[#a11212] pl-4 dark:border-[#ff6b6b]">{message}</p>}
+      {state === "error" && (
+        <div role="alert" className="border-l-2 border-[#a11212] pl-4 dark:border-[#ff6b6b]">
+          <p>{message}</p>
+          <button
+            type="button"
+            onClick={() => void loadAccount(false)}
+            className="link-hover mt-3 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.08em]"
+          >
+            Try again
+          </button>
+        </div>
+      )}
       {state === "ready" && data.purchases.length === 0 && data.generations.length === 0 && (
-        <p className="border-y border-current/20 py-10 text-xl font-bold">No purchases or generated images yet.</p>
+        <section className="border-y border-current/20 py-10" aria-label="Empty image library">
+          <p className="text-xl font-bold">No purchases or generated images yet.</p>
+          <p className="mt-3 max-w-[48ch] text-sm leading-6 opacity-70">
+            Browse the archive to find a cover, or sign in after a guest purchase to claim it here.
+          </p>
+          <Link href="/archive" className="artcovr-button mt-6 inline-flex min-h-11 items-center px-5 py-3 text-xs font-bold uppercase tracking-[.08em]">
+            Browse the archive
+          </Link>
+        </section>
       )}
       {state === "ready" && data.purchases.map((purchase) => {
         const purchaseGenerations = data.generations.filter((generation) => generation.purchaseId === purchase.id);

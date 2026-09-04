@@ -3,6 +3,7 @@ import { describe, test } from "node:test";
 
 import { displayArtworks } from "./artworks.ts";
 import {
+  getIndexableRoutePaths,
   getPrerenderedRoutePaths,
   getRouteMetadata,
 } from "./route-metadata.ts";
@@ -52,5 +53,22 @@ describe("route metadata", () => {
 
     assert.ok(paths.includes(checkoutPath));
     assert.equal(getRouteMetadata(checkoutPath, displayArtworks).index, false);
+  });
+
+  test("derives indexable routes while excluding private prerendered routes", () => {
+    const artwork = displayArtworks[0];
+    assert.ok(artwork);
+    const indexablePaths = getIndexableRoutePaths(displayArtworks);
+
+    assert.ok(indexablePaths.includes("/"));
+    assert.ok(indexablePaths.includes("/archive"));
+    assert.ok(
+      indexablePaths.includes(`/product/${encodeURIComponent(artwork.slug)}`),
+    );
+    assert.equal(indexablePaths.includes("/sign-in"), false);
+    assert.equal(
+      indexablePaths.includes(`/checkout/${encodeURIComponent(artwork.slug)}`),
+      false,
+    );
   });
 });

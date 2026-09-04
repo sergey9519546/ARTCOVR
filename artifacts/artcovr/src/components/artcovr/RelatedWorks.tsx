@@ -30,21 +30,33 @@ export function RelatedWorks({ works }: { works: readonly Artwork[] }) {
       <p className="mt-5 text-[10px] font-bold uppercase tracking-[.1em] opacity-50">
         {works.length} approved visual neighbors
       </p>
-      <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 lg:gap-x-6">
-        {visibleWorks.map((related) => (
-          <li key={related.id}>
-            <Link href={`/product/${related.slug}`} className="group block" aria-label={`Open ${related.title}`}>
-              <div className="artcovr-plate relative aspect-square overflow-hidden">
-                <Image src={related.image} alt={related.alt} fill unoptimized loading="lazy" sizes="(min-width: 768px) 25vw, 50vw" className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]" />
-              </div>
-              <p className="mt-3 text-lg leading-5">{related.title}</p>
-              <p className="mt-[6px] text-[11px] uppercase opacity-60">
-                {getArtworkGenres(related).slice(0, 2).map(displayGenreLabel).join(" · ")}
-              </p>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {works.length === 0 ? (
+        <div className="mt-8 border-y border-current/20 py-8">
+          <p className="text-lg font-bold">No similar works are available yet.</p>
+          <p className="mt-2 text-sm leading-6 opacity-60">
+            Browse the approved archive to keep exploring cover art.
+          </p>
+          <Link href="/archive" className="artcovr-button mt-5 inline-flex min-h-11 items-center px-5 py-3 text-xs font-bold uppercase tracking-[.08em]">
+            Browse the archive
+          </Link>
+        </div>
+      ) : (
+        <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 lg:gap-x-6">
+          {visibleWorks.map((related) => (
+            <li key={related.id}>
+              <Link href={`/product/${related.slug}`} className="group block" aria-label={`Open ${related.title}`}>
+                <div className="artcovr-plate relative aspect-square overflow-hidden">
+                  <Image src={related.image} alt={related.alt} fill unoptimized loading="lazy" sizes="(min-width: 768px) 25vw, 50vw" className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]" />
+                </div>
+                <p className="mt-3 text-lg leading-5">{related.title}</p>
+                <p className="mt-[6px] text-[11px] uppercase opacity-60">
+                  {getArtworkGenres(related).slice(0, 2).map(displayGenreLabel).join(" · ")}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
       {remainingCount > 0 ? (
         <button
           type="button"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "@/components/compat/Link";
 import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
 import {
   applyCatalogView,
@@ -116,12 +117,27 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
       </div>
 
       {items.length === 0 ? (
-        <p className="border-y border-current/20 py-10 text-xl font-bold">The first approved collection is being prepared.</p>
+        <section className="border-y border-current/20 py-10" aria-label="Archive is empty">
+          <p className="text-xl font-bold">The first approved collection is being prepared.</p>
+          <Link href="/" className="link-hover mt-5 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.08em]">
+            Return home
+          </Link>
+        </section>
       ) : filteredItems.length === 0 ? (
-        <div className="mt-12 border border-current/20 px-6 py-12 text-center">
+        <section className="mt-12 border border-current/20 px-6 py-12 text-center" aria-label="No matching artwork">
           <p className="text-xl font-bold">No works match those filters.</p>
-           <p className="mt-2 text-sm uppercase tracking-[.12em] text-current/60">Try a different genre, color, mood, or visual topic.</p>
-        </div>
+            <p className="mx-auto mt-2 max-w-[48ch] text-sm leading-6 text-current/60">Try a different genre, color, mood, or visual topic, or clear the current search to browse the full archive.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setView(DEFAULT_CATALOG_VIEW);
+              }}
+              className="artcovr-button mt-6 min-h-11 px-5 py-3 text-xs font-bold uppercase tracking-[.08em]"
+            >
+              Clear filters
+            </button>
+         </section>
       ) : (
         <div className="mt-12">
           <ArtworkGrid items={filteredItems} />

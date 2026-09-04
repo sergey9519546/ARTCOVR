@@ -6,23 +6,13 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with { type: 
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
 import {
+  getIndexableRoutePaths,
   getRouteMetadata,
   getSocialPreviewMetadata,
 } from "../src/lib/artcovr/route-metadata";
 
 const outputDirectory = path.resolve(import.meta.dirname, "../dist/public");
 const publicCatalog = selectPublicCatalog(curatedPublic);
-const siteRoutes = [
-  "/",
-  "/archive",
-  "/about",
-  "/faq",
-  "/license",
-  "/refunds",
-  "/contact",
-  "/legal/privacy",
-  "/legal/terms",
-] as const;
 const titleRange = { min: 20, max: 60 };
 const descriptionRange = { min: 70, max: 160 };
 const maxReportedFailures = 20;
@@ -471,11 +461,9 @@ function decodeXml(value: string) {
 }
 
 function expectedSitemapUrls(siteUrl: string) {
+  const indexableRoutes = getIndexableRoutePaths(publicCatalog);
   return new Set([
-    ...siteRoutes.map((route) => canonicalUrlFor(route, siteUrl)),
-    ...publicCatalog.map((artwork) =>
-      canonicalUrlFor(`/product/${encodeURIComponent(artwork.slug)}`, siteUrl),
-    ),
+    ...indexableRoutes.map((route) => canonicalUrlFor(route, siteUrl)),
   ]);
 }
 
@@ -582,6 +570,7 @@ async function validateDiscoveryFiles(siteUrl: string) {
 
 async function main() {
   const failures: string[] = [];
+  const indexableRoutes = getIndexableRoutePaths(publicCatalog);
   await collectFailure(failures, "catalog", () =>
     check(
       publicCatalog.length === 187,
@@ -628,71 +617,52 @@ async function main() {
     return;
   }
 
-  await collectFailure(failures, "/", () =>
-    validateRoute("/", homepage, siteUrl, [
-      "Organization",
-      "WebSite",
-      "CollectionPage",
-      "ImageObject",
-    ], {
-      metadata: getRouteMetadata("/", publicCatalog),
-    }),
-  );
-  await collectFailure(failures, "/archive", async () =>
-    validateRoute("/archive", await readRoute("/archive"), siteUrl, [
-      "Organization",
-      "WebSite",
-      "CollectionPage",
-      "ImageObject",
-    ], {
-      metadata: getRouteMetadata("/archive", publicCatalog),
-    }),
-  );
-
-  const publicInformationalRoutes = siteRoutes.filter(
-    (route) => route !== "/" && route !== "/archive",
-  );
   let informationalRoutesValidated = 0;
-  for (const publicRoute of publicInformationalRoutes) {
-    await collectFailure(failures, publicRoute, async () => {
-      const metadata = getRouteMetadata(publicRoute, publicCatalog);
-      const expectedTypes =
-        publicRoute === "/faq"
-          ? ["Organization", "WebSite", "FAQPage"]
-          : ["Organization", "WebSite", "WebPage"];
-      validateRoute(
-        publicRoute,
-        await readRoute(publicRoute),
-        siteUrl,
-        expectedTypes,
-        { metadata },
-      );
-      informationalRoutesValidated += 1;
-    });
-  }
-
   let productRoutesValidated = 0;
-  for (const artwork of publicCatalog) {
-    const productRoute = `/product/${encodeURIComponent(artwork.slug)}`;
-    await collectFailure(failures, productRoute, async () => {
+  for (const publicRoute of indexableRoutes) {
+    await collectFailure(failures, publicRoute, async () => {
       const metadata = getRouteMetadata(
-        productRoute,
+        publicRoute,
         publicCatalog,
         (candidate) => getArtworkGenres(candidate).map(displayGenreLabel),
       );
-      validateRoute(
-        productRoute,
-        await readRoute(productRoute),
-        siteUrl,
-        ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "Product"],
-        {
-          metadata,
-          artwork,
-        },
+      const expectedTypes = publicRoute === "/"
+        ? ["Organization", "WebSite", "CollectionPage", "ImageObject"]
+        : publicRoute === "/archive"
+          ? ["Organization", "WebSite", "CollectionPage", "ImageObject"]
+          : publicRoute === "/faq"
+            ? ["Organization", "WebSite", "FAQPage"]
+            : publicRoute.startsWith("/product/")
+              ? ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "Product"]
+              : ["Organization", "WebSite", "WebPage"];
+      const artwork = publicRoute.startsWith("/product/")
+        ? publicCatalog.find(
+            (candidate) =>
+              candidate.slug ===
+              decodeURIComponent(publicRoute.slice("/product/".length)),
+          )
+        : undefined;
+      check(
+        !publicRoute.startsWith("/product/") || artwork,
+        publicRoute,
+        "public route coverage",
+        "indexable product route has no matching public catalog artwork",
       );
-      productRoutesValidated += 1;
+      validateRoute(
+        publicRoute,
+        publicRoute === "/" ? homepage : await readRoute(publicRoute),
+        siteUrl,
+        expectedTypes,
+        { metadata, artwork },
+      );
+      if (artwork) {
+        productRoutesValidated += 1;
+      } else {
+        informationalRoutesValidated += 1;
+      }
     });
   }
+
   await collectFailure(failures, "robots.txt / sitemap.xml", () =>
     validateDiscoveryFiles(siteUrl),
   );
