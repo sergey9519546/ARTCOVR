@@ -6,7 +6,10 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with {
 };
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
-import { getRouteMetadata } from "../src/lib/artcovr/route-metadata";
+import {
+  getRouteMetadata,
+  getSocialPreviewMetadata,
+} from "../src/lib/artcovr/route-metadata";
 import {
   renderStaticRoute,
   renderStaticRouteMetadata,
@@ -81,6 +84,71 @@ function validateProductDocument(html: string, fixture = catalogFixture) {
     artwork: fixture.artwork,
   });
 }
+
+function decodeHtml(value: string) {
+  return value
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function readMeta(html: string, attribute: "name" | "property", key: string) {
+  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = html.match(
+    new RegExp(
+      `<meta ${attribute}="${escapedKey}" content="([^"]*)" \\/>`,
+    ),
+  );
+  assert.ok(match, `expected ${attribute}=${key} metadata`);
+  return decodeHtml(match[1]);
+}
+
+function readCanonical(html: string) {
+  const match = html.match(/<link rel="canonical" href="([^"]*)" \/>/);
+  assert.ok(match, "expected canonical metadata");
+  return decodeHtml(match[1]);
+}
+
+test("keeps interactive and static social previews equivalent for catalog products", () => {
+  for (const fixture of [catalogFixture, specialCharacterFixture]) {
+    const social = getSocialPreviewMetadata(fixture.metadata, siteUrl);
+    const generatedDocument = renderGeneratedProductDocument(fixture);
+    const expected = {
+      title: social.title,
+      description: social.description,
+      image: social.imageUrl,
+      canonical: social.canonical,
+    };
+
+    assert.deepEqual(
+      {
+        openGraph: {
+          title: readMeta(generatedDocument, "property", "og:title"),
+          description: readMeta(generatedDocument, "property", "og:description"),
+          image: readMeta(generatedDocument, "property", "og:image"),
+          canonical: readMeta(generatedDocument, "property", "og:url"),
+        },
+        twitter: {
+          title: readMeta(generatedDocument, "name", "twitter:title"),
+          description: readMeta(generatedDocument, "name", "twitter:description"),
+          image: readMeta(generatedDocument, "name", "twitter:image"),
+        },
+        canonical: readCanonical(generatedDocument),
+      },
+      {
+        openGraph: expected,
+        twitter: {
+          title: expected.title,
+          description: expected.description,
+          image: expected.image,
+        },
+        canonical: expected.canonical,
+      },
+    );
+  }
+});
 
 test("reports the product route and Open Graph signal when a generated tag is removed", () => {
   const generatedDocument = renderGeneratedProductDocument();

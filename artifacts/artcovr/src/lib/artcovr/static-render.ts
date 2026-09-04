@@ -6,6 +6,10 @@ import {
   combineStructuredData,
   serializeJsonLd,
 } from "./seo";
+import {
+  getSocialPreviewMetadata,
+  type RouteMetadata,
+} from "./route-metadata";
 
 export type StaticArtwork = {
   slug: string;
@@ -22,24 +26,10 @@ export type StaticArtwork = {
   tier?: "featured" | "archive";
 };
 
-type RouteRenderMetadata = {
-  title: string;
-  description: string;
-  path: string;
-  index: boolean;
-  image?: {
-    url: string;
-    alt: string;
-    width?: number;
-    height?: number;
-    type?: string;
-  };
-};
-
 type RenderContext = {
   artworks: readonly StaticArtwork[];
   siteUrl: string;
-  metadata: RouteRenderMetadata;
+  metadata: RouteMetadata;
   getGenres: (artwork: StaticArtwork) => readonly string[];
 };
 
@@ -74,47 +64,39 @@ function absoluteUrl(value: string, siteUrl: string) {
 }
 
 export function renderStaticRouteMetadata(
-  metadata: RouteRenderMetadata,
+  metadata: RouteMetadata,
   siteUrl: string,
   indexingDisabled: boolean,
 ) {
-  const canonical = absoluteUrl(metadata.path, siteUrl);
-  const imageUrl = absoluteUrl(metadata.image?.url ?? "/og-image.png", siteUrl);
-  const imageAlt = metadata.image?.alt ?? "ARTCOVR curated cover art";
-  const imageWidth = metadata.image?.width ?? 1200;
-  const imageHeight = metadata.image?.height ?? 630;
-  const imageType = metadata.image?.type ?? "image/png";
+  const social = getSocialPreviewMetadata(metadata, siteUrl);
   const robots =
     metadata.index && !indexingDisabled
       ? "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
       : "noindex, nofollow, noarchive";
-  const openGraphType = metadata.path.startsWith("/product/")
-    ? "product"
-    : "website";
 
   return `<!-- ARTCOVR_ROUTE_META_START -->
-    <title>${escapeHtml(metadata.title)}</title>
-    <meta name="description" content="${escapeHtml(metadata.description)}" />
+    <title>${escapeHtml(social.title)}</title>
+    <meta name="description" content="${escapeHtml(social.description)}" />
     <meta name="robots" content="${robots}" />
-    <meta property="og:title" content="${escapeHtml(metadata.title)}" />
-    <meta property="og:description" content="${escapeHtml(metadata.description)}" />
-    <meta property="og:type" content="${openGraphType}" />
+    <meta property="og:title" content="${escapeHtml(social.title)}" />
+    <meta property="og:description" content="${escapeHtml(social.description)}" />
+    <meta property="og:type" content="${social.openGraphType}" />
     <meta property="og:site_name" content="ARTCOVR" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:url" content="${escapeHtml(canonical)}" />
-    <meta property="og:image" content="${escapeHtml(imageUrl)}" />
-    <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}" />
-    <meta property="og:image:alt" content="${escapeHtml(imageAlt)}" />
-    <meta property="og:image:width" content="${imageWidth}" />
-    <meta property="og:image:height" content="${imageHeight}" />
-    <meta property="og:image:type" content="${escapeHtml(imageType)}" />
+    <meta property="og:url" content="${escapeHtml(social.canonical)}" />
+    <meta property="og:image" content="${escapeHtml(social.imageUrl)}" />
+    <meta property="og:image:secure_url" content="${escapeHtml(social.imageUrl)}" />
+    <meta property="og:image:alt" content="${escapeHtml(social.imageAlt)}" />
+    <meta property="og:image:width" content="${social.imageWidth}" />
+    <meta property="og:image:height" content="${social.imageHeight}" />
+    <meta property="og:image:type" content="${escapeHtml(social.imageType)}" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${escapeHtml(metadata.title)}" />
-    <meta name="twitter:description" content="${escapeHtml(metadata.description)}" />
-    <meta name="twitter:image" content="${escapeHtml(imageUrl)}" />
-    <meta name="twitter:image:alt" content="${escapeHtml(imageAlt)}" />
-    <link rel="image_src" href="${escapeHtml(imageUrl)}" />
-    <link rel="canonical" href="${escapeHtml(canonical)}" />
+    <meta name="twitter:title" content="${escapeHtml(social.title)}" />
+    <meta name="twitter:description" content="${escapeHtml(social.description)}" />
+    <meta name="twitter:image" content="${escapeHtml(social.imageUrl)}" />
+    <meta name="twitter:image:alt" content="${escapeHtml(social.imageAlt)}" />
+    <link rel="image_src" href="${escapeHtml(social.imageUrl)}" />
+    <link rel="canonical" href="${escapeHtml(social.canonical)}" />
     <!-- ARTCOVR_ROUTE_META_END -->`;
 }
 
