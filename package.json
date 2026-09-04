@@ -12,7 +12,8 @@
     "verify:ci": "pnpm run typecheck && pnpm run test",
     "verify:release": "pnpm run verify:ci && pnpm run test:e2e && pnpm --filter @workspace/scripts run verify:runtime-contract",
     "verify:live-release": "pnpm --filter @workspace/scripts run verify:live-release",
-    "verify:database": "bash scripts/db/verify-database.sh"
+    "verify:database": "bash scripts/db/verify-database.sh",
+    "db:migrate": "pnpm --filter @workspace/db run migrate"
   },
   "private": true,
   "dependencies": {
