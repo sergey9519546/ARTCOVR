@@ -67,6 +67,7 @@ export default function ProductPage() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1.45fr_.55fr] lg:gap-14">
           <figure className="artcovr-plate relative aspect-square overflow-hidden">
             <Image src={art.image} alt={art.alt} fill preload loading="eager" sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover" />
+            <figcaption className="sr-only">{art.alt}</figcaption>
           </figure>
 
           <section aria-labelledby="license-summary" className="lg:sticky lg:top-24 lg:self-start">

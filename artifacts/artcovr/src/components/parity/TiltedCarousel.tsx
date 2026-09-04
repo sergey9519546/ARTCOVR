@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
@@ -294,7 +295,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
               aria-label={`Open ${item.title}`}
             >
               <div className="h-full w-full overflow-hidden">
-                <img
+                <Image
                   src={item.src}
                   alt={item.alt}
                   className="h-full w-full object-cover"
@@ -372,7 +373,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
               aria-label={`Open ${item.title}`}
             >
               <div className="h-full w-full overflow-hidden">
-                <img
+                <Image
                   src={item.src}
                   alt={item.alt}
                   className="h-full w-full object-cover"

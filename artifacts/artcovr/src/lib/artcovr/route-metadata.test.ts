@@ -19,7 +19,13 @@ describe("route metadata", () => {
     assert.match(metadata.description, new RegExp(artwork.title));
     assert.equal(metadata.index, false);
     assert.equal(metadata.path, `/checkout/${artwork.slug}`);
-    assert.deepEqual(metadata.image, { url: artwork.image, alt: artwork.alt });
+    assert.deepEqual(metadata.image, {
+      url: artwork.image,
+      alt: artwork.alt,
+      width: 1200,
+      height: 1200,
+      type: "image/jpeg",
+    });
   });
 
   test("keeps invalid checkout slugs intentionally not found", () => {

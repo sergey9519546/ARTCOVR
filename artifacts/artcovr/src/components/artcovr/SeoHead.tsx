@@ -45,6 +45,17 @@ function updateCanonical(href: string) {
   link.href = href;
 }
 
+function updateImageSource(href: string) {
+  let link = document.head.querySelector<HTMLLinkElement>('link[rel="image_src"]');
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "image_src";
+    link.dataset.artcovrSeo = "true";
+    document.head.appendChild(link);
+  }
+  link.href = href;
+}
+
 export function SeoHead() {
   const [location] = useLocation();
 
@@ -88,13 +99,18 @@ export function SeoHead() {
     upsertMeta("property", "og:locale", "en_US");
     upsertMeta("property", "og:type", metadata.path.startsWith("/product/") ? "product" : "website");
     upsertMeta("property", "og:image", imageUrl);
+    upsertMeta("property", "og:image:secure_url", imageUrl);
     upsertMeta("property", "og:image:alt", imageAlt);
+    upsertMeta("property", "og:image:width", String(metadata.image?.width ?? 1200));
+    upsertMeta("property", "og:image:height", String(metadata.image?.height ?? 630));
+    upsertMeta("property", "og:image:type", metadata.image?.type ?? "image/png");
     upsertMeta("name", "twitter:card", "summary_large_image");
     upsertMeta("name", "twitter:title", metadata.title);
     upsertMeta("name", "twitter:description", metadata.description);
     upsertMeta("name", "twitter:image", imageUrl);
     upsertMeta("name", "twitter:image:alt", imageAlt);
     updateCanonical(canonical);
+    updateImageSource(imageUrl);
   }, [location]);
 
   return null;

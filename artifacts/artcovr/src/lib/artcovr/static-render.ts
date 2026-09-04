@@ -1,4 +1,5 @@
 import {
+  buildArtworkCollectionStructuredData,
   buildArtworkStructuredData,
   buildFaqStructuredData,
   buildOrganizationStructuredData,
@@ -17,6 +18,7 @@ export type StaticArtwork = {
   saleMode: "exclusive" | "repeatable" | null;
   rightsApproved: boolean;
   published: boolean;
+  tier?: "featured" | "archive";
 };
 
 type RouteRenderMetadata = {
@@ -24,7 +26,13 @@ type RouteRenderMetadata = {
   description: string;
   path: string;
   index: boolean;
-  image?: { url: string; alt: string };
+  image?: {
+    url: string;
+    alt: string;
+    width?: number;
+    height?: number;
+    type?: string;
+  };
 };
 
 type RenderContext = {
@@ -305,7 +313,19 @@ function renderNotFound() {
 }
 
 function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: RenderContext) {
-  if (metadata.path === "/") return buildOrganizationStructuredData(siteUrl);
+  if (metadata.path === "/") {
+    const featured = artworks.filter((artwork) => artwork.tier !== "archive");
+    const organization = buildOrganizationStructuredData(siteUrl);
+    const gallery = buildArtworkCollectionStructuredData(featured, siteUrl, {
+      path: "/",
+      name: "ARTCOVR curated cover art",
+      description: metadata.description,
+    });
+    return {
+      "@context": "https://schema.org",
+      "@graph": [...organization["@graph"], ...gallery["@graph"]],
+    };
+  }
   if (metadata.path === "/faq") {
     return buildFaqStructuredData(
       FAQ_QUESTIONS.map(([question, answer]) => ({ question, answer })),
@@ -313,25 +333,11 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
     );
   }
   if (metadata.path === "/archive") {
-    const archiveUrl = absoluteUrl("/archive", siteUrl);
-    return {
-      "@context": "https://schema.org",
-      "@type": ["CollectionPage", "WebPage"],
-      "@id": `${archiveUrl}#collection`,
+    return buildArtworkCollectionStructuredData(artworks, siteUrl, {
+      path: "/archive",
       name: "ARTCOVR cover art archive",
       description: metadata.description,
-      mainEntity: {
-        "@type": "ItemList",
-        numberOfItems: artworks.length,
-        itemListElement: artworks.map((artwork, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          name: artwork.title,
-          image: absoluteUrl(artwork.image, siteUrl),
-          url: absoluteUrl(`/product/${encodeURIComponent(artwork.slug)}`, siteUrl),
-        })),
-      },
-    };
+    });
   }
   if (metadata.path.startsWith("/product/")) {
     const slug = metadata.path.slice("/product/".length);
