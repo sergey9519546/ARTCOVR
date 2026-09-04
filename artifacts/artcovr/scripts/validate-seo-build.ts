@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import curatedPublic from "../src/lib/artcovr/curated-public.json" with { type: "json" };
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
@@ -196,7 +197,7 @@ function validateStructuredData(
   );
 }
 
-function validateRoute(
+export function validateRoute(
   route: string,
   html: string,
   siteUrl: string,
@@ -670,4 +671,10 @@ async function main() {
   );
 }
 
-await main();
+const isDirectExecution =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+
+if (isDirectExecution) {
+  await main();
+}
