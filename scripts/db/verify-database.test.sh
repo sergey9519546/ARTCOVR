@@ -70,6 +70,22 @@ apply_application_schema() {
   done
 }
 
+seed_current_migration_history() {
+  psql "$test_database_url" -X -v ON_ERROR_STOP=1 <<SQL >/dev/null
+create schema drizzle;
+create table drizzle.__drizzle_migrations (
+  id serial primary key,
+  hash text not null,
+  created_at bigint
+);
+SQL
+  for migration_file in "${migration_files[@]}"; do
+    migration_hash="$(sha256sum "$migration_file" | awk '{print $1}')"
+    psql "$test_database_url" -X -v ON_ERROR_STOP=1 -c \
+      "insert into drizzle.__drizzle_migrations (hash, created_at) values ('$migration_hash', 1788563032328)" >/dev/null
+  done
+}
+
 run_verifier() {
   local database_url="$1"
   set +e
@@ -112,19 +128,7 @@ assert_output_absent() {
 # required commerce tables.
 create_database
 apply_application_schema
-psql "$test_database_url" -X -v ON_ERROR_STOP=1 <<SQL >/dev/null
-create schema drizzle;
-create table drizzle.__drizzle_migrations (
-  id serial primary key,
-  hash text not null,
-  created_at bigint
-);
-SQL
-for migration_file in "${migration_files[@]}"; do
-  migration_hash="$(sha256sum "$migration_file" | awk '{print $1}')"
-  psql "$test_database_url" -X -v ON_ERROR_STOP=1 -c \
-    "insert into drizzle.__drizzle_migrations (hash, created_at) values ('$migration_hash', 1788563032328)" >/dev/null
-done
+seed_current_migration_history
 run_verifier "$test_database_url"
 assert_status "healthy" 0
 assert_output "healthy" "DB OK: reachable, migration history is current, and required commerce tables are present; no writes performed."
@@ -145,6 +149,18 @@ assert_status "missing migration history" 11
 assert_output "missing migration history" "DB SCHEMA DRIFT: Drizzle migration history is missing or unreadable."
 assert_output "missing migration history" "For an existing development schema only, run NODE_ENV=development pnpm run db:baseline once."
 assert_output_absent "missing migration history" "DB OUTAGE:"
+
+# Missing commerce table: a reachable database with current migration history
+# must still fail the release check with actionable schema drift.
+create_database
+apply_application_schema
+seed_current_migration_history
+psql "$test_database_url" -X -v ON_ERROR_STOP=1 -c \
+  "drop table artcovr_webhook_events" >/dev/null
+run_verifier "$test_database_url"
+assert_status "missing commerce table" 11
+assert_output "missing commerce table" "DB SCHEMA DRIFT: required commerce tables are missing."
+assert_output_absent "missing commerce table" "DB OUTAGE:"
 
 # Mismatched hash: a history table with stale repository state is a distinct
 # drift classification and reports both expected and observed counts.
@@ -171,4 +187,4 @@ assert_output "mismatched hash" "DB SCHEMA DRIFT: applied migration history does
 assert_output "mismatched hash" "Expected $migration_count migration(s); found $migration_count."
 assert_output_absent "mismatched hash" "DB OUTAGE:"
 
-echo "Database verifier contract tests passed: healthy, outage, missing history, and mismatched hash."
+echo "Database verifier contract tests passed: healthy, outage, missing history, missing commerce table, and mismatched hash."
