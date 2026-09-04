@@ -1,16 +1,16 @@
 import { expect, test } from "@playwright/test";
-import { assertUsablePage } from "./fixtures";
+import { assertUsablePage, useDeterministicSignIn } from "./fixtures";
 
 const routes = [
   {
     path: "/",
-    title: "ARTCOVR | Curated Cover Art",
+    title: "Curated Cover Art for Music Releases and Artists | ARTCOVR",
     robots: "index, follow",
     selector: "#hero-title",
   },
   {
     path: "/archive",
-    title: "Cover Art Archive | ARTCOVR",
+    title: "Curated Cover Art Archive for Music Releases | ARTCOVR",
     robots: "index, follow",
     selector: 'section[aria-label="Artwork archive"]',
   },
@@ -78,6 +78,15 @@ test("protected account routes preserve the requested destination", async ({
   await expect(page).toHaveURL(
     /\/sign-in\?redirect_url=%2Fcatalog-intelligence/,
   );
+});
+
+test("the signed-in ARTCOVR mark returns to the homepage", async ({ page }) => {
+  await useDeterministicSignIn(page);
+  await page.goto("/my-images", { waitUntil: "domcontentloaded" });
+
+  await page.getByRole("link", { name: "ARTCOVR home" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("#hero-title")).toBeVisible();
 });
 
 test("product review moves into checkout without a blank transition", async ({
