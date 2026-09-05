@@ -11,6 +11,7 @@ import {
   type AccountPurchase,
   type GenerationRequest,
 } from "@/lib/artcovr/functions";
+import { trackEvent } from "@/lib/artcovr/analytics";
 
 type Props = {
   artwork: Artwork;
@@ -54,6 +55,7 @@ export function PurchasedGenerationStudio({
   const pendingPrompt = useRef("");
   const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
   const pendingStyleMode = useRef<"exact" | "expand">("exact");
+  const generationStartedAt = useRef<number | undefined>(undefined);
   const resetRequested = useRef(false);
   const [coverTitle, setCoverTitle] = useState(purchase.artworkTitle);
   const [coverArtist, setCoverArtist] = useState("");
@@ -122,6 +124,14 @@ export function PurchasedGenerationStudio({
             setResultIsGenerated(true);
             setMessage("Generated image ready. Your next prompt will build from this result.");
             setPhase("complete");
+            trackEvent("generation_succeeded", {
+              artwork_slug: artwork.slug,
+              surface: "purchased",
+              duration_ms: Math.max(
+                0,
+                Date.now() - (generationStartedAt.current ?? Date.now()),
+              ),
+            });
             await onGenerationCompleted();
             return;
           }
@@ -130,6 +140,11 @@ export function PurchasedGenerationStudio({
             status.status === "failed" ||
             status.status === "timed_out"
           ) {
+            trackEvent("generation_failed", {
+              artwork_slug: artwork.slug,
+              surface: "purchased",
+              status: status.status,
+            });
             setMessage(terminalMessage(status.status));
             setPhase("error");
             return;
@@ -164,6 +179,14 @@ export function PurchasedGenerationStudio({
         ? { ...(title ? { title } : {}), ...(artistName ? { artistName } : {}) }
         : undefined;
     pendingStyleMode.current = styleMode;
+    generationStartedAt.current = Date.now();
+    trackEvent("generation_requested", {
+      artwork_slug: artwork.slug,
+      surface: "purchased",
+      style_mode: styleMode,
+      chained: Boolean(currentResultId.current) && !resetRequested.current,
+      has_cover_text: Boolean(title || artistName),
+    });
     jobId.current = undefined;
     setMessage(
       resetRequested.current

@@ -12,6 +12,7 @@ import {
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { hybridSearch } from "@/lib/artcovr/semantic-search";
 import { buildCatalogFacetIndex } from "@/lib/artcovr/catalog-intelligence";
+import { trackEvent } from "@/lib/artcovr/analytics";
 
 export function ArchiveSearch({ items }: { items: Artwork[] }) {
   const [query, setQuery] = useState(() => {
@@ -56,6 +57,19 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     return applyCatalogView(textMatched, view, orderIndex, facetIndex);
   }, [items, query, view, orderIndex, facetIndex]);
   const hasActiveSearch = query.length > 0 || Object.values(view).some(Boolean);
+
+  useEffect(() => {
+    if (!hasActiveSearch) return;
+    const timer = window.setTimeout(() => {
+      trackEvent("archive_filtered", {
+        query_length: query.trim().length,
+        genre: view.genre ?? "all",
+        color: view.color ?? "all",
+        result_count: filteredItems.length,
+      });
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [filteredItems.length, hasActiveSearch, query, view.color, view.genre]);
 
   return (
     <>

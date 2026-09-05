@@ -11,6 +11,7 @@ import {
   includedCreditsPerCover,
   isCheckoutReady,
 } from "@/lib/artcovr/artworks";
+import { trackEvent } from "@/lib/artcovr/analytics";
 import {
   shouldRotateCheckoutIdempotencyKey as shouldRotateCheckoutKey,
 } from "@/lib/artcovr/checkout-errors";
@@ -89,6 +90,13 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
         selectedPreviewId,
         isSignedIn ? undefined : guestEmail.trim().toLowerCase(),
       );
+      trackEvent("checkout_started", {
+        artwork_slug: artwork.slug,
+        sale_mode: artwork.saleMode ?? "unknown",
+        signed_in: isSignedIn,
+        price_cents: artwork.priceCents ?? 0,
+        has_selected_preview: Boolean(selectedPreviewId),
+      });
       window.location.assign(checkoutUrl);
     } catch (reason) {
       if (shouldRotateCheckoutKey(reason)) {

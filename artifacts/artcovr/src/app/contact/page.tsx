@@ -5,6 +5,7 @@ import { type FormEvent, useState } from "react";
 import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import { PublicPage } from "@/components/artcovr/PublicPage";
 import { ArtcovrApiError, submitInquiry } from "@/lib/artcovr/functions";
+import { trackEvent } from "@/lib/artcovr/analytics";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -22,6 +23,7 @@ export default function ContactPage() {
 
     try {
       await submitInquiry(String(form.get("name") || ""), String(form.get("message") || ""));
+      trackEvent("inquiry_submitted", { surface: "contact_page" });
       setSent(true);
     } catch (reason) {
       setNeedsSignIn(reason instanceof ArtcovrApiError && reason.code === "unauthorized");
