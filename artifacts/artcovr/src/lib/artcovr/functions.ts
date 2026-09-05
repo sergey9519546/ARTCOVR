@@ -79,6 +79,8 @@ export type AccountPurchase = {
   resetSource: "original";
   accessRevokedAt: string | null;
   accessRevocationReason: string | null;
+  includedCredits: number;
+  remainingCredits: number;
   remainingGenerations: number;
 };
 
@@ -105,6 +107,7 @@ export type AccountDownload = {
 };
 
 export type AccountData = {
+  totalCreditBalance: number;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];

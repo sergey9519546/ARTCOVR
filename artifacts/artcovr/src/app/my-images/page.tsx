@@ -21,7 +21,12 @@ function formatDate(value: string | null) {
 
 export default function MyImagesPage() {
   const [state, setState] = useState<"loading" | "signed-out" | "ready" | "error">("loading");
-  const [data, setData] = useState<AccountData>({ purchases: [], generations: [], downloads: [] });
+  const [data, setData] = useState<AccountData>({
+    totalCreditBalance: 0,
+    purchases: [],
+    generations: [],
+    downloads: [],
+  });
   const [message, setMessage] = useState("");
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
@@ -149,6 +154,12 @@ export default function MyImagesPage() {
           </Link>
         </section>
       )}
+      {state === "ready" && data.purchases.length > 0 && (
+        <p className="mb-10 border-y border-current/20 py-4 text-sm">
+          <span className="font-bold">{data.totalCreditBalance}</span>{" "}
+          image-edit credit{data.totalCreditBalance === 1 ? "" : "s"} available across your purchases.
+        </p>
+      )}
       {state === "ready" && data.purchases.map((purchase) => {
         const purchaseGenerations = data.generations.filter((generation) => generation.purchaseId === purchase.id);
         const downloads = data.downloads.filter((download) => download.purchaseId === purchase.id);
@@ -191,7 +202,7 @@ export default function MyImagesPage() {
               {artwork && <Link href={`/product/${purchase.artworkSlug}`} className="link-hover text-xs font-bold uppercase tracking-[.08em]">View artwork</Link>}
             </div>
             <dl className="mt-6 grid gap-4 border-y border-current/20 py-5 text-sm sm:grid-cols-3">
-              <div><dt className="opacity-60">Generations remaining</dt><dd className="mt-1 font-bold">{purchase.remainingGenerations}</dd></div>
+              <div><dt className="opacity-60">Credits remaining</dt><dd className="mt-1 font-bold">{purchase.remainingCredits}</dd></div>
               <div><dt className="opacity-60">Access expires</dt><dd className="mt-1 font-bold">{formatDate(purchase.entitlementExpiresAt)}</dd></div>
               <div><dt className="opacity-60">Paid</dt><dd className="mt-1 font-bold">{purchase.paidAt ? `${(purchase.amountCents / 100).toLocaleString("en-US", { style: "currency", currency: purchase.currency })} · ${formatDate(purchase.paidAt)}` : "—"}</dd></div>
             </dl>
