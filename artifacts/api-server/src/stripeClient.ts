@@ -19,6 +19,44 @@ export class StripeProxyError extends Error {
   }
 }
 
+export function expectedStripeLivemode(
+  env: Record<string, string | undefined> = process.env,
+) {
+  return env.NODE_ENV === "production";
+}
+
+export class StripeCheckoutModeError extends Error {
+  readonly code = "stripe_checkout_mode_mismatch";
+  readonly sessionId: string;
+  readonly expectedLivemode: boolean;
+  readonly actualLivemode: boolean;
+
+  constructor(
+    session: Pick<Stripe.Checkout.Session, "id" | "livemode">,
+    expectedLivemode: boolean,
+  ) {
+    const expectedMode = expectedLivemode ? "live" : "test";
+    const actualMode = session.livemode ? "live" : "test";
+    super(
+      `Stripe checkout session ${session.id} is in ${actualMode} mode; expected ${expectedMode} mode.`,
+    );
+    this.name = "StripeCheckoutModeError";
+    this.sessionId = session.id;
+    this.expectedLivemode = expectedLivemode;
+    this.actualLivemode = session.livemode;
+  }
+}
+
+export function validateCheckoutSessionMode(
+  session: Stripe.Checkout.Session,
+  expectedLivemode = expectedStripeLivemode(),
+) {
+  if (session.livemode !== expectedLivemode) {
+    throw new StripeCheckoutModeError(session, expectedLivemode);
+  }
+  return session;
+}
+
 async function stripeRequest<T>(
   path: string,
   options: StripeRequestOptions = {},
@@ -267,11 +305,15 @@ export async function createCheckoutSession(
   for (const [key, value] of Object.entries(input.metadata)) {
     form.set(`metadata[${key}]`, value);
   }
-  return stripeRequest<Stripe.Checkout.Session>("/v1/checkout/sessions", {
-    method: "POST",
-    form,
-    idempotencyKey,
-  });
+  const session = await stripeRequest<Stripe.Checkout.Session>(
+    "/v1/checkout/sessions",
+    {
+      method: "POST",
+      form,
+      idempotencyKey,
+    },
+  );
+  return validateCheckoutSessionMode(session);
 }
 
 export async function refundPaymentIntent(

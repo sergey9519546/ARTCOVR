@@ -15,6 +15,7 @@ import { getStripePriceForArtwork, StripeCatalogError } from "../stripeService";
 import {
   createCheckoutSession,
   retrieveCheckoutSession,
+  StripeCheckoutModeError,
 } from "../stripeClient";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
 
@@ -254,15 +255,33 @@ router.post("/checkout", async (req, res): Promise<void> => {
       .set({ status: "expired" })
       .where(and(eq(artcovrOrders.id, order.id), eq(artcovrOrders.status, "reserved")));
 
+    const modeMismatch = error instanceof StripeCheckoutModeError;
     const code =
       error instanceof StripeCatalogError
         ? error.code
-        : "stripe_checkout_failed";
+        : modeMismatch
+          ? error.code
+          : "stripe_checkout_failed";
     const message =
       error instanceof StripeCatalogError
         ? "This cover is not fully configured for checkout yet."
         : "Stripe could not open checkout. Please try again.";
-    logger.error({ err: error, orderId: order.id, code }, "ARTCOVR checkout failed");
+    logger.error(
+      {
+        err: error,
+        orderId: order.id,
+        code,
+        ...(modeMismatch
+          ? {
+              diagnosis: "stripe_checkout_mode_mismatch",
+              stripeCheckoutSessionId: error.sessionId,
+              expectedLivemode: error.expectedLivemode,
+              actualLivemode: error.actualLivemode,
+            }
+          : {}),
+      },
+      "ARTCOVR checkout failed",
+    );
     res.status(error instanceof StripeCatalogError ? 503 : 502).json({ code, message });
   }
 });
