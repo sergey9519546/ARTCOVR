@@ -39,9 +39,9 @@ test("guest checkout validates email and surfaces a service failure", async ({
 
   await guest.getByLabel("Email for receipt").fill("buyer@example.test");
   await checkout.click();
-  await expect(page.getByRole("alert").getByText(
+  await expect(page.getByRole("alert")).toHaveText(
     "That exclusive cover has already been reserved or sold.",
-  )).toBeVisible();
+  );
   await expect(checkout).toBeEnabled();
   await expect(page.getByRole("button", { name: "Try checkout again" })).toBeEnabled();
   await page.getByRole("button", { name: "Try checkout again" }).click();

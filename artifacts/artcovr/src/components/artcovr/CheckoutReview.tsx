@@ -205,8 +205,8 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
             </button>
           )}
           {error && (
-            <div role="alert" className="mt-4 border-l-2 border-[#a11212] pl-4 text-sm text-[#a11212] dark:border-[#ff6b6b] dark:text-[#ff6b6b]">
-              <p>{error}</p>
+            <div className="mt-4 border-l-2 border-[#a11212] pl-4 text-sm text-[#a11212] dark:border-[#ff6b6b] dark:text-[#ff6b6b]">
+              <p role="alert">{error}</p>
               <button
                 type="button"
                 onClick={() => void continueToCheckout()}
