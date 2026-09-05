@@ -36,6 +36,17 @@ test("production configuration rejects development Clerk keys", () => {
   );
 });
 
+test("production configuration rejects malformed Clerk keys", () => {
+  assert.throws(
+    () =>
+      validateProductionEnvironment({
+        ...requiredProductionEnvironment,
+        CLERK_PUBLISHABLE_KEY: "malformed_example",
+      }),
+    /cannot use a development Clerk publishable key/,
+  );
+});
+
 test("production configuration accepts complete live credentials", () => {
   assert.doesNotThrow(() =>
     validateProductionEnvironment(requiredProductionEnvironment),

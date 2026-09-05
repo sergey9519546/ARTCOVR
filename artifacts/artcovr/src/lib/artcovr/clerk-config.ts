@@ -9,7 +9,7 @@ export function assertProductionClerkKey(key: string | undefined) {
     );
   }
 
-  if (isDevelopmentClerkKey(key)) {
+  if (!key.trim().startsWith("pk_live_")) {
     throw new Error(
       "Production builds require a live Clerk publishable key, not a development key.",
     );
