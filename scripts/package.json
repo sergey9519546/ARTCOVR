@@ -8,6 +8,7 @@
     "seed:artcovr-products": "tsx ./src/seed-products.ts",
     "verify:runtime-contract": "node ./release/verify-runtime-contract.mjs",
     "verify:live-release": "node ./release/verify-live-release.mjs",
+    "verify:stripe-reconciliation": "node ./release/verify-stripe-reconciliation.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {

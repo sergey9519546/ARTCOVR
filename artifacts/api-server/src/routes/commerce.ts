@@ -1,9 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { getAuth } from "@clerk/express";
-import { Router, type IRouter } from "express";
-import { and, eq, inArray } from "drizzle-orm";
+import {
+  Router,
+  type IRouter,
+  type RequestHandler,
+} from "express";
+import { and, eq, gt, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { artcovrOrders, db } from "@workspace/db";
+import { artcovrGenerations, artcovrOrders, db } from "@workspace/db";
 import { getPublicArtworkById } from "../catalog";
 import {
   checkoutReservationMs,
@@ -15,6 +19,7 @@ import { getStripePriceForArtwork, StripeCatalogError } from "../stripeService";
 import {
   createCheckoutSession,
   retrieveCheckoutSession,
+  StripeCheckoutModeError,
 } from "../stripeClient";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
 
@@ -28,6 +33,33 @@ const checkoutBody = z.object({
 
 const exclusiveInventoryStatuses = ["reserved", "paid"] as const;
 
+type CheckoutFailureDetails = {
+  err: unknown;
+  orderId: string;
+  code: string;
+  diagnosis?: string;
+  stripeCheckoutSessionId?: string;
+  expectedLivemode?: boolean;
+  actualLivemode?: boolean;
+};
+
+type CheckoutRouteDependencies = {
+  getStripePriceForArtwork: typeof getStripePriceForArtwork;
+  createCheckoutSession: typeof createCheckoutSession;
+  retrieveCheckoutSession: typeof retrieveCheckoutSession;
+  logCheckoutFailure: (
+    details: CheckoutFailureDetails,
+    message: string,
+  ) => void;
+};
+
+const defaultCheckoutRouteDependencies: CheckoutRouteDependencies = {
+  getStripePriceForArtwork,
+  createCheckoutSession,
+  retrieveCheckoutSession,
+  logCheckoutFailure: (details, message) => logger.error(details, message),
+};
+
 export function checkoutReturnUrls(artworkSlug: string, publicOrigin: string) {
   const origin = getTrustedPublicOrigin({ ARTCOVR_PUBLIC_ORIGIN: publicOrigin });
   return {
@@ -36,7 +68,15 @@ export function checkoutReturnUrls(artworkSlug: string, publicOrigin: string) {
   };
 }
 
-router.post("/checkout", async (req, res): Promise<void> => {
+export function createCheckoutHandler(
+  overrides: Partial<CheckoutRouteDependencies> = {},
+): RequestHandler {
+  const dependencies = {
+    ...defaultCheckoutRouteDependencies,
+    ...overrides,
+  };
+
+  return async (req, res): Promise<void> => {
   const clerkUserId = getAuth(req).userId ?? null;
   const parsed = checkoutBody.safeParse(req.body);
   if (!parsed.success) {
@@ -64,6 +104,41 @@ router.post("/checkout", async (req, res): Promise<void> => {
     return;
   }
 
+  const selectedPreviewId = parsed.data.selectedPreviewId ?? null;
+  if (selectedPreviewId) {
+    if (!clerkUserId) {
+      res.status(403).json({
+        code: "selected_preview_not_eligible",
+        message: "That preview is not eligible for this checkout.",
+      });
+      return;
+    }
+
+    const [selectedPreview] = await db
+      .select({ id: artcovrGenerations.id })
+      .from(artcovrGenerations)
+      .where(
+        and(
+          eq(artcovrGenerations.id, selectedPreviewId),
+          eq(artcovrGenerations.clerkUserId, clerkUserId),
+          eq(artcovrGenerations.artworkId, artwork.id),
+          eq(artcovrGenerations.phase, "preview"),
+          eq(artcovrGenerations.status, "succeeded"),
+          isNull(artcovrGenerations.purchaseId),
+          gt(artcovrGenerations.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    if (!selectedPreview) {
+      res.status(403).json({
+        code: "selected_preview_not_eligible",
+        message: "That preview is not eligible for this checkout.",
+      });
+      return;
+    }
+  }
+
   if (artwork.saleMode === "exclusive") {
     await expireStaleExclusiveReservations(artwork.id);
   }
@@ -80,7 +155,8 @@ router.post("/checkout", async (req, res): Promise<void> => {
   if (existingOrder) {
     if (
       existingOrder.artworkId !== artwork.id ||
-      existingOrder.amountCents !== artwork.priceCents
+      existingOrder.amountCents !== artwork.priceCents ||
+      existingOrder.selectedPreviewId !== selectedPreviewId
     ) {
       res.status(409).json({
         code: "idempotency_conflict",
@@ -98,7 +174,7 @@ router.post("/checkout", async (req, res): Promise<void> => {
     }
 
     if (existingOrder.stripeCheckoutSessionId) {
-      const session = await retrieveCheckoutSession(
+      const session = await dependencies.retrieveCheckoutSession(
         existingOrder.stripeCheckoutSessionId,
       );
       if (session.url) {
@@ -132,7 +208,7 @@ router.post("/checkout", async (req, res): Promise<void> => {
     artworkSlug: artwork.slug,
     amountCents: artwork.priceCents,
     saleMode: artwork.saleMode,
-    selectedPreviewId: parsed.data.selectedPreviewId ?? undefined,
+    selectedPreviewId: selectedPreviewId ?? undefined,
     idempotencyKey: parsed.data.idempotencyKey,
     reservationExpiresAt,
   });
@@ -173,12 +249,12 @@ router.post("/checkout", async (req, res): Promise<void> => {
   }
 
   try {
-    const price = await getStripePriceForArtwork(artwork);
+    const price = await dependencies.getStripePriceForArtwork(artwork);
     const returnUrls = checkoutReturnUrls(
       artwork.slug,
       getTrustedPublicOrigin(),
     );
-    const session = await createCheckoutSession(
+    const session = await dependencies.createCheckoutSession(
       {
         orderId: order.id,
         priceId: price.id,
@@ -218,17 +294,38 @@ router.post("/checkout", async (req, res): Promise<void> => {
       .set({ status: "expired" })
       .where(and(eq(artcovrOrders.id, order.id), eq(artcovrOrders.status, "reserved")));
 
+    const modeMismatch = error instanceof StripeCheckoutModeError;
     const code =
       error instanceof StripeCatalogError
         ? error.code
-        : "stripe_checkout_failed";
+        : modeMismatch
+          ? error.code
+          : "stripe_checkout_failed";
     const message =
       error instanceof StripeCatalogError
         ? "This cover is not fully configured for checkout yet."
         : "Stripe could not open checkout. Please try again.";
-    logger.error({ err: error, orderId: order.id, code }, "ARTCOVR checkout failed");
+    dependencies.logCheckoutFailure(
+      {
+        err: error,
+        orderId: order.id,
+        code,
+        ...(modeMismatch
+          ? {
+              diagnosis: "stripe_checkout_mode_mismatch",
+              stripeCheckoutSessionId: error.sessionId,
+              expectedLivemode: error.expectedLivemode,
+              actualLivemode: error.actualLivemode,
+            }
+          : {}),
+      },
+      "ARTCOVR checkout failed",
+    );
     res.status(error instanceof StripeCatalogError ? 503 : 502).json({ code, message });
   }
-});
+  };
+}
+
+router.post("/checkout", createCheckoutHandler());
 
 export default router;

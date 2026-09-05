@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { createServer } from "node:http";
 import test from "node:test";
+import express from "express";
 import type Stripe from "stripe";
 import { and, eq, inArray } from "drizzle-orm";
 import {
@@ -16,7 +18,12 @@ import {
   expireStaleExclusiveReservations,
   fulfillCheckoutSession,
 } from "./commerceService";
-import { checkoutReturnUrls } from "./routes/commerce";
+import {
+  checkoutReturnUrls,
+  createCheckoutHandler,
+} from "./routes/commerce";
+import { getPublicCatalog } from "./catalog";
+import { StripeCheckoutModeError } from "./stripeClient";
 
 function orderValues(input: {
   id: string;
@@ -68,6 +75,114 @@ test("checkout return URLs use the configured public origin, never a forwarded h
     "https://artcovr.example/checkout/midnight-cover?status=cancelled",
   );
   assert.equal(urls.successUrl.includes("forwarded"), false);
+});
+
+test("a checkout mode mismatch preserves an expired, unpaid order and emits a diagnosis", async () => {
+  const artwork = getPublicCatalog().find(
+    (candidate) => candidate.saleMode === "repeatable",
+  );
+  assert.ok(artwork);
+  const idempotencyKey = randomUUID();
+  const rejectedSessionId = `cs_test_rejected_${idempotencyKey}`;
+  const diagnoses: Array<Record<string, unknown>> = [];
+  const testApp = express();
+  testApp.use(express.json());
+  testApp.use((req, _res, next) => {
+    const auth = Object.assign(
+      () => ({ userId: null, tokenType: "session_token" }),
+      { [Symbol.for("@clerk/express.auth")]: true },
+    );
+    (req as unknown as { auth: typeof auth }).auth = auth;
+    next();
+  });
+  testApp.post(
+    "/checkout",
+    createCheckoutHandler({
+      getStripePriceForArtwork: async () =>
+        ({ id: "price_test_mode_guard" }) as Stripe.Price,
+      retrieveCheckoutSession: async () => {
+        throw new Error("A new checkout must not retrieve an existing session.");
+      },
+      createCheckoutSession: async () => {
+        throw new StripeCheckoutModeError(
+          { id: rejectedSessionId, livemode: false },
+          true,
+        );
+      },
+      logCheckoutFailure: (details) => diagnoses.push(details),
+    }),
+  );
+  const server = createServer(testApp);
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  if (!address || typeof address === "string") {
+    server.close();
+    throw new Error("The checkout test server did not expose a TCP address.");
+  }
+
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:${address.port}/checkout`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          artworkId: artwork.id,
+          email: "mode-mismatch@example.test",
+          idempotencyKey,
+        }),
+      },
+    );
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), {
+      code: "stripe_checkout_mode_mismatch",
+      message: "Stripe could not open checkout. Please try again.",
+    });
+
+    const [order] = await db
+      .select({
+        id: artcovrOrders.id,
+        status: artcovrOrders.status,
+        stripeCheckoutSessionId: artcovrOrders.stripeCheckoutSessionId,
+        stripePaymentIntentId: artcovrOrders.stripePaymentIntentId,
+        paidAt: artcovrOrders.paidAt,
+      })
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
+    assert.ok(order);
+    assert.equal(order.status, "expired");
+    assert.equal(order.stripeCheckoutSessionId, null);
+    assert.equal(order.stripePaymentIntentId, null);
+    assert.equal(order.paidAt, null);
+
+    assert.equal(diagnoses.length, 1);
+    assert.deepEqual(
+      {
+        orderId: diagnoses[0]?.orderId,
+        code: diagnoses[0]?.code,
+        diagnosis: diagnoses[0]?.diagnosis,
+        stripeCheckoutSessionId:
+          diagnoses[0]?.stripeCheckoutSessionId,
+        expectedLivemode: diagnoses[0]?.expectedLivemode,
+        actualLivemode: diagnoses[0]?.actualLivemode,
+      },
+      {
+        orderId: order.id,
+        code: "stripe_checkout_mode_mismatch",
+        diagnosis: "stripe_checkout_mode_mismatch",
+        stripeCheckoutSessionId: rejectedSessionId,
+        expectedLivemode: true,
+        actualLivemode: false,
+      },
+    );
+  } finally {
+    await db
+      .delete(artcovrOrders)
+      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
+  }
 });
 
 test("simultaneous exclusive reservations create only one active order", async () => {
