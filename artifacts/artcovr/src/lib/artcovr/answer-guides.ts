@@ -5,9 +5,17 @@ export type AnswerGuide = {
   displayTitle: string;
   description: string;
   introduction: string;
+  keyTakeaways: readonly string[];
+  lastReviewed: string;
   sections: readonly {
     heading: string;
     answer: string;
+  }[];
+  sources: readonly {
+    title: string;
+    publisher: string;
+    href: string;
+    description: string;
   }[];
   links: readonly {
     href: string;
@@ -25,6 +33,12 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       "Learn how commercial cover art licensing works for music releases, including permitted uses, attribution, editing, digital delivery, and restrictions.",
     introduction:
       "A cover art license gives you defined permission to use an artwork without transferring the underlying copyright. Before checkout, confirm the work, price, sale mode, permitted uses, and restrictions.",
+    keyTakeaways: [
+      "A commercial license grants defined usage permission; it does not automatically transfer copyright.",
+      "Editing and generated-image access are governed by the allowance and restrictions shown at checkout.",
+      "Standalone resale, stock redistribution, sublicensing, and model training are outside the ARTCOVR license.",
+    ],
+    lastReviewed: "2026-09-05",
     sections: [
       {
         heading: "What can licensed cover art be used for?",
@@ -52,6 +66,22 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
           "Payment is verified through Stripe before access begins. Purchased and generated files are then available through authenticated, time-limited download access in My Images.",
       },
     ],
+    sources: [
+      {
+        title: "What is Copyright?",
+        publisher: "U.S. Copyright Office",
+        href: "https://www.copyright.gov/what-is-copyright/",
+        description:
+          "General explanation of copyright ownership and permissions; it does not replace the ARTCOVR license.",
+      },
+      {
+        title: "Commercial Cover Art License",
+        publisher: "ARTCOVR",
+        href: "/license",
+        description:
+          "The first-party terms that control permitted uses, restrictions, and delivery for ARTCOVR purchases.",
+      },
+    ],
     links: [
       { href: "/license", label: "Read the commercial license" },
       { href: "/faq", label: "Review licensing questions" },
@@ -67,6 +97,12 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       "Understand exclusive cover art licensing, temporary checkout reservations, removal after verified payment, copyright limits, and repeatable alternatives.",
     introduction:
       "Exclusive cover art is sold under a one-customer storefront model. The label describes future availability on ARTCOVR; it does not transfer copyright or guarantee that no similar image exists elsewhere.",
+    keyTakeaways: [
+      "Exclusive means the purchased work is removed from future sale on ARTCOVR after verified payment.",
+      "A temporary checkout reservation is not a completed purchase and expires if payment is not verified.",
+      "Exclusivity is a storefront commitment, not a promise of worldwide uniqueness or copyright assignment.",
+    ],
+    lastReviewed: "2026-09-05",
     sections: [
       {
         heading: "What does exclusive cover art mean?",
@@ -94,6 +130,29 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
           "Repeatable artwork remains available to more than one customer under separate non-exclusive commercial licenses.",
       },
     ],
+    sources: [
+      {
+        title: "Commercial Cover Art License",
+        publisher: "ARTCOVR",
+        href: "/license",
+        description:
+          "The first-party terms that define exclusive and repeatable availability on the ARTCOVR storefront.",
+      },
+      {
+        title: "Terms of Use",
+        publisher: "ARTCOVR",
+        href: "/legal/terms",
+        description:
+          "The first-party purchase, payment verification, and fulfillment terms.",
+      },
+      {
+        title: "What is Copyright?",
+        publisher: "U.S. Copyright Office",
+        href: "https://www.copyright.gov/what-is-copyright/",
+        description:
+          "General copyright context; it does not define ARTCOVR's storefront exclusivity policy.",
+      },
+    ],
     links: [
       { href: "/archive", label: "Browse available cover art" },
       { href: "/license", label: "Compare license terms" },
@@ -108,7 +167,13 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
     description:
       "Learn how ARTCOVR handles AI-generated cover art, commercial usage, authorship limits, prompt-based editing, redistribution, and model-training restrictions.",
     introduction:
-      "ARTCOVR combines original base compositions with prompt-based AI editing. Commercial permission comes from the ARTCOVR license, while authorship and copyright claims remain limited by the license and applicable law.",
+      "ARTCOVR publishes and licenses base compositions with prompt-based AI editing. Commercial permission comes from the ARTCOVR license, while authorship and copyright claims remain limited by the license and applicable law.",
+    keyTakeaways: [
+      "Commercial use depends on the ARTCOVR license delivered with the purchase.",
+      "A prompt or generated result does not, by itself, transfer copyright or authorize a buyer to claim authorship.",
+      "Standalone resale, stock redistribution, sublicensing, and model training are not included.",
+    ],
+    lastReviewed: "2026-09-05",
     sections: [
       {
         heading: "Can AI-generated cover art be used commercially?",
@@ -134,6 +199,29 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         heading: "Can purchased images be used for AI training?",
         answer:
           "No. Model-training rights are not included in the commercial license.",
+      },
+    ],
+    sources: [
+      {
+        title: "Copyright and Artificial Intelligence",
+        publisher: "U.S. Copyright Office",
+        href: "https://www.copyright.gov/ai/",
+        description:
+          "The U.S. Copyright Office resource hub for current reports and policy work on copyright and AI.",
+      },
+      {
+        title: "Copyright and Artificial Intelligence, Part 2: Copyrightability",
+        publisher: "U.S. Copyright Office",
+        href: "https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf",
+        description:
+          "A government report discussing human authorship and copyrightability questions; it is not legal advice.",
+      },
+      {
+        title: "Commercial Cover Art License",
+        publisher: "ARTCOVR",
+        href: "/license",
+        description:
+          "The first-party terms that control commercial use, editing, redistribution, and training restrictions.",
       },
     ],
     links: [
