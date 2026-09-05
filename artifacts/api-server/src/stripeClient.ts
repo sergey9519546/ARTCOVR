@@ -76,7 +76,7 @@ export async function createStripeProduct(input: {
   name: string;
   description: string;
   metadata: Record<string, string>;
-}) {
+}, idempotencyKey?: string) {
   const form = new URLSearchParams({
     name: input.name,
     description: input.description,
@@ -87,6 +87,7 @@ export async function createStripeProduct(input: {
   return stripeRequest<Stripe.Product>("/v1/products", {
     method: "POST",
     form,
+    idempotencyKey,
   });
 }
 
@@ -104,16 +105,28 @@ export async function updateStripeProduct(
 }
 
 export async function listStripePrices(productId: string) {
-  const query = new URLSearchParams({
-    product: productId,
-    active: "true",
-    type: "one_time",
-    limit: "100",
-  });
-  const page = await stripeRequest<Stripe.ApiList<Stripe.Price>>(
-    `/v1/prices?${query.toString()}`,
-  );
-  return page.data;
+  const prices: Stripe.Price[] = [];
+  let startingAfter: string | undefined;
+
+  do {
+    const query = new URLSearchParams({
+      product: productId,
+      active: "true",
+      type: "one_time",
+      limit: "100",
+    });
+    if (startingAfter) query.set("starting_after", startingAfter);
+    const page = await stripeRequest<Stripe.ApiList<Stripe.Price>>(
+      `/v1/prices?${query.toString()}`,
+    );
+    prices.push(...page.data);
+    startingAfter =
+      page.has_more && page.data.length
+        ? page.data[page.data.length - 1]?.id
+        : undefined;
+  } while (startingAfter);
+
+  return prices;
 }
 
 export async function createStripePrice(input: {
@@ -121,7 +134,7 @@ export async function createStripePrice(input: {
   amountCents: number;
   currency: string;
   metadata: Record<string, string>;
-}) {
+}, idempotencyKey?: string) {
   const form = new URLSearchParams({
     product: input.productId,
     unit_amount: String(input.amountCents),
@@ -133,6 +146,7 @@ export async function createStripePrice(input: {
   return stripeRequest<Stripe.Price>("/v1/prices", {
     method: "POST",
     form,
+    idempotencyKey,
   });
 }
 
