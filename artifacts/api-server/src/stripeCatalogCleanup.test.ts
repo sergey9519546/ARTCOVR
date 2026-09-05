@@ -79,6 +79,7 @@ function snapshot(
     products,
     pricesByProduct,
     checkoutSessionIds: [],
+    stripeAccountMode: "unknown",
     checkoutReferences: [],
     paymentLinkReferences: [],
     defaultPriceReferences: [],
@@ -134,6 +135,7 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
         ]),
       ),
       checkoutSessionIds: ["cs_open"],
+      stripeAccountMode: "live",
       checkoutReferences: [
         {
           kind: "checkout_session",
@@ -168,6 +170,13 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
   assert.equal(report.referenceCounts.checkoutSessions, 1);
   assert.equal(report.referenceCounts.historicalOrders, 1);
   assert.equal(report.historicalOrders[0]?.checkoutSessionFound, false);
+  assert.equal(
+    report.historicalOrders[0]?.checkoutSessionDiagnosis,
+    "missing_from_connected_account",
+  );
+  assert.deepEqual(report.reconciliation.unresolvedOrderIds, [
+    "order_historical",
+  ]);
 });
 
 test("historical checkout sessions are reported but do not block cleanup", () => {
@@ -188,6 +197,7 @@ test("historical checkout sessions are reported but do not block cleanup", () =>
         ]),
       ),
       checkoutSessionIds: ["cs_complete"],
+      stripeAccountMode: "live",
       checkoutReferences: [
         {
           kind: "checkout_session",
@@ -217,4 +227,37 @@ test("historical checkout sessions are reported but do not block cleanup", () =>
   ]);
   assert.equal(report.referenceCounts.checkoutSessions, 1);
   assert.equal(report.historicalOrders[0]?.checkoutSessionFound, true);
+  assert.equal(report.historicalOrders[0]?.checkoutSessionDiagnosis, "found");
+});
+
+test("cleanup report identifies test-mode orders as stale when the account is live", () => {
+  const report = buildStripeCatalogCleanupReport(
+    {
+      ...snapshot([], new Map()),
+      stripeAccountMode: "live",
+      historicalOrders: [
+        {
+          id: "order_stale_test",
+          artworkId: artwork.id,
+          status: "expired",
+          stripeCheckoutSessionId: "cs_test_stale",
+          stripePaymentIntentId: null,
+        },
+      ],
+    },
+    [artwork],
+    "dry_run",
+  );
+
+  assert.equal(
+    report.historicalOrders[0]?.checkoutSessionDiagnosis,
+    "stale_test_data",
+  );
+  assert.deepEqual(report.reconciliation.unmatchedCheckoutSessionOrderIds, [
+    "order_stale_test",
+  ]);
+  assert.deepEqual(report.reconciliation.staleTestDataOrderIds, [
+    "order_stale_test",
+  ]);
+  assert.deepEqual(report.reconciliation.unresolvedOrderIds, []);
 });

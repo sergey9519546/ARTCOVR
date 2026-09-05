@@ -19,6 +19,14 @@ import {
 export const STRIPE_CATALOG_DEACTIVATION_CONFIRMATION =
   "DEACTIVATE_DUPLICATE_STRIPE_CATALOG";
 
+export type StripeAccountMode = "live" | "test" | "mixed" | "unknown";
+
+export type CheckoutSessionDiagnosis =
+  | "found"
+  | "stale_test_data"
+  | "missing_from_connected_account"
+  | "missing_session_id";
+
 export type HistoricalOrderReference = {
   id: string;
   artworkId: string;
@@ -49,8 +57,17 @@ export type StripeCatalogCleanupReport = {
     paymentLinks: number;
     defaultPriceReferences: number;
   };
+  reconciliation: {
+    connectedAccountMode: StripeAccountMode;
+    unmatchedCheckoutSessionOrderIds: string[];
+    staleTestDataOrderIds: string[];
+    unresolvedOrderIds: string[];
+  };
   historicalOrders: Array<
-    HistoricalOrderReference & { checkoutSessionFound: boolean }
+    HistoricalOrderReference & {
+      checkoutSessionFound: boolean;
+      checkoutSessionDiagnosis: CheckoutSessionDiagnosis;
+    }
   >;
   safetyStop?: string;
   readiness: {
@@ -88,6 +105,7 @@ export type StripeCatalogSnapshot = {
   products: Stripe.Product[];
   pricesByProduct: Map<string, Stripe.Price[]>;
   checkoutSessionIds: string[];
+  stripeAccountMode: StripeAccountMode;
   checkoutReferences: CheckoutReference[];
   paymentLinkReferences: PaymentLinkReference[];
   defaultPriceReferences: CatalogReference[];
@@ -96,6 +114,36 @@ export type StripeCatalogSnapshot = {
 
 function stripeId(value: string | { id: string } | null | undefined) {
   return typeof value === "string" ? value : value?.id ?? null;
+}
+
+function stripeAccountMode(
+  products: Stripe.Product[],
+  checkoutSessions: Stripe.Checkout.Session[],
+): StripeAccountMode {
+  const modes = new Set(
+    [...products, ...checkoutSessions].map((object) =>
+      object.livemode ? "live" : "test",
+    ),
+  );
+  if (modes.size !== 1) return modes.size === 0 ? "unknown" : "mixed";
+  return [...modes][0] as "live" | "test";
+}
+
+function diagnoseCheckoutSession(
+  order: HistoricalOrderReference,
+  checkoutSessionIds: string[],
+  connectedAccountMode: StripeAccountMode,
+): CheckoutSessionDiagnosis {
+  const sessionId = order.stripeCheckoutSessionId;
+  if (!sessionId) return "missing_session_id";
+  if (checkoutSessionIds.includes(sessionId)) return "found";
+
+  // Stripe IDs preserve the mode in which they were created. A test-mode
+  // session cannot be retrieved from the live account connected to this app.
+  if (connectedAccountMode === "live" && sessionId.startsWith("cs_test_")) {
+    return "stale_test_data";
+  }
+  return "missing_from_connected_account";
 }
 
 function lineItemReferences(
@@ -185,6 +233,7 @@ async function loadCatalogSnapshot(): Promise<StripeCatalogSnapshot> {
     products,
     pricesByProduct,
     checkoutSessionIds: checkoutSessions.map((session) => session.id),
+    stripeAccountMode: stripeAccountMode(products, checkoutSessions),
     checkoutReferences: checkoutSessions.flatMap((session) =>
       lineItemReferences(session, "checkout_session"),
     ) as CheckoutReference[],
@@ -245,6 +294,29 @@ export function buildStripeCatalogCleanupReport(
     snapshot.paymentLinkReferences.map((reference) => reference.objectId),
   ).size;
   const defaultPriceCount = snapshot.defaultPriceReferences.length;
+  const historicalOrders = snapshot.historicalOrders.map((order) => {
+    const checkoutSessionDiagnosis = diagnoseCheckoutSession(
+      order,
+      snapshot.checkoutSessionIds,
+      snapshot.stripeAccountMode,
+    );
+    return {
+      ...order,
+      checkoutSessionFound: checkoutSessionDiagnosis === "found",
+      checkoutSessionDiagnosis,
+    };
+  });
+  const unmatchedCheckoutSessionOrders = historicalOrders.filter(
+    (order) =>
+      order.stripeCheckoutSessionId !== null &&
+      !order.checkoutSessionFound,
+  );
+  const staleTestDataOrders = unmatchedCheckoutSessionOrders.filter(
+    (order) => order.checkoutSessionDiagnosis === "stale_test_data",
+  );
+  const unresolvedOrders = unmatchedCheckoutSessionOrders.filter(
+    (order) => order.checkoutSessionDiagnosis === "missing_from_connected_account",
+  );
   let canonicalArtworkCount = 0;
   let duplicateProductArtworkIds = 0;
   let duplicatePriceArtworkIds = 0;
@@ -325,12 +397,15 @@ export function buildStripeCatalogCleanupReport(
       paymentLinks: paymentLinkCount,
       defaultPriceReferences: defaultPriceCount,
     },
-    historicalOrders: snapshot.historicalOrders.map((order) => ({
-      ...order,
-      checkoutSessionFound: order.stripeCheckoutSessionId
-        ? snapshot.checkoutSessionIds.includes(order.stripeCheckoutSessionId)
-        : false,
-    })),
+    reconciliation: {
+      connectedAccountMode: snapshot.stripeAccountMode,
+      unmatchedCheckoutSessionOrderIds: unmatchedCheckoutSessionOrders.map(
+        (order) => order.id,
+      ),
+      staleTestDataOrderIds: staleTestDataOrders.map((order) => order.id),
+      unresolvedOrderIds: unresolvedOrders.map((order) => order.id),
+    },
+    historicalOrders,
     readiness: {
       expectedArtworkCount: catalog.length,
       readyArtworkCount: canonicalArtworkCount,
