@@ -6,6 +6,7 @@ import {
   buildStripeCatalogCleanupReport,
   type StripeCatalogSnapshot,
 } from "./stripeCatalogCleanup";
+import { runStripeCatalogCleanupCli } from "./stripeCatalogCleanupCli";
 
 const artwork: PublicCatalogArtwork = {
   id: "art_cleanup_test",
@@ -336,4 +337,94 @@ test("cleanup report identifies test-mode orders as stale when the account is li
       severity: "warning",
     },
   ]);
+});
+
+function reconciliationReport(
+  historicalOrders: StripeCatalogSnapshot["historicalOrders"],
+) {
+  return buildStripeCatalogCleanupReport(
+    {
+      ...snapshot([], new Map()),
+      stripeAccountMode: "live",
+      historicalOrders,
+    },
+    [],
+    "dry_run",
+  );
+}
+
+test("reconciliation CLI fails and diagnoses each unresolved order", async () => {
+  const report = reconciliationReport([
+    {
+      id: "order_unknown_session",
+      artworkId: artwork.id,
+      status: "paid",
+      stripeCheckoutSessionId: "cs_unknown_session",
+      stripePaymentIntentId: "pi_unknown_session",
+    },
+    {
+      id: "order_stale_test",
+      artworkId: artwork.id,
+      status: "expired",
+      stripeCheckoutSessionId: "cs_test_stale",
+      stripePaymentIntentId: null,
+    },
+  ]);
+  const output: string[] = [];
+  const diagnostics: string[] = [];
+
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--reconcile-only"],
+    audit: async () => report,
+    log: (message) => output.push(message),
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 2);
+  assert.match(
+    diagnostics.join("\n"),
+    /Stripe reconciliation ERROR: order order_unknown_session \(missing_from_connected_account; checkout session cs_unknown_session; connected account mode live\)/,
+  );
+  assert.match(
+    diagnostics.join("\n"),
+    /Stripe reconciliation warning: order order_stale_test \(stale_test_data; checkout session cs_test_stale; connected account mode live\)/,
+  );
+  assert.match(
+    diagnostics.join("\n"),
+    /Stripe reconciliation failed: 1 unresolved live-order reference/,
+  );
+  assert.match(output[0] ?? "", /order_unknown_session/);
+  assert.match(output[0] ?? "", /order_stale_test/);
+});
+
+test("reconciliation CLI succeeds for explicitly diagnosed stale test data", async () => {
+  const report = reconciliationReport([
+    {
+      id: "order_stale_test",
+      artworkId: artwork.id,
+      status: "expired",
+      stripeCheckoutSessionId: "cs_test_stale",
+      stripePaymentIntentId: null,
+    },
+  ]);
+  const output: string[] = [];
+  const diagnostics: string[] = [];
+
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--reconcile-only"],
+    audit: async () => report,
+    log: (message) => output.push(message),
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 0);
+  assert.match(
+    output[0] ?? "",
+    /"checkoutSessionDiagnosis": "stale_test_data"/,
+  );
+  assert.match(
+    diagnostics.join("\n"),
+    /Stripe reconciliation warning: order order_stale_test \(stale_test_data; checkout session cs_test_stale; connected account mode live\)/,
+  );
+  assert.doesNotMatch(diagnostics.join("\n"), /Stripe reconciliation failed/);
 });
