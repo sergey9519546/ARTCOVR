@@ -4,6 +4,7 @@ import type Stripe from "stripe";
 import type { PublicCatalogArtwork } from "./catalog";
 import {
   buildStripeCatalogCleanupReport,
+  compareStripeCanonicalSelections,
   type StripeCatalogSnapshot,
 } from "./stripeCatalogCleanup";
 import { runStripeCatalogCleanupCli } from "./stripeCatalogCleanupCli";
@@ -170,6 +171,40 @@ test("cleanup report clears a redundant default before deactivating its price", 
     "price_duplicate",
   ]);
   assert.equal(report.readiness.protectedDuplicateDefaultPriceReferences, 0);
+
+  const afterReport = buildStripeCatalogCleanupReport(
+    {
+      ...snapshot(
+        [
+          canonicalProduct,
+          { ...duplicateProduct, active: false, default_price: null },
+        ],
+        new Map([
+          [
+            canonicalProduct.id,
+            [price("price_canonical", canonicalProduct.id, 1)],
+          ],
+          [
+            duplicateProduct.id,
+            [{ ...price("price_duplicate", duplicateProduct.id, 2), active: false }],
+          ],
+        ]),
+      ),
+    },
+    [artwork],
+    "dry_run",
+  );
+  assert.deepEqual(
+    compareStripeCanonicalSelections(
+      report.canonicalSelection.after,
+      afterReport.canonicalSelection.after,
+    ),
+    {
+      before: report.canonicalSelection.after,
+      after: afterReport.canonicalSelection.after,
+      changes: [],
+    },
+  );
 });
 
 test("cleanup report blocks duplicate prices used by live Stripe objects", () => {
@@ -238,6 +273,11 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
     },
   ]);
   assert.equal(report.readiness.protectedDuplicateDefaultPriceReferences, 1);
+  assert.deepEqual(report.canonicalSelection.changes, []);
+  assert.equal(
+    report.canonicalSelection.after[0]?.canonicalPriceId,
+    canonicalProduct.default_price,
+  );
   assert.equal(report.referenceCounts.checkoutSessions, 1);
   assert.equal(report.referenceCounts.historicalOrders, 1);
   assert.equal(report.historicalOrders[0]?.checkoutSessionFound, false);
@@ -256,6 +296,38 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
       severity: "error",
     },
   ]);
+});
+
+test("canonical selection comparisons expose changed checkout IDs", () => {
+  const before = [
+    {
+      artworkId: artwork.id,
+      slug: artwork.slug,
+      canonicalProductId: "prod_before",
+      canonicalPriceId: "price_before",
+    },
+  ];
+  const after = [
+    {
+      artworkId: artwork.id,
+      slug: artwork.slug,
+      canonicalProductId: "prod_after",
+      canonicalPriceId: "price_after",
+    },
+  ];
+
+  assert.deepEqual(compareStripeCanonicalSelections(before, after), {
+    before,
+    after,
+    changes: [
+      {
+        artworkId: artwork.id,
+        slug: artwork.slug,
+        before: before[0],
+        after: after[0],
+      },
+    ],
+  });
 });
 
 test("cleanup report distinguishes active, expired, and completed checkout protection", () => {

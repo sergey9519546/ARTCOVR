@@ -99,6 +99,16 @@ export async function runStripeCatalogCleanupCli({
       `Stripe reconciliation failed: ${report.reconciliation.unresolvedOrderIds.length} unresolved live-order reference(s).`,
     );
   }
+  if (
+    report.canonicalSelection.safetyStop ||
+    report.canonicalSelection.changes.length > 0
+  ) {
+    error(
+      `Stripe catalog cleanup safety stop: ${report.canonicalSelection.safetyStop ?? `canonical selection changed for ${report.canonicalSelection.changes
+        .map((change) => change.artworkId)
+        .join(", ")}`}.`,
+    );
+  }
   if (!confirmed && !reconciliationOnly) {
     error(
       `Dry run only. Re-run with --confirm-deactivate to deactivate only the report's eligible duplicate objects. Use --max-mutations N to bound a long confirmed run.`,
@@ -106,6 +116,12 @@ export async function runStripeCatalogCleanupCli({
   }
 
   if (report.reconciliation.unresolvedOrderIds.length > 0) return 2;
+  if (
+    report.canonicalSelection.safetyStop ||
+    report.canonicalSelection.changes.length > 0
+  ) {
+    return 1;
+  }
   if (report.progress.status === "interrupted") {
     return STRIPE_CATALOG_CLEANUP_INTERRUPTED_EXIT_CODE;
   }

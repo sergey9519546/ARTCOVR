@@ -66,6 +66,25 @@ export type DefaultPriceAction = {
   reasons: string[];
 };
 
+export type StripeCanonicalArtworkSelection = {
+  artworkId: string;
+  slug: string;
+  canonicalProductId: string | null;
+  canonicalPriceId: string | null;
+};
+
+export type StripeCanonicalSelectionComparison = {
+  before: StripeCanonicalArtworkSelection[];
+  after: StripeCanonicalArtworkSelection[];
+  changes: Array<{
+    artworkId: string;
+    slug: string;
+    before: StripeCanonicalArtworkSelection;
+    after: StripeCanonicalArtworkSelection;
+  }>;
+  safetyStop?: string;
+};
+
 export type StripeCatalogCleanupReport = {
   mode: "dry_run" | "deactivated" | "interrupted";
   generatedAt: string;
@@ -97,6 +116,7 @@ export type StripeCatalogCleanupReport = {
       checkoutSessionDiagnosis: CheckoutSessionDiagnosis;
     }
   >;
+  canonicalSelection: StripeCanonicalSelectionComparison;
   safetyStop?: string;
   readiness: {
     expectedArtworkCount: number;
@@ -337,6 +357,115 @@ function allCandidates(
     candidates,
     matchingCandidates: matchingStripePriceCandidates(artwork, candidates),
   };
+}
+
+function canonicalSelections(
+  artworks: StripeCatalogCleanupReport["artworks"],
+): StripeCanonicalArtworkSelection[] {
+  return artworks.map(
+    ({
+      artworkId,
+      slug,
+      canonicalProductId,
+      canonicalPriceId,
+    }) => ({
+      artworkId,
+      slug,
+      canonicalProductId,
+      canonicalPriceId,
+    }),
+  );
+}
+
+export function compareStripeCanonicalSelections(
+  before: StripeCanonicalArtworkSelection[],
+  after: StripeCanonicalArtworkSelection[],
+): StripeCanonicalSelectionComparison {
+  const beforeByArtwork = new Map(
+    before.map((selection) => [selection.artworkId, selection]),
+  );
+  const afterByArtwork = new Map(
+    after.map((selection) => [selection.artworkId, selection]),
+  );
+  const artworkIds = [
+    ...new Set([
+      ...before.map((selection) => selection.artworkId),
+      ...after.map((selection) => selection.artworkId),
+    ]),
+  ];
+  const changes = artworkIds.flatMap((artworkId) => {
+    const previous = beforeByArtwork.get(artworkId);
+    const current = afterByArtwork.get(artworkId);
+    if (!previous || !current) {
+      return [
+        {
+          artworkId,
+          slug: current?.slug ?? previous?.slug ?? artworkId,
+          before: previous ?? {
+            artworkId,
+            slug: current?.slug ?? artworkId,
+            canonicalProductId: null,
+            canonicalPriceId: null,
+          },
+          after: current ?? {
+            artworkId,
+            slug: previous?.slug ?? artworkId,
+            canonicalProductId: null,
+            canonicalPriceId: null,
+          },
+        },
+      ];
+    }
+    if (
+      previous.canonicalProductId === current.canonicalProductId &&
+      previous.canonicalPriceId === current.canonicalPriceId
+    ) {
+      return [];
+    }
+    return [
+      {
+        artworkId,
+        slug: current.slug,
+        before: previous,
+        after: current,
+      },
+    ];
+  });
+  return { before, after, changes };
+}
+
+function canonicalMutationConflicts(
+  artworks: StripeCatalogCleanupReport["artworks"],
+) {
+  return artworks.flatMap((artwork) => {
+    const conflicts = new Set<string>();
+    if (
+      artwork.canonicalPriceId &&
+      artwork.deactivatablePriceIds.includes(artwork.canonicalPriceId)
+    ) {
+      conflicts.add(`price/${artwork.canonicalPriceId}`);
+    }
+    if (
+      artwork.canonicalProductId &&
+      artwork.deactivatableProductIds.includes(artwork.canonicalProductId)
+    ) {
+      conflicts.add(`product/${artwork.canonicalProductId}`);
+    }
+    if (
+      artwork.canonicalProductId &&
+      artwork.defaultPriceActions.some(
+        (action) =>
+          action.action === "clear" &&
+          action.productId === artwork.canonicalProductId,
+      )
+    ) {
+      conflicts.add(`default_price/${artwork.canonicalProductId}`);
+    }
+    return [...conflicts].map((objectId) => ({
+      artworkId: artwork.artworkId,
+      objectId,
+    }));
+  });
 }
 
 export function buildStripeCatalogCleanupReport(
@@ -589,6 +718,7 @@ export function buildStripeCatalogCleanupReport(
         artwork.deactivatableProductIds.map((id) => `product:${id}`),
       ),
     ).size;
+  const currentCanonicalSelections = canonicalSelections(artworks);
 
   return {
     mode,
@@ -615,6 +745,11 @@ export function buildStripeCatalogCleanupReport(
       unresolvedOrderIds: unresolvedOrders.map((order) => order.id),
     },
     historicalOrders,
+    canonicalSelection: {
+      before: currentCanonicalSelections,
+      after: currentCanonicalSelections,
+      changes: [],
+    },
     readiness: {
       expectedArtworkCount: catalog.length,
       readyArtworkCount: canonicalArtworkCount,
@@ -667,6 +802,20 @@ export async function cleanupStripeCatalog(
       ...before,
       safetyStop:
         "Deactivation was not attempted because the pre-cleanup readiness audit has missing artwork prices.",
+    };
+  }
+  const canonicalConflicts = canonicalMutationConflicts(before.artworks);
+  if (canonicalConflicts.length > 0) {
+    const safetyStop = `Deactivation was not attempted because the cleanup plan would mutate canonical Stripe objects: ${canonicalConflicts
+      .map(({ artworkId, objectId }) => `${artworkId} (${objectId})`)
+      .join(", ")}.`;
+    return {
+      ...before,
+      safetyStop,
+      canonicalSelection: {
+        ...before.canonicalSelection,
+        safetyStop,
+      },
     };
   }
 
@@ -808,9 +957,26 @@ export async function cleanupStripeCatalog(
   progress = { ...progress, status: "completed" };
   await reportProgress();
   const after = await auditStripeCatalog();
+  const canonicalSelection = compareStripeCanonicalSelections(
+    before.canonicalSelection.after,
+    after.canonicalSelection.after,
+  );
+  const canonicalSelectionSafetyStop =
+    canonicalSelection.changes.length > 0
+      ? `Canonical catalog selection changed for ${canonicalSelection.changes
+          .map((change) => change.artworkId)
+          .join(", ")} after deactivation.`
+      : undefined;
+  if (canonicalSelectionSafetyStop) {
+    canonicalSelection.safetyStop = canonicalSelectionSafetyStop;
+  }
   return {
     ...after,
     mode: "deactivated",
+    canonicalSelection,
+    ...(canonicalSelectionSafetyStop
+      ? { safetyStop: canonicalSelectionSafetyStop }
+      : {}),
     progress,
     deactivated: {
       prices: completedPrices,
