@@ -6,6 +6,14 @@ import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
 
+router.get("/", (_req, res): void => {
+  res.json({
+    service: "artcovr-api",
+    status: "ok",
+    health: "/api/healthz",
+  });
+});
+
 router.get("/healthz", async (_req, res): Promise<void> => {
   try {
     await db.execute(sql`select 1`);

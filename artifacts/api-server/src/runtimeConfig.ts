@@ -20,4 +20,10 @@ export function validateProductionEnvironment(
       `Production runtime configuration is incomplete. Set: ${missing.join(", ")}.`,
     );
   }
+
+  if (env.CLERK_PUBLISHABLE_KEY?.trim().startsWith("pk_test_")) {
+    throw new Error(
+      "Production runtime configuration cannot use a development Clerk publishable key.",
+    );
+  }
 }

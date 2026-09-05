@@ -20,6 +20,7 @@ import {
   ArtcovrAuthProvider,
   useArtcovrAuth,
 } from "@/lib/artcovr/auth";
+import { isDevelopmentClerkKey } from "@/lib/artcovr/clerk-config";
 import {
   Route,
   Switch,
@@ -69,6 +70,12 @@ function stripBase(path: string) {
 
 if (!clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY.");
+}
+
+if (import.meta.env.PROD && isDevelopmentClerkKey(clerkPubKey)) {
+  throw new Error(
+    "Production builds cannot use a development Clerk publishable key.",
+  );
 }
 
 const clerkAppearance = {

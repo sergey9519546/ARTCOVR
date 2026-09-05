@@ -62,6 +62,14 @@ app.post(
   },
 );
 
+app.get("/", (_req, res): void => {
+  res.json({
+    service: "artcovr-api",
+    status: "ok",
+    health: "/api/healthz",
+  });
+});
+
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(disallowUnknownPreflight);
 app.use(cors(trustedCorsOptions()));
