@@ -46,6 +46,13 @@ jobs:
       - name: Verify (portable gate set)
         run: bun run verify:ci
 
+      - name: Verify storefront entry bundle budget
+        env:
+          BASE_PATH: /
+          PORT: 5000
+          VITE_SITE_URL: https://artcovr.com
+        run: bun run --cwd artifacts/artcovr bundle:check
+
       - name: Verify production runtime contract
         run: node scripts/release/verify-runtime-contract.mjs
 
