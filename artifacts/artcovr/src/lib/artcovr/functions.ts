@@ -5,6 +5,8 @@ export class ArtcovrApiError extends ArtcovrApiErrorBase {}
 export type GenerationRequest = {
   artworkId: string;
   prompt: string;
+  /** Stable across transport retries for one edit. */
+  requestId?: string;
   purchaseId?: string;
   /** A prior generated result to continue editing from. */
   referenceGenerationId?: string;
@@ -177,7 +179,8 @@ async function requestBinary<T>(path: string, body: Blob, contentType: string) {
 }
 
 /**
- * Uploads one image to use as a style reference for a later generation.
+ * Uploads one image to use as an identity or visual reference for a later
+ * generation. The artwork being edited remains the primary image reference.
  *
  * The type and size checks below are a courtesy so an unusable file is refused
  * before it is sent; the Edge Function re-applies both to the bytes it actually

@@ -113,7 +113,7 @@ export const ClaimGuestPurchasesResponse = zod.object({
 
 /**
  * Uploads one JPEG, PNG, or WebP image as an opaque, single-use reference for a later generation. The server validates and normalizes the image.
- * @summary Upload a style reference image
+ * @summary Upload an identity or visual reference image
  */
 export const uploadReferenceQueryArtworkIdMax = 200;
 
@@ -149,6 +149,7 @@ export const createGenerationBodyCoverTextOneArtistNameMax = 120;
 
 
 export const CreateGenerationBody = zod.object({
+  "requestId": zod.string().uuid().optional().describe('Stable identifier for one edit, reused across transport retries.'),
   "artworkId": zod.string().min(1).max(createGenerationBodyArtworkIdMax),
   "prompt": zod.string().min(1).max(createGenerationBodyPromptMax),
   "purchaseId": zod.string().min(1).max(createGenerationBodyPurchaseIdMax).nullish(),

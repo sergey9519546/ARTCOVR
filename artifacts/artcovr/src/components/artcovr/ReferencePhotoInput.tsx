@@ -52,10 +52,10 @@ export function ReferencePhotoInput({ reference, disabled }: {
 }) {
   return (
     <div className="mt-4 space-y-2">
-      <label className="block text-xs font-bold">
-        Add your photo
+      <label className={`inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-current/25 px-4 py-2 text-xs font-bold ${disabled || reference.uploading ? "pointer-events-none opacity-40" : "hover:border-current"}`}>
+        <span aria-hidden="true" className="text-base">+</span> Add your photo
         <input type="file" accept={REFERENCE_UPLOAD_MEDIA_TYPES.join(",")} disabled={disabled || reference.uploading}
-          className="mt-2 block w-full text-xs file:mr-3 file:border file:border-current/30 file:bg-transparent file:px-3 file:py-2 disabled:opacity-40"
+          className="sr-only"
           onChange={(event) => { void reference.pick(event.target.files?.[0]); event.target.value = ""; }} />
       </label>
       <p className="text-xs opacity-70">Upload your face or full body, then describe where you want to appear. Your current cover stays the starting image.</p>

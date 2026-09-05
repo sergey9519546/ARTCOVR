@@ -66,7 +66,7 @@ export default function MyImagesPage() {
         if (error instanceof ArtcovrApiError && error.code === "unauthorized") {
           setState("signed-out");
         } else {
-          setState("error");
+          if (!quiet) setState("error");
           setMessage(error instanceof Error ? error.message : "My Images is unavailable.");
         }
       }
@@ -75,7 +75,9 @@ export default function MyImagesPage() {
   }, []);
 
   const refreshAccount = useCallback(async () => {
-    await loadAccount(false);
+    // Keep the selected canvas and pending edit mounted while refreshing the
+    // allowance. A temporary fetch error must not reset an artist's workspace.
+    await loadAccount(true);
   }, [loadAccount]);
 
   useEffect(() => {
@@ -110,6 +112,9 @@ export default function MyImagesPage() {
   return (
     <PublicPage eyebrow="Account" title="MY IMAGES">
       {state === "loading" && <p role="status">Loading your images…</p>}
+      {state === "ready" && message && (
+        <p role="status" className="mb-4 text-sm">{message} Your current edit is preserved. <button type="button" className="underline" onClick={() => void loadAccount(true)}>Refresh account</button></p>
+      )}
       {state === "signed-out" && (
         <section className="border-y border-current/20 py-10">
           <p className="text-xl font-bold tracking-tight">Sign in to view your images.</p>

@@ -174,7 +174,7 @@ paths:
     post:
       operationId: uploadReference
       tags: [media]
-      summary: Upload a style reference image
+      summary: Upload an identity or visual reference image
       description: >
         Uploads one JPEG, PNG, or WebP image as an opaque, single-use reference
         for a later generation. The server validates and normalizes the image.
@@ -571,6 +571,10 @@ components:
     GenerationRequest:
       type: object
       properties:
+        requestId:
+          type: string
+          format: uuid
+          description: Stable identifier for one edit, reused across transport retries.
         artworkId:
           type: string
           minLength: 1

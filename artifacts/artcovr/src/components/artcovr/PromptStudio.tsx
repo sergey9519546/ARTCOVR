@@ -7,15 +7,13 @@ import type { Artwork } from "@/lib/artcovr/artworks";
 import { isPromptReady } from "@/lib/artcovr/artworks";
 import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import {
-  createGeneration,
   getGenerationStatus,
   getMyImages,
   uploadReference,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
 import { PromptComposer } from "./PromptComposer";
-
-type Phase = "idle" | "generating" | "complete" | "error";
+import { useGenerationJob } from "./useGenerationJob";
 
 const ACCEPTED_REFERENCE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const MAX_REFERENCE_BYTES = 8 * 1024 * 1024;
@@ -44,16 +42,10 @@ function terminalMessage(status: "blocked" | "failed" | "timed_out") {
 export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const { isLoaded, isSignedIn } = useArtcovrAuth();
   const [prompt, setPrompt] = useState("");
-  const [phase, setPhase] = useState<Phase>("idle");
   const [result, setResult] = useState<string>();
-  const [message, setMessage] = useState("");
   const [restoring, setRestoring] = useState(true);
-  const jobId = useRef<string | undefined>(undefined);
   const currentResultId = useRef<string | undefined>(undefined);
   const resetToBase = useRef(false);
-  const pendingPrompt = useRef("");
-  const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
-  const pendingStyleMode = useRef<"exact" | "expand">("exact");
   const generationStartedAt = useRef<number | undefined>(undefined);
   const ready = isPromptReady(prompt) && !restoring && isLoaded && isSignedIn;
   const authRedirect =
@@ -72,6 +64,34 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const promptBoxRef = useRef<HTMLTextAreaElement | null>(null);
   const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const armedUploadRef = useRef<string | undefined>(undefined);
+  const uploadEpoch = useRef(0);
+
+  useEffect(() => () => {
+    uploadEpoch.current += 1;
+    const attached = referenceRef.current;
+    if (attached.status !== "none") URL.revokeObjectURL(attached.url);
+  }, []);
+
+  const { phase, setPhase, message, setMessage, hasPending, start, resume } = useGenerationJob({
+    onAccepted(request) {
+      if (request.referenceUploadId) clearReference();
+    },
+    onSuccess(status) {
+      currentResultId.current = status.generationId;
+      resetToBase.current = false;
+      try { sessionStorage.setItem(selectedPreviewKey, status.generationId); } catch {}
+      setResult(status.previewUrl);
+      setMessage("Generated image ready. Your next prompt will build from this result.");
+      trackEvent("generation_succeeded", {
+        artwork_slug: artwork.slug, surface: "preview",
+        duration_ms: Math.max(0, Date.now() - (generationStartedAt.current ?? Date.now())),
+      });
+    },
+    onTerminal(status) {
+      setMessage(terminalMessage(status));
+      trackEvent("generation_failed", { artwork_slug: artwork.slug, surface: "preview", status });
+    },
+  });
 
   useEffect(() => {
     let active = true;
@@ -135,165 +155,45 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     };
   }, [selectedPreviewKey, artwork.id]);
 
-  useEffect(() => {
-    if (phase !== "generating") return;
-    let active = true;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    const fail = (error: unknown) => {
-      if (!active) return;
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Generation requires a signed-in, configured account.",
-      );
-      setPhase("error");
-    };
-
-    const run = async () => {
-      try {
-        if (!jobId.current) {
-          // A photo supplements the current canvas; it never resets the source.
-          const referenceUploadId = armedUploadRef.current;
-          const created = await createGeneration({
-            artworkId: artwork.id,
-            prompt: pendingPrompt.current,
-            referenceUploadId,
-            referenceGenerationId: currentResultId.current,
-            resetToBase: resetToBase.current,
-            ...(pendingCover.current ? { coverText: pendingCover.current } : {}),
-            styleMode: pendingStyleMode.current,
-          });
-          // Admission consumed the upload (single-use); a request rejected
-          // BEFORE admission threw above and keeps the reference armed.
-          if (referenceUploadId) {
-            armedUploadRef.current = undefined;
-            setArmedUploadId(undefined);
-            const spent = referenceRef.current;
-            if (spent.status !== "none") URL.revokeObjectURL(spent.url);
-            referenceRef.current = { status: "none" };
-            setReference({ status: "none" });
-          }
-          jobId.current = created.generationId;
-        }
-
-        const startedAt = Date.now();
-        const MAX_POLL_ATTEMPTS = 90;
-        const POLL_DEADLINE_MS = 180_000;
-        let attempts = 0;
-
-        const poll = async () => {
-          if (Date.now() - startedAt >= POLL_DEADLINE_MS || attempts >= MAX_POLL_ATTEMPTS) {
-            setMessage("Generation is still processing. Check My Images before starting another edit.");
-            setPhase("error");
-            return;
-          }
-          attempts += 1;
-
-          const status = await getGenerationStatus(jobId.current!);
-          if (!active) return;
-
-          if (status.status === "succeeded") {
-            if (!status.previewUrl) {
-              setMessage("The generated image is not available yet.");
-              setPhase("error");
-              return;
-            }
-            currentResultId.current = status.generationId;
-            resetToBase.current = false;
-            try {
-              sessionStorage.setItem(selectedPreviewKey, status.generationId);
-            } catch {}
-            setResult(status.previewUrl);
-            setMessage("Generated image ready. Your next prompt will build from this result.");
-            setPhase("complete");
-            trackEvent("generation_succeeded", {
-              artwork_slug: artwork.slug,
-              surface: "preview",
-              duration_ms: Math.max(
-                0,
-                Date.now() - (generationStartedAt.current ?? Date.now()),
-              ),
-            });
-            return;
-          }
-
-          if (
-            status.status === "blocked" ||
-            status.status === "failed" ||
-            status.status === "timed_out"
-          ) {
-            trackEvent("generation_failed", {
-              artwork_slug: artwork.slug,
-              surface: "preview",
-              status: status.status,
-            });
-            setMessage(terminalMessage(status.status));
-            setPhase("error");
-            return;
-          }
-
-          // Only the first poll is awaited by the try below. Every re-entry is
-          // a fresh promise chain, so it has to route its own rejection into
-          // the same error path or a dropped network/expired token would strand
-          // `phase` on "generating" forever.
-          timer = setTimeout(() => void poll().catch(fail), 2000);
-        };
-
-        await poll();
-      } catch (error) {
-        fail(error);
-      }
-    };
-
-    void run();
-    return () => {
-      active = false;
-      if (timer) clearTimeout(timer);
-    };
-  }, [artwork.id, phase, selectedPreviewKey]);
-
   /** Chat-style input: grow with content, cap at roughly eight lines. */
   function autosizePromptBox() {
     const box = promptBoxRef.current;
     if (!box) return;
     box.style.height = "auto";
-    box.style.height = `${Math.min(box.scrollHeight, 200)}px`;
+    box.style.height = `${Math.max(64, Math.min(box.scrollHeight, 240))}px`;
   }
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(autosizePromptBox);
+    return () => window.cancelAnimationFrame(frame);
+  }, [prompt]);
+
   function generate() {
-    if (!ready || phase === "generating") return;
-    pendingPrompt.current = prompt.trim();
+    if (phase === "generating") return;
+    if (hasPending) { resume(); return; }
+    if (!ready || reference.status === "uploading") return;
     const title = coverTitle.trim();
     const artistName = coverArtist.trim();
-    pendingCover.current =
-      title || artistName
-        ? { ...(title ? { title } : {}), ...(artistName ? { artistName } : {}) }
-        : undefined;
-    pendingStyleMode.current = styleMode;
     generationStartedAt.current = Date.now();
     trackEvent("generation_requested", {
-      artwork_slug: artwork.slug,
-      surface: "preview",
-      style_mode: styleMode,
+      artwork_slug: artwork.slug, surface: "preview", style_mode: styleMode,
       chained: Boolean(currentResultId.current),
-      has_reference: Boolean(armedUploadRef.current),
-      has_cover_text: Boolean(title || artistName),
+      has_reference: Boolean(armedUploadRef.current), has_cover_text: Boolean(title || artistName),
     });
-    jobId.current = undefined;
-    setMessage(
-      currentResultId.current
-        ? "Building from your current generated image…"
-        : "Building from the original artwork…",
-    );
-    setPhase("generating");
+    setMessage(currentResultId.current ? "Building from your current generated image…" : "Building from the original artwork…");
+    start({
+      artworkId: artwork.id, prompt: prompt.trim(),
+      referenceGenerationId: currentResultId.current,
+      resetToBase: resetToBase.current, referenceUploadId: armedUploadRef.current,
+      coverText: title || artistName ? { title, artistName } : undefined,
+      styleMode,
+    });
   }
 
   function reset() {
-    jobId.current = undefined;
+    if (hasPending || restoring) return;
     currentResultId.current = undefined;
     resetToBase.current = true;
-    pendingPrompt.current = "";
     try {
       sessionStorage.removeItem(selectedPreviewKey);
     } catch {}
@@ -312,8 +212,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
    * and "start over" are two different intentions.
    */
   function backToOriginal() {
-    if (phase === "generating" || restoring) return;
-    jobId.current = undefined;
+    if (hasPending || restoring) return;
     currentResultId.current = undefined;
     resetToBase.current = true;
     try {
@@ -330,7 +229,9 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   }
 
   function clearReference() {
-    if (reference.status !== "none") URL.revokeObjectURL(reference.url);
+    uploadEpoch.current += 1;
+    const attached = referenceRef.current;
+    if (attached.status !== "none") URL.revokeObjectURL(attached.url);
     armedUploadRef.current = undefined;
     setArmedUploadId(undefined);
     setReferenceEverywhere({ status: "none" });
@@ -343,17 +244,19 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
    * failure the chip disappears and the reason lands in the status line.
    */
   async function pickReference(file: File | undefined) {
-    if (!file || reference.status === "uploading") return;
+    if (!file || reference.status === "uploading" || hasPending || restoring) return;
     const rejection = referenceRejection(file);
     if (rejection) {
       setMessage(rejection);
       return;
     }
     clearReference();
+    const currentUpload = uploadEpoch.current;
     const url = URL.createObjectURL(file);
     setReferenceEverywhere({ status: "uploading", url, name: file.name });
     try {
       const { referenceUploadId } = await uploadReference(file, artwork.id);
+      if (uploadEpoch.current !== currentUpload) return;
       armedUploadRef.current = referenceUploadId;
       setArmedUploadId(referenceUploadId);
       setReferenceEverywhere({ status: "armed", url, name: file.name });
@@ -363,6 +266,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         media_type: file.type,
       });
     } catch (cause) {
+      if (uploadEpoch.current !== currentUpload) return;
       URL.revokeObjectURL(url);
       setReferenceEverywhere({ status: "none" });
       setMessage(
@@ -371,7 +275,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     }
   }
 
-  const busy = phase === "generating" || restoring;
+  const busy = hasPending || restoring;
   const previewSrc = result || artwork.image;
   const coverSummary = [coverTitle.trim(), coverArtist.trim()].filter(Boolean).join(" · ");
 
@@ -445,8 +349,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               <button
                 type="button"
                 onClick={clearReference}
-                disabled={reference.status === "uploading"}
-                aria-label="Remove the style reference"
+                disabled={reference.status === "uploading" || busy}
+                aria-label="Remove the reference photo"
                 className="ml-1 leading-none opacity-60 transition-opacity hover:opacity-100 disabled:opacity-30"
               >
                 ×
@@ -487,7 +391,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 maxLength={120}
                 value={coverTitle}
                 onChange={(event) => setCoverTitle(event.target.value)}
-                disabled={phase === "generating"}
+                disabled={busy}
                 className="mt-1 w-full border-b border-current/30 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
               />
             </div>
@@ -502,78 +406,98 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 value={coverArtist}
                 onChange={(event) => setCoverArtist(event.target.value)}
                 placeholder="Your artist or band name"
-                disabled={phase === "generating"}
+                disabled={busy}
                 className="mt-1 w-full border-b border-current/30 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
               />
             </div>
             <p className="text-[11px] leading-4 opacity-60 sm:col-span-2">
-              Rendered into the generated image, spelled exactly as written.
+              Included in the generated image. Check the lettering before downloading.
             </p>
           </div>
         ) : null}
 
-        {/* THE BAR, pinned in reach while the canvas scrolls. */}
-        <div className="sticky bottom-4 mt-4">
-          <label htmlFor="prompt" className="sr-only">Describe the image you want</label>
+        {/* Full-width writing area with its actions below, including on mobile. */}
+        <div className="mt-6">
           <div
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => {
               event.preventDefault();
               void pickReference(event.dataTransfer.files?.[0]);
             }}
-            className="artcovr-promptbar flex items-end gap-2 rounded-[1.75rem] border border-current/30 p-2"
+            className="artcovr-promptbar rounded-[1.75rem] p-3"
           >
+            <div className="mb-2 flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.12em]">
+              <label htmlFor="prompt" className="opacity-60">Describe your edit</label>
+              <span className="opacity-40">Enter to generate</span>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
+              disabled={busy || reference.status === "uploading"}
               accept={ACCEPTED_REFERENCE_TYPES.join(",")}
               className="sr-only"
               aria-hidden
               tabIndex={-1}
               onChange={(event) => void pickReference(event.target.files?.[0])}
             />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label={armedUploadId ? "Style reference attached — replace it" : "Attach a style reference image"}
-              className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
-            >
-              +
-            </button>
-            <textarea
-              id="prompt"
-              ref={promptBoxRef}
-              value={prompt}
-              maxLength={2000}
-              onChange={(event) => {
-                setPrompt(event.target.value);
-                autosizePromptBox();
-              }}
-              onKeyDown={(event) => {
-                // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  generate();
-                }
-              }}
-              placeholder="Describe the image you want…"
-              rows={1}
-              aria-keyshortcuts="Enter"
-              className="max-h-[200px] min-h-9 w-full resize-none self-center bg-transparent px-2 py-1.5 text-base leading-6 outline-none"
-            />
-            <button
-              type="button"
-              onClick={generate}
-              disabled={!ready || phase === "generating" || restoring}
-              aria-label={phase === "generating" ? "Generating…" : "Generate image"}
-              className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {phase === "generating" ? (
-                <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                <span aria-hidden="true">↑</span>
-              )}
-            </button>
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={busy || reference.status === "uploading"}
+                aria-label={armedUploadId ? "Reference photo attached — replace it" : "Attach a reference photo"}
+                className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-3 text-xs font-bold transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
+              >
+                <span aria-hidden="true" className="text-base">+</span><span>{armedUploadId ? "Photo attached" : "Add your photo"}</span>
+              </button>
+              <textarea
+                id="prompt"
+                disabled={busy}
+                ref={promptBoxRef}
+                value={prompt}
+                maxLength={2000}
+                onChange={(event) => {
+                  setPrompt(event.target.value);
+                  autosizePromptBox();
+                }}
+                onKeyDown={(event) => {
+                  // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
+                  if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+                    event.preventDefault();
+                    generate();
+                  }
+                }}
+                placeholder="Make this cover feel…"
+                rows={1}
+                aria-keyshortcuts="Enter"
+                className="order-first max-h-[240px] min-h-16 w-full resize-none self-center overflow-y-auto border-0 bg-transparent px-1 py-1 text-base leading-6 outline-none ring-0 focus:border-0 focus:outline-none focus:ring-0 focus-visible:border-0 focus-visible:outline-none"
+              />
+              <button
+                type="button"
+                onClick={generate}
+                disabled={phase === "generating" || (!hasPending && (!ready || restoring || reference.status === "uploading"))}
+                aria-label={phase === "generating" ? "Generating…" : hasPending ? "Resume generation" : "Generate image"}
+                className="artcovr-button inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[11px] font-bold uppercase tracking-[0.1em] transition-[filter,opacity] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {phase === "generating" ? (
+                  <>
+                    <span aria-hidden="true" className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <span>Working</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{hasPending ? "Resume" : "Generate"}</span>
+                    <span aria-hidden="true" className="text-base leading-none">↑</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="mt-2 flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.1em] opacity-45">
+              <span>{armedUploadId ? "Reference photo ready" : "Artwork stays the visual foundation"}</span>
+              <span className="tabular-nums" aria-label={`${prompt.length} of 2000 characters`}>
+                {prompt.length}/2000
+              </span>
+            </div>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
@@ -594,13 +518,10 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                          ? "Ready to request a preview."
                          : "Enter at least eight characters.")}
             </span>
-            <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
+            <button type="button" onClick={reset} disabled={busy} className="link-hover font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
               Reset
             </button>
             <span className="opacity-50">1:1 · 1024 px · 1 image</span>
-            <span className="tabular-nums opacity-50" aria-label={`${prompt.length} of 2000 characters`}>
-              {prompt.length}/2000
-            </span>
           </div>
         </div>
 
@@ -625,7 +546,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
           artwork={artwork}
           value={prompt}
           onChange={setPrompt}
-          disabled={phase === "generating"}
+          disabled={busy}
         />
       </div>
     </section>

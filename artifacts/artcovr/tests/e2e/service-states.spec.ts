@@ -103,7 +103,7 @@ test("generation succeeds, chains from its result, and rejects bad uploads", asy
   );
   await page.goto("/product/cart-of-hours", { waitUntil: "domcontentloaded" });
 
-  const prompt = page.getByLabel("Describe the image you want");
+  const prompt = page.getByLabel("Describe your edit");
   await prompt.fill("Add amber light");
   await page.getByRole("button", { name: "Generate image" }).click();
   await expect(page.getByText(/Generated image ready/)).toBeVisible();
@@ -113,6 +113,7 @@ test("generation succeeds, chains from its result, and rejects bad uploads", asy
   await page.getByRole("button", { name: "Generate image" }).click();
   await expect.poll(() => requests.length).toBe(2);
   expect(requests[1].referenceGenerationId).toBe("generation-1");
+  await expect(page.getByRole("button", { name: "Generate image", exact: true })).toBeEnabled();
 
   const upload = page.locator('input[type="file"]');
   await upload.setInputFiles({
@@ -152,7 +153,7 @@ test("generation and reference failures release every loading state", async ({
   );
   await page.goto("/product/cart-of-hours", { waitUntil: "domcontentloaded" });
 
-  await page.getByLabel("Describe the image you want").fill("Add silver rain");
+  await page.getByLabel("Describe your edit").fill("Add silver rain");
   await page.getByRole("button", { name: "Generate image" }).click();
   await expect(page.getByText("Generation timed out. Your allowance was not used.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Generate image" })).toBeEnabled();
@@ -166,7 +167,7 @@ test("generation and reference failures release every loading state", async ({
   await expect(page.getByText("The reference image could not be decoded.")).toBeVisible();
   await expect(page.getByText("Uploading…")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Attach a style reference image" }),
+    page.getByRole("button", { name: "Attach a reference photo" }),
   ).toBeEnabled();
 });
 

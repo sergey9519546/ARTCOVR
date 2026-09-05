@@ -9,6 +9,8 @@ import type { GenerationRequestCoverText } from './generationRequestCoverText';
 import type { GenerationRequestStyleMode } from './generationRequestStyleMode';
 
 export interface GenerationRequest {
+  /** Stable identifier for one edit, reused across transport retries. */
+  requestId?: string;
   /**
      * @minLength 1
      * @maxLength 200
