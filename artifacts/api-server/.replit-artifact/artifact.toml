@@ -27,6 +27,8 @@ args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
 [services.production.run.env]
 PORT = "8080"
 NODE_ENV = "production"
+ARTCOVR_PUBLIC_ORIGIN = "https://artcovr.com"
+ARTCOVR_STOREFRONT_ORIGINS = "https://artcovr.com"
 
 [services.production.health.startup]
 path = "/api/healthz"
