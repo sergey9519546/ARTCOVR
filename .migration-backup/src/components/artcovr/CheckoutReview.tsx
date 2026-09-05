@@ -6,16 +6,32 @@ import { useEffect, useState } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { getCheckoutTotal, isCheckoutReady } from "@/lib/artcovr/artworks";
 import {
+  shouldDiscardSelectedPreview,
   shouldRotateCheckoutIdempotencyKey as shouldRotateCheckoutKey,
 } from "@/lib/artcovr/checkout-errors";
 import { ArtcovrApiError, createCheckout, getGenerationStatus } from "@/lib/artcovr/functions";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+type AuthState = "checking" | "signed-in" | "signed-out" | "unavailable";
+
+function removeSavedPreview(key: string) {
+  try {
+    sessionStorage.removeItem(key);
+  } catch {
+    // Storage can be disabled after the page mounts. The in-memory selection
+    // is still cleared, and the server remains authoritative at checkout.
+  }
+}
 
 export function CheckoutReview({ artwork }: { artwork: Artwork }) {
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState<string>();
+  const [authState, setAuthState] = useState<AuthState>("checking");
   const checkoutReady = isCheckoutReady(artwork);
+  const signInHref = `/sign-in?next=${encodeURIComponent(`/checkout/${artwork.slug}`)}`;
+  const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
   const licenseMode = artwork.saleMode === "exclusive"
     ? "Exclusive commercial license"
     : artwork.saleMode === "repeatable"
@@ -24,11 +40,34 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
 
   useEffect(() => {
     let active = true;
+    const client = getSupabaseBrowserClient();
+    if (!client) {
+      setAuthState("unavailable");
+      return;
+    }
+
+    void client.auth.getSession()
+      .then(({ data }) => {
+        if (active) setAuthState(data.session ? "signed-in" : "signed-out");
+      })
+      .catch(() => {
+        if (active) setAuthState("signed-out");
+      });
+
+    const { data: authListener } = client.auth.onAuthStateChange((_event, session) => {
+      if (active) setAuthState(session ? "signed-in" : "signed-out");
+    });
+    return () => {
+      active = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
     let selectedPreviewId: string | null = null;
     try {
-      selectedPreviewId = sessionStorage.getItem(
-        `artcovr:selected-preview:${artwork.id}`,
-      );
+      selectedPreviewId = sessionStorage.getItem(selectedPreviewKey);
     } catch {
       // Locked-down iframes and some privacy modes throw on storage access.
       // Checkout degrades to "no selected preview" rather than unmounting the
@@ -38,31 +77,37 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
     if (!selectedPreviewId) return;
     void getGenerationStatus(selectedPreviewId)
       .then((status) => {
-        if (active && status.status === "succeeded" && status.previewUrl) {
+        if (!active) return;
+        if (status.status === "succeeded" && status.previewUrl) {
           setSelectedImage(status.previewUrl);
+        } else {
+          removeSavedPreview(selectedPreviewKey);
+          setSelectedImage(undefined);
         }
       })
-      .catch(() => {
-        // The server validates ownership and expiry again at checkout.
+      .catch((reason) => {
+        if (active && shouldDiscardSelectedPreview(reason)) {
+          removeSavedPreview(selectedPreviewKey);
+          setSelectedImage(undefined);
+        }
       });
     return () => {
       active = false;
     };
-  }, [artwork.id]);
+  }, [selectedPreviewKey]);
 
   async function continueToCheckout() {
-    if (!checkoutReady) return;
+    if (!checkoutReady || authState !== "signed-in") return;
     const keyName = `artcovr:checkout-key:${artwork.id}`;
     try {
       setLoading(true);
       setError("");
-      const previewKey = `artcovr:selected-preview:${artwork.id}`;
       let idempotencyKey = sessionStorage.getItem(keyName);
       if (!idempotencyKey) {
         idempotencyKey = crypto.randomUUID();
         sessionStorage.setItem(keyName, idempotencyKey);
       }
-      const selectedPreviewId = sessionStorage.getItem(previewKey) || undefined;
+      const selectedPreviewId = sessionStorage.getItem(selectedPreviewKey) || undefined;
       const { checkoutUrl } = await createCheckout(
         artwork.id,
         idempotencyKey,
@@ -72,6 +117,13 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
     } catch (reason) {
       if (shouldRotateCheckoutKey(reason)) {
         sessionStorage.removeItem(keyName);
+      }
+      if (reason instanceof ArtcovrApiError && reason.code === "unauthorized") {
+        setAuthState("signed-out");
+      }
+      if (shouldDiscardSelectedPreview(reason)) {
+        removeSavedPreview(selectedPreviewKey);
+        setSelectedImage(undefined);
       }
       setError(reason instanceof ArtcovrApiError && reason.code === "unauthorized"
         ? "Sign in to complete checkout."
@@ -103,14 +155,38 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
               ? "Your purchase includes the original artwork, your selected preview when present, and successful purchased generations during the access period."
               : "Checkout activates after the owner approves commercial rights, price, license mode, and publication."}
           </p>
+          {checkoutReady && authState === "signed-out" && (
+            <aside className="mt-7 border-l-2 border-current pl-4 text-sm leading-6">
+              <p>Sign in before opening the secure checkout. You will return to this review.</p>
+              <Link href={signInHref} className="link-hover mt-2 inline-block font-bold">
+                Sign in with email
+              </Link>
+            </aside>
+          )}
+          {checkoutReady && authState === "checking" && (
+            <p role="status" className="mt-7 text-sm opacity-70">Checking your sign-in…</p>
+          )}
+          {checkoutReady && authState === "unavailable" && (
+            <p role="alert" className="mt-7 border-l-2 border-[var(--alert)] pl-4 text-sm">
+              Account services are not configured, so checkout cannot open yet.
+            </p>
+          )}
           <label className="mt-7 flex gap-3 text-sm leading-5">
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} disabled={!checkoutReady} className="mt-1 size-4 accent-[var(--foreground)]" />
             <span>I agree to the <Link href="/license" className="underline underline-offset-4">commercial license</Link> and <Link href="/legal/terms" className="underline underline-offset-4">terms</Link>.</span>
           </label>
-          <button type="button" disabled={!checkoutReady || !accepted || loading} onClick={continueToCheckout} className="artcovr-button mt-7 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
-            {checkoutReady ? (loading ? "Opening checkout…" : "Continue to checkout") : "Checkout pending owner approval"}
+          <button type="button" disabled={!checkoutReady || authState !== "signed-in" || !accepted || loading} onClick={continueToCheckout} className="artcovr-button mt-7 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
+            {!checkoutReady
+              ? "Checkout pending owner approval"
+              : authState === "checking"
+                ? "Checking sign-in…"
+                : authState === "signed-out"
+                  ? "Sign in to continue"
+                  : authState === "unavailable"
+                    ? "Checkout unavailable"
+                    : loading ? "Opening checkout…" : "Continue to checkout"}
           </button>
-          {error && <p role="alert" className="mt-3 text-sm text-[#a11212] dark:text-[#ff6b6b]">{error}</p>}
+          {error && <p role="alert" className="mt-3 text-sm text-[var(--alert)]">{error}</p>}
         </section>
       </div>
     </main>

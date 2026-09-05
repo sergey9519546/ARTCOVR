@@ -127,3 +127,6 @@ journey-sweep.mjs
 # Replit
 .cache/
 .local/
+
+# Local browser verification artifacts
+/playwright-results/

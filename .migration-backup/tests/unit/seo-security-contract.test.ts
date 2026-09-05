@@ -72,6 +72,32 @@ test("JSON-LD serialization cannot be terminated by catalog text", () => {
   assert.equal(serializeJsonLd(undefined), "null");
 });
 
+test("FAQ answers are emitted as matching FAQPage structured data", async () => {
+  const faq = await read("src/app/faq/page.tsx");
+  assert.match(faq, /"@type": "FAQPage"/);
+  assert.match(faq, /mainEntity: questions\.map/);
+  assert.match(faq, /"@type": "Question"/);
+  assert.match(faq, /"@type": "Answer"/);
+  assert.match(faq, /serializeJsonLd\(faqStructuredData\)/);
+});
+
+test("product pages publish transactional metadata and licensable image attribution", async () => {
+  const product = await read("src/app/product/[slug]/page.tsx");
+  assert.match(product, /title: `\$\{art\.title\} Cover Art License`/);
+  assert.match(product, /description: getProductMetadataDescription\(art\)/);
+  assert.match(product, /license: absoluteSiteUrl\("\/license"\)/);
+  assert.match(product, /acquireLicensePage: productUrl/);
+  assert.match(product, /creditText: "ARTCOVR"/);
+});
+
+test("product sitemap entries include their public catalog image", async () => {
+  const sitemap = await read("src/app/sitemap.ts");
+  assert.match(
+    sitemap,
+    /images: \[absoluteSiteUrl\(artwork\.image, siteUrl\)\]/,
+  );
+});
+
 test("Product and Offer schema are emitted only for purchasable art", () => {
   const base = {
     slug: "sample",

@@ -815,10 +815,3 @@ export function useGetOwnerCatalogIntelligenceAccess<TData = Awaited<ReturnType<
 
   return withQueryKey(query, queryOptions.queryKey);
 }
-
-
-
-
-
-
-

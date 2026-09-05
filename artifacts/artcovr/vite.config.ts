@@ -391,6 +391,9 @@ export default defineConfig(async ({ mode }) => {
     server: {
       port,
       strictPort: true,
+      proxy: {
+        "/api": { target: process.env.PLAYWRIGHT_API_URL || "http://127.0.0.1:5000", changeOrigin: false },
+      },
       host: '0.0.0.0',
       allowedHosts: true,
       ...(apiProxyTarget

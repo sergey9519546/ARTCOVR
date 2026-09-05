@@ -32,6 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...displayArtworks.map((artwork) => ({
       url: absoluteSiteUrl(`/product/${artwork.slug}`, siteUrl),
+      images: [absoluteSiteUrl(artwork.image, siteUrl)],
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),

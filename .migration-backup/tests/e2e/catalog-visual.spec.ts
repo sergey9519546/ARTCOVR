@@ -2,30 +2,37 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 
+import curatedPublic from "../../src/lib/artcovr/curated-public.json" with { type: "json" };
 import curatedReview from "../../src/lib/artcovr/curated-review.json" with { type: "json" };
 
-// The Playwright suite runs with NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING=1 (see
-// playwright.config.ts), so the app renders curated-review.json. The homepage
-// still respects its featured-only presentation tier; the archive intentionally
-// retains every review identity, including owner-marked deletion candidates.
+type AppMode = "public" | "staging";
+const configuredMode = process.env.PLAYWRIGHT_ARTCOVR_MODE;
+if (configuredMode !== "public" && configuredMode !== "staging") {
+  throw new Error(
+    "PLAYWRIGHT_ARTCOVR_MODE must explicitly identify the public or staging catalog.",
+  );
+}
+const appMode: AppMode = configuredMode;
+
+// Catalog expectations come from the same explicit mode label passed to the
+// Playwright process. If the owned Next server starts with the wrong projection,
+// the exact home/archive counts below fail rather than silently certifying it.
 type ReviewRow = {
   slug: string;
   image: string;
   tier?: "featured" | "archive" | "delete";
 };
-const catalog = curatedReview as ReviewRow[];
+const catalog = (appMode === "public" ? curatedPublic : curatedReview) as ReviewRow[];
 const featuredCount = catalog.filter(
   (row) => (row.tier ?? "featured") === "featured",
 ).length;
 const archiveCount = catalog.length;
 const SPIRAL_CAP = 40;
 
-// Staging review images are not shipped in public/ (the 139 production images
-// live there; review-only works reference assets in private storage). Only
-// enforce the zero-broken-images guard when the active catalog's images are
-// all present in public/ (i.e. production mode).
+// Review-only works can reference private-storage assets that intentionally do
+// not ship in public/. Every approved public projection image must be present.
 const publicRoot = path.join(process.cwd(), "public");
-const stagingHasMissingImages = catalog.some(
+const catalogHasMissingImages = catalog.some(
   (row) => !fs.existsSync(path.join(publicRoot, row.image.replace(/^\//, ""))),
 );
 
@@ -79,16 +86,16 @@ test("the home surfaces expose the complete featured tier without broken images"
 
   expect(result.uniqueDestinations).toBe(featuredCount);
   expect(result.invalidDestinations).toBe(0);
-  if (!stagingHasMissingImages) {
+  if (appMode === "public" || !catalogHasMissingImages) {
     expect(result.brokenImages).toBe(0);
   }
   expect(result.overflow).toBeLessThanOrEqual(1);
   expect(pageErrors).toEqual([]);
 });
 
-test("the archive lists every published tier and each product destination renders", async ({ request }) => {
+test("the archive lists every active-mode catalog row and each product destination renders", async ({ request }) => {
   // On a freshly started dev server every route needs JIT compilation, so the
-  // serial probe of all 187 product pages can take well over 30 s.  Raise the
+  // serial probe of the entire active catalog can take well over 30 s. Raise the
   // per-test budget without weakening any assertion.
   test.setTimeout(90_000);
   const archive = await request.get("/archive");

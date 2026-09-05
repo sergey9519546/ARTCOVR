@@ -77,7 +77,13 @@ test("checkout return URLs use the configured public origin, never a forwarded h
   assert.equal(urls.successUrl.includes("forwarded"), false);
 });
 
-test("a checkout mode mismatch preserves an expired, unpaid order and emits a diagnosis", async () => {
+test("a checkout mode mismatch preserves an expired, unpaid order and emits a diagnosis", async (context) => {
+  const previousOrigin = process.env.ARTCOVR_PUBLIC_ORIGIN;
+  process.env.ARTCOVR_PUBLIC_ORIGIN = "https://artcovr.example";
+  context.after(() => {
+    if (previousOrigin === undefined) delete process.env.ARTCOVR_PUBLIC_ORIGIN;
+    else process.env.ARTCOVR_PUBLIC_ORIGIN = previousOrigin;
+  });
   const artwork = getPublicCatalog().find(
     (candidate) => candidate.saleMode === "repeatable",
   );
@@ -180,7 +186,7 @@ test("a checkout mode mismatch preserves an expired, unpaid order and emits a di
   }
 });
 
-test("a late conflicting exclusive payment is automatically refunded", async () => {
+test("simultaneous exclusive reservations create only one active order", async () => {
   const suffix = randomUUID();
   const artworkId = `test-mismatch-${suffix}`;
   const orderIds = [`order-a-${suffix}`, `order-b-${suffix}`];

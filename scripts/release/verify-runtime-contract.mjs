@@ -37,7 +37,7 @@ if (site) {
 expect(webArtifact.includes("BASE_PATH = \"/\""), "The web artifact must declare BASE_PATH = \"/\".");
 expect(viteConfig.includes("allowedHosts: true"), "The web preview must allow the Replit proxy host.");
 expect(webArtifact.includes('from = "/api"') || apiArtifact.includes('paths = ["/api"]'), "The deployment must route /api to the API service.");
-expect(webArtifact.includes('to = "/404.html"'), "The static web artifact must have a final 404 rewrite.");
+expect(!/from\s*=\s*["']\/\*["']/.test(webArtifact), "The static web artifact must preserve native 404 responses rather than rewrite every missing route.");
 expect(apiArtifact.includes('path = "/api/healthz"'), "The API artifact must use /api/healthz as its startup health path.");
 
 if (failures.length) {

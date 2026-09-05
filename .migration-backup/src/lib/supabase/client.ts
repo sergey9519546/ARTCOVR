@@ -15,7 +15,12 @@ export function getSupabaseBrowserClient() {
   if (browserClient !== undefined) return browserClient;
   const config = getSupabasePublicConfig();
   browserClient = config
-    ? createBrowserClient(config.url, config.anonKey)
+    ? createBrowserClient(config.url, config.anonKey, {
+        // The static callback page explicitly exchanges the PKCE code. Leaving
+        // automatic URL detection enabled makes auth-js consume it first and
+        // turns the explicit exchange into a guaranteed second, failed call.
+        auth: { detectSessionInUrl: false },
+      })
     : null;
   return browserClient;
 }

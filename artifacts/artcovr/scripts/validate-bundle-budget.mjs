@@ -18,8 +18,8 @@ function formatBytes(bytes) {
 
 function runBuild() {
   const result = spawnSync(
-    process.platform === "win32" ? "pnpm.cmd" : "pnpm",
-    ["exec", "vite", "build", "--config", "vite.config.ts"],
+    process.execPath,
+    [path.join(storefrontRoot, "node_modules/vite/bin/vite.js"), "build", "--config", "vite.config.ts"],
     {
       cwd: storefrontRoot,
       env: {

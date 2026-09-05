@@ -83,6 +83,9 @@ export type PublicArtworkProjection = {
   description: string;
   category: string;
   moodTags: string[];
+  sourceWidth: number;
+  sourceHeight: number;
+  sourceMimeType: "image/jpeg" | "image/png";
   editionAvailable: null;
   editionTotal: null;
   licenseLabel: string;
@@ -171,6 +174,9 @@ export function projectApprovedCatalog(
         description: row.description,
         category: row.category,
         moodTags: [...row.moodTags],
+        sourceWidth: row.sourceWidth,
+        sourceHeight: row.sourceHeight,
+        sourceMimeType: row.sourceMimeType,
         editionAvailable: null,
         editionTotal: null,
         licenseLabel:

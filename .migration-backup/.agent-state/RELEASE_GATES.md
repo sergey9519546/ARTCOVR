@@ -2,36 +2,41 @@
 
 All release gates must pass before any version is marked production-ready.
 
-| Gate | Requirement | Command / Check (bun — mapped from the documented command) | Status (2026-08-31) |
+| Gate | Requirement | Command / Check (bun — mapped from the documented command) | Status (2026-09-04) |
 | :--- | :--- | :--- | :--- |
-| **G1: Unit & Contract Tests** | 100% test pass | `bun run test` | **PASS** (exit 0, 2.6s, 2026-08-31T10:27:33Z) — # tests 200, # pass 198, # fail 0, # cancelled 0, # skipped 2 |
-| **G2: TypeScript Compilation** | Zero type errors | `bun run typecheck` | **PASS** (exit 0, 6.7s, 2026-08-31T10:27:33Z) |
-| **G3: Code Quality & Lint** | Zero ESLint warnings / errors | `bun run lint` | **PASS** (exit 0, 7.7s, 2026-08-31T10:27:33Z) |
-| **G4: Production Build** | Zero build errors; export pruned to approved assets | `bun run build` | **PASS** (exit 0, 18.8s, 2026-08-31T10:27:33Z) — {"scannedFiles":3523,"reviewSlugs":169,"allowedSlugs":187,"forbiddenSlugs":30,"observedAllowedSlugs":187,"violations":0} — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
-| **G5: Browser \& E2E Tests** | All Playwright journeys pass | `bun run test:e2e` | **PASS** (exit 0, 81.3s, 2026-08-31T10:27:33Z) — 44 passed (1.3m) |
-| **G6: Catalog Integrity** | Projection matches approved records | `bun run catalog:project:check`, `bun run catalog:launch:check` | **PASS** (exit 0, 0.9s, 2026-08-31T10:27:33Z) — checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true; checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
-| **G7: Security Headers** | CSP, X-Frame-Options, noindex on staging | `bun run check:headers` | **PASS** (exit 0, 0.1s, 2026-08-31T10:27:33Z) — passed=22, failed=0 |
-| **G8: Commerce Hardening** | Frozen prices, idempotent settle, dispute revoke/restore, convergent webhooks, dual-lane generation admission, dispute-pause entitlement credit, base-drift reconciliation | `bun run db:verify` | **PASS** (exit 0, 1.0s, 2026-08-31T10:27:33Z) — G8 OK: migrations apply, contract invariants hold, behavioural checks pass. |
-| **G9: Display Asset Integrity** | JPEG, square display derivatives; curated/seed sha sync | `node --test --experimental-strip-types tests/unit/catalog-display-assets.test.ts` | **PASS** (exit 0, 0.5s, 2026-08-31T10:27:33Z) — # tests 3, # pass 3, # fail 0, # cancelled 0, # skipped 0 |
+| **G1: Unit & Contract Tests** | 100% test pass | `bun run test` | **PASS** (exit 0, 1.9s, 2026-09-04T17:18:14Z) — ℹ tests 242, ℹ pass 242, ℹ fail 0, ℹ cancelled 0, ℹ skipped 0 |
+| **G2: TypeScript Compilation** | Zero type errors | `bun run typecheck` | **PASS** (exit 0, 3.0s, 2026-09-04T17:18:14Z) |
+| **G3: Code Quality & Lint** | Zero ESLint warnings / errors | `bun run lint` | **PASS** (exit 0, 6.8s, 2026-09-04T17:18:14Z) |
+| **G4: Production Build** | Zero build errors; export pruned to approved assets | `bun run build` | **PASS** (exit 0, 13.8s, 2026-09-04T17:18:14Z) — {"scannedFiles":3523,"reviewSlugs":169,"allowedSlugs":187,"forbiddenSlugs":30,"observedAllowedSlugs":187,"violations":0} — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
+| **G5: Browser \& E2E Tests** | All Playwright journeys pass | `bun run test:e2e` | **PASS** (exit 0, 101.4s, 2026-09-04T17:18:14Z) — 55 passed (34.0s) |
+| **G6: Catalog Integrity** | Projection matches approved records | `bun run catalog:project:check`, `bun run catalog:launch:check` | **PASS** (exit 0, 0.5s, 2026-09-04T17:18:14Z) — checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true; checkOnly=true, approvedRows=217, publishableRows=187, launchCountValid=true — computed catalog truth: 217 approved → 187 publishable (30 delete-tier excluded), per `node scripts/agent/rights-audit.mjs` |
+| **G7: Security Headers** | CSP, X-Frame-Options, noindex on staging | `bun run check:headers` | **PASS** (exit 0, 0.1s, 2026-09-04T17:18:14Z) — passed=22, failed=0 |
+| **G8: Commerce Hardening** | Frozen prices, idempotent settle, dispute revoke/restore, convergent webhooks, dual-lane generation admission, dispute-pause entitlement credit, base-drift reconciliation | `bun run db:verify` | **NOT RUN** — requires a PostgreSQL client: the `psql` binary is not installed (spawn ENOENT). Install postgresql-client, point PGHOST/PGPORT/PGUSER at a disposable instance, and re-run. |
+| **G9: Display Asset Integrity** | JPEG, square display derivatives; curated/seed sha sync | `node --test --experimental-strip-types tests/unit/catalog-display-assets.test.ts` | **PASS** (exit 0, 0.3s, 2026-09-04T17:18:14Z) — ℹ tests 3, ℹ pass 3, ℹ fail 0, ℹ cancelled 0, ℹ skipped 0 |
+| **G10: Live Storefront Health** | Public routes expose indexable server HTML, an exact current-catalog sitemap, 404/noindex withdrawn routes, real favicon bytes, private-route cache/noindex controls, and canonical security headers | `bun run check:live` | **FAIL** (exit 1, 4.1s, 2026-09-04T17:18:14Z) — target=https://artcovr.com, passed=31, failed=60 |
+| **G11: Private Source Integrity** | Every publishable source exists and matches approved SHA, bytes, MIME, and dimensions; native dimension eligibility is reported without claiming full channel readiness | `bun run catalog:storage:plan` | **PASS** (exit 0, 1.1s, 2026-09-04T17:18:14Z) — approvedRows=187, objects=374, liveConnectionAttempted=false |
+| **G12: Live Edge Deployment** | Every storefront, webhook, and watchdog Edge Function in the canonical source tree is reachable on the configured production Supabase project | `bun run check:deployment` | **FAIL** (exit 1, 3.0s, 2026-09-04T17:18:14Z) — project=https://gcnamdbwekikkuqvzuko.supabase.co, targetSource=cli-project-ref, calledByFrontend=6, externallyInvoked=3, deployed=3 |
 
 <!-- release-gates:begin (generated by scripts/agent/release-gates.mjs — do not hand-edit) -->
 
-**How this table was produced.** `node scripts/agent/release-gates.mjs` executed it on 2026-08-31 (run `2026-08-31T10:27:33Z`). Every Status cell above is derived from a child-process exit code captured during that run and written to `~/.claude/logs/release-gates.jsonl`; no cell can read **PASS** without one.
+**How this table was produced.** `node scripts/agent/release-gates.mjs` executed it on 2026-09-04 (run `2026-09-04T17:18:14Z`). Every Status cell above is derived from a child-process exit code captured during that run and written to `~/.claude/logs/release-gates.jsonl`; no cell can read **PASS** without one.
 
 **Command mapping (npm is never spawned — `bun` is canonical per AGENTS.md).** The documented Command column was rewritten to the form actually executed:
 
-- `npm run test:e2e → bun run test:e2e`
+- (no mapping needed — every documented command was already canonical)
 
-**NOT RUN (0).** A gate that needs credentials, a live service, a browser, or an absent CLI is recorded NOT RUN with its reason. It never becomes PASS by default:
+**NOT RUN (1).** A gate that needs credentials, a live service, a browser, or an absent CLI is recorded NOT RUN with its reason. It never becomes PASS by default:
 
-- (none)
+- **G8** — requires a PostgreSQL client: the `psql` binary is not installed (spawn ENOENT). Install postgresql-client, point PGHOST/PGPORT/PGUSER at a disposable instance, and re-run.
 
 **Numeric cross-check against computed catalog truth.** `node scripts/agent/rights-audit.mjs` reports **217 total / 217 approved / 187 publishable** (30 delete-tier excluded). Every `<N> published|approved|projected` claim in `.agent-state/*.md` was compared against it: **13 agree, 0 conflict, 8 superseded ledger claim(s)** in `DECISIONS.md` (an append-only record of dated decisions — its numbers are history by construction and are never rewritten).
 
 <!-- release-gates:end -->
 
-## Launch blockers that are OWNER decisions, not engineering defects
-1. **FABRICATED_PRICING_APPROVAL** — **RESOLVED (ADR-019, 2026-08-15)**: Owner confirmed the four-tier pricing ($10/$35/$80/$200; 30 exclusive/70 repeatable at launch, now 51 exclusive/118 repeatable across 169) as owner-approved. No longer a launch blocker. See ADR-019.
-2. **Stripe webhook event enablement** — enable the `charge.dispute.closed` event on the Stripe webhook endpoint via the Stripe dashboard. Migration `202608140009_convergence_hardening.sql` is applied live, the edge function handles the event, and both watchdog crons are provisioned and firing HTTP 200 every minute. `OPENAI_IMAGE_TIMEOUT_MS` is auto-satisfied (defaults to 115000, under the 130000 watchdog cap). Only the Stripe dashboard toggle remains.
-3. **Storage upload** — `catalog:storage:plan` + apply requires the owner's private source tree (E:\ART_COLLECTION) and service-role credentials.
+## Launch blockers requiring live credentials or owner-controlled settings
 
+1. **FABRICATED_PRICING_APPROVAL** — **RESOLVED (ADR-019, 2026-08-15)**: Owner confirmed the four-tier pricing ($10/$35/$80/$200); the current approved projection contains 46 exclusive and 141 repeatable works. No longer a launch blocker. See ADR-019.
+2. **Canonical storefront deployment** — the 2026-09-04 live HTTP probe proves that `artcovr.com` serves a hydrated 404 shell rather than the hardened static export from this branch. Deploy only the rights-gated canonical architecture, then require `bun run check:live` to pass. See `.agent-state/FOLLOWUPS.md`.
+3. **Backend deployment and Stripe convergence** — the 2026-09-04 read-only Edge probe found only 3 of 9 functions reachable; `create-checkout`, `generation-status`, `my-images`, `stripe-webhook`, `submit-inquiry`, and `upload-reference` return 404. Local migration and contract checks do not prove the live migration ledger, webhook endpoint, scheduler, secrets, or Stripe event settings. Reconcile and deploy the live backend, enable `charge.dispute.closed`, then prove a Stripe test-mode purchase/refund/dispute journey end to end.
+4. **Native delivery resolution** — the verified 187-work source inventory has 5 works at Apple's 1400px dimension threshold, 3 within TuneCore's 1600–3000px range, and none at Apple's recommended 3000px. These counts do not prove the remaining channel requirements. Do not claim distributor readiness or upscale to manufacture compliance; regenerate/reapprove native masters and verify every claimed rule (ADR-031).
+5. **Storage upload** — applying the verified `catalog:storage:plan` requires the configured private source tree and service-role credentials.

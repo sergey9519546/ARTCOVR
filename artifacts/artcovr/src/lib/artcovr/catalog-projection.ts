@@ -9,6 +9,9 @@ const PRICING_OVERRIDES_PATH = path.resolve(
   "..",
   "..",
   "..",
+  "..",
+  "..",
+  ".migration-backup",
   "catalog",
   "pricing-overrides.json",
 );

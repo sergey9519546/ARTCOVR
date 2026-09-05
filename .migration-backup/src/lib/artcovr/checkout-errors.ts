@@ -9,6 +9,12 @@ const terminalCheckoutCodes = new Set([
   "stripe_checkout_invalid",
 ]);
 
+const unavailableSelectedPreviewCodes = new Set([
+  "generation_not_found",
+  "invalid_selected_preview",
+  "selected_preview_unavailable",
+]);
+
 export function shouldRotateCheckoutKey(error: unknown) {
   return (
     typeof error === "object" &&
@@ -20,3 +26,13 @@ export function shouldRotateCheckoutKey(error: unknown) {
 }
 
 export const shouldRotateCheckoutIdempotencyKey = shouldRotateCheckoutKey;
+
+export function shouldDiscardSelectedPreview(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string" &&
+    unavailableSelectedPreviewCodes.has(error.code)
+  );
+}

@@ -54,17 +54,17 @@ export default function ContactPage() {
         <form onSubmit={submit} className="mt-8 grid gap-5">
           <label className="text-xs font-bold uppercase tracking-[.08em]">
             Name
-            <input name="name" required className="mt-2 block w-full border border-current/30 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none focus:border-current" />
+            <input name="name" required className="mt-2 block w-full border border-current/50 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none focus:border-current" />
           </label>
           <label className="text-xs font-bold uppercase tracking-[.08em]">
             Tell us about the release
-            <textarea name="message" required rows={6} className="mt-2 block w-full resize-y border border-current/30 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none focus:border-current" />
+            <textarea name="message" required rows={6} className="mt-2 block w-full resize-y border border-current/50 bg-transparent px-4 py-3 text-base normal-case tracking-normal outline-none focus:border-current" />
           </label>
           <button disabled={sending} className="artcovr-button w-fit px-5 py-4 text-xs font-bold uppercase tracking-[.08em] disabled:cursor-wait disabled:opacity-50">
             {sending ? "Sending…" : "Send inquiry"}
           </button>
           {error && (
-            <div role="alert" className="border-l-2 border-[#a11212] pl-4 text-sm dark:border-[#ff6b6b]">
+            <div role="alert" className="border-l-2 border-[var(--alert)] pl-4 text-sm">
               <p>{error}</p>
               {needsSignIn && <Link href="/sign-in" className="link-hover mt-2 inline-block font-bold">Sign in with email</Link>}
             </div>

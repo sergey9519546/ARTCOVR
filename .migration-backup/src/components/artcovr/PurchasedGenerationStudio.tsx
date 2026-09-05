@@ -53,7 +53,9 @@ export function PurchasedGenerationStudio({
   const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
   const pendingStyleMode = useRef<"exact" | "expand">("exact");
   const resetRequested = useRef(false);
-  const [coverTitle, setCoverTitle] = useState(purchase.artworkTitle);
+  // A purchase title identifies the catalog work; it is not customer-requested
+  // typography. Keep cover text empty until the customer explicitly enters it.
+  const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
   const ready = isPromptReady(prompt) && purchase.remainingGenerations > 0;
@@ -199,9 +201,9 @@ export function PurchasedGenerationStudio({
             onChange={(event) => setPrompt(event.target.value)}
             placeholder="Describe any addition, removal, or alteration."
             rows={5}
-            className="mt-3 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
+            className="mt-3 w-full resize-y border border-current/50 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
           />
-          <fieldset className="mt-4 border border-current/25 p-4" disabled={phase === "generating"}>
+          <fieldset className="mt-4 border border-current/50 p-4" disabled={phase === "generating"}>
             <legend className="px-1 text-[10px] font-bold uppercase tracking-[0.14em]">
               Cover text — rendered into the image
             </legend>
@@ -216,7 +218,7 @@ export function PurchasedGenerationStudio({
                   maxLength={120}
                   value={coverTitle}
                   onChange={(event) => setCoverTitle(event.target.value)}
-                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
+                  className="mt-1 w-full border border-current/50 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
                 />
               </div>
               <div>
@@ -230,16 +232,16 @@ export function PurchasedGenerationStudio({
                   value={coverArtist}
                   onChange={(event) => setCoverArtist(event.target.value)}
                   placeholder="Your artist or band name"
-                  className="mt-1 w-full border border-current/30 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
+                  className="mt-1 w-full border border-current/50 bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-current"
                 />
               </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Style handling">
-              <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "exact" ? "border-current" : "border-current/30 opacity-60"}`}>
+              <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "exact" ? "border-current" : "border-current/50 opacity-60"}`}>
                 <input type="radio" name={`paid-style-mode-${purchase.id}`} value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} className="sr-only" />
                 Match style exactly
               </label>
-              <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "expand" ? "border-current" : "border-current/30 opacity-60"}`}>
+              <label className={`cursor-pointer border px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] ${styleMode === "expand" ? "border-current" : "border-current/50 opacity-60"}`}>
                 <input type="radio" name={`paid-style-mode-${purchase.id}`} value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} className="sr-only" />
                 Expand on it
               </label>

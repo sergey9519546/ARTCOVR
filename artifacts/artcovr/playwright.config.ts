@@ -30,13 +30,25 @@ export default defineConfig({
     ? undefined
     : [
         {
-          command: `ARTCOVR_STOREFRONT_ORIGINS=http://127.0.0.1:${port} ARTCOVR_PUBLIC_ORIGIN=http://127.0.0.1:${port} PORT=${apiPort} pnpm --filter @workspace/api-server run dev`,
+          command: 'pnpm --filter @workspace/api-server run dev',
+          env: {
+            NODE_ENV: 'development',
+            ARTCOVR_STOREFRONT_ORIGINS: `http://127.0.0.1:${port}`,
+            ARTCOVR_PUBLIC_ORIGIN: `http://127.0.0.1:${port}`,
+            PORT: String(apiPort),
+          },
           url: `http://127.0.0.1:${apiPort}/api/healthz`,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,
         },
         {
-          command: `VITE_E2E_AUTH=1 PLAYWRIGHT_API_URL=http://127.0.0.1:${apiPort} PORT=${port} BASE_PATH=/ pnpm exec vite --config vite.config.ts --host 127.0.0.1 --port ${port}`,
+          command: `pnpm exec vite --config vite.config.ts --host 127.0.0.1 --port ${port}`,
+          env: {
+            VITE_E2E_AUTH: '1',
+            PLAYWRIGHT_API_URL: `http://127.0.0.1:${apiPort}`,
+            PORT: String(port),
+            BASE_PATH: '/',
+          },
           url: `http://127.0.0.1:${port}`,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,

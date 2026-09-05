@@ -1,5 +1,29 @@
 # DECISIONS LOG
 
+## ADR-031 (2026-09-04): Separate Catalog Validity from Native Dimension Eligibility
+
+- **Context**: The sanctioned private storage dry run verified all 187 publishable source files against approved SHA-256, byte length, MIME, and decoded dimensions. Those native masters span 1024–2362px: 5 meet Apple's 1400px dimensional minimum, 3 fall within TuneCore's 1600–3000px dimension range, and none meet Apple's recommended 3000px size. Pixel dimensions alone do not prove RGB color space, DPI/file-size constraints, or content-dependent channel rules. Apple's current delivery guide explicitly says not to enlarge a smaller image merely to meet its minimum.
+- **Decision**: Technical catalog validity (square and at least 1024px) remains distinct from channel-specific delivery readiness. `catalog:storage:plan` reports only native Apple and TuneCore **dimension eligibility** from the exact verified source bytes and explicitly marks full channel compliance unverified. ARTCOVR must not describe an asset as ready for a named distributor unless every applicable requirement is proven; automatic upscaling cannot manufacture that claim.
+- **Impact**: The broader licensing catalog remains honest and intact, while the current storage evidence certifies no music-distribution subset by itself. Higher-resolution replacements must be regenerated, rights-approved, SHA-locked, and re-imported through the catalog pipeline, and any named-channel positioning still needs the remaining format/content checks. Product UX exposes native deliverable dimensions before payment.
+
+## ADR-030 (2026-09-04): Bound the Desktop Intro's Transfer and Interaction Cost
+
+- **Context**: The eligible desktop intro held the page inert for 4.9 seconds and eagerly mounted 18 protected display covers totaling about 6.96 MiB. That delay preceded every browse or purchase action and duplicated imagery already used farther down the homepage.
+- **Decision**: Keep the owner-curated featured intro order but render its first six works, spanning at least five categories, with a 2.05-second completion and 3-second hard failsafe. The selected cover bytes must remain at or below 2.5 MiB. Static-mode users continue to bypass the intro entirely under ADR-029.
+- **Impact**: Current eligible-intro transfer falls to about 2.19 MiB (roughly 68% lower), interaction unblocks about 2.85 seconds earlier, and a unit contract prevents count, diversity, byte budget, or timing from silently regressing.
+
+## ADR-029 (2026-09-04): Static-Mode Users Bypass the Intro Again
+
+- **Context**: ADR-025 let mobile and coarse-pointer users run the full 18-cover intro. Current browser evidence showed that this made first interaction wait behind a multi-second blocking sequence and introduced unnecessary cover downloads on mobile. The repository-wide accessibility contract now requires reduced-motion, coarse-pointer, and small-viewport users to bypass blocking motion immediately.
+- **Decision**: Supersede only ADR-025's mobile-intro decision. `STATIC_MEDIA_QUERY` now governs both the homepage motion system and preloader; matching users receive no preloader markup or cover requests. If that media query starts matching during an eligible desktop intro, the overlay dismisses immediately and cancels its timers. Fine-pointer desktop users retain the paced sequence.
+- **Impact**: Mobile, coarse-pointer, reduced-motion, and newly resized static-mode sessions reach navigation immediately, while the editorial desktop intro remains intact. Unit and browser contracts cover initial and runtime bypass behavior.
+
+## ADR-028 (2026-09-04): Restore the Contracted Red Theme as a Genuine Red Palette
+
+- **Context**: The repository-wide product contract requires `light`, `dark`, and `red`, but owner commit `ff5bb1e` removed the third theme because its nominally red palette was actually dark green (`#122519`) and its corner-only control was easy to activate accidentally. The executable UI subsequently supported only light/dark while ADR-001 and the current contract still required all three.
+- **Decision**: Restore the third theme with a genuine crimson background (`#8a1023`) and cream foreground (`#fff5dc`), not the retired green palette. One shared allowlist drives the theme type, persistent state, pre-paint bootstrap, standard toggle, desktop choices, and mobile choices. Every explicit choice exposes a label, pressed state, non-color check mark, and a 44px target.
+- **Impact**: The primary red-theme contrast is 8.88:1, card and boundary colors have executable contrast checks, legacy stored `red` values work again, and theme changes synchronize across mounted controls and browser tabs. The root theme contract, runtime producers/consumers, unit contracts, and browser assertions now agree.
+
 ## ADR-023 (2026-08-25): Catalog Artifact Roles and the Identity Invariant
 
 - **Context**: Three catalog files that once agreed on 100 works now hold 100 / 217 / 187 rows, and no document or test stated what their relationship had become. 117 of the 187 public works are absent from the original curated 100, which meant 30 of the launch 100 no longer appear in public — with no recorded explanation. This ADR is a **documentation-only** record established empirically from the artifacts, the projection pipeline and git history; it changes no catalog data.
@@ -252,3 +276,7 @@
   only thing separating free preview from paid master for those works — substantial in practice
   (`cart-of-hours`: 1,019,350-byte PNG master vs 233,698-byte JPEG preview, 4.4x), but dimensional
   parity is real and intentional. Revisit here if the licensing position changes.
+
+## ADR-032 (2026-09-05): Preserve Historical Decision Text
+
+Historical ADR-001 and ADR-020 remain unchanged. ADR-028 records the current three-theme implementation. The executable pricing-override parser now fails closed for a missing or invalid file; this supersedes ADR-020's historical fallback description. Current package-manager commands are defined by the owning package.json.

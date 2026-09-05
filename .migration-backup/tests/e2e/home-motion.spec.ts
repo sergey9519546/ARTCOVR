@@ -2,6 +2,53 @@ import { expect, test } from "@playwright/test";
 
 test.use({ reducedMotion: "no-preference" });
 
+test("the desktop intro dismisses immediately when the viewport enters static mode", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith("desktop"), "Desktop runtime media-query transition");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const preloader = page.locator("#artcovr-preloader");
+  await expect(preloader).toBeVisible();
+
+  await page.setViewportSize({ width: 700, height: 900 });
+
+  await expect(preloader).toBeHidden({ timeout: 1_000 });
+  await expect(page.locator("main")).not.toHaveAttribute("inert", "", { timeout: 3_000 });
+});
+
+test("keyboard-activated artwork links bypass the blocking page transition", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith("desktop"), "Desktop page-transition contract");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#artcovr-preloader")).toHaveCount(0, { timeout: 8_000 });
+  await expect(page.locator("main")).not.toHaveAttribute("inert", "");
+
+  const artworkLink = page.locator(
+    'section[aria-labelledby="selected-artworks"] a[data-artwork="true"]',
+  ).first();
+  await expect(artworkLink).toBeVisible();
+  const originalUrl = page.url();
+  await artworkLink.evaluate((link) => {
+    // Keep this test on the homepage after activation. The document capture
+    // listener still sees the genuine keyboard click before this target hook.
+    link.addEventListener("click", (event) => event.preventDefault(), { once: true });
+  });
+  await artworkLink.focus();
+  await page.keyboard.press("Enter");
+
+  const state = await page.evaluate(async () => {
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+    return {
+      inert: document.querySelector("main")?.hasAttribute("inert") ?? false,
+      url: window.location.href,
+    };
+  });
+  expect(state).toEqual({ inert: false, url: originalUrl });
+});
+
 test("home motion hydrates, respects the static gate, and keeps the restored art", async ({
   page,
 }, testInfo) => {
@@ -16,8 +63,13 @@ test("home motion hydrates, respects the static gate, and keeps the restored art
   const isMobile = testInfo.project.name.startsWith("mobile");
   const preloader = page.locator("#artcovr-preloader");
 
-  await expect(preloader).toBeVisible();
-  await expect(preloader).toHaveCount(0, { timeout: 8_000 });
+  if (isMobile) {
+    await expect(preloader).toBeHidden({ timeout: 1_000 });
+    await expect(preloader.locator("img")).toHaveCount(0);
+  } else {
+    await expect(preloader).toBeVisible();
+    await expect(preloader).toHaveCount(0, { timeout: 8_000 });
+  }
 
   await expect(page.locator("main")).not.toHaveAttribute("inert", "");
   await expect(page.locator("html")).toHaveClass(/loaded/);

@@ -16,7 +16,7 @@ export default function TermsPage() {
         webhook; a browser success page alone does not prove fulfillment.
       </p>
       <p className="mt-4">
-        Exclusive artwork may be reserved for up to 15 minutes during checkout and is
+        Exclusive artwork may be reserved for up to 45 minutes during checkout and is
         removed from ARTCOVR after verified payment. Repeatable artwork remains available
         for other customers under separate non-exclusive licenses.
       </p>
@@ -42,10 +42,18 @@ export default function TermsPage() {
 
       <h2 className="mt-10 text-xl font-bold">Generated images and access</h2>
       <p className="mt-4">
-        Generation allowances count successful results only. Requests may be rejected for
-        safety, technical, or legal reasons. Purchased generation and signed-download
-        access is time-limited as shown in My Images. You are responsible for saving
-        authorized downloads before access expires.
+        Generation allowances count successful results only. Before purchase, each account
+        may create up to two successful 1024 × 1024 px watermarked previews per artwork. A
+        completed purchase includes the native base artwork, the selected preview when one
+        is attached to checkout, and up to four successful 2048 × 2048 px purchased
+        generations. Generation and signed-download access last 30 days from verified
+        payment. Delivery is digital-only through My Images; nothing is shipped.
+      </p>
+      <p className="mt-4">
+        Requests may be rejected for safety, technical, or legal reasons. The native base
+        artwork is delivered at the dimensions and format shown on its artwork page without
+        upscaling. Confirm your destination's current pixel and file-format requirements
+        before purchase, and save authorized downloads before access expires.
       </p>
 
       <h2 className="mt-10 text-xl font-bold">Refunds</h2>

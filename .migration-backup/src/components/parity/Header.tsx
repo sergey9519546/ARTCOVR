@@ -22,7 +22,7 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
        className="fixed top-0 left-0 z-[3] flex w-full items-center justify-between text-[var(--foreground)]"
      >
        <div className="mx-auto flex w-full items-center justify-between px-4 py-6 lg:px-6 lg:py-8">
-         <Link className="artcovr-wordmark artcovr-wordmark-optical mr-2 inline-flex min-h-11 items-center text-2xl lg:mr-6" href="/" aria-label="ARTCOVR home">
+         <Link className="artcovr-wordmark artcovr-wordmark-optical mr-2 inline-flex min-h-11 items-center text-2xl lg:mr-6" href="/" aria-label="ARTCOVR home" data-menu-focus-fallback>
            ARTCOVR
          </Link>
          <div className="flex items-center gap-3 md:gap-16">
@@ -31,9 +31,9 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
                <Link className="link-hover" data-selected={archiveSelected || undefined} aria-current={archiveSelected ? "page" : undefined} href="/archive">archive</Link>
              </li>
              <li>
-               <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">my cart</Link>
+               <Link className="link-hover" data-selected={accountSelected || undefined} aria-current={accountSelected ? "page" : undefined} href="/my-images">my images</Link>
              </li>
-              <li className="md:hidden">
+               <li className="artcovr-js-menu-trigger md:hidden">
                <button
                  type="button"
                  className="min-w-[2.625rem]"
@@ -45,7 +45,7 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
                </button>
              </li>
            </ul>
-           <div className="hidden h-[1.265625rem] w-[3.875rem] md:block" aria-hidden="true" />
+           <div className="hidden h-[1.265625rem] w-[8.75rem] md:block" aria-hidden="true" />
            <ThemeSwitcher />
          </div>
        </div>

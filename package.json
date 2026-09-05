@@ -3,21 +3,22 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
+    "preinstall": "node scripts/check-package-manager.mjs",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
-    "test": "pnpm -r --filter \"./artifacts/**\" --if-present run test",
+    "test": "pnpm -r --if-present run test",
     "test:e2e": "pnpm --filter @workspace/artcovr run test:e2e",
     "test:database": "bash scripts/db/verify-database.test.sh",
     "test:database:baseline": "bash scripts/db/baseline-development.test.sh",
-    "verify:ci": "pnpm run typecheck && pnpm run test",
+    "verify:ci": "pnpm --filter @workspace/artcovr run catalog:project:check && pnpm run test && pnpm run build",
     "verify:release": "pnpm run verify:ci && pnpm run test:e2e && pnpm --filter @workspace/scripts run verify:runtime-contract && pnpm --filter @workspace/scripts run verify:stripe-reconciliation",
     "verify:live-release": "pnpm --filter @workspace/scripts run verify:live-release",
     "verify:stripe-reconciliation": "pnpm --filter @workspace/scripts run verify:stripe-reconciliation",
     "verify:database": "bash scripts/db/verify-database.sh",
     "db:baseline": "bash scripts/db/baseline-development.sh",
-    "db:migrate": "pnpm --filter @workspace/db run migrate"
+    "db:migrate": "pnpm --filter @workspace/db run migrate",
+    "db:verify": "bash scripts/db/verify-database.sh"
   },
   "private": true,
   "dependencies": {
@@ -28,5 +29,9 @@
   "devDependencies": {
     "prettier": "^3.9.6",
     "typescript": "~5.9.3"
+  },
+  "packageManager": "pnpm@10.26.1",
+  "engines": {
+    "node": ">=24"
   }
 }

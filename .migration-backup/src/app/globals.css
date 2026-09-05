@@ -3,11 +3,13 @@
 
 /* These variants and tokens are part of the supplied archive UI contract. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant red (&:where([data-theme="red"], [data-theme="red"] *));
 
 @theme {
   --color-cream: #f3ecd9;
   --color-paper: #f3ecd9;
   --color-carbon: #0b0b0b;
+  --color-red: #8a1023;
   --color-white: #f3ecd9;
   --color-signal: #122519;
   --color-graphite: #74746f;
@@ -35,6 +37,7 @@
   --input: rgb(0 0 0 / 18%);
   --ring: rgb(0 0 0 / 45%);
   --cursor-color: #122519;
+  --alert: #a11212;
   --motion-ease: cubic-bezier(.19, 1, .22, 1);
   --radius: .625rem;
 }
@@ -50,6 +53,31 @@ html[data-theme="dark"] {
   --input: rgb(243 236 217 / 22%);
   --ring: rgb(243 236 217 / 55%);
   --cursor-color: #f3ecd9;
+  --alert: #ff6b6b;
+}
+html[data-theme="red"] {
+  color-scheme: dark;
+  --background: #8a1023;
+  --foreground: #fff5dc;
+  --card: #6c0919;
+  --card-foreground: #fff5dc;
+  --border: #e89aa5;
+  --input: #f5bac1;
+  --ring: #fff5dc;
+  --cursor-color: #fff5dc;
+  --signal: #0b0b0b;
+  --alert: #fff5dc;
+}
+
+/*
+ * Opacity-based muted copy that clears AA on the light and dark grounds falls
+ * below 4.5:1 when composited over crimson. Keep the same visual hierarchy in
+ * the red theme at the lowest alpha that still clears normal-text contrast.
+ * Variant utilities such as `disabled:opacity-40` are separate class names and
+ * intentionally retain their inactive-control treatment.
+ */
+html[data-theme="red"] :where(.opacity-30, .opacity-40, .opacity-50, .opacity-60):not(:disabled) {
+  opacity: .7 !important;
 }
 * { box-sizing: border-box; }
 html {
@@ -178,6 +206,10 @@ html.has-custom-cursor a:focus { cursor: auto !important; }
   html.has-custom-cursor * { cursor: auto !important; }
 }
 
+@media (prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px) {
+  #artcovr-preloader { display: none !important; }
+}
+
 #header, .theme-control {
   opacity: 0;
   transform: translateY(-6rem);
@@ -224,10 +256,16 @@ html.lenis, html.lenis body { height: auto; }
 
 @media (scripting: none) {
   #artcovr-preloader, #layer { display: none !important; }
+  .theme-control { display: none !important; }
   #page, #page-shell, #header { visibility: visible !important; opacity: 1 !important; transform: none !important; }
   /* Without scripting the reveal button cannot run, so the full grid ships. */
   .artwork-grid-clamp > * { display: block !important; }
   .artwork-grid-reveal { display: none !important; }
+}
+
+@media (scripting: none) and (max-width: 767px) {
+  .artcovr-js-menu-trigger { display: none !important; }
+  .artcovr-noscript-nav { display: flex !important; }
 }
 
 /*

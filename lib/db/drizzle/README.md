@@ -6,7 +6,7 @@ This directory is the reviewable schema history for `@workspace/db`.
   `pnpm --filter @workspace/db run generate`.
 - Apply committed migrations to a development or disposable database with
   `pnpm run db:migrate`.
-- Post-merge setup uses `scripts/db/migrate-development.sh`. It first checks
+- Explicit development setup uses `bash scripts/db/migrate-development.sh`. It first checks
   whether a development database has the initial schema but no Drizzle
   history, records only the baseline migration metadata when appropriate, and
   then applies committed migrations. It never drops or rewrites application

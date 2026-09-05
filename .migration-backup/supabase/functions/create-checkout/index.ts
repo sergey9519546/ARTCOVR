@@ -156,12 +156,16 @@ Deno.serve(async (request) => {
 
     const { data: purchase, error: purchaseError } = await admin
       .from("purchases")
-      .select("artwork_id,artwork_catalog_id,artwork_title,amount_cents,currency,stripe_checkout_session_id,stripe_checkout_expires_at")
+      .select("artwork_id,artwork_catalog_id,artwork_title,amount_cents,currency,stripe_checkout_session_id,stripe_checkout_expires_at,artworks!purchases_artwork_id_fkey(slug)")
       .eq("id", reservation.purchase_id)
       .eq("user_id", user.id)
       .single();
     if (purchaseError || !purchase || purchase.artwork_catalog_id !== body.artworkId) {
       throw new HttpError(409, "reservation_snapshot_mismatch", "Checkout reservation does not match the requested artwork.");
+    }
+    const artworkRelation = purchase.artworks as { slug?: unknown } | null;
+    if (typeof artworkRelation?.slug !== "string" || !CATALOG_ID_PATTERN.test(artworkRelation.slug)) {
+      throw new HttpError(409, "reservation_snapshot_mismatch", "Checkout reservation has no valid artwork destination.");
     }
 
     if (reservation.outcome === "existing") {
@@ -193,6 +197,7 @@ Deno.serve(async (request) => {
       session = await createCheckout({
         purchaseId: reservation.purchase_id,
         catalogId: purchase.artwork_catalog_id,
+        artworkSlug: artworkRelation.slug,
         title: purchase.artwork_title,
         amount: purchase.amount_cents,
         currency: purchase.currency,

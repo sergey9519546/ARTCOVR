@@ -45,18 +45,18 @@ ADR-016 documents the empirical resolution: the 19 `generated_images` rows use `
 
 ---
 
-## 4. Apply the Supabase migration — **OPEN**
+## 4. Verify and, if needed, apply the Supabase migration live — **OPEN**
 
-`supabase/migrations/202608140010_generation_rate_lanes.sql` exists but **has never been parsed by Postgres**. Until applied, the live `request_generation` is still the broken single-bucket version where free traffic can deny generation to paying customers.
+`supabase/migrations/202608140010_generation_rate_lanes.sql` applies cleanly and passes behavior checks on disposable PostgreSQL 16 through `bun run db:verify`. Its application to the live database is still unverified. Until live introspection proves otherwise, conservatively assume `request_generation` is still the earlier single-bucket version where free traffic can deny generation to paying customers.
 
 - Apply against staging first; confirm the function replaced cleanly.
 - Verify a purchased call succeeds while the free lane is saturated.
 - Decide the throughput question: worst case rises 4/min → 8/min (4 free + 4 purchased). If the provider tier cannot absorb 8/min, lower the `>= 4` in the purchased branch — one number, lanes are independent.
 - ~~Update `.agent-state/PRODUCT_CONTRACT.md:18` and `FAILURE_GRAPH.md:36`, both of which still document "4/min globally".~~ **This instruction is stale (corrected 2026-08-31.)** Both files were already rewritten to the dual-lane form, so they now assert behaviour this task says is not applied — the inverse of the problem described here. Both now carry an explicit UNVERIFIED marker, as does `supabase/README.md`, which still documents the single-lane bound. On applying the migration, the work is to *remove those markers*, not to update the numbers. If the migration is instead found already applied, remove the markers and correct `supabase/README.md` to the dual-lane form.
 
-**Done when:** applied, verified against a real DB, docs updated.
+**Done when:** the live function body is inspected, the migration is applied there if absent, and a purchased call is verified while the free lane is saturated.
 
-**Current status (2026-08-17):** Migration file is present and correct (`supabase/migrations/202608140010_generation_rate_lanes.sql`). Cannot be applied from this environment — Supabase CLI is not installed and no local `.supabase/` state or connection string is available. Requires owner/Supabase access to run `supabase migration up` against staging, then verify the `request_generation` function replaced cleanly. Docs (`PRODUCT_CONTRACT.md`, `FAILURE_GRAPH.md`) still document "4/min globally" and must be updated after application.
+**Current status (2026-09-04):** Commit `957b064` records a PostgreSQL 16.13 G8 run in which all 12 migrations applied, 36 contract assertions held, and 5 behavioral checks passed. This host no longer has `psql`, so the 2026-09-04 gate run could not repeat that proof and correctly records G8 as **NOT RUN**. No live database credentials or verified migration ledger are available here, so the live body remains unknown; do not infer it from the migration file or the deployed function list.
 
 ---
 

@@ -243,5 +243,3 @@ export const GetOwnerCatalogIntelligenceAccessResponse = zod.object({
   "duplicateReview": zod.boolean()
 })
 })
-
-

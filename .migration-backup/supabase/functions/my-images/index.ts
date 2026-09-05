@@ -33,9 +33,19 @@ type GenerationRow = {
   artworks: { catalog_id: string } | { catalog_id: string }[] | null;
 };
 
-async function optionalSignedUrl(objectKey: string, context: string) {
+const SIGNED_URL_TTL_SECONDS = 300;
+
+async function optionalSignedAsset(objectKey: string, context: string) {
+  const issuedAt = Date.now();
   try {
-    return await signPrivate(objectKey, 300);
+    const url = await signPrivate(objectKey, SIGNED_URL_TTL_SECONDS);
+    return {
+      url,
+      // The database row expires with the entitlement, while this URL expires
+      // after five minutes. Keep both clocks explicit so an open account page
+      // can renew the URL without weakening revocation.
+      urlExpiresAt: new Date(issuedAt + SIGNED_URL_TTL_SECONDS * 1000).toISOString(),
+    };
   } catch {
     console.error("Entitled asset could not be signed", { context });
     return undefined;
@@ -110,13 +120,27 @@ Deno.serve(async (request) => {
       // offers a clean download for a row it refuses to render.
       const entitledPreview = selectedPreviews.has(generation.id);
       if (generation.status === "succeeded" && (active || entitledPreview) && previewAllowed && generation.preview_object_key) {
-        result.previewUrl = await optionalSignedUrl(generation.preview_object_key, `generation-preview:${generation.id}`);
+        const signedPreview = await optionalSignedAsset(
+          generation.preview_object_key,
+          `generation-preview:${generation.id}`,
+        );
+        if (signedPreview) {
+          result.previewUrl = signedPreview.url;
+          result.previewUrlExpiresAt = signedPreview.urlExpiresAt;
+        }
       }
       const cleanAllowed =
         (generation.purchase_id && activePurchases.has(generation.purchase_id)) ||
         selectedPreviews.has(generation.id);
       if (generation.status === "succeeded" && cleanAllowed && generation.clean_object_key) {
-        result.cleanUrl = await optionalSignedUrl(generation.clean_object_key, `generation-clean:${generation.id}`);
+        const signedClean = await optionalSignedAsset(
+          generation.clean_object_key,
+          `generation-clean:${generation.id}`,
+        );
+        if (signedClean) {
+          result.cleanUrl = signedClean.url;
+          result.cleanUrlExpiresAt = signedClean.urlExpiresAt;
+        }
       }
       return result;
     }));
@@ -156,22 +180,40 @@ Deno.serve(async (request) => {
       object_key: string;
       expires_at: string;
     }) => {
-      const url = await optionalSignedUrl(
+      const signedAsset = await optionalSignedAsset(
         asset.object_key,
         `download:${asset.purchase_id}:${asset.asset_kind}:${asset.generation_id ?? "base"}`,
       );
-      return url ? {
+      const identity = {
         kind: asset.asset_kind,
         purchaseId: asset.purchase_id,
         artworkId: asset.artwork_id,
         generationId: asset.generation_id,
-        expiresAt: asset.expires_at,
-        url,
-      } : null;
+      };
+      return signedAsset
+        ? {
+            available: { ...identity, expiresAt: asset.expires_at, ...signedAsset },
+            unavailable: null,
+          }
+        : {
+            available: null,
+            // The browser needs enough information to render the failure beside
+            // the affected purchase, but never receives the private object key
+            // or a storage/provider error message.
+            unavailable: { ...identity, code: "asset_sign_failed" as const },
+          };
     }));
-    const downloads = signedDownloads.filter((download) => download !== null);
+    const downloads = signedDownloads.flatMap((result) => result.available ? [result.available] : []);
+    const unavailableDownloads = signedDownloads.flatMap(
+      (result) => result.unavailable ? [result.unavailable] : [],
+    );
 
-    return privateJson({ purchases: purchasePayload, generations: generationPayload, downloads });
+    return privateJson({
+      purchases: purchasePayload,
+      generations: generationPayload,
+      downloads,
+      unavailableDownloads,
+    });
   } catch (error) {
     return respondError(error);
   }

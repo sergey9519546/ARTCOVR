@@ -20,8 +20,10 @@ export default function PrivacyPage() {
       <p className="mt-4">
         Supabase provides authentication, database, and private file storage. Stripe
         processes checkout and payment events; ARTCOVR does not store complete payment-card
-        numbers. OpenAI receives the selected image and your prompt to produce a requested
-        generated image. Hosting, delivery, email, and security providers process limited
+        numbers. The configured AI image provider—OpenAI or xAI—receives the selected image
+        and your prompt, including any optional cover text you enter, to produce a requested
+        generated image. When a supported optional reference image is used, the provider
+        also receives it. Hosting, delivery, email, and security providers process limited
         technical data needed to provide their services.
       </p>
 

@@ -1,5 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+type AppMode = "public" | "staging";
+const configuredMode = process.env.PLAYWRIGHT_ARTCOVR_MODE;
+if (configuredMode !== "public" && configuredMode !== "staging") {
+  throw new Error(
+    "PLAYWRIGHT_ARTCOVR_MODE must explicitly identify the public or staging storefront.",
+  );
+}
+const appMode: AppMode = configuredMode;
+
 const publicRoutes = [
   ["/", /Cover art/i],
   ["/archive", /Cover art/i],
@@ -12,7 +21,7 @@ const publicRoutes = [
   ["/legal/terms", /^Terms$/i],
 ] as const;
 
-test.describe("public route smoke", () => {
+test.describe(`${appMode} storefront route smoke`, () => {
   for (const [route, heading] of publicRoutes) {
     test(`${route} renders meaningful ARTCOVR content`, async ({ page }) => {
       const pageErrors: string[] = [];
@@ -59,18 +68,28 @@ test("security headers are attached and implementation branding is suppressed", 
   expect(account.headers()["x-robots-tag"]).toContain("noindex");
 });
 
-test("staging HTML carries route descriptions and a noindex directive", async ({ request }) => {
+test(`${appMode} HTML carries route descriptions and the correct indexing directive`, async ({ request }) => {
   const response = await request.get("/about");
   expect(response.status()).toBe(200);
   const html = await response.text();
   expect(html).toMatch(/<meta name="description" content="[^"]*ARTCOVR/i);
-  expect(html).toMatch(/<meta name="robots" content="[^"]*noindex/i);
+  if (appMode === "staging") {
+    expect(html).toMatch(/<meta name="robots" content="[^"]*noindex/i);
+  } else {
+    expect(html).toMatch(/<meta name="robots" content="[^"]*index/i);
+    expect(html).not.toMatch(/<meta name="robots" content="[^"]*noindex/i);
+  }
 });
 
-test("staging pages expose descriptions and remain noindex", async ({ page }) => {
+test(`${appMode} pages expose descriptions while private routes remain noindex`, async ({ page }) => {
   await page.goto("/about");
   await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /ARTCOVR/i);
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/i);
+  if (appMode === "staging") {
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/i);
+  } else {
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /index/i);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/about$/);
+  }
 
   for (const route of ["/sign-in", "/my-images"]) {
     await page.goto(route);
@@ -78,8 +97,18 @@ test("staging pages expose descriptions and remain noindex", async ({ page }) =>
   }
 });
 
-test("private staging sends a site-wide robots block", async ({ request }) => {
+test(`${appMode} robots policy matches the active storefront mode`, async ({ request }) => {
   const response = await request.get("/robots.txt");
   expect(response.status()).toBe(200);
-  expect(await response.text()).toMatch(/Disallow:\s*\//i);
+  const robots = await response.text();
+  if (appMode === "staging") {
+    expect(robots).toMatch(/^Disallow:\s*\/\s*$/im);
+    expect(robots).not.toMatch(/^Sitemap:/im);
+  } else {
+    const origin = new URL(response.url()).origin;
+    expect(robots).toMatch(/^Allow:\s*\/\s*$/im);
+    expect(robots).not.toMatch(/^Disallow:\s*\/\s*$/im);
+    expect(robots).toContain(`Sitemap: ${origin}/sitemap.xml`);
+    expect(robots).toContain(`Host: ${origin}`);
+  }
 });

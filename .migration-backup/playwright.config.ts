@@ -5,6 +5,13 @@ import { join } from "node:path";
 const port = Number(process.env.PLAYWRIGHT_PORT || 45180);
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
 const baseURL = externalBaseUrl || `http://127.0.0.1:${port}`;
+const appMode = process.env.PLAYWRIGHT_ARTCOVR_MODE;
+if (appMode !== "public" && appMode !== "staging") {
+  throw new Error(
+    `Invalid PLAYWRIGHT_ARTCOVR_MODE "${appMode ?? "unset"}"; expected public or staging.`,
+  );
+}
+const isPrivateStaging = appMode === "staging";
 const browserChannel =
   process.env.PLAYWRIGHT_CHANNEL || (process.platform === "win32" ? "chrome" : undefined);
 
@@ -34,12 +41,13 @@ export default defineConfig({
   webServer: externalBaseUrl
     ? undefined
     : {
-        command: `npx next dev --hostname 127.0.0.1 --port ${port}`,
+        command: `bunx next dev --hostname 127.0.0.1 --port ${port}`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
         env: {
-          NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING: "1",
+          ARTCOVR_ALLOW_INDEXING: isPrivateStaging ? "0" : "1",
+          NEXT_PUBLIC_ARTCOVR_PRIVATE_STAGING: isPrivateStaging ? "1" : "0",
           NEXT_PUBLIC_SITE_URL: baseURL,
         },
       },

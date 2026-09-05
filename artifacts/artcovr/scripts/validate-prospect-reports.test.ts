@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { copyFile, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -9,7 +10,7 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const validatorScript = fileURLToPath(new URL("./validate-prospect-reports.ts", import.meta.url));
-const tsxExecutable = fileURLToPath(new URL("../node_modules/.bin/tsx", import.meta.url));
+const tsxExecutable = createRequire(import.meta.url).resolve("tsx/cli");
 const sourceReportsDir = fileURLToPath(new URL("../reports/", import.meta.url));
 
 type CommandFailure = Error & {
@@ -38,7 +39,7 @@ test("identifies the prospect and shared field when a report drifts", async (con
   await writeFile(csvPath, driftedCsv, "utf8");
 
   await assert.rejects(
-    execFileAsync(tsxExecutable, [validatorScript], {
+    execFileAsync(process.execPath, [tsxExecutable, validatorScript], {
       cwd: root,
       maxBuffer: 2 * 1024 * 1024,
     }),

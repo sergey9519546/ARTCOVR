@@ -319,4 +319,3 @@ export type GetGenerationStatusParams = {
  */
 generationId: GenerationIdParameter;
 };
-

@@ -45,8 +45,8 @@
  *
  * FAIL-MODE: closed. An unresolvable bun, an unparseable table, an unreadable
  * catalog, or a forbidden spawn aborts without writing a status. Exit codes:
- *   0 every executed gate passed
- *   1 an executed gate failed
+ *   0 every gate was executed, logged, and certified PASS
+ *   1 at least one gate failed or could not be run/certified
  *   2 the runner could not establish ground truth (nothing was certified)
  *
  * Run log: C:\Users\serge\.claude\logs\release-gates.jsonl (append-only JSONL,
@@ -249,10 +249,6 @@ function probeCli(bin) {
 }
 
 const PRECONDITIONS = {
-  G5: () =>
-    process.env.ARTCOVR_GATES_E2E === "1"
-      ? null
-      : "requires live services this runner does not start — playwright.config.ts spawns a Next dev server on 127.0.0.1:45180 and drives an installed Chrome channel. Opt in explicitly with ARTCOVR_GATES_E2E=1.",
   // G8 is `bun run db:verify`, which applies every migration to a DISPOSABLE
   // database and runs the contract + behavioural suites. It needs psql and a
   // reachable PostgreSQL — not the Supabase CLI, and not production
@@ -262,16 +258,37 @@ const PRECONDITIONS = {
     if (!cli.present) {
       return `requires a PostgreSQL client: the \`psql\` binary is not installed (${cli.why}). Install postgresql-client, point PGHOST/PGPORT/PGUSER at a disposable instance, and re-run.`;
     }
-    const probe = spawnSync("psql", ["-tAc", "select 1"], {
+    // Keep these defaults aligned with scripts/db/verify-database.sh. Probing
+    // libpq's ambient defaults here can reject the exact disposable database
+    // that the gate command will use a moment later (the verifier intentionally
+    // listens on 5433 by default to avoid colliding with a developer database).
+    const probeEnv = {
+      ...process.env,
+      PGHOST: process.env.PGHOST ?? "127.0.0.1",
+      PGPORT: process.env.PGPORT ?? "5433",
+      PGUSER: process.env.PGUSER ?? "postgres",
+      PGDATABASE: process.env.PGDATABASE ?? "postgres",
+      PGCONNECT_TIMEOUT: "10",
+    };
+    const probe = spawnSync("psql", ["-w", "-tAc", "select 1"], {
       encoding: "utf8",
       timeout: 15_000,
-      env: { ...process.env, PGDATABASE: process.env.PGDATABASE ?? "postgres", PGCONNECT_TIMEOUT: "10" },
+      env: probeEnv,
     });
     if (probe.status !== 0) {
       const why = (probe.stderr ?? "").trim().split(/\r?\n/)[0] || `exit ${probe.status}`;
-      return `requires a reachable disposable PostgreSQL: psql could not connect (${why}). Set PGHOST/PGPORT/PGUSER and re-run. NEVER point this at production — it creates a database and writes rows.`;
+      return `requires a reachable disposable PostgreSQL at ${probeEnv.PGUSER}@${probeEnv.PGHOST}:${probeEnv.PGPORT}: psql could not connect (${why}). Set PGHOST/PGPORT/PGUSER/PGPASSWORD and re-run. NEVER point this at production — it creates a database and writes rows.`;
     }
     return null;
+  },
+  G11: () => {
+    const privateRoot = process.env.ARTCOVR_PRIVATE_ROOT ??
+      (process.platform === "win32" ? "E:\\ART_COLLECTION\\.artcovr-private" : "");
+    if (!privateRoot) return "requires ARTCOVR_PRIVATE_ROOT and the private source map";
+    const sourceMap = path.join(privateRoot, "direct-source-map.local.json");
+    return existsSync(sourceMap)
+      ? null
+      : "requires the configured private source map";
   },
 };
 
@@ -384,8 +401,9 @@ function tailOf(child) {
   try {
     const parsed = JSON.parse(out.join("\n"));
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const certifiedStrings = new Set(["target", "project", "targetSource"]);
       const scalars = Object.entries(parsed)
-        .filter(([, v]) => typeof v === "number" || typeof v === "boolean")
+        .filter(([key, v]) => typeof v === "number" || typeof v === "boolean" || (certifiedStrings.has(key) && typeof v === "string"))
         .map(([k, v]) => `${k}=${v}`);
       if (scalars.length > 0) return scalars.join(", ").slice(0, 200);
     }
@@ -528,22 +546,32 @@ for (const row of parsed.rows) {
  */
 function certifyStatus(row) {
   const rec = results.get(row.id);
-  if (!rec) return { text: "**NOT RUN** — the runner produced no record for this gate", pass: false };
-  if (rec.status === "not-run") return { text: `**NOT RUN** — ${cellSafe(rec.reason)}`, pass: false };
-  if (rec.logged !== true) {
-    return { text: `**NOT RUN** — the gate executed (exit ${rec.exitCode}) but its result could not be written to the run log (${cellSafe(rec.logError ?? "unknown")}); an uncaptured result is not a certification`, pass: false };
+  if (!rec) {
+    const reason = "the runner produced no record for this gate";
+    return { text: `**NOT RUN** — ${reason}`, status: "not-run", reason };
   }
-  if (typeof rec.exitCode !== "number") return { text: "**NOT RUN** — no exit code was captured", pass: false };
+  if (rec.status === "not-run") {
+    return { text: `**NOT RUN** — ${cellSafe(rec.reason)}`, status: "not-run", reason: rec.reason };
+  }
+  if (rec.logged !== true) {
+    const reason = `the gate executed (exit ${rec.exitCode}) but its result could not be written to the run log (${cellSafe(rec.logError ?? "unknown")}); an uncaptured result is not a certification`;
+    return { text: `**NOT RUN** — ${reason}`, status: "not-run", reason };
+  }
+  if (typeof rec.exitCode !== "number") {
+    const reason = "no exit code was captured";
+    return { text: `**NOT RUN** — ${reason}`, status: "not-run", reason };
+  }
   const secs = `${(rec.durationMs / 1000).toFixed(1)}s`;
   const counts = ["G4", "G6"].includes(row.id)
     ? ` — computed catalog truth: ${truth.approved} approved → ${truth.publishable} publishable (${truth.total - truth.publishable} delete-tier excluded), per \`node scripts/agent/rights-audit.mjs\``
     : "";
   const detail = rec.detail ? ` — ${cellSafe(rec.detail)}` : "";
-  if (rec.exitCode === 0) return { text: `**PASS** (exit 0, ${secs}, ${RUN_ID})${detail}${counts}`, pass: true };
-  return { text: `**FAIL** (exit ${rec.exitCode}, ${secs}, ${RUN_ID})${detail}${counts}`, pass: false };
+  if (rec.exitCode === 0) return { text: `**PASS** (exit 0, ${secs}, ${RUN_ID})${detail}${counts}`, status: "pass" };
+  return { text: `**FAIL** (exit ${rec.exitCode}, ${secs}, ${RUN_ID})${detail}${counts}`, status: "fail" };
 }
 
 // ---- rewrite the document --------------------------------------------
+const certifications = new Map(parsed.rows.map((row) => [row.id, certifyStatus(row)]));
 const newHeader = `| Gate | Requirement | Command / Check (bun — mapped from the documented command) | Status (${TODAY}) |`;
 const newRows = parsed.rows.map((row) => {
   const plan = plans.get(row.id);
@@ -551,11 +579,11 @@ const newRows = parsed.rows.map((row) => {
     ...plan.exec.map((s) => `\`${s.display}\``),
     ...plan.refs.map((r) => `\`${r.text}\``),
   ].join(", ") || cellSafe(strip(row.command));
-  return `| ${row.gate} | ${row.requirement} | ${commandCell} | ${certifyStatus(row).text} |`;
+  return `| ${row.gate} | ${row.requirement} | ${commandCell} | ${certifications.get(row.id).text} |`;
 });
 
 const mappings = [...new Set([...plans.values()].flatMap((p) => p.exec.map((s) => s.mapping).filter(Boolean)))];
-const notRun = parsed.rows.filter((r) => results.get(r.id)?.status === "not-run");
+const notRun = parsed.rows.filter((r) => certifications.get(r.id)?.status === "not-run");
 
 const noteBlock = [
   BEGIN_MARK,
@@ -569,7 +597,7 @@ const noteBlock = [
   `**NOT RUN (${notRun.length}).** A gate that needs credentials, a live service, a browser, or an absent CLI is recorded NOT RUN with its reason. It never becomes PASS by default:`,
   "",
   ...(notRun.length > 0
-    ? notRun.map((r) => `- **${r.id}** — ${cellSafe(results.get(r.id).reason)}`)
+    ? notRun.map((r) => `- **${r.id}** — ${cellSafe(certifications.get(r.id).reason)}`)
     : ["- (none)"]),
   "",
   `**Numeric cross-check against computed catalog truth.** \`node scripts/agent/rights-audit.mjs\` reports **${truth.total} total / ${truth.approved} approved / ${truth.publishable} publishable** (${truth.total - truth.publishable} delete-tier excluded). Every \`<N> published|approved|projected\` claim in \`.agent-state/*.md\` was compared against it: **${agreements.length} agree, ${conflicts.length} conflict, ${historical.length} superseded ledger claim(s)** in \`DECISIONS.md\` (an append-only record of dated decisions — its numbers are history by construction and are never rewritten).`,
@@ -636,8 +664,8 @@ if (corrected.length > 0) {
 
 // ---- summary ----------------------------------------------------------
 const tally = { pass: 0, fail: 0, "not-run": 0 };
-for (const row of parsed.rows) tally[results.get(row.id).status] += 1;
+for (const row of parsed.rows) tally[certifications.get(row.id).status] += 1;
 console.log(`\n[release-gates] ${tally.pass} PASS · ${tally.fail} FAIL · ${tally["not-run"]} NOT RUN · ${conflicts.length} conflict(s)`);
 console.log(`[release-gates] run log: ${LOG}`);
 log({ event: "summary", ...tally, conflicts: conflicts.length, npmSpawns: 0 });
-process.exit(tally.fail > 0 ? 1 : 0);
+process.exit(tally.fail > 0 || tally["not-run"] > 0 ? 1 : 0);

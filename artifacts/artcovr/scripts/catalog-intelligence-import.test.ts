@@ -10,7 +10,7 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 const importerScript = fileURLToPath(new URL("./catalog-intelligence-import.ts", import.meta.url));
 const manifestScript = fileURLToPath(new URL("./catalog-intelligence-manifest.ts", import.meta.url));
-const tsxExecutable = fileURLToPath(new URL("../node_modules/.bin/tsx", import.meta.url));
+const tsxCli = fileURLToPath(import.meta.resolve("tsx/cli"));
 
 type Fixture = {
   root: string;
@@ -26,7 +26,7 @@ type CommandFailure = Error & {
 };
 
 async function runScript(script: string, arguments_: readonly string[]) {
-  return execFileAsync(tsxExecutable, [script, ...arguments_], {
+  return execFileAsync(process.execPath, [tsxCli, script, ...arguments_], {
     maxBuffer: 2 * 1024 * 1024,
   });
 }

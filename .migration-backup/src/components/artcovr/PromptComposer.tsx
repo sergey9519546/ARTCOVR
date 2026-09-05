@@ -169,7 +169,7 @@ export function PromptComposer({
               className={`rounded-full border px-3 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                 active
                   ? "artcovr-button border-current"
-                  : "border-current/25 opacity-70 hover:opacity-100"
+                  : "border-current/50 opacity-70 hover:opacity-100"
               }`}
             >
               {chip.label}
