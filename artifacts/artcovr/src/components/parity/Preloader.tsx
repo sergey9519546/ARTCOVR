@@ -161,6 +161,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
                 width={450}
                 height={450}
                 decoding="async"
+                pictureClassName="absolute inset-0 flex items-center justify-center"
                 className="absolute aspect-square w-[42vw] object-cover sm:w-[32vw] md:w-[20vw]"
                 style={{
                   color: "transparent",

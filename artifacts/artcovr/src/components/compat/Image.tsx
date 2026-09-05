@@ -5,6 +5,8 @@ type ImageProps = ImgHTMLAttributes<HTMLImageElement> & {
   priority?: boolean;
   preload?: boolean;
   unoptimized?: boolean;
+  pictureClassName?: string;
+  pictureStyle?: CSSProperties;
 };
 
 function optimizedArtworkSources(src: string | undefined) {
@@ -23,6 +25,8 @@ export default function Image({
   priority,
   preload,
   unoptimized,
+  pictureClassName,
+  pictureStyle,
   className,
   style,
   src,
@@ -50,7 +54,7 @@ export default function Image({
   if (!optimizedSources) return image;
 
   return (
-    <picture>
+    <picture className={pictureClassName} style={pictureStyle}>
       <source
         srcSet={`${optimizedSources.compact} 640w, ${optimizedSources.full} 1280w`}
         sizes={props.sizes}
