@@ -62,7 +62,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
       : `${window.location.pathname}${window.location.search}${window.location.hash}`;
   const authRedirectQuery = `?redirect_url=${encodeURIComponent(authRedirect)}`;
   const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
-  const [coverTitle, setCoverTitle] = useState(artwork.title);
+  const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
   const [coverOpen, setCoverOpen] = useState(false);
@@ -153,16 +153,13 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     const run = async () => {
       try {
         if (!jobId.current) {
-          // An armed upload and a chained result are mutually exclusive on the
-          // server (dual_reference_conflict): the upload applies its style to
-          // the ORIGINAL artwork, so it wins and the chain id is omitted.
+          // A photo supplements the current canvas; it never resets the source.
           const referenceUploadId = armedUploadRef.current;
           const created = await createGeneration({
             artworkId: artwork.id,
             prompt: pendingPrompt.current,
-            ...(referenceUploadId
-              ? { referenceUploadId }
-              : { referenceGenerationId: currentResultId.current }),
+            referenceUploadId,
+            referenceGenerationId: currentResultId.current,
             resetToBase: resetToBase.current,
             ...(pendingCover.current ? { coverText: pendingCover.current } : {}),
             styleMode: pendingStyleMode.current,
@@ -187,7 +184,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
 
         const poll = async () => {
           if (Date.now() - startedAt >= POLL_DEADLINE_MS || attempts >= MAX_POLL_ATTEMPTS) {
-            setMessage("Generation timed out. Your allowance was not used.");
+            setMessage("Generation is still processing. Check My Images before starting another edit.");
             setPhase("error");
             return;
           }
@@ -360,7 +357,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
       armedUploadRef.current = referenceUploadId;
       setArmedUploadId(referenceUploadId);
       setReferenceEverywhere({ status: "armed", url, name: file.name });
-      setMessage("Style reference attached. It applies to your next generation.");
+      setMessage("Photo attached. Describe how to include it in your current cover.");
       trackEvent("reference_uploaded", {
         artwork_slug: artwork.slug,
         media_type: file.type,

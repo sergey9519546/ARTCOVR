@@ -12,6 +12,7 @@ import {
   type GenerationRequest,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { ReferencePhotoInput, useReferencePhoto } from "./ReferencePhotoInput";
 
 type Props = {
   artwork: Artwork;
@@ -51,23 +52,27 @@ export function PurchasedGenerationStudio({
   const [resultIsGenerated, setResultIsGenerated] = useState(Boolean(latestResult?.previewUrl));
   const [message, setMessage] = useState("");
   const jobId = useRef<string | undefined>(undefined);
-  const currentResultId = useRef<string | undefined>(latestResult?.id);
+  const currentResultId = useRef<string | undefined>(latestResult?.id ?? purchase.selectedPreviewGenerationId ?? undefined);
+  const [selectedVersion, setSelectedVersion] = useState(currentResultId.current ?? "original");
+  const reference = useReferencePhoto(artwork.id);
+  const pendingReferenceId = useRef<string | undefined>(undefined);
+  const promptBox = useRef<HTMLTextAreaElement>(null);
   const pendingPrompt = useRef("");
   const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
   const pendingStyleMode = useRef<"exact" | "expand">("exact");
   const generationStartedAt = useRef<number | undefined>(undefined);
   const resetRequested = useRef(false);
-  const [coverTitle, setCoverTitle] = useState(purchase.artworkTitle);
+  const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const ready = isPromptReady(prompt) && purchase.remainingGenerations > 0;
+  const ready = isPromptReady(prompt) && purchase.remainingGenerations > 0 && !reference.uploading;
 
   useEffect(() => {
-    if (!latestResult || currentResultId.current) return;
-    currentResultId.current = latestResult.id;
-    setResult(latestResult.previewUrl);
-    setResultIsGenerated(true);
-  }, [latestResult]);
+    const box = promptBox.current;
+    if (!box) return;
+    box.style.height = "auto";
+    box.style.height = `${Math.max(48, Math.min(box.scrollHeight, 240))}px`;
+  }, [prompt]);
 
   useEffect(() => {
     if (phase !== "generating") return;
@@ -89,12 +94,17 @@ export function PurchasedGenerationStudio({
             prompt: pendingPrompt.current,
             ...(pendingCover.current ? { coverText: pendingCover.current } : {}),
             styleMode: pendingStyleMode.current,
+            referenceUploadId: pendingReferenceId.current,
           };
           const request: GenerationRequest = resetRequested.current
             ? { ...shared, resetToBase: true }
             : { ...shared, referenceGenerationId: currentResultId.current };
           const created = await createGeneration(request);
           jobId.current = created.generationId;
+          if (pendingReferenceId.current) {
+            reference.clear();
+            pendingReferenceId.current = undefined;
+          }
         }
 
         const startedAt = Date.now();
@@ -119,6 +129,7 @@ export function PurchasedGenerationStudio({
               return;
             }
             currentResultId.current = status.generationId;
+            setSelectedVersion(status.generationId);
             resetRequested.current = false;
             setResult(status.previewUrl);
             setResultIsGenerated(true);
@@ -172,6 +183,7 @@ export function PurchasedGenerationStudio({
   function generate() {
     if (!ready || phase === "generating") return;
     pendingPrompt.current = prompt.trim();
+    pendingReferenceId.current = reference.photo?.id;
     const title = coverTitle.trim();
     const artistName = coverArtist.trim();
     pendingCover.current =
@@ -201,12 +213,28 @@ export function PurchasedGenerationStudio({
   function reset() {
     jobId.current = undefined;
     currentResultId.current = undefined;
+    setSelectedVersion("original");
     pendingPrompt.current = "";
     resetRequested.current = true;
     setPrompt("");
     setResult(undefined);
     setResultIsGenerated(false);
     setMessage("Returned to the original artwork.");
+    setPhase("idle");
+  }
+
+  function selectVersion(id: string) {
+    if (phase === "generating") return;
+    if (id === "original") { reset(); return; }
+    const version = generations.find((generation) => generation.id === id && generation.status === "succeeded");
+    const url = version?.previewUrl ?? (id === purchase.selectedPreviewGenerationId ? selectedPreviewImageUrl : undefined);
+    if (!url) return;
+    currentResultId.current = id;
+    setSelectedVersion(id);
+    resetRequested.current = false;
+    setResult(url);
+    setResultIsGenerated(Boolean(version));
+    setMessage("Your next edit will use this version.");
     setPhase("idle");
   }
 
@@ -217,15 +245,30 @@ export function PurchasedGenerationStudio({
       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_12rem]">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">Image editing</p>
+          <label className="mt-3 block text-xs font-bold">
+            Starting image
+            <select value={selectedVersion} onChange={(event) => selectVersion(event.target.value)} disabled={phase === "generating"}
+              className="ml-3 max-w-full border border-current/30 bg-transparent p-2 font-normal">
+              <option value="original">Original artwork</option>
+              {purchase.selectedPreviewGenerationId && selectedPreviewImageUrl ? <option value={purchase.selectedPreviewGenerationId}>Purchased preview</option> : null}
+              {generations.filter((generation) => generation.status === "succeeded" && generation.previewUrl).map((generation, index) =>
+                <option key={generation.id} value={generation.id}>Edit {generations.length - index}</option>)}
+              {selectedVersion !== "original" && selectedVersion !== purchase.selectedPreviewGenerationId && !generations.some((generation) => generation.id === selectedVersion) ? <option value={selectedVersion}>Latest result</option> : null}
+            </select>
+          </label>
           <label htmlFor={`paid-prompt-${purchase.id}`} className="sr-only">Image-edit prompt</label>
           <textarea
             id={`paid-prompt-${purchase.id}`}
+            ref={promptBox}
+            maxLength={12000}
+            disabled={phase === "generating"}
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
             placeholder="Describe any addition, removal, or alteration."
-            rows={5}
-            className="mt-3 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
+            rows={2}
+            className="mt-3 min-h-12 max-h-60 w-full resize-none overflow-y-auto rounded-xl border-0 bg-current/5 px-4 py-3 text-base leading-6 outline-none focus:outline-none focus:ring-0"
           />
+          <ReferencePhotoInput reference={reference} disabled={phase === "generating"} />
           <fieldset className="mt-4 border border-current/25 p-4" disabled={phase === "generating"}>
             <legend className="px-1 text-[10px] font-bold uppercase tracking-[0.14em]">
               Cover text — rendered into the image

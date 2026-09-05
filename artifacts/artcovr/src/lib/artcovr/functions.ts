@@ -9,15 +9,14 @@ export type GenerationRequest = {
   /** A prior generated result to continue editing from. */
   referenceGenerationId?: string;
   /**
-   * An image the user uploaded through {@link uploadReference}, used only as a
-   * style reference. Mutually exclusive with `referenceGenerationId`; sending
-   * both is rejected with 400 `dual_reference_conflict`.
+   * A supplementary photo from {@link uploadReference}. Can accompany a
+   * previous result; the selected artwork/result remains the primary source.
    */
   referenceUploadId?: string;
   resetToBase?: boolean;
   /**
    * Optional cover typography rendered INTO the generated image by the model.
-   * Verbatim spelling is enforced server-side in the enrichment template.
+   * The model is instructed to preserve spelling; inspect generated lettering.
    */
   coverText?: { title?: string; artistName?: string };
   /** "exact" (default) locks the reference style; "expand" allows reinterpretation. */
