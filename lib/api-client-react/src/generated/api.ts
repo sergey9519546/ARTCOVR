@@ -382,7 +382,7 @@ export const getUploadReferenceUrl = (params: UploadReferenceParams,) => {
 
 /**
  * Uploads one JPEG, PNG, or WebP image as an opaque, single-use reference for a later generation. The server validates and normalizes the image.
- * @summary Upload a style reference image
+ * @summary Upload an identity or visual reference image
  */
 export const uploadReference = async (uploadReferenceBody: Blob,
     params: UploadReferenceParams, options?: Parameters<typeof customFetch>[1]): Promise<ReferenceUploadResponse> => {
@@ -432,7 +432,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UploadReferenceMutationError = ErrorType<ApiError>
 
     /**
- * @summary Upload a style reference image
+ * @summary Upload an identity or visual reference image
  */
 export const useUploadReference = <TError = ErrorType<ApiError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadReference>>, TError,{data: BodyType<Blob>;params: UploadReferenceParams}, TContext>, request?: SecondParameter<typeof customFetch>}

@@ -153,16 +153,14 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     const run = async () => {
       try {
         if (!jobId.current) {
-          // An armed upload and a chained result are mutually exclusive on the
-          // server (dual_reference_conflict): the upload applies its style to
-          // the ORIGINAL artwork, so it wins and the chain id is omitted.
           const referenceUploadId = armedUploadRef.current;
           const created = await createGeneration({
             artworkId: artwork.id,
             prompt: pendingPrompt.current,
-            ...(referenceUploadId
-              ? { referenceUploadId }
-              : { referenceGenerationId: currentResultId.current }),
+            ...(currentResultId.current
+              ? { referenceGenerationId: currentResultId.current }
+              : {}),
+            ...(referenceUploadId ? { referenceUploadId } : {}),
             resetToBase: resetToBase.current,
             ...(pendingCover.current ? { coverText: pendingCover.current } : {}),
             styleMode: pendingStyleMode.current,
@@ -365,7 +363,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
       armedUploadRef.current = referenceUploadId;
       setArmedUploadId(referenceUploadId);
       setReferenceEverywhere({ status: "armed", url, name: file.name });
-      setMessage("Style reference attached. It applies to your next generation.");
+       setMessage("Reference photo attached. It will supplement the artwork on your next generation.");
       trackEvent("reference_uploaded", {
         artwork_slug: artwork.slug,
         media_type: file.type,
@@ -454,7 +452,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 type="button"
                 onClick={clearReference}
                 disabled={reference.status === "uploading"}
-                aria-label="Remove the style reference"
+                aria-label="Remove the reference photo"
                 className="ml-1 leading-none opacity-60 transition-opacity hover:opacity-100 disabled:opacity-30"
               >
                 ×
@@ -543,7 +541,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              aria-label={armedUploadId ? "Style reference attached — replace it" : "Attach a style reference image"}
+              aria-label={armedUploadId ? "Reference photo attached — replace it" : "Attach a reference photo"}
               className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
             >
               +

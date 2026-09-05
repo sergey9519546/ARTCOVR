@@ -30,7 +30,7 @@ export function buildGenerationPrompt(input: {
       : "Match the primary reference image's exact visual style, changing only what the requested change asks for.",
     facts.length ? `The artwork is ${facts.join(", ")}. Keep that established style unless explicitly changed.` : "",
     input.hasReferenceUpload
-      ? "A secondary uploaded image is also available as a style reference. Use it only to guide texture, palette or visual treatment; do not copy its subject, layout or lettering over the primary artwork."
+      ? "A secondary uploaded photo or reference image is also available. Use it according to the user's request: when they ask to add a person, face or body, place that person's likeness naturally into the primary artwork with matching lighting, perspective, scale and visual treatment. Otherwise use the upload only for the requested visual reference. Never blend it indiscriminately or let it replace the primary artwork."
       : "",
     typography.length ? `Render ${typography.join(" and ")} as legible cover typography, spelled exactly as quoted, and no other text.` : "",
     `USER'S REQUESTED CHANGE — Translate this plain-language direction into a coherent image-editing instruction while preserving the primary reference: ${requestedChange}`,
