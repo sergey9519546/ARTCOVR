@@ -8,13 +8,15 @@ import {
 } from "@workspace/db";
 import { commerceConfig, licenseTermsForSaleMode } from "./commerce-config";
 import { logger } from "./lib/logger";
-import { refundPaymentIntent } from "./stripeClient";
+import { expectedStripeLivemode, refundPaymentIntent } from "./stripeClient";
 
 export const checkoutReservationMs = 31 * 60_000;
 const activeExclusiveStatuses = ["reserved", "paid"] as const;
+const stripeWebhookModeMismatchDiagnosis = "stripe_webhook_mode_mismatch";
 
 type FulfillmentDependencies = {
   refundPaymentIntent: typeof refundPaymentIntent;
+  expectedLivemode?: boolean;
 };
 
 const fulfillmentDependencies: FulfillmentDependencies = {
@@ -45,6 +47,8 @@ export async function fulfillCheckoutSession(
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
+  const expectedLivemode =
+    dependencies.expectedLivemode ?? expectedStripeLivemode();
   const paid =
     event.type === "checkout.session.async_payment_succeeded" ||
     session.payment_status === "paid";
@@ -66,6 +70,31 @@ export async function fulfillCheckoutSession(
 
     if (!order) {
       throw new Error(`No ARTCOVR order found for Stripe session ${session.id}`);
+    }
+
+    const modeMismatch =
+      event.livemode !== expectedLivemode ||
+      session.livemode !== expectedLivemode ||
+      event.livemode !== session.livemode;
+    if (modeMismatch) {
+      await tx
+        .update(artcovrWebhookEvents)
+        .set({ status: "rejected", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+
+      logger.error(
+        {
+          diagnosis: stripeWebhookModeMismatchDiagnosis,
+          orderId: order.id,
+          stripeCheckoutSessionId: session.id,
+          stripeEventId: event.id,
+          expectedLivemode,
+          eventLivemode: event.livemode,
+          sessionLivemode: session.livemode,
+        },
+        "ARTCOVR rejected Stripe webhook from the wrong account mode",
+      );
+      return;
     }
 
     const sessionCustomerId = stripeId(session.customer);

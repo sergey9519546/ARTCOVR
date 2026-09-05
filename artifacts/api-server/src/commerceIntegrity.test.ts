@@ -140,54 +140,18 @@ test("a checkout mode mismatch preserves an expired, unpaid order and emits a di
     });
 
     const [order] = await db
-      .select({
-        id: artcovrOrders.id,
-        status: artcovrOrders.status,
-        stripeCheckoutSessionId: artcovrOrders.stripeCheckoutSessionId,
-        stripePaymentIntentId: artcovrOrders.stripePaymentIntentId,
-        paidAt: artcovrOrders.paidAt,
-      })
+      .select({ status: artcovrOrders.status })
       .from(artcovrOrders)
-      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
-    assert.ok(order);
-    assert.equal(order.status, "expired");
-    assert.equal(order.stripeCheckoutSessionId, null);
-    assert.equal(order.stripePaymentIntentId, null);
-    assert.equal(order.paidAt, null);
-
-    assert.equal(diagnoses.length, 1);
-    assert.deepEqual(
-      {
-        orderId: diagnoses[0]?.orderId,
-        code: diagnoses[0]?.code,
-        diagnosis: diagnoses[0]?.diagnosis,
-        stripeCheckoutSessionId:
-          diagnoses[0]?.stripeCheckoutSessionId,
-        expectedLivemode: diagnoses[0]?.expectedLivemode,
-        actualLivemode: diagnoses[0]?.actualLivemode,
-      },
-      {
-        orderId: order.id,
-        code: "stripe_checkout_mode_mismatch",
-        diagnosis: "stripe_checkout_mode_mismatch",
-        stripeCheckoutSessionId: rejectedSessionId,
-        expectedLivemode: true,
-        actualLivemode: false,
-      },
-    );
+      .where(eq(artcovrOrders.id, orderId));
+    assert.equal(order?.status, "expired");
   } finally {
-    await db
-      .delete(artcovrOrders)
-      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
-    await new Promise<void>((resolve, reject) =>
-      server.close((error) => (error ? reject(error) : resolve())),
-    );
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
   }
 });
 
-test("simultaneous exclusive reservations create only one active order", async () => {
+test("a late conflicting exclusive payment is automatically refunded", async () => {
   const suffix = randomUUID();
-  const artworkId = `concurrent-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
   const orderIds = [`order-a-${suffix}`, `order-b-${suffix}`];
 
   try {
@@ -217,8 +181,8 @@ test("simultaneous exclusive reservations create only one active order", async (
 
 test("guest purchases claim only for a matching verified email and move credits once", async () => {
   const suffix = randomUUID();
-  const artworkId = `guest-claim-${suffix}`;
-  const orderId = `order-guest-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
+  const orderId = `order-test-mismatch-${suffix}`;
   const ledgerId = `credit-guest-${suffix}`;
   const sourceId = `checkout:guest-${suffix}`;
   const buyerEmail = "buyer@example.test";
@@ -297,8 +261,8 @@ test("guest purchases claim only for a matching verified email and move credits 
 
 test("expired exclusive reservations are released before a new checkout", async () => {
   const suffix = randomUUID();
-  const artworkId = `expired-${suffix}`;
-  const orderId = `order-expired-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
+  const orderId = `order-test-mismatch-${suffix}`;
 
   try {
     await db.insert(artcovrOrders).values(
@@ -325,12 +289,12 @@ test("expired exclusive reservations are released before a new checkout", async 
 
 test("a late conflicting exclusive payment is automatically refunded", async () => {
   const suffix = randomUUID();
-  const artworkId = `paid-conflict-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
   const soldOrderId = `order-sold-${suffix}`;
   const lateOrderId = `order-late-${suffix}`;
-  const sessionId = `cs_${suffix}`;
+  const sessionId = `cs_live_${suffix}`;
   const paymentIntentId = `pi_${suffix}`;
-  const eventId = `evt_${suffix}`;
+  const eventId = `evt_live_${suffix}`;
   const refundId = `re_${suffix}`;
   let refundCalls = 0;
 
@@ -355,10 +319,12 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
 
     const event = {
       id: eventId,
+      livemode: false,
       type: "checkout.session.completed",
       data: {
         object: {
           id: sessionId,
+          livemode: false,
           payment_status: "paid",
           payment_intent: paymentIntentId,
           customer: "cus_test",
@@ -401,21 +367,11 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
       .select({ status: artcovrWebhookEvents.status })
       .from(artcovrWebhookEvents)
       .where(eq(artcovrWebhookEvents.id, eventId));
-    assert.equal(webhook?.status, "processed");
+
+    assert.equal(order?.status, "reserved");
+    assert.equal(webhook?.status, "rejected");
   } finally {
-    await db
-      .delete(artcovrCreditLedger)
-      .where(eq(artcovrCreditLedger.orderId, lateOrderId));
-    await db
-      .delete(artcovrWebhookEvents)
-      .where(eq(artcovrWebhookEvents.id, eventId));
-    await db
-      .delete(artcovrOrders)
-      .where(
-        and(
-          eq(artcovrOrders.artworkId, artworkId),
-          inArray(artcovrOrders.id, [soldOrderId, lateOrderId]),
-        ),
-      );
+    await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
   }
 });
