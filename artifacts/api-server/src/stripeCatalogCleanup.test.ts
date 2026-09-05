@@ -115,6 +115,12 @@ test("cleanup report chooses the checkout canonical and eligible duplicates", ()
     duplicateProduct.id,
   ]);
   assert.deepEqual(report.artworks[0]?.defaultPriceActions, []);
+  assert.deepEqual(report.progress, {
+    status: "not_started",
+    totalMutations: 2,
+    completedMutations: 0,
+    lastCompletedMutation: null,
+  });
 });
 
 test("cleanup report clears a redundant default before deactivating its price", () => {
@@ -427,4 +433,109 @@ test("reconciliation CLI succeeds for explicitly diagnosed stale test data", asy
     /Stripe reconciliation warning: order order_stale_test \(stale_test_data; checkout session cs_test_stale; connected account mode live\)/,
   );
   assert.doesNotMatch(diagnostics.join("\n"), /Stripe reconciliation failed/);
+});
+
+test("cleanup CLI reports resumable interruptions and passes a mutation budget", async () => {
+  const report = {
+    ...reconciliationReport([]),
+    mode: "interrupted" as const,
+    progress: {
+      status: "interrupted" as const,
+      totalMutations: 4,
+      completedMutations: 2,
+      lastCompletedMutation: {
+        category: "price" as const,
+        objectId: "price_duplicate",
+      },
+      interruptionReason:
+        "Mutation limit reached after 2 of 4; rerun the cleanup to resume.",
+    },
+  };
+  const diagnostics: string[] = [];
+  let receivedMaxMutations: number | undefined;
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--confirm-deactivate", "--max-mutations", "2"],
+    cleanup: async (options) => {
+      receivedMaxMutations = options.maxMutations;
+      options.onProgress?.(report.progress);
+      return report;
+    },
+    log: () => {},
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 75);
+  assert.equal(receivedMaxMutations, 2);
+  assert.match(
+    diagnostics.join("\n"),
+    /Stripe catalog cleanup resumable interruption/,
+  );
+  assert.match(diagnostics.join("\n"), /last completed price\/price_duplicate/);
+});
+
+test("cleanup CLI reports completion separately from a dry run", async () => {
+  const report = {
+    ...reconciliationReport([]),
+    mode: "deactivated" as const,
+    progress: {
+      status: "completed" as const,
+      totalMutations: 0,
+      completedMutations: 0,
+      lastCompletedMutation: null,
+    },
+  };
+  const diagnostics: string[] = [];
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--confirm-deactivate"],
+    cleanup: async () => report,
+    log: () => {},
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 0);
+  assert.match(
+    diagnostics.join("\n"),
+    /Stripe catalog cleanup completed: 0\/0 mutations/,
+  );
+  assert.doesNotMatch(diagnostics.join("\n"), /Dry run only/);
+});
+
+test("cleanup CLI rejects an invalid mutation budget before running cleanup", async () => {
+  let called = false;
+  const diagnostics: string[] = [];
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--confirm-deactivate", "--max-mutations=0"],
+    cleanup: async () => {
+      called = true;
+      throw new Error("cleanup should not run");
+    },
+    log: () => {},
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 1);
+  assert.equal(called, false);
+  assert.deepEqual(diagnostics, [
+    "--max-mutations must be a positive integer.",
+  ]);
+});
+
+test("cleanup CLI rejects a missing mutation budget value", async () => {
+  let called = false;
+  const diagnostics: string[] = [];
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--confirm-deactivate", "--max-mutations"],
+    cleanup: async () => {
+      called = true;
+      throw new Error("cleanup should not run");
+    },
+    log: () => {},
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 1);
+  assert.equal(called, false);
+  assert.deepEqual(diagnostics, [
+    "--max-mutations requires a positive integer.",
+  ]);
 });

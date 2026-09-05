@@ -9,11 +9,11 @@ Stripe catalog audits must read each product's price pages sequentially through 
 
 **How to apply:** Keep cleanup dry-run by default, inspect historical orders, sessions, payment links, and default-price references before any mutation, and require the exact destructive confirmation token for deactivation.
 
-Confirmed catalog cleanup can outlive the five-minute shell timeout because default-price clearing, price deactivation, product deactivation, and the post-cleanup audit are sequential Stripe proxy calls.
+Confirmed catalog cleanup is resumable: each mutation has a stable idempotency key, progress is checkpointed after successful responses, and retries begin from a fresh audit.
 
-**Why:** A timed-out wrapper does not prove that the mutation stopped; the connected catalog may already be fully updated.
+**Why:** A timed-out wrapper does not prove which sequential Stripe mutations completed; active/default-price state is the durable checkpoint available to a stateless CLI.
 
-**How to apply:** After any confirmed cleanup timeout, run a fresh dry-run audit and compare canonical product/price IDs before retrying the command.
+**How to apply:** Bound long runs with the CLI mutation limit, record the last completed category/object, and rerun the confirmed cleanup; inactive prices/products and cleared defaults are excluded by the fresh audit.
 
 The Stripe order reconciliation audit belongs in the release gate rather than the portable CI gate.
 

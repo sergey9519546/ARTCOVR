@@ -140,6 +140,7 @@ export async function createStripeProduct(
 export async function updateStripeProduct(
   productId: string,
   input: { defaultPrice?: string | null; active?: boolean },
+  idempotencyKey?: string,
 ) {
   const form = new URLSearchParams();
   if (input.defaultPrice !== undefined) {
@@ -152,6 +153,7 @@ export async function updateStripeProduct(
     {
       method: "POST",
       form,
+      idempotencyKey,
     },
   );
 }
@@ -186,16 +188,23 @@ export async function listStripePrices(
   return prices;
 }
 
-export async function deactivateStripeProduct(productId: string) {
-  return updateStripeProduct(productId, { active: false });
+export async function deactivateStripeProduct(
+  productId: string,
+  idempotencyKey?: string,
+) {
+  return updateStripeProduct(productId, { active: false }, idempotencyKey);
 }
 
-export async function deactivateStripePrice(priceId: string) {
+export async function deactivateStripePrice(
+  priceId: string,
+  idempotencyKey?: string,
+) {
   return stripeRequest<Stripe.Price>(
     `/v1/prices/${encodeURIComponent(priceId)}`,
     {
       method: "POST",
       form: new URLSearchParams({ active: "false" }),
+      idempotencyKey,
     },
   );
 }

@@ -61,7 +61,7 @@ export type DefaultPriceAction = {
 };
 
 export type StripeCatalogCleanupReport = {
-  mode: "dry_run" | "deactivated";
+  mode: "dry_run" | "deactivated" | "interrupted";
   generatedAt: string;
   catalogArtworkCount: number;
   canonicalArtworkCount: number;
@@ -94,6 +94,7 @@ export type StripeCatalogCleanupReport = {
     missingArtworkIds: string[];
     protectedDuplicateDefaultPriceReferences: number;
   };
+  progress: StripeCatalogCleanupProgress;
   artworks: Array<{
     artworkId: string;
     slug: string;
@@ -112,6 +113,20 @@ export type StripeCatalogCleanupReport = {
     products: string[];
     defaultPrices?: Array<{ productId: string; priceId: string }>;
   };
+};
+
+export type StripeCatalogCleanupMutationCategory =
+  "default_price" | "price" | "product";
+
+export type StripeCatalogCleanupProgress = {
+  status: "not_started" | "in_progress" | "completed" | "interrupted";
+  totalMutations: number;
+  completedMutations: number;
+  lastCompletedMutation: {
+    category: StripeCatalogCleanupMutationCategory;
+    objectId: string;
+  } | null;
+  interruptionReason?: string;
 };
 
 type CheckoutReference = Omit<CatalogReference, "kind"> & {
@@ -492,6 +507,25 @@ export function buildStripeCatalogCleanupReport(
     };
   });
 
+  const totalMutations =
+    new Set(
+      artworks.flatMap((artwork) =>
+        artwork.defaultPriceActions
+          .filter((action) => action.action === "clear")
+          .map((action) => `default_price:${action.productId}`),
+      ),
+    ).size +
+    new Set(
+      artworks.flatMap((artwork) =>
+        artwork.deactivatablePriceIds.map((id) => `price:${id}`),
+      ),
+    ).size +
+    new Set(
+      artworks.flatMap((artwork) =>
+        artwork.deactivatableProductIds.map((id) => `product:${id}`),
+      ),
+    ).size;
+
   return {
     mode,
     generatedAt: new Date().toISOString(),
@@ -522,6 +556,12 @@ export function buildStripeCatalogCleanupReport(
       missingArtworkIds,
       protectedDuplicateDefaultPriceReferences,
     },
+    progress: {
+      status: mode === "deactivated" ? "completed" : "not_started",
+      totalMutations,
+      completedMutations: mode === "deactivated" ? totalMutations : 0,
+      lastCompletedMutation: null,
+    },
     artworks,
     deactivated,
   };
@@ -538,8 +578,19 @@ export async function auditStripeCatalog(): Promise<StripeCatalogCleanupReport> 
 export async function cleanupStripeCatalog(
   options: {
     confirmation?: string;
+    maxMutations?: number;
+    onProgress?: (
+      progress: StripeCatalogCleanupProgress,
+    ) => void | Promise<void>;
   } = {},
 ): Promise<StripeCatalogCleanupReport> {
+  if (
+    options.maxMutations !== undefined &&
+    (!Number.isInteger(options.maxMutations) || options.maxMutations < 1)
+  ) {
+    throw new RangeError("maxMutations must be a positive integer.");
+  }
+
   const before = await auditStripeCatalog();
   if (options.confirmation !== STRIPE_CATALOG_DEACTIVATION_CONFIRMATION) {
     return before;
@@ -554,28 +605,159 @@ export async function cleanupStripeCatalog(
     };
   }
 
-  const defaultPrices = before.artworks.flatMap((artwork) =>
-    artwork.defaultPriceActions
-      .filter((action) => action.action === "clear")
-      .map(({ productId, priceId }) => ({ productId, priceId })),
-  );
-  for (const { productId } of defaultPrices) {
-    await updateStripeProduct(productId, { defaultPrice: null });
+  const defaultPrices = [
+    ...new Map(
+      before.artworks
+        .flatMap((artwork) =>
+          artwork.defaultPriceActions
+            .filter((action) => action.action === "clear")
+            .map(({ productId, priceId }) => ({ productId, priceId })),
+        )
+        .map((defaultPrice) => [defaultPrice.productId, defaultPrice] as const),
+    ).values(),
+  ];
+
+  const prices = [
+    ...new Set(
+      before.artworks.flatMap((artwork) => artwork.deactivatablePriceIds),
+    ),
+  ];
+  const products = [
+    ...new Set(
+      before.artworks.flatMap((artwork) => artwork.deactivatableProductIds),
+    ),
+  ];
+  const mutations: Array<{
+    category: StripeCatalogCleanupMutationCategory;
+    objectId: string;
+    run: () => Promise<unknown>;
+  }> = [
+    ...defaultPrices.map(({ productId }) => ({
+      category: "default_price" as const,
+      objectId: productId,
+      run: () =>
+        updateStripeProduct(
+          productId,
+          { defaultPrice: null },
+          stripeCatalogCleanupIdempotencyKey("default_price", productId),
+        ),
+    })),
+    ...prices.map((priceId) => ({
+      category: "price" as const,
+      objectId: priceId,
+      run: () =>
+        deactivateStripePrice(
+          priceId,
+          stripeCatalogCleanupIdempotencyKey("price", priceId),
+        ),
+    })),
+    ...products.map((productId) => ({
+      category: "product" as const,
+      objectId: productId,
+      run: () =>
+        deactivateStripeProduct(
+          productId,
+          stripeCatalogCleanupIdempotencyKey("product", productId),
+        ),
+    })),
+  ];
+
+  let progress: StripeCatalogCleanupProgress = {
+    status: "in_progress",
+    totalMutations: mutations.length,
+    completedMutations: 0,
+    lastCompletedMutation: null,
+  };
+  const completedDefaultPrices: Array<{ productId: string; priceId: string }> =
+    [];
+  const completedPrices: string[] = [];
+  const completedProducts: string[] = [];
+
+  const reportProgress = async () => {
+    await options.onProgress?.({
+      ...progress,
+      lastCompletedMutation: progress.lastCompletedMutation
+        ? { ...progress.lastCompletedMutation }
+        : null,
+    });
+  };
+
+  await reportProgress();
+
+  const interruptedReport = async (reason: string) => {
+    progress = {
+      ...progress,
+      status: "interrupted",
+      interruptionReason: reason,
+    };
+    await reportProgress();
+    return {
+      ...before,
+      mode: "interrupted" as const,
+      progress,
+      deactivated: {
+        prices: completedPrices,
+        products: completedProducts,
+        defaultPrices: completedDefaultPrices,
+      },
+    };
+  };
+
+  for (const [index, mutation] of mutations.entries()) {
+    if (options.maxMutations !== undefined && index >= options.maxMutations) {
+      return interruptedReport(
+        `Mutation limit reached after ${progress.completedMutations} of ${progress.totalMutations}; rerun the cleanup to resume.`,
+      );
+    }
+
+    try {
+      await mutation.run();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return interruptedReport(
+        `Cleanup interrupted while processing ${mutation.category} ${mutation.objectId}: ${message}`,
+      );
+    }
+
+    progress = {
+      ...progress,
+      completedMutations: progress.completedMutations + 1,
+      lastCompletedMutation: {
+        category: mutation.category,
+        objectId: mutation.objectId,
+      },
+    };
+    if (mutation.category === "default_price") {
+      const defaultPrice = defaultPrices.find(
+        ({ productId }) => productId === mutation.objectId,
+      );
+      if (defaultPrice) completedDefaultPrices.push(defaultPrice);
+    } else if (mutation.category === "price") {
+      completedPrices.push(mutation.objectId);
+    } else {
+      completedProducts.push(mutation.objectId);
+    }
+    await reportProgress();
   }
 
-  const prices = before.artworks.flatMap(
-    (artwork) => artwork.deactivatablePriceIds,
-  );
-  const products = before.artworks.flatMap(
-    (artwork) => artwork.deactivatableProductIds,
-  );
-  for (const priceId of prices) await deactivateStripePrice(priceId);
-  for (const productId of products) await deactivateStripeProduct(productId);
-
+  progress = { ...progress, status: "completed" };
+  await reportProgress();
   const after = await auditStripeCatalog();
   return {
     ...after,
     mode: "deactivated",
-    deactivated: { prices, products, defaultPrices },
+    progress,
+    deactivated: {
+      prices: completedPrices,
+      products: completedProducts,
+      defaultPrices: completedDefaultPrices,
+    },
   };
+}
+
+export function stripeCatalogCleanupIdempotencyKey(
+  category: StripeCatalogCleanupMutationCategory,
+  objectId: string,
+) {
+  return `stripe-catalog-cleanup:${category}:${objectId}`;
 }
