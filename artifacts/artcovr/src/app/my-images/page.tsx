@@ -11,6 +11,7 @@ import {
   getMyImages,
   type AccountData,
 } from "@/lib/artcovr/functions";
+import { trackEvent } from "@/lib/artcovr/analytics";
 
 function formatDate(value: string | null) {
   return value
@@ -24,6 +25,7 @@ export default function MyImagesPage() {
   const [message, setMessage] = useState("");
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
+  const checkoutReturnTracked = useRef(false);
 
   useEffect(() => {
     mounted.current = true;
@@ -84,6 +86,15 @@ export default function MyImagesPage() {
     if (state !== "ready" || typeof window === "undefined") return;
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get("checkout") !== "return") return;
+    if (!checkoutReturnTracked.current) {
+      checkoutReturnTracked.current = true;
+      trackEvent("checkout_return_viewed", {
+        purchase_count: data.purchases.length,
+        pending_purchase: data.purchases.some(
+          (purchase) => purchase.status === "pending" || purchase.status === "reserved",
+        ),
+      });
+    }
     const waitingForWebhook = data.purchases.some(
       (purchase) => purchase.status === "pending" || purchase.status === "reserved",
     );
@@ -182,7 +193,18 @@ export default function MyImagesPage() {
             {downloads.length > 0 && (
               <div className="mt-6 flex flex-wrap gap-3">
                 {downloads.map((download) => (
-                  <a key={`${download.kind}-${download.generationId || "base"}`} href={download.url} download className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em]">
+                    <a
+                      key={`${download.kind}-${download.generationId || "base"}`}
+                      href={download.url}
+                      download
+                      onClick={() =>
+                        trackEvent("download_clicked", {
+                          artwork_slug: purchase.artworkSlug,
+                          kind: download.kind,
+                        })
+                      }
+                      className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em]"
+                    >
                     Download {download.kind.replaceAll("_", " ")}
                   </a>
                 ))}

@@ -11,16 +11,19 @@ export type AnswerGuide = {
     heading: string;
     answer: string;
   }[];
-  sources: readonly {
-    title: string;
-    publisher: string;
-    href: string;
-    description: string;
-  }[];
+  sources: readonly AnswerGuideSource[];
   links: readonly {
     href: string;
     label: string;
   }[];
+};
+
+export type AnswerGuideSource = {
+  title: string;
+  publisher: string;
+  href: string;
+  description: string;
+  kind: "external" | "first-party";
 };
 
 export const ANSWER_GUIDES: readonly AnswerGuide[] = [
@@ -73,6 +76,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         href: "https://www.copyright.gov/what-is-copyright/",
         description:
           "General explanation of copyright ownership and permissions; it does not replace the ARTCOVR license.",
+        kind: "external",
       },
       {
         title: "Commercial Cover Art License",
@@ -80,6 +84,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         href: "/license",
         description:
           "The first-party terms that control permitted uses, restrictions, and delivery for ARTCOVR purchases.",
+        kind: "first-party",
       },
     ],
     links: [
@@ -137,6 +142,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         href: "/license",
         description:
           "The first-party terms that define exclusive and repeatable availability on the ARTCOVR storefront.",
+        kind: "first-party",
       },
       {
         title: "Terms of Use",
@@ -144,6 +150,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         href: "/legal/terms",
         description:
           "The first-party purchase, payment verification, and fulfillment terms.",
+        kind: "first-party",
       },
       {
         title: "What is Copyright?",
@@ -151,6 +158,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         href: "https://www.copyright.gov/what-is-copyright/",
         description:
           "General copyright context; it does not define ARTCOVR's storefront exclusivity policy.",
+        kind: "external",
       },
     ],
     links: [
@@ -208,13 +216,15 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         href: "https://www.copyright.gov/ai/",
         description:
           "The U.S. Copyright Office resource hub for current reports and policy work on copyright and AI.",
+        kind: "external",
       },
       {
         title: "Copyright and Artificial Intelligence, Part 2: Copyrightability",
         publisher: "U.S. Copyright Office",
         href: "https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf",
         description:
-          "A government report discussing human authorship and copyrightability questions; it is not legal advice.",
+          "A January 2025 government report discussing human authorship and copyrightability questions; it is not legal advice.",
+        kind: "external",
       },
       {
         title: "Commercial Cover Art License",
@@ -222,6 +232,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         href: "/license",
         description:
           "The first-party terms that control commercial use, editing, redistribution, and training restrictions.",
+        kind: "first-party",
       },
     ],
     links: [

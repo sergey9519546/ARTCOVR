@@ -1,57 +1,56 @@
 # Branch consolidation — 2026-09-05
 
-## Scope and acceptance
+All GitHub branches and the additional Replit checkpoints are consolidated into main.
+The separate project audit was committed as 11ff373 and merged into the retained
+.migration-backup implementation. Replit's newer commerce, migrations, SEO,
+analytics, and guide-source checks are included through checkpoint 3a6186f.
+No branch history was force-pushed or discarded. Private local files remain ignored.
 
-Preserve every existing branch commit and local user file, carry the migrated
-storefront forward to main, repair reproducible integration failures, and synchronize
-remote branches without force pushes. Existing branch history proves origin/main
-was already an ancestor of origin/artcovr-storefront (445 additional commits).
-GitHub had no open issues or pull requests at inspection.
+The active application is React/Vite and Express in the pnpm workspace. Main is
+the GitHub default branch. The archived Next/Supabase application remains preserved.
 
-## Repairs
+## Integration repairs
 
-- Replace retired Bun/Next CI commands with the pinned pnpm workspace pipeline.
-- Restore missing generation, reference-upload, inquiry, and order-entitlement schema.
-  Include an additive transactional SQL migration for the existing commerce database.
-- Restore the migrated catalog projection CLI and pricing-source path. Regenerate
-  graphic-surreal-pop from its approved 3500-cent price instead of the stale 1000 cents.
-- Restore platform-native dependencies, Windows-safe CLI execution and Drizzle paths.
-- Declare the storefront's direct tsx dependency; retain a frozen pnpm lockfile.
-- Route local browser API calls to the API server and pass Playwright environment
-  variables portably. Sort generated mockup imports for stable builds.
-- Keep package-manager enforcement non-destructive and remove automatic live schema
-  push from the Replit post-merge hook.
-- Replace obsolete root project documentation with the current architecture and commands.
+- Retain the complete Replit customer schema and versioned Drizzle migration.
+  The earlier standalone repair SQL is historical; use the versioned migration
+  workflow, not both schema creation paths on a fresh database.
+- Preserve pinned pnpm, native Windows dependencies, safe preinstall enforcement,
+  portable Playwright environment settings, and deterministic generated imports.
+- Fix Windows subprocess invocation in bundle and prospect validation.
+- Give the checkout mode-mismatch regression its own explicit public origin.
+- Keep approved catalog projection and correct approved pricing.
+- Combine CI commerce, migration, baseline, build, SEO, and runtime checks.
+- Update the runtime contract to match Replit's native 404 behavior; a catch-all
+  rewrite would undermine the newer SEO implementation.
+- Post-merge installs frozen dependencies. Database changes remain explicit.
+- Exclude the temporary Git transfer bundle from the final source tree. Replit's
+  automatic checkpoint captured it in history, but no runtime asset needs LFS.
 
-## Verification
+## Verified
 
-- Frozen pnpm installation: passed.
-- pnpm run verify:ci: passed, including 41 storefront tests, 18 API/commerce tests,
-  all workspace type checks, catalog projection/launch checks, and all production builds.
-- PostgreSQL 16.14: additive repair applied to the original commerce schema,
-  reapplied idempotently, then all 18 API tests passed against that migrated database.
-- Retained Supabase sources: 12 migrations, 36 contract assertion rows, and behavioral
-  SQL checks passed against a separate disposable PostgreSQL database.
-- PLAYWRIGHT_BASE_URL=https://artcovr.com pnpm run test:e2e: all 13 read-only browser
-  journeys passed against the existing Replit deployment.
+- Frozen dependency installation.
+- pnpm run verify:ci: 66 storefront tests, 64 API/commerce tests, 3 release tests,
+  catalog/launch parity, all workspace typechecks and production builds.
+- Homepage entry below 500 kB and 130 kB gzip budgets.
+- SEO output: 187 product routes, 12 informational routes, 404 behavior,
+  metadata, internal links, robots, sitemap, llms files and catalog facts.
+- Versioned Drizzle migration applied successfully to fresh local PostgreSQL 16.14.
+- Replit deployment routing contract passed.
+- Archived audit: 250 tests and typecheck passed. Earlier disposable Supabase
+  verification passed 12 migrations, 36 contract rows and behavioral SQL checks.
+- Earlier hosted browser smoke: 13 passing journeys on the existing deployment;
+  this does not validate the newly merged candidate or authenticated transactions.
 
-## Deployment boundary and remaining validation
+## External limitations
 
-Replit owns deployment and keys. The deployed client exposes a live Clerk public key;
-GitHub has no configured test-tenant variable or secret. Hosted browser results do not
-validate the candidate commit or prove that the schema repair is live. Validate this
-commit in a Replit preview and apply the additive migration through the approved
-Replit deployment process before claiming the new customer API is production-ready.
-No production database or Replit secret was changed during consolidation.
+GitHub Actions cannot start because the GitHub account is billing-locked.
+Replit's original Git credential failed authentication; its separate existing
+GitHub connector successfully transferred code. That connector lacks workflow
+scope, so transport retained GitHub's existing workflow while local authenticated
+Git committed the combined workflow. GitHub also reports an exhausted LFS budget;
+the only Replit LFS entry found was the temporary transfer bundle, excluded above.
 
-CI labels hosted browser coverage separately from candidate code/database/build checks.
-The retained Vercel integration reports failed historical deployments; Replit is the
-owner-confirmed deployment platform, and Vercel settings were not changed.
-
-Builds retain non-fatal Vite sourcemap and large-bundle warnings. Installation reports
-an ignored Clerk dependency build script and a deprecated transitive uuid package.
-These checks are not an exhaustive security or production-readiness certification.
-
-A separate codex/project-audit-20260904 worktree contains uncommitted edits. Its
-committed tip is included in this merge; its unfinished working files were preserved
-in place and were not published or overwritten.
+Replit owns deployment and secrets. No production database migration, credential
+replacement, or production republish was performed. Production sign-in testing
+requires its real environment; local build validation used the existing public
+publishable key. Hosted smoke and static checks are not proof of live commerce.

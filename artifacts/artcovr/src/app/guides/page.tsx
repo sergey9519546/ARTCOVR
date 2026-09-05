@@ -61,7 +61,7 @@ function GuidePage({ guide }: { guide: AnswerGuide }) {
               <a
                 href={source.href}
                 className="font-bold underline underline-offset-4"
-                {...(source.href.startsWith("http")
+                {...(source.kind === "external"
                   ? { target: "_blank", rel: "noreferrer" }
                   : {})}
               >
@@ -72,7 +72,9 @@ function GuidePage({ guide }: { guide: AnswerGuide }) {
           ))}
         </ul>
         <p className="mt-5 text-xs uppercase tracking-[.1em] opacity-60">
+          <time dateTime={guide.lastReviewed}>
           Last reviewed {guide.lastReviewed}
+          </time>
         </p>
       </section>
 
