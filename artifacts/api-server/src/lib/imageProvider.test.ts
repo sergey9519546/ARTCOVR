@@ -183,6 +183,46 @@ test("credential setup fails lazily and never mixes incomplete credential pairs"
   }
 });
 
+test("managed integration accepts Replit's exact local sidecar without forwarding direct credentials", () => {
+  for (const hostname of ["localhost", "127.0.0.1", "[::1]"]) {
+    const env = {
+      REPL_ID: "fake-replit-runtime",
+      AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key",
+      AI_INTEGRATIONS_OPENAI_BASE_URL: `http://${hostname}:1106/openai/v1`,
+    };
+    const managed = getOpenAI(env);
+    assert.equal(managed.baseURL, env.AI_INTEGRATIONS_OPENAI_BASE_URL);
+    assert.equal(managed.apiKey, "fake-managed-key");
+    assert.equal(managed.maxRetries, 0);
+    const direct = getOpenAI({ ...env, OPENAI_API_KEY: "fake-direct-key" });
+    assert.equal(direct.baseURL, "https://api.openai.com/v1");
+    assert.equal(direct.apiKey, "fake-direct-key");
+  }
+});
+
+test("HTTP managed endpoints cannot escape the Replit loopback sidecar exception", () => {
+  const managed = { AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key" };
+  for (const baseURL of [
+    "http://localhost:1106/openai/v1",
+    "http://127.0.0.1:1106/openai/v1",
+    "http://[::1]:1106/openai/v1",
+  ]) {
+    assert.throws(() => getOpenAI({ ...managed, AI_INTEGRATIONS_OPENAI_BASE_URL: baseURL }), /endpoint/);
+    assert.throws(() => getOpenAI({ ...managed, REPL_ID: " ", AI_INTEGRATIONS_OPENAI_BASE_URL: baseURL }), /endpoint/);
+  }
+  for (const baseURL of [
+    "http://remote.invalid:1106/openai/v1",
+    "http://localhost.invalid:1106/openai/v1",
+    "http://localhost:1107/openai/v1",
+    "http://localhost/openai/v1",
+    "http://user:password@localhost:1106/openai/v1",
+    "http://localhost:1106/openai/v1?key=fake",
+    "http://localhost:1106/openai/v1#fragment",
+  ]) {
+    assert.throws(() => getOpenAI({ ...managed, REPL_ID: "fake-replit-runtime", AI_INTEGRATIONS_OPENAI_BASE_URL: baseURL }), /endpoint/);
+  }
+});
+
 test("the real SDK sends multipart image bytes and does not retry HTTP failures", async (t) => {
   image2(t);
   const requests: { url: string; init?: RequestInit }[] = [];

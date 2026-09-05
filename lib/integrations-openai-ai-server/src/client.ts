@@ -25,8 +25,14 @@ export function getOpenAI(env: NodeJS.ProcessEnv = process.env) {
   } catch {
     throw new Error("The Replit OpenAI integration endpoint is invalid.");
   }
-  if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password || endpoint.search || endpoint.hash) {
-    throw new Error("The Replit OpenAI integration requires an HTTPS endpoint without embedded credentials, query, or fragment.");
+  // Replit's managed integration can terminate HTTPS in its local sidecar.
+  // Permit that exact loopback service only inside a configured Replit runtime.
+  const isReplitSidecar = Boolean(env.REPL_ID?.trim()) &&
+    endpoint.protocol === "http:" && endpoint.port === "1106" &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(endpoint.hostname);
+  if ((endpoint.protocol !== "https:" && !isReplitSidecar) ||
+      endpoint.username || endpoint.password || endpoint.search || endpoint.hash) {
+    throw new Error("The Replit OpenAI integration requires HTTPS or the Replit loopback sidecar endpoint, without embedded credentials, query, or fragment.");
   }
   // No retry here: another paid generation must be an explicit customer action.
   return new OpenAI({ apiKey, baseURL: endpoint.href.replace(/\/$/, ""), maxRetries: 0, timeout: 150_000 });
