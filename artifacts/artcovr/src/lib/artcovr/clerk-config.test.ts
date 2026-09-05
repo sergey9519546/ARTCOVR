@@ -20,6 +20,10 @@ test("rejects missing and development Clerk keys for production", () => {
     () => assertProductionClerkKey("pk_test_example"),
     /live Clerk publishable key/,
   );
+  assert.throws(
+    () => assertProductionClerkKey("malformed_example"),
+    /live Clerk publishable key/,
+  );
 });
 
 test("accepts a live Clerk publishable key for production", () => {
