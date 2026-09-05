@@ -159,8 +159,22 @@ psql "$test_database_url" -X -v ON_ERROR_STOP=1 -c \
   "drop table artcovr_webhook_events" >/dev/null
 run_verifier "$test_database_url"
 assert_status "missing commerce table" 11
-assert_output "missing commerce table" "DB SCHEMA DRIFT: required commerce tables are missing."
+assert_output "missing commerce table" "DB SCHEMA DRIFT: required commerce tables are missing: artcovr_webhook_events."
 assert_output_absent "missing commerce table" "DB OUTAGE:"
+
+# Multiple missing commerce tables: the diagnostic must name every absent table
+# while leaving present required tables out of the list.
+create_database
+apply_application_schema
+seed_current_migration_history
+psql "$test_database_url" -X -v ON_ERROR_STOP=1 -c \
+  "drop table artcovr_orders, artcovr_webhook_events" >/dev/null
+run_verifier "$test_database_url"
+assert_status "multiple missing commerce tables" 11
+assert_output "multiple missing commerce tables" \
+  "DB SCHEMA DRIFT: required commerce tables are missing: artcovr_orders, artcovr_webhook_events."
+assert_output_absent "multiple missing commerce tables" "artcovr_credit_ledger"
+assert_output_absent "multiple missing commerce tables" "DB OUTAGE:"
 
 # Mismatched hash: a history table with stale repository state is a distinct
 # drift classification and reports both expected and observed counts.
@@ -187,4 +201,4 @@ assert_output "mismatched hash" "DB SCHEMA DRIFT: applied migration history does
 assert_output "mismatched hash" "Expected $migration_count migration(s); found $migration_count."
 assert_output_absent "mismatched hash" "DB OUTAGE:"
 
-echo "Database verifier contract tests passed: healthy, outage, missing history, missing commerce table, and mismatched hash."
+echo "Database verifier contract tests passed: healthy, outage, missing history, missing commerce table(s), and mismatched hash."

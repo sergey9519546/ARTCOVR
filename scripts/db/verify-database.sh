@@ -59,16 +59,20 @@ if [[ "$applied_hashes" != "$expected_hashes" ]]; then
 fi
 
 echo "==> checking ARTCOVR commerce tables"
-if ! psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
-  select case
-    when to_regclass('public.artcovr_orders') is not null
-     and to_regclass('public.artcovr_credit_ledger') is not null
-     and to_regclass('public.artcovr_webhook_events') is not null
-    then 'schema-ready'
-    else 'schema-missing'
-  end
-" | grep -qx "schema-ready"; then
-  echo "DB SCHEMA DRIFT: required commerce tables are missing." >&2
+missing_commerce_tables="$(
+  psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
+    select coalesce(string_agg(table_name, ', ' order by table_name), '')
+    from (
+      values
+        ('artcovr_orders'),
+        ('artcovr_credit_ledger'),
+        ('artcovr_webhook_events')
+    ) as required_tables(table_name)
+    where to_regclass('public.' || table_name) is null
+  "
+)"
+if [[ -n "$missing_commerce_tables" ]]; then
+  echo "DB SCHEMA DRIFT: required commerce tables are missing: $missing_commerce_tables." >&2
   exit 11
 fi
 
