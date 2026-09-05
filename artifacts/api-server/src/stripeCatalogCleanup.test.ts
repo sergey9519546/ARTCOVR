@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import type Stripe from "stripe";
 import type { PublicCatalogArtwork } from "./catalog";
@@ -11,6 +14,10 @@ import {
   type StripeCatalogSnapshot,
 } from "./stripeCatalogCleanup";
 import { runStripeCatalogCleanupCli } from "./stripeCatalogCleanupCli";
+import {
+  acquireStripeCatalogCleanupLease,
+  StripeCatalogCleanupLeaseError,
+} from "./stripeCatalogCleanupLease";
 
 const artwork: PublicCatalogArtwork = {
   id: "art_cleanup_test",
@@ -266,6 +273,16 @@ test("an interrupted cleanup resumes from a fresh audit without repeating comple
     );
   const dependencies = {
     audit,
+    acquireLease: async () => ({
+      details: {
+        operationId: "test_resume",
+        pid: null,
+        acquiredAt: new Date(0).toISOString(),
+        expiresAt: new Date(60_000).toISOString(),
+      },
+      refresh: async () => {},
+      release: async () => {},
+    }),
     updateProduct: async (
       productId: string,
       input: { defaultPrice?: string | null; active?: boolean },
@@ -369,6 +386,80 @@ test("an interrupted cleanup resumes from a fresh audit without repeating comple
       ),
     },
   ]);
+});
+
+test("the cleanup operation lease is exclusive and safely expires", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "artcovr-cleanup-lease-"));
+  const leasePath = join(directory, "lease.json");
+  let nowMs = Date.parse("2026-09-05T12:00:00.000Z");
+  const now = () => new Date(nowMs);
+
+  try {
+    const first = await acquireStripeCatalogCleanupLease({
+      leasePath,
+      ttlMs: 1_000,
+      operationId: "cleanup_first",
+      pid: 101,
+      now,
+    });
+
+    await assert.rejects(
+      acquireStripeCatalogCleanupLease({
+        leasePath,
+        ttlMs: 1_000,
+        operationId: "cleanup_second",
+        pid: 202,
+        now,
+      }),
+      (error: unknown) => {
+        assert.ok(error instanceof StripeCatalogCleanupLeaseError);
+        assert.deepEqual(error.activeOperation, first.details);
+        return true;
+      },
+    );
+
+    nowMs += 1_001;
+    const second = await acquireStripeCatalogCleanupLease({
+      leasePath,
+      ttlMs: 1_000,
+      operationId: "cleanup_second",
+      pid: 202,
+      now,
+    });
+    await first.release();
+    await second.refresh();
+    await second.release();
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("the cleanup CLI reports an active lease as retryable", async () => {
+  const diagnostics: string[] = [];
+  const activeOperation = {
+    operationId: "cleanup_active",
+    pid: 404,
+    acquiredAt: "2026-09-05T12:00:00.000Z",
+    expiresAt: "2026-09-05T12:30:00.000Z",
+  };
+
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--confirm-deactivate"],
+    cleanup: async () => {
+      throw new StripeCatalogCleanupLeaseError(activeOperation);
+    },
+    log: () => {
+      throw new Error("A busy cleanup must not emit a cleanup report.");
+    },
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 75);
+  assert.match(
+    diagnostics.join("\n"),
+    /cleanup already active: operation cleanup_active; pid 404; acquired 2026-09-05T12:00:00.000Z; lease expires 2026-09-05T12:30:00.000Z/,
+  );
+  assert.match(diagnostics.join("\n"), /Retry after the lease expires/);
 });
 
 test("cleanup report blocks duplicate prices used by live Stripe objects", () => {
