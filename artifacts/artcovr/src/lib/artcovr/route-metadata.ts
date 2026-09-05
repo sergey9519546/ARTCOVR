@@ -156,6 +156,24 @@ export const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
       "Review ARTCOVR’s digital cover art refund process and download access policies.",
     index: false,
   },
+  "/guides/cover-art-licensing": {
+    title: "How to License Cover Art for a Music Release | ARTCOVR",
+    description:
+      "Learn how commercial cover art licensing works for music releases, including permitted uses, attribution, editing, digital delivery, and restrictions.",
+    index: true,
+  },
+  "/guides/exclusive-cover-art": {
+    title: "Exclusive Cover Art Licensing Explained | ARTCOVR",
+    description:
+      "Understand exclusive cover art licensing, temporary checkout reservations, removal after verified payment, copyright limits, and repeatable alternatives.",
+    index: true,
+  },
+  "/guides/ai-generated-cover-art": {
+    title: "AI-Generated Cover Art Rights and Usage | ARTCOVR",
+    description:
+      "Learn how ARTCOVR handles AI-generated cover art, commercial usage, authorship limits, prompt-based editing, redistribution, and model-training restrictions.",
+    index: true,
+  },
 };
 
 function trimTitle(value: string, maxLength = 60) {
@@ -224,7 +242,8 @@ export function getRouteMetadata(
 
   const metadata = STATIC_METADATA[path] ?? {
     title: "Page Not Found | ARTCOVR",
-    description: "The requested ARTCOVR page could not be found.",
+    description:
+      "The requested ARTCOVR page could not be found. Browse the public cover art archive or return to the ARTCOVR homepage.",
     index: false,
   };
   return { ...metadata, path };

@@ -10,6 +10,7 @@ import {
   getSocialPreviewMetadata,
   type RouteMetadata,
 } from "./route-metadata";
+import { ANSWER_GUIDE_BY_PATH } from "./answer-guides";
 
 export type StaticArtwork = {
   slug: string;
@@ -125,6 +126,9 @@ function siteFooter() {
     <nav aria-label="Footer">
       ${link("/archive", "Browse the archive")}
       ${link("/license", "Commercial license")}
+      ${link("/guides/cover-art-licensing", "Licensing guide")}
+      ${link("/guides/exclusive-cover-art", "Exclusive cover art")}
+      ${link("/guides/ai-generated-cover-art", "AI art rights")}
       ${link("/refunds", "Refunds")}
       ${link("/legal/privacy", "Privacy")}
       ${link("/legal/terms", "Terms")}
@@ -324,6 +328,35 @@ function renderFaq({ siteUrl }: RenderContext) {
   </main>`);
 }
 
+function renderAnswerGuide({ artworks, metadata }: RenderContext) {
+  const guide = ANSWER_GUIDE_BY_PATH.get(metadata.path);
+  if (!guide) return null;
+  const questions = guide.sections
+    .map(
+      (section) =>
+        `<section><h2>${escapeHtml(section.heading)}</h2><p>${escapeHtml(section.answer)}</p></section>`,
+    )
+    .join("");
+  const artworkLinks = artworks
+    .slice(0, 6)
+    .map(
+      (artwork) =>
+        `<li>${link(`/product/${encodeURIComponent(artwork.slug)}`, artwork.title)}</li>`,
+    )
+    .join("");
+  const relatedLinks = guide.links
+    .map((item) => link(item.href, item.label))
+    .join(" ");
+
+  return pageLayout(`<main id="main">
+    <header><p>${escapeHtml(guide.eyebrow)}</p><h1>${escapeHtml(guide.displayTitle)}</h1></header>
+    <p>${escapeHtml(guide.introduction)}</p>
+    <article>${questions}</article>
+    <section aria-labelledby="guide-artwork"><h2 id="guide-artwork">Browse licensed cover artwork</h2><ul>${artworkLinks}</ul></section>
+    <nav aria-label="Related guidance">${relatedLinks}</nav>
+  </main>`);
+}
+
 function renderNoindexPage(path: string) {
   const title =
     path.startsWith("/sign-in") ? "Sign in to ARTCOVR" :
@@ -360,6 +393,29 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
       ),
     );
   }
+  if (ANSWER_GUIDE_BY_PATH.has(metadata.path)) {
+    const guide = ANSWER_GUIDE_BY_PATH.get(metadata.path)!;
+    return combineStructuredData(
+      buildOrganizationStructuredData(siteUrl),
+      {
+        "@type": "WebPage",
+        "@id": `${absoluteUrl(metadata.path, siteUrl)}#webpage`,
+        url: absoluteUrl(metadata.path, siteUrl),
+        name: metadata.title,
+        description: metadata.description,
+        isPartOf: { "@id": `${siteUrl}#website` },
+        about: guide.eyebrow,
+        mainEntity: guide.sections.map((section) => ({
+          "@type": "Question",
+          name: section.heading,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: section.answer,
+          },
+        })),
+      },
+    );
+  }
   if (metadata.path === "/archive") {
     return combineStructuredData(
       buildOrganizationStructuredData(siteUrl),
@@ -379,12 +435,24 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
       artwork = undefined;
     }
     if (artwork) {
+      const productUrl = absoluteUrl(metadata.path, siteUrl);
       return combineStructuredData(
         buildOrganizationStructuredData(siteUrl),
         buildArtworkStructuredData(
           { ...artwork, genres: [...getGenres(artwork)] },
           siteUrl,
         ),
+        {
+          "@type": ["ProductPage", "WebPage"],
+          "@id": `${productUrl}#webpage`,
+          url: productUrl,
+          name: metadata.title,
+          description: metadata.description,
+          isPartOf: { "@id": `${siteUrl}#website` },
+          breadcrumb: { "@id": `${productUrl}#breadcrumb` },
+          mainEntity: { "@id": `${productUrl}#product` },
+          primaryImageOfPage: { "@id": `${productUrl}#artwork` },
+        },
       );
     }
   }
@@ -396,6 +464,7 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
       url: absoluteUrl(metadata.path, siteUrl),
       name: metadata.title,
       description: metadata.description,
+      isPartOf: { "@id": `${siteUrl}#website` },
     },
   );
 }
@@ -406,6 +475,7 @@ export function renderStaticRoute(context: RenderContext) {
   if (metadata.path === "/") body = renderHome(context);
   if (metadata.path === "/archive") body = renderArchive(context);
   if (metadata.path === "/faq") body = renderFaq(context);
+  if (ANSWER_GUIDE_BY_PATH.has(metadata.path)) body = renderAnswerGuide(context);
   if (metadata.path.startsWith("/product/")) body = renderProduct(context);
   if (
     !body &&

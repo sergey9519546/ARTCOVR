@@ -49,6 +49,21 @@ const AuthCallbackPage = lazy(() => import("@/app/auth/callback/page"));
 const ContactPage = lazy(() => import("@/app/contact/page"));
 const CheckoutPageComponent = lazy(() => import("@/app/checkout/[slug]/page"));
 const FaqPage = lazy(() => import("@/app/faq/page"));
+const CoverArtLicensingGuidePage = lazy(() =>
+  import("@/app/guides/page").then((module) => ({
+    default: module.CoverArtLicensingGuidePage,
+  })),
+);
+const ExclusiveCoverArtGuidePage = lazy(() =>
+  import("@/app/guides/page").then((module) => ({
+    default: module.ExclusiveCoverArtGuidePage,
+  })),
+);
+const AiGeneratedCoverArtGuidePage = lazy(() =>
+  import("@/app/guides/page").then((module) => ({
+    default: module.AiGeneratedCoverArtGuidePage,
+  })),
+);
 const PrivacyPage = lazy(() => import("@/app/legal/privacy/page"));
 const TermsPage = lazy(() => import("@/app/legal/terms/page"));
 const LicensePage = lazy(() => import("@/app/license/page"));
@@ -146,6 +161,9 @@ function Router() {
           <Route path="/checkout/:slug" component={CheckoutRoute} />
           <Route path="/contact" component={ContactPage} />
           <Route path="/faq" component={FaqPage} />
+          <Route path="/guides/cover-art-licensing" component={CoverArtLicensingGuidePage} />
+          <Route path="/guides/exclusive-cover-art" component={ExclusiveCoverArtGuidePage} />
+          <Route path="/guides/ai-generated-cover-art" component={AiGeneratedCoverArtGuidePage} />
           <Route path="/legal/privacy" component={PrivacyPage} />
           <Route path="/legal/terms" component={TermsPage} />
           <Route path="/license" component={LicensePage} />

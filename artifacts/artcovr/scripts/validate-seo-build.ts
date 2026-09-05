@@ -7,9 +7,15 @@ import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
 import {
   getIndexableRoutePaths,
+  getPrerenderedRoutePaths,
   getRouteMetadata,
   getSocialPreviewMetadata,
 } from "../src/lib/artcovr/route-metadata";
+import {
+  buildCatalogFactsJson,
+  buildLlmsFullTxt,
+  buildLlmsTxt,
+} from "../src/lib/artcovr/discovery";
 
 const outputDirectory = path.resolve(import.meta.dirname, "../dist/public");
 const publicCatalog = selectPublicCatalog(curatedPublic);
@@ -248,6 +254,24 @@ export function validateRoute(
       route,
       routeExpectation.artwork ? "product description" : "route description",
       `expected "${routeExpectation.metadata.description}"`,
+    );
+    const robotsTags = collectTags(html, "meta").filter(
+      (tag) => attribute(tag, "name")?.toLowerCase() === "robots",
+    );
+    check(
+      robotsTags.length === 1,
+      route,
+      "robots directive",
+      `expected one robots tag, found ${robotsTags.length}`,
+    );
+    const robots = (attribute(robotsTags[0], "content") ?? "").toLowerCase();
+    check(
+      routeExpectation.metadata.index
+        ? robots.includes("index") && !robots.includes("noindex")
+        : robots.includes("noindex"),
+      route,
+      "robots directive",
+      routeExpectation.metadata.index ? "expected index" : "expected noindex",
     );
   }
 
@@ -566,6 +590,122 @@ async function validateDiscoveryFiles(siteUrl: string) {
     sitemapRoute,
     "approved catalog image URLs",
   );
+
+  const discoveryCatalog = publicCatalog.map((item) => ({
+    ...item,
+    genres: getArtworkGenres(item).map(displayGenreLabel),
+  }));
+  const expectedTextFiles = {
+    "llms.txt": buildLlmsTxt(discoveryCatalog, siteUrl),
+    "llms-full.txt": buildLlmsFullTxt(discoveryCatalog, siteUrl),
+  };
+  for (const [fileName, expectedContents] of Object.entries(expectedTextFiles)) {
+    let contents: string;
+    try {
+      contents = await readFile(path.join(outputDirectory, fileName), "utf8");
+    } catch {
+      seoFailure(fileName, "discovery file", "file is missing from dist/public");
+    }
+    check(
+      contents === expectedContents,
+      fileName,
+      "public catalog parity",
+      "generated content does not match the approved public catalog",
+    );
+    check(
+      !/\/(?:checkout|sign-in|sign-up|my-images|catalog-intelligence)(?:\/|\\b)/.test(contents),
+      fileName,
+      "private route isolation",
+    );
+  }
+
+  const factsFile = "catalog-facts.json";
+  let factsSource: string;
+  try {
+    factsSource = await readFile(path.join(outputDirectory, factsFile), "utf8");
+  } catch {
+    seoFailure(factsFile, "discovery file", "file is missing from dist/public");
+  }
+  const expectedFacts = buildCatalogFactsJson(discoveryCatalog, siteUrl);
+  check(
+    factsSource === expectedFacts,
+    factsFile,
+    "public catalog parity",
+    "generated facts do not match the approved public catalog",
+  );
+  let facts: {
+    version?: unknown;
+    items?: unknown;
+  };
+  try {
+    facts = JSON.parse(factsSource);
+  } catch {
+    seoFailure(factsFile, "JSON format", "file is not valid JSON");
+  }
+  check(
+    facts.version === "artcovr-catalog-facts/v1",
+    factsFile,
+    "schema version",
+  );
+  check(
+    Array.isArray(facts.items) && facts.items.length === publicCatalog.length,
+    factsFile,
+    "approved catalog item count",
+    `expected ${publicCatalog.length}`,
+  );
+}
+
+function internalAnchorPaths(html: string, siteUrl: string) {
+  return [...html.matchAll(/<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>/gi)]
+    .map((match) => decodeHtml(match[1]))
+    .flatMap((href) => {
+      let url: URL;
+      try {
+        url = new URL(href, `${siteUrl}/`);
+      } catch {
+        return [];
+      }
+      return url.origin === siteUrl ? [url.pathname] : [];
+    });
+}
+
+function validateInternalLinks(
+  siteUrl: string,
+  htmlByRoute: ReadonlyMap<string, string>,
+) {
+  const prerendered = new Set(getPrerenderedRoutePaths(publicCatalog));
+  const indexable = new Set(getIndexableRoutePaths(publicCatalog));
+  const graph = new Map<string, Set<string>>();
+
+  for (const [route, html] of htmlByRoute) {
+    const targets = internalAnchorPaths(html, siteUrl);
+    graph.set(route, new Set(targets.filter((target) => indexable.has(target))));
+    const broken = targets.filter((target) => !prerendered.has(target));
+    check(
+      broken.length === 0,
+      route,
+      "internal link target",
+      broken.slice(0, 3).join(", "),
+    );
+  }
+
+  const reachable = new Set<string>();
+  const queue = ["/"];
+  while (queue.length) {
+    const route = queue.shift()!;
+    if (reachable.has(route)) continue;
+    reachable.add(route);
+    for (const target of graph.get(route) ?? []) {
+      if (!reachable.has(target)) queue.push(target);
+    }
+  }
+  const orphaned = [...indexable].filter((route) => !reachable.has(route));
+  check(
+    orphaned.length === 0,
+    "internal links",
+    "orphaned public routes",
+    orphaned.slice(0, 5).join(", "),
+  );
 }
 
 async function main() {
@@ -619,6 +759,7 @@ async function main() {
 
   let informationalRoutesValidated = 0;
   let productRoutesValidated = 0;
+  const htmlByRoute = new Map<string, string>();
   for (const publicRoute of indexableRoutes) {
     await collectFailure(failures, publicRoute, async () => {
       const metadata = getRouteMetadata(
@@ -648,9 +789,11 @@ async function main() {
         "public route coverage",
         "indexable product route has no matching public catalog artwork",
       );
+      const routeHtml = publicRoute === "/" ? homepage : await readRoute(publicRoute);
+      htmlByRoute.set(publicRoute, routeHtml);
       validateRoute(
         publicRoute,
-        publicRoute === "/" ? homepage : await readRoute(publicRoute),
+        routeHtml,
         siteUrl,
         expectedTypes,
         { metadata, artwork },
@@ -666,11 +809,37 @@ async function main() {
   await collectFailure(failures, "robots.txt / sitemap.xml", () =>
     validateDiscoveryFiles(siteUrl),
   );
+  await collectFailure(failures, "internal links", () =>
+    validateInternalLinks(siteUrl, htmlByRoute),
+  );
+  await collectFailure(failures, "/404", async () => {
+    const notFoundRoute = "/404";
+    const metadata = getRouteMetadata(notFoundRoute, publicCatalog);
+    validateRoute(
+      notFoundRoute,
+      await readFile(path.join(outputDirectory, "404.html"), "utf8"),
+      siteUrl,
+      ["Organization", "WebSite", "WebPage"],
+      { metadata },
+    );
+  });
+  await collectFailure(failures, "/product/not-a-real-artcovr-slug", async () => {
+    try {
+      await readFile(routeFile("/product/not-a-real-artcovr-slug"), "utf8");
+      seoFailure(
+        "/product/not-a-real-artcovr-slug",
+        "soft 404",
+        "an invalid product route was emitted as a valid static page",
+      );
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("soft 404")) throw error;
+    }
+  });
 
   if (reportFailures(failures)) return;
 
   console.log(
-    `[SEO] validated /, /archive, ${informationalRoutesValidated} informational routes, ${productRoutesValidated} product routes, robots.txt, sitemap.xml (${publicCatalog.length} catalog images)`,
+    `[SEO] validated /, /archive, ${informationalRoutesValidated} informational routes, ${productRoutesValidated} product routes, 404 behavior, internal links, robots.txt, sitemap.xml, llms files, and catalog-facts.json (${publicCatalog.length} catalog images)`,
   );
 }
 

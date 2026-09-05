@@ -165,7 +165,7 @@ export function buildArtworkImageObject(
     representativeOfPage: options.representativeOfPage ?? false,
     creditText: "ARTCOVR",
     copyrightNotice: "ARTCOVR",
-    creator: { "@id": `${siteUrl}#organization` },
+    copyrightHolder: { "@id": `${siteUrl}#organization` },
     publisher: { "@id": `${siteUrl}#organization` },
     license: absoluteSiteUrl("/license", siteUrl),
     acquireLicensePage: productUrl,

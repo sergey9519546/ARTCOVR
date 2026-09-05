@@ -12,6 +12,9 @@ export function SiteFooter() {
           <Link href="/license" className="link-hover block w-fit">License</Link>
           <Link href="/refunds" className="link-hover block w-fit">Refunds</Link>
           <Link href="/faq" className="link-hover block w-fit">FAQ</Link>
+          <Link href="/guides/cover-art-licensing" className="link-hover block w-fit">Licensing guide</Link>
+          <Link href="/guides/exclusive-cover-art" className="link-hover block w-fit">Exclusive art</Link>
+          <Link href="/guides/ai-generated-cover-art" className="link-hover block w-fit">AI art rights</Link>
           <Link href="/about" className="link-hover block w-fit">About</Link>
         </div>
         <div className="text-xs font-bold uppercase leading-7 tracking-[0.08em]">

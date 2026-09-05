@@ -52,6 +52,18 @@ from = "/legal/terms"
 to = "/legal/terms/index.html"
 
 [[services.production.rewrites]]
+from = "/guides/cover-art-licensing"
+to = "/guides/cover-art-licensing/index.html"
+
+[[services.production.rewrites]]
+from = "/guides/exclusive-cover-art"
+to = "/guides/exclusive-cover-art/index.html"
+
+[[services.production.rewrites]]
+from = "/guides/ai-generated-cover-art"
+to = "/guides/ai-generated-cover-art/index.html"
+
+[[services.production.rewrites]]
 from = "/sign-in"
 to = "/sign-in/index.html"
 
@@ -95,9 +107,6 @@ to = "/sign-in/index.html"
 from = "/sign-up/*"
 to = "/sign-up/index.html"
 
-[[services.production.rewrites]]
-from = "/*"
-to = "/404.html"
 
 [services.env]
 VITE_SITE_URL = "https://artcovr.com"
