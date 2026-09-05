@@ -421,7 +421,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       </div>
       <div
         ref={stageRef}
-        className="absolute top-0 left-0 h-full w-full will-change-transform ml-[-1051px] mr-[-1051px]"
+        className="absolute inset-0 h-full w-full will-change-transform"
         style={{ transformStyle: "preserve-3d", transform: "rotateZ(-5deg)", opacity: 0 }}
       >
         {ITEMS.map((artwork, index) => (
