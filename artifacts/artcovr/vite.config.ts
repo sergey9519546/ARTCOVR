@@ -391,9 +391,9 @@ export default defineConfig(async ({ mode }) => {
             },
           }
         : {}),
-      // The managed preview proxy does not forward Vite's HMR WebSocket
-      // reliably. Disable only that client in the proxied workflow so the
-      // preview stays error-free; direct local Vite development keeps HMR.
+      // The managed preview prioritizes stable reloads over hot module
+      // replacement. Vite's diagnostic client remains available, while direct
+      // local development keeps hot updates enabled.
       ...(usePreviewProxy ? { hmr: false } : {}),
       fs: {
         strict: true,

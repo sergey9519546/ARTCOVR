@@ -32,7 +32,7 @@ test("production configuration rejects development Clerk keys", () => {
         ...requiredProductionEnvironment,
         CLERK_PUBLISHABLE_KEY: "pk_test_example",
       }),
-    /cannot use a development Clerk publishable key/,
+    /requires a live Clerk publishable key/,
   );
 });
 
@@ -43,7 +43,7 @@ test("production configuration rejects malformed Clerk keys", () => {
         ...requiredProductionEnvironment,
         CLERK_PUBLISHABLE_KEY: "malformed_example",
       }),
-    /cannot use a development Clerk publishable key/,
+    /requires a live Clerk publishable key/,
   );
 });
 
