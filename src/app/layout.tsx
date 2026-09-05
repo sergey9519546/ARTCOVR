@@ -87,10 +87,8 @@ export default function RootLayout({
       <body>
         {/*
           Pre-paint theme bootstrap. This must agree with useTheme: light is the
-          primary theme, and light|dark are the only themes. Anything else in
-          storage — including the removed `red` theme, which is still persisted
-          in the browsers of anyone who selected it — falls back to light rather
-          than painting a palette that no longer exists.
+          primary theme, while light|dark|red are the only recognized values.
+          Anything else in storage falls back to light before the first paint.
         */}
         <Script src="/theme-init.js" strategy="beforeInteractive" />
         <script

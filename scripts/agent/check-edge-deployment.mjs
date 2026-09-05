@@ -27,15 +27,27 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  indicatesDeployedFunction,
+  resolveDeploymentTarget,
+} from "./deployment-target.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const REQUEST_TIMEOUT_MS = 15_000;
+const PROBE_CONCURRENCY = 4;
 
 // The deployed/undeployed signal needs no key at all — the Supabase router
 // answers a preflight for a missing function with 404 before any auth runs. So
 // this gate needs only the project URL, which is public. Set SUPABASE_PROJECT_REF
 // (e.g. abcdefghijklmnop) or NEXT_PUBLIC_SUPABASE_URL.
-const projectRef = process.env.SUPABASE_PROJECT_REF ?? "";
-const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? (projectRef ? `https://${projectRef}.supabase.co` : "")).replace(/\/$/, "");
+let target;
+try {
+  target = resolveDeploymentTarget();
+} catch (error) {
+  console.error(`NOT RUN: ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(2);
+}
+const { url } = target;
 if (!url) {
   console.error(
     "NOT RUN: set SUPABASE_PROJECT_REF or NEXT_PUBLIC_SUPABASE_URL. Both are public " +
@@ -77,34 +89,50 @@ const onDisk = (await readdir(path.join(projectRoot, "supabase", "functions"), {
 const external = EXTERNALLY_INVOKED.filter((name) => onDisk.includes(name));
 const expected = [...new Set([...fromFrontend, ...external])].sort();
 
-const results = [];
-for (const name of expected) {
+async function probeFunction(name) {
   let status = 0;
   let detail = "";
   try {
     const response = await fetch(`${url}/functions/v1/${name}`, {
       method: "OPTIONS",
       headers: anonKey ? { apikey: anonKey, authorization: `Bearer ${anonKey}` } : {},
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
     status = response.status;
-    if (status === 404) detail = (await response.text()).slice(0, 80);
+    if (!indicatesDeployedFunction(status)) detail = (await response.text()).slice(0, 80);
   } catch (error) {
     detail = error instanceof Error ? error.message : String(error);
   }
-  results.push({
+  return {
     function: name,
     calledBy: fromFrontend.includes(name) ? "storefront" : "stripe/scheduler",
     status,
-    deployed: status !== 0 && status !== 404,
+    deployed: indicatesDeployedFunction(status),
     detail,
-  });
+  };
 }
+
+async function mapWithConcurrency(values, limit, mapper) {
+  const results = new Array(values.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, values.length) }, async () => {
+    while (cursor < values.length) {
+      const index = cursor++;
+      results[index] = await mapper(values[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+const results = await mapWithConcurrency(expected, PROBE_CONCURRENCY, probeFunction);
 
 const missing = results.filter((r) => !r.deployed);
 
 console.log(JSON.stringify({
   gate: "edge-deployment",
   project: url,
+  targetSource: target.source,
   calledByFrontend: fromFrontend.length,
   externallyInvoked: external.length,
   deployed: results.length - missing.length,

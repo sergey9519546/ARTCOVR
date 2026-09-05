@@ -11,9 +11,9 @@ name: CI
 
 on:
   push:
-    # The repository default branch is still artcovr-storefront while main is the
-    # consolidated product branch, and both are kept in sync. Cover both so the
-    # gates run whichever one a change lands on.
+    # The repository default branch is still artcovr-storefront even though it
+    # has diverged from the canonical rights-gated product on main. Cover both
+    # until branch governance is repaired; a pass on one never certifies the other.
     branches: [main, artcovr-storefront]
   # No base filter: a pull request against ANY branch is verified. With a
   # branches: [main] filter, a PR opened against the default branch would have
@@ -73,7 +73,8 @@ jobs:
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
 
-      # playwright.config.ts starts `npx next dev` itself via its webServer block.
+      # The repository runner owns the Next dev server process tree and cleans up
+      # its exact PID after Playwright exits, including on Windows development hosts.
       - name: Browser journeys
         run: bun run test:e2e
 

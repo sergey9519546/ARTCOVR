@@ -22,6 +22,9 @@ export type Artwork = {
   description: string;
   category: string;
   moodTags: string[];
+  sourceWidth?: number;
+  sourceHeight?: number;
+  sourceMimeType?: "image/jpeg" | "image/png";
   editionAvailable?: number | null;
   editionTotal?: number | null;
   licenseLabel?: string | null;

@@ -47,6 +47,7 @@ function origin() {
 export async function createCheckout(input: {
   purchaseId: string;
   catalogId: string;
+  artworkSlug: string;
   title: string;
   amount: number;
   currency: string;
@@ -63,7 +64,7 @@ export async function createCheckout(input: {
   const body = new URLSearchParams({
     mode: "payment",
     success_url: `${origin()}/my-images?checkout=return&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin()}/archive`,
+    cancel_url: `${origin()}/checkout/${encodeURIComponent(input.artworkSlug)}`,
     client_reference_id: input.purchaseId,
     "metadata[purchase_id]": input.purchaseId,
     "metadata[artwork_catalog_id]": input.catalogId,
