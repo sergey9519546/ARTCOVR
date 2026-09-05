@@ -8,9 +8,11 @@ test("archive color and theme tokens remain compiled from the supplied UI contra
   const css = await source("src/app/globals.css");
 
   assert.match(css, /@custom-variant dark/);
-  for (const token of ["--color-cream", "--color-background", "--color-foreground"]) {
+  assert.match(css, /@custom-variant red/);
+  for (const token of ["--color-cream", "--color-red", "--color-background", "--color-foreground"]) {
     assert.match(css, new RegExp(token));
   }
+  assert.match(css, /html\[data-theme="red"\]/);
   assert.match(css, /\.artcovr-button/);
 });
 

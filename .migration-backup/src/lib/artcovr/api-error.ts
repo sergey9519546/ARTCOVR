@@ -10,4 +10,7 @@ export class ArtcovrApiError extends Error {
   }
 }
 
-export { shouldRotateCheckoutIdempotencyKey } from "./checkout-errors.ts";
+export {
+  shouldDiscardSelectedPreview,
+  shouldRotateCheckoutIdempotencyKey,
+} from "./checkout-errors.ts";

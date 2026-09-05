@@ -1,17 +1,19 @@
 "use client";
 
-import { useTheme } from "@/hooks/artcovr/useTheme";
+import { THEMES, useTheme } from "@/hooks/artcovr/useTheme";
 
 export function ThemeToggle() {
   const { theme, setTheme, mounted } = useTheme();
   if (!mounted) return null;
+  const nextTheme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
   return (
     <button
+      type="button"
       className="theme-control link-hover flex min-h-11 items-center text-xs font-bold uppercase tracking-[.08em]"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+      onClick={() => setTheme(nextTheme)}
+      aria-label={`Color theme is ${theme}. Switch to ${nextTheme} theme`}
     >
-      {theme === "dark" ? "Light" : "Dark"}
+      Theme: {theme}
     </button>
   );
 }

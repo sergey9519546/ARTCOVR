@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { readFile, rename, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +9,10 @@ import { buildCatalogImport, canonicalJson } from "../../src/lib/artcovr/catalog
 import { decodeImageHeader } from "../../src/lib/artcovr/catalog-source.ts";
 
 const BUCKET = "art-assets";
+const APPLE_MUSIC_MINIMUM_PX = 1400;
+const APPLE_MUSIC_RECOMMENDED_PX = 3000;
+const TUNECORE_MINIMUM_PX = 1600;
+const TUNECORE_MAXIMUM_PX = 3000;
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(scriptDirectory, "../..");
 const privateRoot = process.env.ARTCOVR_PRIVATE_ROOT ?? "E:\\ART_COLLECTION\\.artcovr-private";
@@ -159,6 +163,7 @@ const serializedPlan = `${JSON.stringify(plan, null, 2)}\n`;
 const planSha256 = sha256(canonicalJson(plan));
 
 if (writePlan) {
+  await mkdir(path.dirname(planPath), { recursive: true });
   const temporaryPath = `${planPath}.${randomUUID()}.tmp`;
   await writeFile(temporaryPath, serializedPlan, { encoding: "utf8", flag: "wx" });
   try {
@@ -214,6 +219,38 @@ if (applyArgument) {
   applied = true;
 }
 
+// These counts prove only native pixel dimensions. They do not certify color
+// space, DPI metadata, file-size, or channel-specific content rules, and they
+// never treat an upscale as native compliance.
+const nativeDimensionEligibility = {
+  appleMusic: {
+    minimumPx: APPLE_MUSIC_MINIMUM_PX,
+    recommendedPx: APPLE_MUSIC_RECOMMENDED_PX,
+    meetsMinimumDimensions: entries.filter(
+      ({ base }) => base.width >= APPLE_MUSIC_MINIMUM_PX && base.height >= APPLE_MUSIC_MINIMUM_PX,
+    ).length,
+    meetsRecommendedDimensions: entries.filter(
+      ({ base }) => base.width >= APPLE_MUSIC_RECOMMENDED_PX && base.height >= APPLE_MUSIC_RECOMMENDED_PX,
+    ).length,
+    source: "https://help.apple.com/itc/videoaudioassetguide/en.lproj/static.html",
+  },
+  tuneCore: {
+    minimumPx: TUNECORE_MINIMUM_PX,
+    maximumPx: TUNECORE_MAXIMUM_PX,
+    meetsDimensionRange: entries.filter(
+      ({ base }) =>
+        base.width >= TUNECORE_MINIMUM_PX &&
+        base.height >= TUNECORE_MINIMUM_PX &&
+        base.width <= TUNECORE_MAXIMUM_PX &&
+        base.height <= TUNECORE_MAXIMUM_PX,
+    ).length,
+    source: "https://support.tunecore.com/hc/en-au/articles/115006685728-What-are-TuneCore-s-cover-art-formatting-requirements",
+  },
+  total: entries.length,
+  dimensionsOnly: true,
+  fullChannelComplianceVerified: false,
+};
+
 console.log(JSON.stringify({
   mode: applied ? "applied-and-verified" : "dry-run",
   bucket: BUCKET,
@@ -223,4 +260,5 @@ console.log(JSON.stringify({
   planSha256,
   planWritten: writePlan ? planPath : null,
   liveConnectionAttempted: Boolean(applyArgument),
+  nativeDimensionEligibility,
 }, null, 2));

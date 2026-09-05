@@ -1,21 +1,27 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { isPromptReady } from "@/lib/artcovr/artworks";
 import {
+  ArtcovrApiError,
   createGeneration,
   getGenerationStatus,
   getMyImages,
   uploadReference,
 } from "@/lib/artcovr/functions";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PromptComposer } from "./PromptComposer";
 
 type Phase = "idle" | "generating" | "complete" | "error";
+type AuthState = "checking" | "signed-in" | "signed-out" | "unavailable";
 
 const ACCEPTED_REFERENCE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const MAX_REFERENCE_BYTES = 8 * 1024 * 1024;
+const referenceUploadsEnabled =
+  process.env.NEXT_PUBLIC_ARTCOVR_REFERENCE_UPLOADS === "1";
 
 type ReferenceState =
   | { status: "none" }
@@ -42,6 +48,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const [result, setResult] = useState<string>();
   const [message, setMessage] = useState("");
   const [restoring, setRestoring] = useState(true);
+  const [authState, setAuthState] = useState<AuthState>("checking");
   const jobId = useRef<string | undefined>(undefined);
   const currentResultId = useRef<string | undefined>(undefined);
   const resetToBase = useRef(false);
@@ -50,7 +57,10 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const pendingStyleMode = useRef<"exact" | "expand">("exact");
   const ready = isPromptReady(prompt) && !restoring;
   const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
-  const [coverTitle, setCoverTitle] = useState(artwork.title);
+  const signInHref = `/sign-in?next=${encodeURIComponent(`/product/${artwork.slug}`)}`;
+  // Cover text is opt-in. The catalog title describes ARTCOVR's work and must
+  // never be sent to the image provider unless the customer enters it.
+  const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
   const [coverOpen, setCoverOpen] = useState(false);
@@ -60,6 +70,54 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const promptBoxRef = useRef<HTMLTextAreaElement | null>(null);
   const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const armedUploadRef = useRef<string | undefined>(undefined);
+  const referenceUploading = reference.status === "uploading";
+  const canGenerate = ready && authState === "signed-in" && !referenceUploading;
+  const promptDraftKey = `artcovr:prompt-draft:${artwork.id}`;
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem(promptDraftKey);
+      if (!stored) return;
+      sessionStorage.removeItem(promptDraftKey);
+      const draft = JSON.parse(stored) as Record<string, unknown>;
+      if (typeof draft.prompt === "string") setPrompt(draft.prompt.slice(0, 2000));
+      if (typeof draft.coverTitle === "string") setCoverTitle(draft.coverTitle.slice(0, 120));
+      if (typeof draft.coverArtist === "string") setCoverArtist(draft.coverArtist.slice(0, 120));
+      if (draft.styleMode === "exact" || draft.styleMode === "expand") {
+        setStyleMode(draft.styleMode);
+      }
+      if (draft.coverTitle || draft.coverArtist) setCoverOpen(true);
+    } catch {
+      try {
+        sessionStorage.removeItem(promptDraftKey);
+      } catch {}
+    }
+  }, [promptDraftKey]);
+
+  useEffect(() => {
+    let active = true;
+    const client = getSupabaseBrowserClient();
+    if (!client) {
+      setAuthState("unavailable");
+      return;
+    }
+
+    void client.auth.getSession()
+      .then(({ data }) => {
+        if (active) setAuthState(data.session ? "signed-in" : "signed-out");
+      })
+      .catch(() => {
+        if (active) setAuthState("signed-out");
+      });
+
+    const { data: authListener } = client.auth.onAuthStateChange((_event, session) => {
+      if (active) setAuthState(session ? "signed-in" : "signed-out");
+    });
+    return () => {
+      active = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -130,6 +188,9 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
 
     const fail = (error: unknown) => {
       if (!active) return;
+      if (error instanceof ArtcovrApiError && error.code === "unauthorized") {
+        setAuthState("signed-out");
+      }
       setMessage(
         error instanceof Error
           ? error.message
@@ -240,7 +301,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   }
 
   function generate() {
-    if (!ready || phase === "generating") return;
+    if (!canGenerate || phase === "generating" || referenceRef.current.status === "uploading") return;
     pendingPrompt.current = prompt.trim();
     const title = coverTitle.trim();
     const artistName = coverArtist.trim();
@@ -256,6 +317,19 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         : "Building from the original artwork…",
     );
     setPhase("generating");
+  }
+
+  function saveDraftForSignIn() {
+    try {
+      sessionStorage.setItem(promptDraftKey, JSON.stringify({
+        prompt,
+        coverTitle,
+        coverArtist,
+        styleMode,
+      }));
+    } catch {
+      // A locked-down browser can block storage; sign-in still remains usable.
+    }
   }
 
   function reset() {
@@ -312,7 +386,11 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
    * failure the chip disappears and the reason lands in the status line.
    */
   async function pickReference(file: File | undefined) {
-    if (!file || reference.status === "uploading") return;
+    if (!referenceUploadsEnabled || !file || reference.status === "uploading") return;
+    if (authState !== "signed-in") {
+      setMessage("Sign in before attaching a style reference.");
+      return;
+    }
     const rejection = referenceRejection(file);
     if (rejection) {
       setMessage(rejection);
@@ -330,6 +408,9 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     } catch (cause) {
       URL.revokeObjectURL(url);
       setReferenceEverywhere({ status: "none" });
+      if (cause instanceof ArtcovrApiError && cause.code === "unauthorized") {
+        setAuthState("signed-out");
+      }
       setMessage(
         cause instanceof Error ? cause.message : "The reference could not be uploaded. Try again.",
       );
@@ -375,7 +456,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         {/* CONTEXT STRIP: what the next generation builds from, and its two
             optional parameters. One row, all chip-scale. */}
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-bold">
-          <span className="flex items-center gap-2 rounded-full border border-current/25 py-1 pl-1 pr-3">
+          <span className="flex items-center gap-2 rounded-full border border-current/50 py-1 pl-1 pr-3">
             <Image
               src={previewSrc}
               alt=""
@@ -401,7 +482,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
           </span>
 
           {reference.status !== "none" ? (
-            <span className="flex items-center gap-2 rounded-full border border-current/25 py-1 pl-1 pr-3">
+            <span className="flex items-center gap-2 rounded-full border border-current/50 py-1 pl-1 pr-3">
               {/* Local object URL, never a catalog asset. */}
               <img src={reference.url} alt="" aria-hidden className="size-6 rounded-full object-cover" />
               <span className="max-w-[10rem] truncate">
@@ -423,17 +504,17 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             type="button"
             onClick={() => setCoverOpen((open) => !open)}
             aria-expanded={coverOpen}
-            className={`rounded-full border px-3 py-1 transition-colors ${coverOpen || coverSummary ? "border-current" : "border-current/25 opacity-70 hover:opacity-100"}`}
+            className={`rounded-full border px-3 py-1 transition-colors ${coverOpen || coverSummary ? "border-current" : "border-current/50 opacity-70 hover:opacity-100"}`}
           >
             {coverSummary ? `Cover text: ${coverSummary}` : "Add cover text"}
           </button>
 
           <div role="radiogroup" aria-label="Style handling" className="ml-auto flex gap-1">
-            <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "exact" ? "border-current" : "border-current/25 opacity-60"}`}>
+            <label className={`cursor-pointer rounded-full border px-3 py-1 focus-within:opacity-100 focus-within:ring-2 focus-within:ring-current focus-within:ring-offset-2 focus-within:ring-offset-[var(--background)] ${styleMode === "exact" ? "border-current" : "border-current/50 opacity-60"}`}>
               <input type="radio" name="style-mode" value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} className="sr-only" />
               Exact style
             </label>
-            <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "expand" ? "border-current" : "border-current/25 opacity-60"}`}>
+            <label className={`cursor-pointer rounded-full border px-3 py-1 focus-within:opacity-100 focus-within:ring-2 focus-within:ring-current focus-within:ring-offset-2 focus-within:ring-offset-[var(--background)] ${styleMode === "expand" ? "border-current" : "border-current/50 opacity-60"}`}>
               <input type="radio" name="style-mode" value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} className="sr-only" />
               Expand
             </label>
@@ -441,7 +522,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         </div>
 
         {coverOpen ? (
-          <div className="mt-2 grid gap-3 rounded-2xl border border-current/25 p-3 sm:grid-cols-2">
+          <div className="mt-2 grid gap-3 rounded-2xl border border-current/50 p-3 sm:grid-cols-2">
             <div>
               <label htmlFor="cover-title" className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">
                 Title
@@ -453,7 +534,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 value={coverTitle}
                 onChange={(event) => setCoverTitle(event.target.value)}
                 disabled={phase === "generating"}
-                className="mt-1 w-full border-b border-current/30 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
+                className="mt-1 w-full border-b border-current/50 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
               />
             </div>
             <div>
@@ -468,7 +549,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 onChange={(event) => setCoverArtist(event.target.value)}
                 placeholder="Your artist or band name"
                 disabled={phase === "generating"}
-                className="mt-1 w-full border-b border-current/30 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
+                className="mt-1 w-full border-b border-current/50 bg-transparent px-1 py-1.5 text-sm outline-none transition-colors focus:border-current"
               />
             </div>
             <p className="text-[11px] leading-4 opacity-60 sm:col-span-2">
@@ -486,25 +567,31 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               event.preventDefault();
               void pickReference(event.dataTransfer.files?.[0]);
             }}
-            className="artcovr-promptbar flex items-end gap-2 rounded-[1.75rem] border border-current/30 p-2"
+            className="artcovr-promptbar flex items-end gap-2 rounded-[1.75rem] border border-current/50 p-2"
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={ACCEPTED_REFERENCE_TYPES.join(",")}
-              className="sr-only"
-              aria-hidden
-              tabIndex={-1}
-              onChange={(event) => void pickReference(event.target.files?.[0])}
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label={armedUploadId ? "Style reference attached — replace it" : "Attach a style reference image"}
-              className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
-            >
-              +
-            </button>
+            {referenceUploadsEnabled && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={ACCEPTED_REFERENCE_TYPES.join(",")}
+                  className="sr-only"
+                  aria-hidden
+                  tabIndex={-1}
+                  disabled={authState !== "signed-in" || phase === "generating" || referenceUploading}
+                  onChange={(event) => void pickReference(event.target.files?.[0])}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={authState !== "signed-in" || phase === "generating" || referenceUploading}
+                  aria-label={armedUploadId ? "Style reference attached — replace it" : "Attach a style reference image"}
+                  className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${armedUploadId ? "artcovr-button border-current" : "border-current/50 hover:border-current"}`}
+                >
+                  +
+                </button>
+              </>
+            )}
             <textarea
               id="prompt"
               ref={promptBoxRef}
@@ -529,8 +616,8 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             <button
               type="button"
               onClick={generate}
-              disabled={!ready || phase === "generating" || restoring}
-              aria-label={phase === "generating" ? "Generating…" : "Generate image"}
+              disabled={!canGenerate || phase === "generating" || restoring}
+              aria-label={phase === "generating" ? "Generating…" : referenceUploading ? "Waiting for style reference upload" : authState === "signed-out" ? "Sign in to generate an image" : "Generate image"}
               className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
             >
               {phase === "generating" ? (
@@ -543,8 +630,21 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
             <span aria-live="polite" className="min-w-0 flex-1 opacity-70">
-              {message || (restoring ? "Restoring your selected preview…" : ready ? "Sign in to request a preview." : "Enter at least eight characters.")}
+              {message || (restoring
+                ? "Restoring your selected preview…"
+                : authState === "checking"
+                  ? "Checking your sign-in…"
+                  : authState === "unavailable"
+                    ? "Account services are not configured yet."
+                    : authState === "signed-out"
+                      ? "Sign in to request a preview."
+                      : ready ? "Ready to generate." : "Enter at least eight characters.")}
             </span>
+            {authState === "signed-out" && (
+              <Link href={signInHref} onClick={saveDraftForSignIn} className="link-hover font-bold uppercase tracking-[0.08em]">
+                Sign in and return
+              </Link>
+            )}
             <button type="button" onClick={reset} disabled={phase === "generating" || restoring} className="link-hover font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
               Reset
             </button>

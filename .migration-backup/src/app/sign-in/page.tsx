@@ -1,17 +1,21 @@
 "use client";
 
 import type { FormEvent } from "react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PublicPage } from "@/components/artcovr/PublicPage";
+import { safeNext } from "@/lib/artcovr/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
+  const [returnPath, setReturnPath] = useState("/my-images");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    setReturnPath(safeNext(params.get("next"), window.location.origin));
     if (params.get("error") === "callback") {
       setError("Your sign-in link expired or was already used. Request a new one below.");
     }
@@ -27,10 +31,13 @@ export default function SignInPage() {
 
     setState("sending");
     setError("");
-    const redirectTo = `${window.location.origin}/auth/callback?next=/my-images`;
+    const params = new URLSearchParams(window.location.search);
+    const destination = safeNext(params.get("next"), window.location.origin);
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("next", destination);
     const { error: signInError } = await client.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
+      options: { emailRedirectTo: callbackUrl.toString(), shouldCreateUser: true },
     });
 
     if (signInError) {
@@ -47,9 +54,12 @@ export default function SignInPage() {
         Use a magic link to generate images and access purchases. No password is required.
       </p>
       {state === "sent" ? (
-        <p role="status" className="mt-8 border-l-2 border-current pl-4 text-lg font-bold">
-          Check your inbox for a sign-in link.
-        </p>
+        <div role="status" className="mt-8 border-l-2 border-current pl-4">
+          <p className="text-lg font-bold">Check your inbox for a sign-in link.</p>
+          <p className="mt-2 text-sm leading-6 opacity-70">
+            After signing in, the link returns you to the page where you started.
+          </p>
+        </div>
       ) : (
         <form onSubmit={submit} className="mt-8 max-w-md">
           <label htmlFor="email" className="text-xs font-bold uppercase tracking-[.08em]">
@@ -62,7 +72,7 @@ export default function SignInPage() {
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-3 block w-full border border-current/30 bg-transparent px-4 py-4 outline-none focus:border-current"
+            className="mt-3 block w-full border border-current/50 bg-transparent px-4 py-4 outline-none focus:border-current"
             placeholder="you@example.com"
           />
           <button
@@ -72,9 +82,12 @@ export default function SignInPage() {
           >
             {state === "sending" ? "Sending…" : "Send magic link"}
           </button>
-          {error && <p role="alert" className="mt-4 text-sm text-[#a11212] dark:text-[#ff6b6b]">{error}</p>}
+          {error && <p role="alert" className="mt-4 text-sm text-[var(--alert)]">{error}</p>}
         </form>
       )}
+      <Link href={returnPath} className="link-hover mt-7 inline-block text-xs font-bold uppercase tracking-[.08em]">
+        Return without signing in
+      </Link>
     </PublicPage>
   );
 }

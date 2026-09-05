@@ -1,11 +1,73 @@
 # Owner Follow-Ups
 
-Outstanding operational items requiring owner action. Not engineering defects —
-tracked here so they survive across sessions.
+Outstanding launch blockers and operational items that require deployment,
+credentials, or owner-controlled production changes. Tracked here so they survive
+across sessions.
+
+## [2026-09-04] LAUNCH BLOCKER — deployed storefront is a hydrated 404 shell
+
+The live domain is no longer serving the hardened Next.js static export described
+by this repository. Read-only HTTP and browser checks against `https://artcovr.com`
+proved the following:
+
+- raw HTML for `/`, `/archive/`, and a sitemap product URL declares `Page Not
+  Found | ARTCOVR`, `noindex,nofollow,noarchive`, and the canonical `/404`;
+- JavaScript repairs the homepage visually, but trailing-slash archive and product
+  routes retain the 404 title/description/robots metadata after hydration;
+- `sitemap.xml` advertises 196 URLs even though the server response tells crawlers
+  not to index those pages;
+- the production responses are missing the CSP and other security headers pinned
+  by `vercel.json`; `/my-images` lacks `no-store` and `X-Robots-Tag: noindex`;
+- `/favicon.ico` returns the HTML application shell as `text/html`, not image bytes.
+
+The remote default branch `artcovr-storefront` is a separate Replit/Vite rewrite,
+445 commits ahead of and incompatible with `main`. Its copied Bun CI and Supabase
+deploy workflows no longer have the commands or active function tree they invoke.
+The latest GitHub CI run for that branch (`33706490980`, commit `4014634`) failed
+all three jobs before receiving a runner: GitHub annotated every job with “The
+job was not started because your account is locked due to a billing issue.” This
+is an account-level blocker, not a code-test result. By contrast, canonical
+`main` at `b149ae6` passed its `verify`, PostgreSQL `database`, and `e2e` jobs in
+run `33385854738`. Do not treat either the billing failure or a hydrated gallery
+as deployment health.
+
+An executable, read-only production check now captures this failure:
+
+```powershell
+bun run check:live
+```
+
+Done when the deployed target comes from the rights-gated `main` architecture,
+`bun run check:live` exits 0, `bun run check:deployment` reports 9/9 functions,
+and a Stripe test-mode purchase/refund/dispute journey proves settlement and
+revocation end to end. Do not deploy the incompatible Replit backend as a shortcut.
+
+## [2026-09-04] LAUNCH POSITIONING BLOCKER — native masters do not prove music-channel readiness
+
+`bun run catalog:storage:plan` now hashes and decodes the exact private source
+bytes before reporting dimension eligibility. It verified all 187 publishable
+masters, but only 5 meet Apple's 1400px dimensional minimum, only 3 fall within
+TuneCore's 1600–3000px dimension range, and none meet Apple's recommended
+3000px size. The native range is 1024–2362px. The check does not establish RGB,
+DPI/file-size, or content-dependent rules; public display derivatives are smaller
+by design and are not the delivery source.
+
+Current requirements: [Apple Music Album Cover Art Profile](https://help.apple.com/itc/videoaudioassetguide/en.lproj/static.html)
+and [TuneCore cover-art requirements](https://support.tunecore.com/hc/en-au/articles/115006685728-What-are-TuneCore-s-cover-art-formatting-requirements).
+Apple explicitly warns not to enlarge a smaller file just to meet its minimum.
+
+Product pages now disclose the verified native dimensions before checkout, and
+the storage plan computes dimension-qualified candidates from exact source bytes. Until
+higher-resolution native replacements pass the full approval pipeline, do not
+market the whole catalog as Apple Music-, TuneCore-, or distributor-ready. The
+remaining blocker closes only when the sellable scope is limited to a proven
+native-ready subset or reapproved masters satisfy the claimed channels.
 
 ## [2026-08-31] LAUNCH BLOCKER — 6 of 9 Edge Functions are not deployed
 Probed against the live project `gcnamdbwekikkuqvzuko` using the public anon key
 and HTTP OPTIONS (a CORS preflight — invokes no business logic, writes nothing).
+Re-probed on 2026-09-04 with `SUPABASE_PROJECT_REF=gcnamdbwekikkuqvzuko bun run
+check:deployment`; the result is unchanged: 3 deployed and the same 6 missing.
 
 | Function | Live | Consequence if absent |
 | :--- | :--- | :--- |

@@ -1,13 +1,21 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { PRIMARY_NAV_ITEMS } from "@/lib/artcovr/navigation";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
-const items = [
-  { label: "archive", href: "/archive" },
-  { label: "my cart", href: "/my-images" },
-];
+function isVisibleFocusTarget(element: HTMLElement | null): element is HTMLElement {
+  return Boolean(
+    element?.isConnected &&
+    element.getClientRects().length > 0 &&
+    !element.closest("[inert]"),
+  );
+}
 
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const pathname = usePathname();
   const dialog = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   // The modal effect below must survive parent re-renders that hand down a
@@ -88,48 +96,76 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
       if (main) main.inert = mainWasInert;
       if (pageHeader) pageHeader.inert = headerWasInert;
       window.removeEventListener("keydown", onKeyDown);
-      previouslyFocused?.focus();
+      const visibleFallback = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-menu-focus-fallback]"),
+      ).find(isVisibleFocusTarget);
+      const focusTarget = isVisibleFocusTarget(previouslyFocused)
+        ? previouslyFocused
+        : visibleFallback;
+      focusTarget?.focus({ preventScroll: true });
     };
   }, [open]);
 
   return (
-    <div
-      ref={dialog}
-      id="mobile-menu"
-      role="dialog"
-      aria-modal={open ? "true" : undefined}
-      aria-label="Navigation menu"
-      className={`fixed inset-0 z-40 flex h-dvh w-full items-center justify-center overflow-y-auto bg-black text-white dark:bg-white dark:text-black ${open ? "" : "invisible"}`}
-      aria-hidden={!open}
-      inert={!open ? true : undefined}
-    >
-      <div className="flex min-h-dvh w-full flex-col justify-between px-4 py-6 lg:px-6">
-        <button ref={closeButton} type="button" className="ml-auto flex min-h-11 min-w-11 items-center justify-end text-sm font-bold uppercase md:hidden" onClick={onClose}>
-          Close
-        </button>
-        <ul className="my-6 flex w-full flex-col text-[clamp(2rem,10vw,3rem)] font-normal leading-[.94] tracking-tight md:my-12 md:text-6xl">
-          {items.map((item, index) => (
-            <li key={item.label} className="overflow-hidden">
-              <a
-                className="link-hover block w-fit py-2"
+    <>
+      <nav
+        aria-label="Primary navigation without JavaScript"
+        className="artcovr-noscript-nav mt-20 hidden border-y border-current bg-[var(--background)] px-4 py-3 text-xs font-bold uppercase tracking-[.08em]"
+      >
+        <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          {PRIMARY_NAV_ITEMS.map((item) => (
+            <li key={item.href}>
+              <Link
                 href={item.href}
-                onClick={onClose}
-                style={{
-                  opacity: open ? 1 : 0,
-                  transform: open ? "translateY(0)" : "translateY(100%)",
-                  transition: `opacity 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1 + index * 0.07}s, transform 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1 + index * 0.07}s`,
-                }}
+                aria-current={pathname === item.href ? "page" : undefined}
+                className="link-hover inline-flex min-h-8 items-center"
               >
                 {item.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
-        <div className="flex flex-col gap-2 text-sm">
-          <p className="opacity-70">Cover art, made yours.</p>
-          <p className="opacity-70">© 2026 ARTCOVR</p>
+      </nav>
+      <div
+        ref={dialog}
+        id="mobile-menu"
+        role="dialog"
+        aria-modal={open ? "true" : undefined}
+        aria-label="Navigation menu"
+        className={`fixed inset-0 z-40 flex h-dvh w-full items-center justify-center overflow-y-auto bg-black text-white dark:bg-white dark:text-black red:bg-[#6c0919] red:text-[#fff5dc] ${open ? "" : "invisible"}`}
+        aria-hidden={!open}
+        inert={!open ? true : undefined}
+      >
+        <div className="flex min-h-dvh w-full flex-col justify-between px-4 py-6 lg:px-6">
+          <button ref={closeButton} type="button" className="ml-auto flex min-h-11 min-w-11 items-center justify-end text-sm font-bold uppercase md:hidden" onClick={onClose}>
+            Close
+          </button>
+          <ul className="my-6 flex w-full flex-col text-[clamp(2rem,10vw,3rem)] font-normal leading-[.94] tracking-tight md:my-12 md:text-6xl">
+            {PRIMARY_NAV_ITEMS.map((item, index) => (
+              <li key={item.label} className="overflow-hidden">
+                <Link
+                  className="link-hover block w-fit py-2"
+                  href={item.href}
+                  aria-current={pathname === item.href ? "page" : undefined}
+                  onClick={onClose}
+                  style={{
+                    opacity: open ? 1 : 0,
+                    transform: open ? "translateY(0)" : "translateY(100%)",
+                    transition: `opacity 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1 + index * 0.07}s, transform 0.6s cubic-bezier(0.19,1,0.22,1) ${0.1 + index * 0.07}s`,
+                  }}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="flex flex-col gap-4 text-sm">
+            <ThemeSwitcher id="mobile-theme-switcher" placement="menu" />
+            <p className="opacity-70">Cover art, made yours.</p>
+            <p className="opacity-70">© 2026 ARTCOVR</p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

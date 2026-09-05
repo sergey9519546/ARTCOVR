@@ -101,6 +101,9 @@ test("Checkout freezes Stripe parameters and preserves indeterminate attempts", 
   assert.match(stripe, /expiresAt: string/);
   assert.match(stripe, /new Date\(input\.expiresAt\)/);
   assert.doesNotMatch(stripe, /Date\.now\(\)[\s\S]*checkoutWindowSeconds/);
+  assert.match(stripe, /cancel_url: `\$\{origin\(\)\}\/checkout\/\$\{encodeURIComponent\(input\.artworkSlug\)\}`/);
+  assert.match(checkout, /artworks!purchases_artwork_id_fkey\(slug\)/);
+  assert.match(checkout, /artworkSlug: artworkRelation\.slug/);
   assert.match(stripe, /payment_method_types\[0\]": "card"/);
   assert.match(stripe, /class StripeRequestError/);
   assert.match(stripe, /Stripe returned an unreadable Checkout response/);

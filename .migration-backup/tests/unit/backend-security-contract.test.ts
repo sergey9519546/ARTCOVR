@@ -52,7 +52,9 @@ test("idempotency keys cannot be replayed across artworks", async () => {
   const checkout = await read("supabase/functions/create-checkout/index.ts");
   assert.match(sql, /v_existing\.artwork_id is distinct from v_art\.id/);
   assert.match(sql, /'idempotency_conflict'/);
-  assert.match(checkout, /select\("artwork_id,artwork_catalog_id,artwork_title,amount_cents,currency,stripe_checkout_session_id,stripe_checkout_expires_at"\)/);
+  assert.match(checkout, /select\("artwork_id,artwork_catalog_id,artwork_title,amount_cents,currency,stripe_checkout_session_id,stripe_checkout_expires_at,artworks!purchases_artwork_id_fkey\(slug\)"\)/);
+  assert.match(checkout, /purchase\.artwork_catalog_id !== body\.artworkId/);
+  assert.match(checkout, /artworkRelation\.slug/);
   assert.doesNotMatch(checkout, /select\("title,price_cents,currency"\)/);
 });
 
@@ -146,10 +148,35 @@ test("the base download is bound to the purchased source bytes", async () => {
   assert.doesNotMatch(migration, /alter column base_source_sha256_snapshot set not null/);
   // A missing base row must degrade gracefully: downloads are mapped, never indexed.
   assert.match(account, /\(assetResult\.data \?\? \[\]\)\.map/);
-  assert.match(account, /downloads = signedDownloads\.filter/);
+  assert.match(account, /downloads = signedDownloads\.flatMap/);
   assert.match(account, /remainingGenerations: activePurchases\.has\(purchase\.id\)/);
   assert.match(account, /const entitledPreview = selectedPreviews\.has\(generation\.id\)/);
   assert.match(account, /\(active \|\| entitledPreview\) && previewAllowed/);
+});
+
+test("paid asset signing failures are explicit without exposing private storage details", async () => {
+  const account = await read("supabase/functions/my-images/index.ts");
+  const identity = account.match(/const identity = \{([\s\S]*?)\n\s*\};/);
+  assert.ok(identity, "the public unavailable-asset identity must remain explicit");
+  assert.doesNotMatch(identity[1], /object[_A-Z]?key/i);
+  assert.match(account, /unavailable: \{ \.\.\.identity, code: "asset_sign_failed" as const \}/);
+  assert.match(account, /const unavailableDownloads = signedDownloads\.flatMap/);
+  assert.match(account, /privateJson\(\{[\s\S]*downloads,[\s\S]*unavailableDownloads,/);
+  assert.match(account, /never receives the private object key/);
+});
+
+test("account assets expose their short URL lifetime separately from entitlement expiry", async () => {
+  const [account, client] = await Promise.all([
+    read("supabase/functions/my-images/index.ts"),
+    read("src/lib/artcovr/functions.ts"),
+  ]);
+  assert.match(account, /const SIGNED_URL_TTL_SECONDS = 300/);
+  assert.match(account, /const issuedAt = Date\.now\(\)/);
+  assert.match(account, /urlExpiresAt: new Date\(issuedAt \+ SIGNED_URL_TTL_SECONDS \* 1000\)\.toISOString\(\)/);
+  assert.match(account, /available: \{ \.\.\.identity, expiresAt: asset\.expires_at, \.\.\.signedAsset \}/);
+  assert.match(account, /result\.previewUrlExpiresAt = signedPreview\.urlExpiresAt/);
+  assert.match(client, /urlExpiresAt: string/);
+  assert.match(client, /previewUrlExpiresAt\?: string/);
 });
 
 test("generation-status hides artworks the public catalog view hides", async () => {

@@ -89,7 +89,9 @@ export type AccountGeneration = {
   createdAt: string;
   expiresAt: string;
   previewUrl?: string;
+  previewUrlExpiresAt?: string;
   cleanUrl?: string;
+  cleanUrlExpiresAt?: string;
 };
 
 export type AccountDownload = {
@@ -97,14 +99,25 @@ export type AccountDownload = {
   purchaseId: string;
   artworkId: string;
   generationId: string | null;
+  /** End of the entitlement window represented by this asset row. */
   expiresAt: string;
+  /** End of the short-lived signed URL window. */
+  urlExpiresAt: string;
   url: string;
+};
+
+export type AccountUnavailableDownload = Pick<
+  AccountDownload,
+  "kind" | "purchaseId" | "artworkId" | "generationId"
+> & {
+  code: "asset_sign_failed";
 };
 
 export type AccountData = {
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];
+  unavailableDownloads: AccountUnavailableDownload[];
 };
 
 type ErrorPayload = { message?: string; error?: string; code?: string };

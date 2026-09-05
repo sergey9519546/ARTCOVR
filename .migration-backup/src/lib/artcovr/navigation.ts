@@ -1,6 +1,14 @@
 const unsafeNavigationEncoding = /%(?:0[0-9a-f]|1[0-9a-f]|2f|5c|7f)/i;
 const unsafeNavigationCharacters = /[\\\u0000-\u001f\u007f]/;
 
+export const PRIMARY_NAV_ITEMS = [
+  { href: "/", label: "Home" },
+  { href: "/archive", label: "Archive" },
+  { href: "/my-images", label: "My Images" },
+  { href: "/about", label: "About" },
+  { href: "/sign-in", label: "Sign in" },
+] as const;
+
 export function safeNext(value: string | null, origin: string) {
   const fallback = "/my-images";
   if (

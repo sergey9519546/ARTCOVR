@@ -4,28 +4,27 @@ import { useEffect, useRef, useState } from "react";
 import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
 import {
   PRELOADER_COMPLETE_TIME_MS,
-  REDUCED_MOTION_QUERY,
+  PRELOADER_FAILSAFE_TIME_MS,
+  STATIC_MEDIA_QUERY,
 } from "@/lib/artcovr/motion";
 
-const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 18);
+const PRELOADER_IMAGES = pickIntroArtworks(displayArtworks, 6);
 const ROTATIONS = [
   9.98, -12.43, -2.99, -6.51, 17.67, -1.09,
   12.35, -8.74, 5.12, -14.82, 11.23, -4.67,
   15.41, -11.08, 3.89, -7.95, 13.72, -9.45,
 ];
-// The counter is paced as a slow crawl that accelerates into a ramp: it dwells
-// in the low single digits for a long time (the "really slow start"), then the
-// gaps between steps shrink and the increments grow as it ramps toward 100.
+// Keep a brief editorial beat, then accelerate. The intro must never become a
+// multi-second acquisition tax before visitors can browse or buy.
 const COUNTER_STEPS = [
-  { d: 1100, v: 1 }, { d: 1600, v: 2 }, { d: 2050, v: 4 },
-  { d: 2450, v: 9 }, { d: 2800, v: 16 }, { d: 3100, v: 29 },
-  { d: 3350, v: 52 }, { d: 3550, v: 76 }, { d: 3700, v: 92 },
-  { d: 3780, v: 100 },
+  { d: 180, v: 2 }, { d: 360, v: 7 }, { d: 560, v: 16 },
+  { d: 780, v: 31 }, { d: 1010, v: 53 }, { d: 1220, v: 76 },
+  { d: 1400, v: 92 }, { d: 1500, v: 100 },
 ];
-const IMAGE_START = 840;
-const IMAGE_INTERVAL = 168;
-const EXIT_TIME = 4060;
-const DISMISS_TIME = 5180;
+const IMAGE_START = 180;
+const IMAGE_INTERVAL = 220;
+const EXIT_TIME = 1600;
+const DISMISS_TIME = 2350;
 
 export function Preloader({ onComplete }: { onComplete?: () => void }) {
   const [visibleImages, setVisibleImages] = useState(0);
@@ -40,29 +39,43 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
 
   useEffect(() => {
     document.documentElement.classList.add("ready");
-    const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches;
+    const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
+    let safetyTimer: ReturnType<typeof setTimeout> | undefined;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let completionNotified = false;
 
-    if (reducedMotion) {
+    const clearScheduledWork = () => {
+      if (safetyTimer) clearTimeout(safetyTimer);
+      timers.forEach((timer) => clearTimeout(timer));
+    };
+    const notifyComplete = () => {
+      if (completionNotified) return;
+      completionNotified = true;
+      onCompleteRef.current?.();
+    };
+    const dismissIntro = () => {
+      clearScheduledWork();
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
       setDismissed(true);
-      onCompleteRef.current?.();
+      notifyComplete();
+    };
+
+    if (mediaQuery.matches) {
+      dismissIntro();
       return;
     }
 
-    const safetyTimer = setTimeout(() => {
-      setVisibleImages(PRELOADER_IMAGES.length);
-      setCounter(100);
-    }, 8000);
-    const timers: ReturnType<typeof setTimeout>[] = COUNTER_STEPS.map((step) =>
+    safetyTimer = setTimeout(dismissIntro, PRELOADER_FAILSAFE_TIME_MS);
+    timers.push(...COUNTER_STEPS.map((step) =>
       setTimeout(() => setCounter(step.v), step.d),
-    );
+    ));
     for (let index = 0; index < PRELOADER_IMAGES.length; index += 1) {
       timers.push(setTimeout(() => setVisibleImages(index + 1), IMAGE_START + index * IMAGE_INTERVAL));
     }
     timers.push(setTimeout(() => setExited(true), EXIT_TIME));
-    timers.push(setTimeout(() => onCompleteRef.current?.(), PRELOADER_COMPLETE_TIME_MS));
+    timers.push(setTimeout(notifyComplete, PRELOADER_COMPLETE_TIME_MS));
     timers.push(setTimeout(() => setDismissed(true), DISMISS_TIME));
 
     // Keyboard users must never be locked out of the page by the intro:
@@ -70,21 +83,22 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
     // preloader immediately so the inert main content becomes reachable.
     const skipIntro = (e: KeyboardEvent) => {
       if (e.key !== "Escape" && e.key !== "Tab" && e.key !== "Enter") return;
-      clearTimeout(safetyTimer);
-      timers.forEach((timer) => clearTimeout(timer));
-      setVisibleImages(PRELOADER_IMAGES.length);
-      setCounter(100);
-      setExited(true);
-      setDismissed(true);
-      onCompleteRef.current?.();
+      dismissIntro();
       window.removeEventListener("keydown", skipIntro);
     };
+    const enterStaticMode = (event: MediaQueryListEvent) => {
+      if (!event.matches) return;
+      dismissIntro();
+      window.removeEventListener("keydown", skipIntro);
+      mediaQuery.removeEventListener("change", enterStaticMode);
+    };
     window.addEventListener("keydown", skipIntro);
+    mediaQuery.addEventListener("change", enterStaticMode);
 
     return () => {
-      clearTimeout(safetyTimer);
-      timers.forEach((timer) => clearTimeout(timer));
+      clearScheduledWork();
       window.removeEventListener("keydown", skipIntro);
+      mediaQuery.removeEventListener("change", enterStaticMode);
     };
   }, []);
 
@@ -103,6 +117,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
         background: "var(--background)",
         color: "var(--foreground)",
         clipPath: exited ? "inset(0% 0% 100% 0%)" : "inset(0% 0% 0% 0%)",
+        pointerEvents: exited ? "none" : undefined,
         transition: "clip-path 0.7s cubic-bezier(0.19,1,0.22,1)",
         contain: "layout style paint",
       }}
@@ -124,7 +139,7 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
          * here, and it stays false until the counter reaches 100.
          */}
         <div className="fixed inset-0 flex items-center justify-center" style={{ contain: "layout paint style" }}>
-          {PRELOADER_IMAGES.map((artwork, index) => {
+          {PRELOADER_IMAGES.slice(0, visibleImages).map((artwork, index) => {
             const visible = index < visibleImages;
             const shown = visible && !exited;
             return (
