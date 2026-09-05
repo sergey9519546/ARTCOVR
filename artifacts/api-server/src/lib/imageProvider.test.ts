@@ -194,7 +194,60 @@ test("managed integration accepts Replit's exact local sidecar without forwardin
     assert.equal(managed.baseURL, env.AI_INTEGRATIONS_OPENAI_BASE_URL);
     assert.equal(managed.apiKey, "fake-managed-key");
     assert.equal(managed.maxRetries, 0);
-    const direct = getOpenAI({ ...env, OPENAI_API_KEY: "fake-direct-key" });
+    const automaticallyManaged = getOpenAI({ ...env, OPENAI_API_KEY: "fake-direct-key" });
+    assert.equal(automaticallyManaged.baseURL, env.AI_INTEGRATIONS_OPENAI_BASE_URL);
+    assert.equal(automaticallyManaged.apiKey, "fake-managed-key");
+    const direct = getOpenAI({ ...env, ARTCOVR_IMAGE_PROVIDER: "openai", OPENAI_API_KEY: "fake-direct-key" });
+    assert.equal(direct.baseURL, "https://api.openai.com/v1");
+    assert.equal(direct.apiKey, "fake-direct-key");
+  }
+});
+
+test("explicit provider selection uses only the chosen credential pair", () => {
+  const env = {
+    OPENAI_API_KEY: "fake-direct-key",
+    AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key",
+    AI_INTEGRATIONS_OPENAI_BASE_URL: "https://managed.invalid/v1",
+  };
+  const replit = getOpenAI({ ...env, ARTCOVR_IMAGE_PROVIDER: "replit" });
+  assert.equal(replit.baseURL, "https://managed.invalid/v1");
+  assert.equal(replit.apiKey, "fake-managed-key");
+  assert.equal(replit.timeout, 150_000);
+  assert.equal(replit.maxRetries, 0);
+  const direct = getOpenAI({ ...env, REPL_ID: "fake-replit-runtime", ARTCOVR_IMAGE_PROVIDER: "openai" });
+  assert.equal(direct.baseURL, "https://api.openai.com/v1");
+  assert.equal(direct.apiKey, "fake-direct-key");
+  assert.equal(direct.timeout, 150_000);
+  assert.equal(direct.maxRetries, 0);
+  const automaticOutside = getOpenAI({ ...env, ARTCOVR_IMAGE_PROVIDER: "auto" });
+  assert.equal(automaticOutside.baseURL, "https://api.openai.com/v1");
+  assert.equal(automaticOutside.apiKey, "fake-direct-key");
+  const automaticInside = getOpenAI({ ...env, REPL_ID: "fake-replit-runtime", ARTCOVR_IMAGE_PROVIDER: "auto" });
+  assert.equal(automaticInside.baseURL, "https://managed.invalid/v1");
+  assert.equal(automaticInside.apiKey, "fake-managed-key");
+});
+
+test("explicit modes fail closed when their credentials are missing without exposing values", () => {
+  for (const env of [
+    { ARTCOVR_IMAGE_PROVIDER: "openai", AI_INTEGRATIONS_OPENAI_API_KEY: "fake-secret-do-not-echo", AI_INTEGRATIONS_OPENAI_BASE_URL: "https://managed.invalid/v1" },
+    { ARTCOVR_IMAGE_PROVIDER: "replit", OPENAI_API_KEY: "fake-secret-do-not-echo" },
+    { ARTCOVR_IMAGE_PROVIDER: "replit", OPENAI_API_KEY: "fake-direct-key", AI_INTEGRATIONS_OPENAI_API_KEY: "fake-secret-do-not-echo" },
+    { ARTCOVR_IMAGE_PROVIDER: "fake-secret-do-not-echo", OPENAI_API_KEY: "fake-direct-key" },
+  ]) {
+    assert.throws(() => getOpenAI(env), (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.doesNotMatch(error.message, /fake-secret|fake-direct/);
+      return true;
+    });
+  }
+});
+
+test("automatic mode does not select an incomplete managed pair over an available direct key", () => {
+  for (const partial of [
+    { AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key" },
+    { AI_INTEGRATIONS_OPENAI_BASE_URL: "https://managed.invalid/v1" },
+  ]) {
+    const direct = getOpenAI({ ...partial, REPL_ID: "fake-replit-runtime", OPENAI_API_KEY: "fake-direct-key" });
     assert.equal(direct.baseURL, "https://api.openai.com/v1");
     assert.equal(direct.apiKey, "fake-direct-key");
   }
