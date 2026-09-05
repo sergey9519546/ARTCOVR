@@ -2,28 +2,43 @@ import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "../..");
-const result = spawnSync(
-  "pnpm",
-  ["--filter", "@workspace/api-server", "run", "stripe:catalog:reconcile"],
-  {
-    cwd: root,
-    env: process.env,
-    stdio: "inherit",
-  },
-);
 
-if (result.error) {
-  console.error(`Stripe reconciliation could not start: ${result.error.message}`);
-  process.exit(1);
-}
-
-if (result.status !== 0) {
-  console.error(
-    `Stripe reconciliation release check FAILED with exit code ${result.status ?? "unknown"}.`,
+export function runStripeReconciliationReleaseCheck({
+  spawn = spawnSync,
+  log = console.log,
+  error = console.error,
+  cwd = root,
+  env = process.env,
+} = {}) {
+  const result = spawn(
+    "pnpm",
+    ["--filter", "@workspace/api-server", "run", "stripe:catalog:reconcile"],
+    {
+      cwd,
+      env,
+      stdio: "inherit",
+    },
   );
-  process.exit(result.status ?? 1);
+
+  if (result.error) {
+    error(`Stripe reconciliation could not start: ${result.error.message}`);
+    return 1;
+  }
+
+  if (result.status !== 0) {
+    const exitCode = result.status ?? 1;
+    error(
+      `Stripe reconciliation release check FAILED with exit code ${exitCode}.`,
+    );
+    return exitCode;
+  }
+
+  log(
+    "Stripe reconciliation release check OK: no unresolved live-order references.",
+  );
+  return 0;
 }
 
-console.log(
-  "Stripe reconciliation release check OK: no unresolved live-order references.",
-);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  process.exitCode = runStripeReconciliationReleaseCheck();
+}
