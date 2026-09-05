@@ -12,6 +12,7 @@ import {
   getMyImages,
   uploadReference,
 } from "@/lib/artcovr/functions";
+import { trackEvent } from "@/lib/artcovr/analytics";
 import { PromptComposer } from "./PromptComposer";
 
 type Phase = "idle" | "generating" | "complete" | "error";
@@ -53,6 +54,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const pendingPrompt = useRef("");
   const pendingCover = useRef<{ title?: string; artistName?: string } | undefined>(undefined);
   const pendingStyleMode = useRef<"exact" | "expand">("exact");
+  const generationStartedAt = useRef<number | undefined>(undefined);
   const ready = isPromptReady(prompt) && !restoring && isLoaded && isSignedIn;
   const authRedirect =
     typeof window === "undefined"
@@ -208,6 +210,14 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             setResult(status.previewUrl);
             setMessage("Generated image ready. Your next prompt will build from this result.");
             setPhase("complete");
+            trackEvent("generation_succeeded", {
+              artwork_slug: artwork.slug,
+              surface: "preview",
+              duration_ms: Math.max(
+                0,
+                Date.now() - (generationStartedAt.current ?? Date.now()),
+              ),
+            });
             return;
           }
 
@@ -216,6 +226,11 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             status.status === "failed" ||
             status.status === "timed_out"
           ) {
+            trackEvent("generation_failed", {
+              artwork_slug: artwork.slug,
+              surface: "preview",
+              status: status.status,
+            });
             setMessage(terminalMessage(status.status));
             setPhase("error");
             return;
@@ -259,6 +274,15 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         ? { ...(title ? { title } : {}), ...(artistName ? { artistName } : {}) }
         : undefined;
     pendingStyleMode.current = styleMode;
+    generationStartedAt.current = Date.now();
+    trackEvent("generation_requested", {
+      artwork_slug: artwork.slug,
+      surface: "preview",
+      style_mode: styleMode,
+      chained: Boolean(currentResultId.current),
+      has_reference: Boolean(armedUploadRef.current),
+      has_cover_text: Boolean(title || artistName),
+    });
     jobId.current = undefined;
     setMessage(
       currentResultId.current
@@ -337,6 +361,10 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
       setArmedUploadId(referenceUploadId);
       setReferenceEverywhere({ status: "armed", url, name: file.name });
       setMessage("Style reference attached. It applies to your next generation.");
+      trackEvent("reference_uploaded", {
+        artwork_slug: artwork.slug,
+        media_type: file.type,
+      });
     } catch (cause) {
       URL.revokeObjectURL(url);
       setReferenceEverywhere({ status: "none" });
