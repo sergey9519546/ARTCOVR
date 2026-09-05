@@ -21,19 +21,19 @@ export function RelatedWorks({ works }: { works: readonly Artwork[] }) {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h2 id="related-works" className="text-[11px] font-bold uppercase tracking-[.1em]">Find similar</h2>
-          <p className="mt-2 max-w-[50ch] text-sm leading-6 opacity-60">
+          <p className="mt-2 max-w-[50ch] text-sm leading-6 text-[var(--muted-foreground)]">
             Image-nearest works first, followed by a deep pool of shared visual traits across the approved catalog.
           </p>
         </div>
         <Link href="/archive" className="link-hover shrink-0 text-[11px] font-bold uppercase tracking-[.1em]">Browse archive</Link>
       </div>
-      <p className="mt-5 text-[10px] font-bold uppercase tracking-[.1em] opacity-50">
+      <p className="mt-5 text-[10px] font-bold uppercase tracking-[.1em] text-[var(--muted-foreground)]">
         {works.length} approved visual neighbors
       </p>
       {works.length === 0 ? (
         <div className="mt-8 border-y border-current/20 py-8">
           <p className="text-lg font-bold">No similar works are available yet.</p>
-          <p className="mt-2 text-sm leading-6 opacity-60">
+          <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
             Browse the approved archive to keep exploring cover art.
           </p>
           <Link href="/archive" className="artcovr-button mt-5 inline-flex min-h-11 items-center px-5 py-3 text-xs font-bold uppercase tracking-[.08em]">
@@ -49,7 +49,7 @@ export function RelatedWorks({ works }: { works: readonly Artwork[] }) {
                   <Image src={related.image} alt={related.alt} fill unoptimized loading="lazy" sizes="(min-width: 768px) 25vw, 50vw" className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:scale-[1.04]" />
                 </div>
                 <p className="mt-3 text-lg leading-5">{related.title}</p>
-                <p className="mt-[6px] text-[11px] uppercase opacity-60">
+                <p className="mt-[6px] text-[11px] uppercase text-[var(--muted-foreground)]">
                   {getArtworkGenres(related).slice(0, 2).map(displayGenreLabel).join(" · ")}
                 </p>
               </Link>
@@ -66,7 +66,7 @@ export function RelatedWorks({ works }: { works: readonly Artwork[] }) {
           Load 24 more · {remainingCount} remaining
         </button>
       ) : (
-        <p className="mt-12 text-[10px] font-bold uppercase tracking-[.1em] opacity-50">
+        <p className="mt-12 text-[10px] font-bold uppercase tracking-[.1em] text-[var(--muted-foreground)]">
           End of approved visual neighbors
         </p>
       )}
