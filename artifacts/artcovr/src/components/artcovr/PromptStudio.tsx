@@ -261,8 +261,13 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     const box = promptBoxRef.current;
     if (!box) return;
     box.style.height = "auto";
-    box.style.height = `${Math.min(box.scrollHeight, 200)}px`;
+    box.style.height = `${Math.min(box.scrollHeight, 240)}px`;
   }
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(autosizePromptBox);
+    return () => window.cancelAnimationFrame(frame);
+  }, [prompt]);
 
   function generate() {
     if (!ready || phase === "generating") return;
@@ -562,7 +567,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               placeholder="Describe the image you want…"
               rows={1}
               aria-keyshortcuts="Enter"
-              className="max-h-[200px] min-h-9 w-full resize-none self-center bg-transparent px-2 py-1.5 text-base leading-6 outline-none"
+              className="max-h-[240px] min-h-12 w-full resize-none self-center overflow-y-auto border-0 bg-transparent px-2 py-2 text-base leading-6 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none"
             />
             <button
               type="button"
