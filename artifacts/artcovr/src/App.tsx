@@ -1,4 +1,12 @@
-import { lazy, Suspense, type ReactNode, useEffect, useRef } from "react";
+import {
+  lazy,
+  Suspense,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useTransition,
+} from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
@@ -12,7 +20,15 @@ import {
   ArtcovrAuthProvider,
   useArtcovrAuth,
 } from "@/lib/artcovr/auth";
-import { Route, Switch, Redirect, useLocation, Router as WouterRouter } from "wouter";
+import {
+  Route,
+  Switch,
+  Redirect,
+  useLocation,
+  Router as WouterRouter,
+  type NavigateOptions,
+  type Path,
+} from "wouter";
 
 const queryClient = new QueryClient();
 const clerkPubKey = publishableKeyFromHost(
@@ -144,11 +160,12 @@ function Router() {
 function RouteLoading() {
   return (
     <div
-      className="flex min-h-[100dvh] items-center justify-center px-4 text-sm opacity-60"
+      className="pointer-events-none fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center bg-black text-white dark:bg-cream dark:text-black"
       role="status"
       aria-live="polite"
+      aria-label="Loading page"
     >
-      Loading page…
+      <div className="artcovr-wordmark artcovr-wordmark-optical text-4xl">ARTCOVR</div>
     </div>
   );
 }
@@ -271,10 +288,22 @@ function ClerkProviderWithRoutes() {
 }
 
 function App() {
+  const [, startTransition] = useTransition();
+  const aroundNavigation = useCallback(
+    (
+      navigate: (to: Path, options?: NavigateOptions) => void,
+      to: Path,
+      options?: NavigateOptions,
+    ) => {
+      startTransition(() => navigate(to, options));
+    },
+    [startTransition],
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={basePath}>
+        <WouterRouter base={basePath} aroundNav={aroundNavigation}>
           <ClerkProviderWithRoutes />
         </WouterRouter>
         <Toaster />

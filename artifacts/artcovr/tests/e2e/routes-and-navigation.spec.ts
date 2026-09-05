@@ -99,6 +99,31 @@ test("product review moves into checkout without a blank transition", async ({
   await assertUsablePage(page);
 });
 
+test("a delayed product route keeps the transition curtain instead of flashing a loading page", async ({
+  page,
+}) => {
+  await page.route("**/src/app/product/[slug]/page.tsx*", async (route) => {
+    const response = await route.fetch();
+    await new Promise((resolve) => setTimeout(resolve, 2_500));
+    await route.fulfill({ response });
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+    timeout: 8_000,
+  });
+
+  await page
+    .locator("a[data-artwork='true'], a[data-product='true']")
+    .first()
+    .click();
+  await page.waitForTimeout(1_600);
+
+  await expect(page.getByText("Loading page…", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("status", { name: "Loading page" })).toBeVisible();
+  await expect(page).toHaveURL(/\/product\//);
+  await expect(page.locator("main h1")).toBeVisible({ timeout: 5_000 });
+});
+
 test("mobile intro stays visible until it completes and then restores keyboard focus", async ({
   browser,
 }) => {

@@ -18,3 +18,4 @@
 - [Legacy database baseline](legacy-database-baseline.md) — only mark a matching existing development schema; fresh and partial databases take different paths.
 - [Preloader image budget](preloader-image-budget.md) — animated intro covers must use responsive derivatives; eager original assets can dominate the first-page payload.
 - [Intro visual regression timing](intro-visual-regression.md) — freeze timed intro composition at a fixed active state before taking cross-viewport snapshots.
+- [Route transition curtain](route-transition-curtain.md) — keep lazy-route fallback states behind the branded curtain and warm destination chunks before navigation.
