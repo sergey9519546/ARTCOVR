@@ -19,3 +19,4 @@
 - [Preloader image budget](preloader-image-budget.md) — animated intro covers must use responsive derivatives; eager original assets can dominate the first-page payload.
 - [Intro visual regression timing](intro-visual-regression.md) — freeze timed intro composition at a fixed active state before taking cross-viewport snapshots.
 - [Route transition curtain](route-transition-curtain.md) — keep lazy-route fallback states behind the branded curtain and warm destination chunks before navigation.
+- [Clerk theme tokens](clerk-theme-tokens.md) — style embedded auth with storefront theme variables so light/dark mode never makes credentials unreadable.
