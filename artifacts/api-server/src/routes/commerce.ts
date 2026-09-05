@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { getAuth } from "@clerk/express";
 import { Router, type IRouter } from "express";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { artcovrOrders, db } from "@workspace/db";
+import { artcovrGenerations, artcovrOrders, db } from "@workspace/db";
 import { getPublicArtworkById } from "../catalog";
 import {
   checkoutReservationMs,
@@ -64,6 +64,41 @@ router.post("/checkout", async (req, res): Promise<void> => {
     return;
   }
 
+  const selectedPreviewId = parsed.data.selectedPreviewId ?? null;
+  if (selectedPreviewId) {
+    if (!clerkUserId) {
+      res.status(403).json({
+        code: "selected_preview_not_eligible",
+        message: "That preview is not eligible for this checkout.",
+      });
+      return;
+    }
+
+    const [selectedPreview] = await db
+      .select({ id: artcovrGenerations.id })
+      .from(artcovrGenerations)
+      .where(
+        and(
+          eq(artcovrGenerations.id, selectedPreviewId),
+          eq(artcovrGenerations.clerkUserId, clerkUserId),
+          eq(artcovrGenerations.artworkId, artwork.id),
+          eq(artcovrGenerations.phase, "preview"),
+          eq(artcovrGenerations.status, "succeeded"),
+          isNull(artcovrGenerations.purchaseId),
+          gt(artcovrGenerations.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    if (!selectedPreview) {
+      res.status(403).json({
+        code: "selected_preview_not_eligible",
+        message: "That preview is not eligible for this checkout.",
+      });
+      return;
+    }
+  }
+
   if (artwork.saleMode === "exclusive") {
     await expireStaleExclusiveReservations(artwork.id);
   }
@@ -80,7 +115,8 @@ router.post("/checkout", async (req, res): Promise<void> => {
   if (existingOrder) {
     if (
       existingOrder.artworkId !== artwork.id ||
-      existingOrder.amountCents !== artwork.priceCents
+      existingOrder.amountCents !== artwork.priceCents ||
+      existingOrder.selectedPreviewId !== selectedPreviewId
     ) {
       res.status(409).json({
         code: "idempotency_conflict",
@@ -132,7 +168,7 @@ router.post("/checkout", async (req, res): Promise<void> => {
     artworkSlug: artwork.slug,
     amountCents: artwork.priceCents,
     saleMode: artwork.saleMode,
-    selectedPreviewId: parsed.data.selectedPreviewId ?? undefined,
+    selectedPreviewId: selectedPreviewId ?? undefined,
     idempotencyKey: parsed.data.idempotencyKey,
     reservationExpiresAt,
   });
