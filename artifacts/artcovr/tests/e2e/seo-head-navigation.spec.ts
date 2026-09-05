@@ -71,12 +71,12 @@ test("updates shared preview metadata after client-side public navigation", asyn
   await assertUsablePage(page);
   await assertRouteHead(page, "/");
 
-  await page.locator('a[href="/about"]').first().click();
+  await page.locator('a[href="/about"]:visible').first().click();
   await expect(page).toHaveURL(/\/about$/);
   await assertUsablePage(page);
   await assertRouteHead(page, "/about");
 
-  await page.locator('a[href="/archive"]').first().click();
+  await page.locator('a[href="/archive"]:visible').first().click();
   await expect(page).toHaveURL(/\/archive$/);
   await assertUsablePage(page);
   await assertRouteHead(page, "/archive");
@@ -91,7 +91,7 @@ test("updates shared preview metadata after client-side public navigation", asyn
   await assertUsablePage(page);
   await assertRouteHead(page, productPath);
 
-  await page.locator('a[href="/archive"]').first().click();
+  await page.locator('a[href="/archive"]:visible').first().click();
   await expect(page).toHaveURL(/\/archive$/);
   await assertUsablePage(page);
   await assertRouteHead(page, "/archive");

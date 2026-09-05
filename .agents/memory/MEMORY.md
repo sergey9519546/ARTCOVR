@@ -16,3 +16,4 @@
 - [Artwork GEO contract](artwork-geo-contract.md) — every public cover is a licensed ImageObject and image-sitemap record tied to its canonical product page.
 - [Drizzle migration output](drizzle-migration-output.md) — keep the Drizzle migration output path package-relative so repeated generation can read its metadata.
 - [Legacy database baseline](legacy-database-baseline.md) — only mark a matching existing development schema; fresh and partial databases take different paths.
+- [Preloader image budget](preloader-image-budget.md) — animated intro covers must use responsive derivatives; eager original assets can dominate the first-page payload.
