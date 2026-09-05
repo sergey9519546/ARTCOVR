@@ -422,6 +422,7 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
         headline: guide.title,
         description: metadata.description,
         url: guideUrl,
+        datePublished: guide.datePublished,
         dateModified: guide.lastReviewed,
         author: { "@id": organizationId },
         publisher: { "@id": organizationId },

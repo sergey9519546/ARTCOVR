@@ -237,7 +237,12 @@ test("keeps interactive and static social previews equivalent for public informa
 
 test("publishes source-backed guide content and citable structured data", () => {
   for (const [path, guide] of ANSWER_GUIDE_BY_PATH) {
+    assert.match(guide.datePublished, /^\d{4}-\d{2}-\d{2}$/, `${path} should use an ISO publication date`);
     assert.match(guide.lastReviewed, /^\d{4}-\d{2}-\d{2}$/, `${path} should use an ISO review date`);
+    assert.ok(
+      guide.datePublished <= guide.lastReviewed,
+      `${path} publication date should not be later than its review date`,
+    );
     assert.ok(guide.sources.length > 0, `${path} should cite at least one source`);
     const guideMetadata = getRouteMetadata(path, publicCatalog);
     const generatedDocument = renderGeneratedPublicDocument({
@@ -285,6 +290,7 @@ test("publishes source-backed guide content and citable structured data", () => 
     const article = structuredData["@graph"].find(
       (entry: { ["@type"]?: string }) => entry["@type"] === "Article",
     );
+    assert.equal(article.datePublished, guide.datePublished);
     assert.equal(article.dateModified, guide.lastReviewed);
     assert.deepEqual(
       article.citation,
