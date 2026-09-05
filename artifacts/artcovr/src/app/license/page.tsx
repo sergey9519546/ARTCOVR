@@ -3,7 +3,7 @@ import { PublicPage } from "@/components/artcovr/PublicPage";
 
 export default function LicensePage() {
   return (
-    <PublicPage eyebrow="Licensing · Effective August 13, 2026" title="CLEAR BEFORE CHECKOUT.">
+    <PublicPage eyebrow="Licensing · Effective August 13, 2026" title="COMMERCIAL COVER ART LICENSE.">
       <p>
         A completed ARTCOVR purchase grants you a commercial license for the purchased
         base artwork and the clean generated images included with that purchase. You may

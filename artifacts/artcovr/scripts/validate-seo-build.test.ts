@@ -308,6 +308,16 @@ test("publishes source-backed guide content and citable structured data", () => 
   }
 });
 
+test("gives the commercial license route a descriptive primary heading", () => {
+  const generatedDocument = renderGeneratedPublicDocument({
+    route: "/license",
+    metadata: getRouteMetadata("/license", publicCatalog),
+  });
+
+  assert.match(generatedDocument, /<h1>Commercial cover art license\.<\/h1>/);
+  assert.doesNotMatch(generatedDocument, /<h1>Clear before checkout\.<\/h1>/);
+});
+
 test("decodes escaped informational metadata equivalently across preview paths", () => {
   const generatedDocument = renderGeneratedPublicDocument(escapedPublicFixture);
 

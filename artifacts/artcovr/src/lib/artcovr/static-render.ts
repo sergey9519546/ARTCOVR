@@ -268,7 +268,7 @@ const INFO_CONTENT: Record<string, { eyebrow: string; title: string; body: strin
   },
   "/license": {
     eyebrow: "Licensing",
-    title: "Clear before checkout.",
+    title: "Commercial cover art license.",
     body: `<p>A completed ARTCOVR purchase grants you a commercial license for the purchased base artwork and the clean generated images included with that purchase. You may use those images in commercial creative projects, including music releases and their promotion.</p>
       <h2>What the license does not allow</h2>
       <ul><li>Resell an image as a standalone file, or offer it through a stock, asset, or template library.</li><li>Sublicense it for others to reuse independently.</li><li>Use it to train an AI model.</li><li>Claim authorship or copyright ownership of the AI-generated result.</li></ul>
