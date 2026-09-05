@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { getAuth } from "@clerk/express";
-import { Router, type IRouter } from "express";
+import {
+  Router,
+  type IRouter,
+  type RequestHandler,
+} from "express";
 import { and, eq, gt, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { artcovrGenerations, artcovrOrders, db } from "@workspace/db";
@@ -29,6 +33,33 @@ const checkoutBody = z.object({
 
 const exclusiveInventoryStatuses = ["reserved", "paid"] as const;
 
+type CheckoutFailureDetails = {
+  err: unknown;
+  orderId: string;
+  code: string;
+  diagnosis?: string;
+  stripeCheckoutSessionId?: string;
+  expectedLivemode?: boolean;
+  actualLivemode?: boolean;
+};
+
+type CheckoutRouteDependencies = {
+  getStripePriceForArtwork: typeof getStripePriceForArtwork;
+  createCheckoutSession: typeof createCheckoutSession;
+  retrieveCheckoutSession: typeof retrieveCheckoutSession;
+  logCheckoutFailure: (
+    details: CheckoutFailureDetails,
+    message: string,
+  ) => void;
+};
+
+const defaultCheckoutRouteDependencies: CheckoutRouteDependencies = {
+  getStripePriceForArtwork,
+  createCheckoutSession,
+  retrieveCheckoutSession,
+  logCheckoutFailure: (details, message) => logger.error(details, message),
+};
+
 export function checkoutReturnUrls(artworkSlug: string, publicOrigin: string) {
   const origin = getTrustedPublicOrigin({ ARTCOVR_PUBLIC_ORIGIN: publicOrigin });
   return {
@@ -37,7 +68,15 @@ export function checkoutReturnUrls(artworkSlug: string, publicOrigin: string) {
   };
 }
 
-router.post("/checkout", async (req, res): Promise<void> => {
+export function createCheckoutHandler(
+  overrides: Partial<CheckoutRouteDependencies> = {},
+): RequestHandler {
+  const dependencies = {
+    ...defaultCheckoutRouteDependencies,
+    ...overrides,
+  };
+
+  return async (req, res): Promise<void> => {
   const clerkUserId = getAuth(req).userId ?? null;
   const parsed = checkoutBody.safeParse(req.body);
   if (!parsed.success) {
@@ -135,7 +174,7 @@ router.post("/checkout", async (req, res): Promise<void> => {
     }
 
     if (existingOrder.stripeCheckoutSessionId) {
-      const session = await retrieveCheckoutSession(
+      const session = await dependencies.retrieveCheckoutSession(
         existingOrder.stripeCheckoutSessionId,
       );
       if (session.url) {
@@ -210,12 +249,12 @@ router.post("/checkout", async (req, res): Promise<void> => {
   }
 
   try {
-    const price = await getStripePriceForArtwork(artwork);
+    const price = await dependencies.getStripePriceForArtwork(artwork);
     const returnUrls = checkoutReturnUrls(
       artwork.slug,
       getTrustedPublicOrigin(),
     );
-    const session = await createCheckoutSession(
+    const session = await dependencies.createCheckoutSession(
       {
         orderId: order.id,
         priceId: price.id,
@@ -266,7 +305,7 @@ router.post("/checkout", async (req, res): Promise<void> => {
       error instanceof StripeCatalogError
         ? "This cover is not fully configured for checkout yet."
         : "Stripe could not open checkout. Please try again.";
-    logger.error(
+    dependencies.logCheckoutFailure(
       {
         err: error,
         orderId: order.id,
@@ -284,6 +323,9 @@ router.post("/checkout", async (req, res): Promise<void> => {
     );
     res.status(error instanceof StripeCatalogError ? 503 : 502).json({ code, message });
   }
-});
+  };
+}
+
+router.post("/checkout", createCheckoutHandler());
 
 export default router;
