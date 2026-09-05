@@ -17,10 +17,12 @@ import {
 function routePath(location: string) {
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   const pathname = location.split("?")[0] || "/";
-  if (base && pathname.startsWith(base)) {
-    return pathname.slice(base.length) || "/";
+  const normalizedPathname =
+    pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  if (base && normalizedPathname.startsWith(base)) {
+    return normalizedPathname.slice(base.length) || "/";
   }
-  return pathname;
+  return normalizedPathname;
 }
 
 function upsertMeta(attribute: "name" | "property", key: string, content: string) {
