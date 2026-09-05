@@ -113,7 +113,7 @@ export const ClaimGuestPurchasesResponse = zod.object({
 
 /**
  * Uploads one JPEG, PNG, or WebP image as an opaque, single-use reference for a later generation. The server validates and normalizes the image.
- * @summary Upload a style reference image
+ * @summary Upload an identity or visual reference image
  */
 export const uploadReferenceQueryArtworkIdMax = 200;
 

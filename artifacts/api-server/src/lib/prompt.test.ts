@@ -17,7 +17,8 @@ test("turns plain-language direction into a reference-led generation prompt", ()
 
   assert.match(prompt, /Always use the supplied artwork image as the primary visual reference/);
   assert.match(prompt, /Match the primary reference image's exact visual style/);
-  assert.match(prompt, /secondary uploaded image is also available as a style reference/);
+  assert.match(prompt, /secondary uploaded photo or reference image is also available/);
+  assert.match(prompt, /place that person's likeness naturally into the primary artwork/);
   assert.match(prompt, /USER'S REQUESTED CHANGE/);
   assert.match(prompt, /make the sky warmer and add grain/);
   assert.match(prompt, /the title "Night Transit"/);

@@ -1,5 +1,6 @@
 import sharp, { type Metadata, type Sharp } from "sharp";
 import { createHash } from "node:crypto";
+import { editImageBuffers } from "@workspace/integrations-openai-ai-server/image";
 import { downloadPrivate, uploadPrivate } from "./mediaStorage";
 
 export const acceptedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -50,17 +51,36 @@ export async function ensureBaseObject(artworkId: string, slug: string) {
   return key;
 }
 
-export async function createLocalResult(source: Uint8Array, prompt: string, size: 1024 | 2048, styleReference?: Uint8Array) {
-  const seed = createHash("sha256").update(prompt).digest();
-  const hue = seed[0] % 360;
-  const pipeline = sharp(source)
+export async function createImageEditResult(
+  artworkReference: Uint8Array,
+  prompt: string,
+  size: 1024 | 2048,
+  identityReference?: Uint8Array,
+  artworkContentType: "image/jpeg" | "image/webp" = "image/jpeg",
+) {
+  const edited = await editImageBuffers(
+    [
+      {
+        bytes: artworkReference,
+        filename: artworkContentType === "image/webp" ? "artwork-reference.webp" : "artwork-reference.jpg",
+        contentType: artworkContentType,
+      },
+      ...(identityReference
+        ? [
+            {
+              bytes: identityReference,
+              filename: "uploaded-identity-reference.webp",
+              contentType: "image/webp" as const,
+            },
+          ]
+        : []),
+    ],
+    prompt,
+  );
+  const result = await sharp(edited)
     .resize(size, size, { fit: "cover" })
-    .modulate({ saturation: 1 + (seed[1] % 30) / 100, brightness: 0.95 + (seed[2] % 20) / 100, hue });
-  if (styleReference) {
-    const reference = await sharp(styleReference).resize(size, size, { fit: "cover" }).modulate({ saturation: 1.05 }).toBuffer();
-    pipeline.composite([{ input: reference, blend: "soft-light" }]);
-  }
-  const result = await pipeline.webp({ quality: 88, effort: 4 }).toBuffer();
+    .webp({ quality: 90, effort: 4 })
+    .toBuffer();
   return new Uint8Array(result);
 }
 

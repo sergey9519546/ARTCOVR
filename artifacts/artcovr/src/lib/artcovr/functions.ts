@@ -9,9 +9,9 @@ export type GenerationRequest = {
   /** A prior generated result to continue editing from. */
   referenceGenerationId?: string;
   /**
-   * An image the user uploaded through {@link uploadReference}, used only as a
-   * style reference. Mutually exclusive with `referenceGenerationId`; sending
-   * both is rejected with 400 `dual_reference_conflict`.
+   * An image the user uploaded through {@link uploadReference}. It supplements
+   * the primary artwork reference and may be sent together with
+   * `referenceGenerationId`.
    */
   referenceUploadId?: string;
   resetToBase?: boolean;
@@ -178,7 +178,8 @@ async function requestBinary<T>(path: string, body: Blob, contentType: string) {
 }
 
 /**
- * Uploads one image to use as a style reference for a later generation.
+ * Uploads one image to use as an identity or visual reference for a later
+ * generation. The artwork being edited remains the primary image reference.
  *
  * The type and size checks below are a courtesy so an unusable file is refused
  * before it is sent; the Edge Function re-applies both to the bytes it actually

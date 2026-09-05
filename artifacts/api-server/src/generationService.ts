@@ -10,14 +10,14 @@ import { getPublicArtworkById } from "./catalog";
 import { buildGenerationPrompt, PromptLengthError } from "./lib/prompt";
 import {
   addWatermark,
-  createLocalResult,
+  createImageEditResult,
   ensureBaseObject,
 } from "./lib/imagePipeline";
 import { downloadPrivate, removePrivate, signPrivate, uploadPrivate } from "./lib/mediaStorage";
 
 const PREVIEW_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 const PURCHASE_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000;
-const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "local-artcovr-provider";
+const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1";
 
 export class GenerationServiceError extends Error {
   constructor(
@@ -86,10 +86,6 @@ export async function admitGeneration(input: {
   if (typeof title !== "string" || typeof artistName !== "string" || title.length > 120 || artistName.length > 120) {
     fail(400, "cover_text_too_long", "Cover title and artist name must each be 120 characters or fewer.");
   }
-  if (input.referenceGenerationId && input.referenceUploadId) {
-    fail(400, "dual_reference_conflict", "Provide either a previous result or an uploaded reference, not both.");
-  }
-
   let providerPrompt: string;
   try {
     providerPrompt = buildGenerationPrompt({
@@ -208,7 +204,13 @@ export async function runGeneration(job: Awaited<ReturnType<typeof admitGenerati
     const source = await downloadPrivate(job.sourceKey);
     const styleReference = job.referenceKey ? await downloadPrivate(job.referenceKey) : undefined;
     const size = job.purchaseId ? 2048 : 1024;
-    const clean = await createLocalResult(source, job.providerPrompt, size, styleReference);
+    const clean = await createImageEditResult(
+      source,
+      job.providerPrompt,
+      size,
+      styleReference,
+      job.sourceKey.endsWith(".webp") ? "image/webp" : "image/jpeg",
+    );
     const cleanKey = `generated/${job.artwork.id}/${job.id}/clean.webp`;
     const previewKey = `generated/${job.artwork.id}/${job.id}/preview-watermarked.webp`;
     await uploadPrivate(cleanKey, clean, "image/webp");
@@ -220,8 +222,8 @@ export async function runGeneration(job: Awaited<ReturnType<typeof admitGenerati
       status: "succeeded",
       cleanObjectKey: cleanKey,
       previewObjectKey: previewKey,
-      providerRequestId: `local_${createHash("sha256").update(job.id).digest("hex").slice(0, 16)}`,
-      providerUsage: { provider: "local", model: IMAGE_MODEL },
+      providerRequestId: `openai_${createHash("sha256").update(job.id).digest("hex").slice(0, 16)}`,
+      providerUsage: { provider: "openai", model: IMAGE_MODEL },
       finishedAt: new Date(),
     }).where(eq(artcovrGenerations.id, job.id));
     if (job.referenceKey) await removePrivate([job.referenceKey]);

@@ -7,6 +7,7 @@ import { isPromptReady } from "@/lib/artcovr/artworks";
 import {
   createGeneration,
   getGenerationStatus,
+  uploadReference,
   type AccountGeneration,
   type AccountPurchase,
   type GenerationRequest,
@@ -23,6 +24,22 @@ type Props = {
 };
 
 type Phase = "idle" | "generating" | "complete" | "error";
+
+const ACCEPTED_REFERENCE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+const MAX_REFERENCE_BYTES = 8 * 1024 * 1024;
+
+type ReferenceState =
+  | { status: "none" }
+  | { status: "uploading"; url: string; name: string }
+  | { status: "armed"; url: string; name: string };
+
+function referenceRejection(file: File) {
+  if (!(ACCEPTED_REFERENCE_TYPES as readonly string[]).includes(file.type)) {
+    return "Use a JPEG, PNG, or WebP image.";
+  }
+  if (file.size > MAX_REFERENCE_BYTES) return "That file is over the 8 MB limit.";
+  return "";
+}
 
 function terminalMessage(status: "blocked" | "failed" | "timed_out") {
   if (status === "blocked") return "That request could not be generated. Try a different prompt.";
@@ -57,10 +74,25 @@ export function PurchasedGenerationStudio({
   const pendingStyleMode = useRef<"exact" | "expand">("exact");
   const generationStartedAt = useRef<number | undefined>(undefined);
   const resetRequested = useRef(false);
+  const referenceRef = useRef<ReferenceState>({ status: "none" });
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const armedUploadRef = useRef<string | undefined>(undefined);
+  const [reference, setReference] = useState<ReferenceState>({ status: "none" });
+  const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const [coverTitle, setCoverTitle] = useState(purchase.artworkTitle);
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const ready = isPromptReady(prompt) && purchase.remainingGenerations > 0;
+  const ready =
+    isPromptReady(prompt) &&
+    purchase.remainingGenerations > 0 &&
+    reference.status !== "uploading";
+
+  useEffect(() => {
+    return () => {
+      const current = referenceRef.current;
+      if (current.status !== "none") URL.revokeObjectURL(current.url);
+    };
+  }, []);
 
   useEffect(() => {
     if (!latestResult || currentResultId.current) return;
@@ -90,10 +122,25 @@ export function PurchasedGenerationStudio({
             ...(pendingCover.current ? { coverText: pendingCover.current } : {}),
             styleMode: pendingStyleMode.current,
           };
-          const request: GenerationRequest = resetRequested.current
-            ? { ...shared, resetToBase: true }
-            : { ...shared, referenceGenerationId: currentResultId.current };
+          const referenceUploadId = armedUploadRef.current;
+          const request: GenerationRequest = {
+            ...shared,
+            ...(referenceUploadId ? { referenceUploadId } : {}),
+            ...(resetRequested.current
+              ? { resetToBase: true }
+              : currentResultId.current
+                ? { referenceGenerationId: currentResultId.current }
+                : {}),
+          };
           const created = await createGeneration(request);
+          if (referenceUploadId) {
+            armedUploadRef.current = undefined;
+            setArmedUploadId(undefined);
+            const spent = referenceRef.current;
+            if (spent.status !== "none") URL.revokeObjectURL(spent.url);
+            referenceRef.current = { status: "none" };
+            setReference({ status: "none" });
+          }
           jobId.current = created.generationId;
         }
 
@@ -185,6 +232,7 @@ export function PurchasedGenerationStudio({
       surface: "purchased",
       style_mode: styleMode,
       chained: Boolean(currentResultId.current) && !resetRequested.current,
+      has_reference: Boolean(armedUploadRef.current),
       has_cover_text: Boolean(title || artistName),
     });
     jobId.current = undefined;
@@ -196,6 +244,49 @@ export function PurchasedGenerationStudio({
           : "Building from the original artwork…",
     );
     setPhase("generating");
+  }
+
+  function setReferenceEverywhere(next: ReferenceState) {
+    referenceRef.current = next;
+    setReference(next);
+  }
+
+  function clearReference() {
+    if (reference.status !== "none") URL.revokeObjectURL(reference.url);
+    armedUploadRef.current = undefined;
+    setArmedUploadId(undefined);
+    setReferenceEverywhere({ status: "none" });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  async function pickReference(file: File | undefined) {
+    if (!file || reference.status === "uploading" || phase === "generating") return;
+    const rejection = referenceRejection(file);
+    if (rejection) {
+      setMessage(rejection);
+      return;
+    }
+    clearReference();
+    const url = URL.createObjectURL(file);
+    setReferenceEverywhere({ status: "uploading", url, name: file.name });
+    try {
+      const { referenceUploadId } = await uploadReference(file, artwork.id);
+      armedUploadRef.current = referenceUploadId;
+      setArmedUploadId(referenceUploadId);
+      setReferenceEverywhere({ status: "armed", url, name: file.name });
+      setMessage("Reference photo attached. It will supplement the artwork on your next generation.");
+      trackEvent("reference_uploaded", {
+        artwork_slug: artwork.slug,
+        surface: "purchased",
+        media_type: file.type,
+      });
+    } catch (cause) {
+      URL.revokeObjectURL(url);
+      setReferenceEverywhere({ status: "none" });
+      setMessage(
+        cause instanceof Error ? cause.message : "The reference could not be uploaded. Try again.",
+      );
+    }
   }
 
   function reset() {
@@ -226,6 +317,45 @@ export function PurchasedGenerationStudio({
             rows={5}
             className="mt-3 w-full resize-y border border-current/30 bg-transparent px-4 py-4 text-base leading-6 outline-none transition-colors focus:border-current"
           />
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPTED_REFERENCE_TYPES.join(",")}
+              className="sr-only"
+              aria-hidden
+              tabIndex={-1}
+              onChange={(event) => void pickReference(event.target.files?.[0])}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={phase === "generating" || reference.status === "uploading"}
+              className="border border-current/30 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] transition-colors hover:border-current disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {armedUploadId ? "Replace reference photo" : "Add reference photo"}
+            </button>
+            {reference.status !== "none" ? (
+              <span className="flex min-w-0 items-center gap-2 text-xs opacity-70">
+                <img src={reference.url} alt="" aria-hidden className="size-6 rounded-full object-cover" />
+                <span className="max-w-[12rem] truncate">
+                  {reference.status === "uploading" ? "Uploading…" : reference.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={clearReference}
+                  disabled={reference.status === "uploading"}
+                  aria-label="Remove the reference photo"
+                  className="leading-none opacity-70 hover:opacity-100 disabled:opacity-30"
+                >
+                  ×
+                </button>
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-2 text-xs leading-5 opacity-60">
+            The artwork stays the primary reference. Add a photo when you want to place a person, face, or other visual element into it.
+          </p>
           <fieldset className="mt-4 border border-current/25 p-4" disabled={phase === "generating"}>
             <legend className="px-1 text-[10px] font-bold uppercase tracking-[0.14em]">
               Cover text — rendered into the image
