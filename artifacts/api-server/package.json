@@ -8,7 +8,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "tsx --test src/**/*.test.ts src/*.test.ts"
+    "test": "tsx --test src/**/*.test.ts src/*.test.ts",
+    "stripe:catalog:cleanup": "tsx src/stripeCatalogCleanupCli.ts"
   },
   "dependencies": {
     "@clerk/express": "^2.1.64",

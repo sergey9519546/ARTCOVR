@@ -52,12 +52,17 @@ async function stripeRequest<T>(
   return payload;
 }
 
-export async function listStripeProducts() {
+export async function listStripeProducts(
+  options: { active?: boolean } = { active: true },
+) {
   const products: Stripe.Product[] = [];
   let startingAfter: string | undefined;
 
   do {
-    const search = new URLSearchParams({ active: "true", limit: "100" });
+    const search = new URLSearchParams({ limit: "100" });
+    if (options.active !== undefined) {
+      search.set("active", String(options.active));
+    }
     if (startingAfter) search.set("starting_after", startingAfter);
     const page = await stripeRequest<Stripe.ApiList<Stripe.Product>>(
       `/v1/products?${search.toString()}`,
@@ -93,28 +98,36 @@ export async function createStripeProduct(input: {
 
 export async function updateStripeProduct(
   productId: string,
-  input: { defaultPrice: string },
+  input: { defaultPrice?: string; active?: boolean },
 ) {
+  const form = new URLSearchParams();
+  if (input.defaultPrice) form.set("default_price", input.defaultPrice);
+  if (input.active !== undefined) form.set("active", String(input.active));
   return stripeRequest<Stripe.Product>(
     `/v1/products/${encodeURIComponent(productId)}`,
     {
       method: "POST",
-      form: new URLSearchParams({ default_price: input.defaultPrice }),
+      form,
     },
   );
 }
 
-export async function listStripePrices(productId: string) {
+export async function listStripePrices(
+  productId: string,
+  options: { active?: boolean; type?: "one_time" } = {
+    active: true,
+    type: "one_time",
+  },
+) {
   const prices: Stripe.Price[] = [];
   let startingAfter: string | undefined;
 
   do {
-    const query = new URLSearchParams({
-      product: productId,
-      active: "true",
-      type: "one_time",
-      limit: "100",
-    });
+    const query = new URLSearchParams({ product: productId, limit: "100" });
+    if (options.active !== undefined) {
+      query.set("active", String(options.active));
+    }
+    if (options.type) query.set("type", options.type);
     if (startingAfter) query.set("starting_after", startingAfter);
     const page = await stripeRequest<Stripe.ApiList<Stripe.Price>>(
       `/v1/prices?${query.toString()}`,
@@ -127,6 +140,66 @@ export async function listStripePrices(productId: string) {
   } while (startingAfter);
 
   return prices;
+}
+
+export async function deactivateStripeProduct(productId: string) {
+  return updateStripeProduct(productId, { active: false });
+}
+
+export async function deactivateStripePrice(priceId: string) {
+  return stripeRequest<Stripe.Price>(
+    `/v1/prices/${encodeURIComponent(priceId)}`,
+    {
+      method: "POST",
+      form: new URLSearchParams({ active: "false" }),
+    },
+  );
+}
+
+function appendExpand(search: URLSearchParams, value: string) {
+  search.append("expand[]", value);
+}
+
+export async function listStripeCheckoutSessions() {
+  const sessions: Stripe.Checkout.Session[] = [];
+  let startingAfter: string | undefined;
+
+  do {
+    const search = new URLSearchParams({ limit: "100" });
+    appendExpand(search, "data.line_items.data.price");
+    if (startingAfter) search.set("starting_after", startingAfter);
+    const page = await stripeRequest<Stripe.ApiList<Stripe.Checkout.Session>>(
+      `/v1/checkout/sessions?${search.toString()}`,
+    );
+    sessions.push(...page.data);
+    startingAfter =
+      page.has_more && page.data.length
+        ? page.data[page.data.length - 1]?.id
+        : undefined;
+  } while (startingAfter);
+
+  return sessions;
+}
+
+export async function listStripePaymentLinks() {
+  const paymentLinks: Stripe.PaymentLink[] = [];
+  let startingAfter: string | undefined;
+
+  do {
+    const search = new URLSearchParams({ limit: "100" });
+    appendExpand(search, "data.line_items.data.price");
+    if (startingAfter) search.set("starting_after", startingAfter);
+    const page = await stripeRequest<Stripe.ApiList<Stripe.PaymentLink>>(
+      `/v1/payment_links?${search.toString()}`,
+    );
+    paymentLinks.push(...page.data);
+    startingAfter =
+      page.has_more && page.data.length
+        ? page.data[page.data.length - 1]?.id
+        : undefined;
+  } while (startingAfter);
+
+  return paymentLinks;
 }
 
 export async function createStripePrice(input: {
