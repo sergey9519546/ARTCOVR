@@ -42,6 +42,23 @@ function maxMutationsFromArgs(args: string[]) {
   return value;
 }
 
+function canonicalSelectionDiagnostic(
+  report: StripeCatalogCleanupReport,
+): string {
+  const summary =
+    report.canonicalSelection.safetyStop ??
+    "Canonical catalog selection changed after cleanup";
+  const changes = [...report.canonicalSelection.changes]
+    .sort((left, right) => left.artworkId.localeCompare(right.artworkId))
+    .map(
+      (change) =>
+        `${change.artworkId}: product ${change.before.canonicalProductId ?? "none"} -> ${change.after.canonicalProductId ?? "none"}, price ${change.before.canonicalPriceId ?? "none"} -> ${change.after.canonicalPriceId ?? "none"}`,
+    );
+  return changes.length > 0
+    ? `${summary.replace(/[.\s]+$/, "")}; ${changes.join("; ")}.`
+    : `${summary.replace(/[.\s]+$/, "")}.`;
+}
+
 export async function runStripeCatalogCleanupCli({
   args = process.argv.slice(2),
   audit = auditStripeCatalog,
@@ -117,9 +134,7 @@ export async function runStripeCatalogCleanupCli({
     report.canonicalSelection.changes.length > 0
   ) {
     error(
-      `Stripe catalog cleanup safety stop: ${report.canonicalSelection.safetyStop ?? `canonical selection changed for ${report.canonicalSelection.changes
-        .map((change) => change.artworkId)
-        .join(", ")}`}.`,
+      `Stripe catalog cleanup safety stop: ${canonicalSelectionDiagnostic(report)}`,
     );
   }
   if (!confirmed && !reconciliationOnly) {

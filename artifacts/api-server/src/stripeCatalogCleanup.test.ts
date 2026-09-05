@@ -1139,6 +1139,67 @@ test("reconciliation CLI succeeds for explicitly diagnosed stale test data", asy
   assert.doesNotMatch(diagnostics.join("\n"), /Stripe reconciliation failed/);
 });
 
+test("cleanup CLI diagnoses canonical product and price changes deterministically", async () => {
+  const baseReport = reconciliationReport([]);
+  const report = {
+    ...baseReport,
+    canonicalSelection: {
+      before: [],
+      after: [],
+      safetyStop:
+        "Canonical catalog selection changed after deactivation.",
+      changes: [
+        {
+          artworkId: "art_zebra",
+          slug: "zebra",
+          before: {
+            artworkId: "art_zebra",
+            slug: "zebra",
+            canonicalProductId: "prod_zebra_before",
+            canonicalPriceId: "price_zebra_before",
+          },
+          after: {
+            artworkId: "art_zebra",
+            slug: "zebra",
+            canonicalProductId: "prod_zebra_after",
+            canonicalPriceId: null,
+          },
+        },
+        {
+          artworkId: "art_alpha",
+          slug: "alpha",
+          before: {
+            artworkId: "art_alpha",
+            slug: "alpha",
+            canonicalProductId: null,
+            canonicalPriceId: "price_alpha_before",
+          },
+          after: {
+            artworkId: "art_alpha",
+            slug: "alpha",
+            canonicalProductId: "prod_alpha_after",
+            canonicalPriceId: "price_alpha_after",
+          },
+        },
+      ],
+    },
+  };
+  const diagnostics: string[] = [];
+
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--reconcile-only"],
+    audit: async () => report,
+    log: () => {},
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 1);
+  assert.equal(
+    diagnostics.join("\n"),
+    "Stripe catalog cleanup safety stop: Canonical catalog selection changed after deactivation; art_alpha: product none -> prod_alpha_after, price price_alpha_before -> price_alpha_after; art_zebra: product prod_zebra_before -> prod_zebra_after, price price_zebra_before -> none.",
+  );
+});
+
 test("cleanup CLI reports resumable interruptions and passes a mutation budget", async () => {
   const report = {
     ...reconciliationReport([]),
