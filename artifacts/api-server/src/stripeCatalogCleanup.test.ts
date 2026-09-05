@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type Stripe from "stripe";
-import type {
-  PublicCatalogArtwork,
-} from "./catalog";
+import type { PublicCatalogArtwork } from "./catalog";
 import {
   buildStripeCatalogCleanupReport,
   type StripeCatalogSnapshot,
@@ -115,16 +113,62 @@ test("cleanup report chooses the checkout canonical and eligible duplicates", ()
   assert.deepEqual(report.artworks[0]?.deactivatableProductIds, [
     duplicateProduct.id,
   ]);
+  assert.deepEqual(report.artworks[0]?.defaultPriceActions, []);
+});
+
+test("cleanup report clears a redundant default before deactivating its price", () => {
+  const canonicalProduct = product("prod_canonical", 1, "price_canonical");
+  const duplicateProduct = product("prod_duplicate", 2, "price_duplicate");
+  const report = buildStripeCatalogCleanupReport(
+    {
+      ...snapshot(
+        [canonicalProduct, duplicateProduct],
+        new Map([
+          [
+            canonicalProduct.id,
+            [price("price_canonical", canonicalProduct.id, 1)],
+          ],
+          [
+            duplicateProduct.id,
+            [price("price_duplicate", duplicateProduct.id, 2)],
+          ],
+        ]),
+      ),
+      defaultPriceReferences: [
+        {
+          kind: "default_price",
+          objectId: duplicateProduct.id,
+          priceId: "price_duplicate",
+          productId: duplicateProduct.id,
+          active: true,
+          historical: false,
+        },
+      ],
+    },
+    [artwork],
+    "dry_run",
+  );
+
+  assert.deepEqual(report.artworks[0]?.defaultPriceActions, [
+    {
+      productId: duplicateProduct.id,
+      priceId: "price_duplicate",
+      action: "clear",
+      replacementPriceId: null,
+      reasons: ["redundant_default_price"],
+    },
+  ]);
+  assert.deepEqual(report.artworks[0]?.blockedPrices, []);
+  assert.deepEqual(report.artworks[0]?.deactivatablePriceIds, [
+    "price_duplicate",
+  ]);
+  assert.equal(report.readiness.protectedDuplicateDefaultPriceReferences, 0);
 });
 
 test("cleanup report blocks duplicate prices used by live Stripe objects", () => {
   const canonicalProduct = product("prod_old", 1, "price_old");
   const duplicateProduct = product("prod_duplicate", 2);
-  const duplicatePrice = price(
-    "price_duplicate",
-    duplicateProduct.id,
-    2,
-  );
+  const duplicatePrice = price("price_duplicate", duplicateProduct.id, 2);
   const report = buildStripeCatalogCleanupReport(
     {
       ...snapshot(
@@ -140,6 +184,16 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
         {
           kind: "checkout_session",
           objectId: "cs_open",
+          priceId: duplicatePrice.id,
+          productId: duplicateProduct.id,
+          active: true,
+          historical: false,
+        },
+      ],
+      defaultPriceReferences: [
+        {
+          kind: "default_price",
+          objectId: duplicateProduct.id,
           priceId: duplicatePrice.id,
           productId: duplicateProduct.id,
           active: true,
@@ -164,9 +218,19 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
   assert.deepEqual(report.artworks[0]?.blockedPrices, [
     {
       id: duplicatePrice.id,
-      reasons: ["open_checkout_session"],
+      reasons: ["default_price_reference", "open_checkout_session"],
     },
   ]);
+  assert.deepEqual(report.artworks[0]?.defaultPriceActions, [
+    {
+      productId: duplicateProduct.id,
+      priceId: duplicatePrice.id,
+      action: "protect",
+      replacementPriceId: null,
+      reasons: ["default_price_reference", "open_checkout_session"],
+    },
+  ]);
+  assert.equal(report.readiness.protectedDuplicateDefaultPriceReferences, 1);
   assert.equal(report.referenceCounts.checkoutSessions, 1);
   assert.equal(report.referenceCounts.historicalOrders, 1);
   assert.equal(report.historicalOrders[0]?.checkoutSessionFound, false);
@@ -182,11 +246,7 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
 test("historical checkout sessions are reported but do not block cleanup", () => {
   const canonicalProduct = product("prod_old", 1, "price_old");
   const duplicateProduct = product("prod_duplicate", 2);
-  const duplicatePrice = price(
-    "price_duplicate",
-    duplicateProduct.id,
-    2,
-  );
+  const duplicatePrice = price("price_duplicate", duplicateProduct.id, 2);
   const report = buildStripeCatalogCleanupReport(
     {
       ...snapshot(

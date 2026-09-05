@@ -77,11 +77,14 @@ export async function listStripeProducts(
   return products;
 }
 
-export async function createStripeProduct(input: {
-  name: string;
-  description: string;
-  metadata: Record<string, string>;
-}, idempotencyKey?: string) {
+export async function createStripeProduct(
+  input: {
+    name: string;
+    description: string;
+    metadata: Record<string, string>;
+  },
+  idempotencyKey?: string,
+) {
   const form = new URLSearchParams({
     name: input.name,
     description: input.description,
@@ -98,10 +101,13 @@ export async function createStripeProduct(input: {
 
 export async function updateStripeProduct(
   productId: string,
-  input: { defaultPrice?: string; active?: boolean },
+  input: { defaultPrice?: string | null; active?: boolean },
 ) {
   const form = new URLSearchParams();
-  if (input.defaultPrice) form.set("default_price", input.defaultPrice);
+  if (input.defaultPrice !== undefined) {
+    // Stripe uses an empty value to remove a product's default price.
+    form.set("default_price", input.defaultPrice ?? "");
+  }
   if (input.active !== undefined) form.set("active", String(input.active));
   return stripeRequest<Stripe.Product>(
     `/v1/products/${encodeURIComponent(productId)}`,
@@ -202,12 +208,15 @@ export async function listStripePaymentLinks() {
   return paymentLinks;
 }
 
-export async function createStripePrice(input: {
-  productId: string;
-  amountCents: number;
-  currency: string;
-  metadata: Record<string, string>;
-}, idempotencyKey?: string) {
+export async function createStripePrice(
+  input: {
+    productId: string;
+    amountCents: number;
+    currency: string;
+    metadata: Record<string, string>;
+  },
+  idempotencyKey?: string,
+) {
   const form = new URLSearchParams({
     product: input.productId,
     unit_amount: String(input.amountCents),
@@ -294,7 +303,11 @@ export async function ensureStripeWebhook(url: string) {
   const page = await stripeRequest<Stripe.ApiList<Stripe.WebhookEndpoint>>(
     "/v1/webhook_endpoints?limit=100",
   );
-  if (page.data.some((endpoint) => endpoint.url === url && endpoint.status === "enabled")) {
+  if (
+    page.data.some(
+      (endpoint) => endpoint.url === url && endpoint.status === "enabled",
+    )
+  ) {
     return;
   }
 

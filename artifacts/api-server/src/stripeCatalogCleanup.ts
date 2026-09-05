@@ -8,6 +8,7 @@ import {
   listStripePaymentLinks,
   listStripePrices,
   listStripeProducts,
+  updateStripeProduct,
 } from "./stripeClient";
 import {
   matchingStripePriceCandidates,
@@ -44,6 +45,14 @@ export type CatalogReference = {
   historical: boolean;
 };
 
+export type DefaultPriceAction = {
+  productId: string;
+  priceId: string;
+  action: "retain" | "clear" | "protect";
+  replacementPriceId: string | null;
+  reasons: string[];
+};
+
 export type StripeCatalogCleanupReport = {
   mode: "dry_run" | "deactivated";
   generatedAt: string;
@@ -56,6 +65,7 @@ export type StripeCatalogCleanupReport = {
     checkoutSessions: number;
     paymentLinks: number;
     defaultPriceReferences: number;
+    duplicateDefaultPriceReferences: number;
   };
   reconciliation: {
     connectedAccountMode: StripeAccountMode;
@@ -74,6 +84,7 @@ export type StripeCatalogCleanupReport = {
     expectedArtworkCount: number;
     readyArtworkCount: number;
     missingArtworkIds: string[];
+    protectedDuplicateDefaultPriceReferences: number;
   };
   artworks: Array<{
     artworkId: string;
@@ -86,10 +97,12 @@ export type StripeCatalogCleanupReport = {
     deactivatableProductIds: string[];
     blockedPrices: Array<{ id: string; reasons: string[] }>;
     blockedProducts: Array<{ id: string; reasons: string[] }>;
+    defaultPriceActions: DefaultPriceAction[];
   }>;
   deactivated?: {
     prices: string[];
     products: string[];
+    defaultPrices?: Array<{ productId: string; priceId: string }>;
   };
 };
 
@@ -113,7 +126,7 @@ export type StripeCatalogSnapshot = {
 };
 
 function stripeId(value: string | { id: string } | null | undefined) {
-  return typeof value === "string" ? value : value?.id ?? null;
+  return typeof value === "string" ? value : (value?.id ?? null);
 }
 
 function stripeAccountMode(
@@ -196,17 +209,13 @@ async function loadHistoricalOrders(): Promise<HistoricalOrderReference[]> {
 }
 
 async function loadCatalogSnapshot(): Promise<StripeCatalogSnapshot> {
-  const [
-    products,
-    checkoutSessions,
-    paymentLinks,
-    historicalOrders,
-  ] = await Promise.all([
-    listStripeProducts({ active: undefined }),
-    listStripeCheckoutSessions(),
-    listStripePaymentLinks(),
-    loadHistoricalOrders(),
-  ]);
+  const [products, checkoutSessions, paymentLinks, historicalOrders] =
+    await Promise.all([
+      listStripeProducts({ active: undefined }),
+      listStripeCheckoutSessions(),
+      listStripePaymentLinks(),
+      loadHistoricalOrders(),
+    ]);
 
   const pricesByProduct = new Map<string, Stripe.Price[]>();
   for (const product of products) {
@@ -245,10 +254,7 @@ async function loadCatalogSnapshot(): Promise<StripeCatalogSnapshot> {
   };
 }
 
-function referencesFor(
-  id: string,
-  references: CatalogReference[],
-) {
+function referencesFor(id: string, references: CatalogReference[]) {
   return references.filter(
     (reference) =>
       (reference.priceId === id || reference.productId === id) &&
@@ -266,10 +272,11 @@ function allCandidates(
     products.filter((product) => product.active),
     artwork.id,
   );
-  const candidates: StripePriceCandidate[] = artworkProducts.flatMap((product) =>
-    (pricesByProduct.get(product.id) ?? [])
-      .filter((price) => price.active)
-      .map((price) => ({ product, price })),
+  const candidates: StripePriceCandidate[] = artworkProducts.flatMap(
+    (product) =>
+      (pricesByProduct.get(product.id) ?? [])
+        .filter((price) => price.active)
+        .map((price) => ({ product, price })),
   );
   return {
     artworkProducts,
@@ -308,19 +315,21 @@ export function buildStripeCatalogCleanupReport(
   });
   const unmatchedCheckoutSessionOrders = historicalOrders.filter(
     (order) =>
-      order.stripeCheckoutSessionId !== null &&
-      !order.checkoutSessionFound,
+      order.stripeCheckoutSessionId !== null && !order.checkoutSessionFound,
   );
   const staleTestDataOrders = unmatchedCheckoutSessionOrders.filter(
     (order) => order.checkoutSessionDiagnosis === "stale_test_data",
   );
   const unresolvedOrders = unmatchedCheckoutSessionOrders.filter(
-    (order) => order.checkoutSessionDiagnosis === "missing_from_connected_account",
+    (order) =>
+      order.checkoutSessionDiagnosis === "missing_from_connected_account",
   );
   let canonicalArtworkCount = 0;
   let duplicateProductArtworkIds = 0;
   let duplicatePriceArtworkIds = 0;
   const missingArtworkIds: string[] = [];
+  let duplicateDefaultPriceReferences = 0;
+  let protectedDuplicateDefaultPriceReferences = 0;
 
   const artworks = catalog.map((artwork) => {
     const { artworkProducts, candidates, matchingCandidates } = allCandidates(
@@ -343,12 +352,68 @@ export function buildStripeCatalogCleanupReport(
       .filter(({ price }) => price.id !== canonicalPriceId)
       .map(({ price }) => price.id);
 
+    const defaultPriceActions = redundantPriceIds.reduce<DefaultPriceAction[]>(
+      (actions, id) => {
+        const defaultReference = snapshot.defaultPriceReferences.find(
+          (reference) => reference.priceId === id,
+        );
+        if (!defaultReference) return actions;
+
+        duplicateDefaultPriceReferences++;
+        const reasons = new Set<string>();
+        for (const reference of referencesFor(id, liveReferences)) {
+          if (reference.kind === "default_price") continue;
+          if (reference.kind === "checkout_session") {
+            reasons.add("open_checkout_session");
+          } else if (reference.kind === "payment_link") {
+            reasons.add("active_payment_link");
+          }
+        }
+
+        if (reasons.size === 0) {
+          actions.push({
+            productId: defaultReference.productId,
+            priceId: id,
+            action: "clear",
+            replacementPriceId: null,
+            reasons: ["redundant_default_price"],
+          });
+          return actions;
+        }
+
+        protectedDuplicateDefaultPriceReferences++;
+        reasons.add("default_price_reference");
+        actions.push({
+          productId: defaultReference.productId,
+          priceId: id,
+          action: "protect",
+          replacementPriceId: null,
+          reasons: [...reasons].sort(),
+        });
+        return actions;
+      },
+      [],
+    );
+    const clearableDefaultPriceIds = new Set(
+      defaultPriceActions
+        .filter((action) => action.action === "clear")
+        .map((action) => action.priceId),
+    );
+
     const blockedPrices = redundantPriceIds.flatMap((id) => {
       const reasons = new Set<string>();
       for (const reference of referencesFor(id, liveReferences)) {
+        if (
+          reference.kind === "default_price" &&
+          clearableDefaultPriceIds.has(reference.priceId)
+        ) {
+          continue;
+        }
         if (reference.productId === id) reasons.add("product_reference");
-        else if (reference.kind === "checkout_session") reasons.add("open_checkout_session");
-        else if (reference.kind === "payment_link") reasons.add("active_payment_link");
+        else if (reference.kind === "checkout_session")
+          reasons.add("open_checkout_session");
+        else if (reference.kind === "payment_link")
+          reasons.add("active_payment_link");
         else reasons.add("default_price_reference");
       }
       return reasons.size ? [{ id, reasons: [...reasons].sort() }] : [];
@@ -360,10 +425,22 @@ export function buildStripeCatalogCleanupReport(
     const blockedProducts = duplicateProductIds.flatMap((id) => {
       const reasons = new Set<string>();
       const productPrices = snapshot.pricesByProduct.get(id) ?? [];
-      if (productPrices.some((price) => price.active && !deactivatablePriceIds.includes(price.id))) {
+      if (
+        productPrices.some(
+          (price) => price.active && !deactivatablePriceIds.includes(price.id),
+        )
+      ) {
         reasons.add("active_price_reference");
       }
-      if (referencesFor(id, liveReferences).length) reasons.add("live_reference");
+      if (
+        referencesFor(id, liveReferences).some(
+          (reference) =>
+            reference.kind !== "default_price" ||
+            !clearableDefaultPriceIds.has(reference.priceId),
+        )
+      ) {
+        reasons.add("live_reference");
+      }
       return reasons.size ? [{ id, reasons: [...reasons].sort() }] : [];
     });
     const deactivatableProductIds = duplicateProductIds.filter(
@@ -381,6 +458,7 @@ export function buildStripeCatalogCleanupReport(
       deactivatableProductIds,
       blockedPrices,
       blockedProducts,
+      defaultPriceActions,
     };
   });
 
@@ -396,6 +474,7 @@ export function buildStripeCatalogCleanupReport(
       checkoutSessions: checkoutSessionCount,
       paymentLinks: paymentLinkCount,
       defaultPriceReferences: defaultPriceCount,
+      duplicateDefaultPriceReferences,
     },
     reconciliation: {
       connectedAccountMode: snapshot.stripeAccountMode,
@@ -410,6 +489,7 @@ export function buildStripeCatalogCleanupReport(
       expectedArtworkCount: catalog.length,
       readyArtworkCount: canonicalArtworkCount,
       missingArtworkIds,
+      protectedDuplicateDefaultPriceReferences,
     },
     artworks,
     deactivated,
@@ -424,14 +504,18 @@ export async function auditStripeCatalog(): Promise<StripeCatalogCleanupReport> 
   );
 }
 
-export async function cleanupStripeCatalog(options: {
-  confirmation?: string;
-} = {}): Promise<StripeCatalogCleanupReport> {
+export async function cleanupStripeCatalog(
+  options: {
+    confirmation?: string;
+  } = {},
+): Promise<StripeCatalogCleanupReport> {
   const before = await auditStripeCatalog();
   if (options.confirmation !== STRIPE_CATALOG_DEACTIVATION_CONFIRMATION) {
     return before;
   }
-  if (before.readiness.readyArtworkCount !== before.readiness.expectedArtworkCount) {
+  if (
+    before.readiness.readyArtworkCount !== before.readiness.expectedArtworkCount
+  ) {
     return {
       ...before,
       safetyStop:
@@ -439,8 +523,21 @@ export async function cleanupStripeCatalog(options: {
     };
   }
 
-  const prices = before.artworks.flatMap((artwork) => artwork.deactivatablePriceIds);
-  const products = before.artworks.flatMap((artwork) => artwork.deactivatableProductIds);
+  const defaultPrices = before.artworks.flatMap((artwork) =>
+    artwork.defaultPriceActions
+      .filter((action) => action.action === "clear")
+      .map(({ productId, priceId }) => ({ productId, priceId })),
+  );
+  for (const { productId } of defaultPrices) {
+    await updateStripeProduct(productId, { defaultPrice: null });
+  }
+
+  const prices = before.artworks.flatMap(
+    (artwork) => artwork.deactivatablePriceIds,
+  );
+  const products = before.artworks.flatMap(
+    (artwork) => artwork.deactivatableProductIds,
+  );
   for (const priceId of prices) await deactivateStripePrice(priceId);
   for (const productId of products) await deactivateStripeProduct(productId);
 
@@ -448,6 +545,6 @@ export async function cleanupStripeCatalog(options: {
   return {
     ...after,
     mode: "deactivated",
-    deactivated: { prices, products },
+    deactivated: { prices, products, defaultPrices },
   };
 }
