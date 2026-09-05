@@ -14,3 +14,9 @@ Confirmed catalog cleanup can outlive the five-minute shell timeout because defa
 **Why:** A timed-out wrapper does not prove that the mutation stopped; the connected catalog may already be fully updated.
 
 **How to apply:** After any confirmed cleanup timeout, run a fresh dry-run audit and compare canonical product/price IDs before retrying the command.
+
+The Stripe order reconciliation audit belongs in the release gate rather than the portable CI gate.
+
+**Why:** It reads the connected Stripe account and the live order database, so it cannot run reliably in pull-request environments while still providing a release-time operator signal.
+
+**How to apply:** Keep the reconciliation command read-only and run it explicitly as part of release verification; stale test-mode records warn, while unresolved live references fail.

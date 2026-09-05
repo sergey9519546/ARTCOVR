@@ -28,6 +28,13 @@ export type CheckoutSessionDiagnosis =
   | "missing_from_connected_account"
   | "missing_session_id";
 
+export type StripeReconciliationAlert = {
+  orderId: string;
+  stripeCheckoutSessionId: string;
+  diagnosis: Exclude<CheckoutSessionDiagnosis, "found" | "missing_session_id">;
+  severity: "warning" | "error";
+};
+
 export type HistoricalOrderReference = {
   id: string;
   artworkId: string;
@@ -69,6 +76,7 @@ export type StripeCatalogCleanupReport = {
   };
   reconciliation: {
     connectedAccountMode: StripeAccountMode;
+    alerts: StripeReconciliationAlert[];
     unmatchedCheckoutSessionOrderIds: string[];
     staleTestDataOrderIds: string[];
     unresolvedOrderIds: string[];
@@ -324,6 +332,28 @@ export function buildStripeCatalogCleanupReport(
     (order) =>
       order.checkoutSessionDiagnosis === "missing_from_connected_account",
   );
+  const reconciliationAlerts: StripeReconciliationAlert[] =
+    unmatchedCheckoutSessionOrders.flatMap((order) => {
+      const checkoutSessionId = order.stripeCheckoutSessionId;
+      if (
+        !checkoutSessionId ||
+        (order.checkoutSessionDiagnosis !== "stale_test_data" &&
+          order.checkoutSessionDiagnosis !== "missing_from_connected_account")
+      ) {
+        return [];
+      }
+      return [
+        {
+          orderId: order.id,
+          stripeCheckoutSessionId: checkoutSessionId,
+          diagnosis: order.checkoutSessionDiagnosis,
+          severity:
+            order.checkoutSessionDiagnosis === "stale_test_data"
+              ? "warning"
+              : "error",
+        },
+      ];
+    });
   let canonicalArtworkCount = 0;
   let duplicateProductArtworkIds = 0;
   let duplicatePriceArtworkIds = 0;
@@ -478,6 +508,7 @@ export function buildStripeCatalogCleanupReport(
     },
     reconciliation: {
       connectedAccountMode: snapshot.stripeAccountMode,
+      alerts: reconciliationAlerts,
       unmatchedCheckoutSessionOrderIds: unmatchedCheckoutSessionOrders.map(
         (order) => order.id,
       ),

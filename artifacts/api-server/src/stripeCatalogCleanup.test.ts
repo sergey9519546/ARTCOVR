@@ -241,6 +241,14 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
   assert.deepEqual(report.reconciliation.unresolvedOrderIds, [
     "order_historical",
   ]);
+  assert.deepEqual(report.reconciliation.alerts, [
+    {
+      orderId: "order_historical",
+      stripeCheckoutSessionId: "cs_complete",
+      diagnosis: "missing_from_connected_account",
+      severity: "error",
+    },
+  ]);
 });
 
 test("historical checkout sessions are reported but do not block cleanup", () => {
@@ -320,4 +328,12 @@ test("cleanup report identifies test-mode orders as stale when the account is li
     "order_stale_test",
   ]);
   assert.deepEqual(report.reconciliation.unresolvedOrderIds, []);
+  assert.deepEqual(report.reconciliation.alerts, [
+    {
+      orderId: "order_stale_test",
+      stripeCheckoutSessionId: "cs_test_stale",
+      diagnosis: "stale_test_data",
+      severity: "warning",
+    },
+  ]);
 });
