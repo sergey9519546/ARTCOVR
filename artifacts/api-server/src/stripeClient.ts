@@ -354,19 +354,34 @@ export async function ensureStripeWebhook(url: string) {
   const page = await stripeRequest<Stripe.ApiList<Stripe.WebhookEndpoint>>(
     "/v1/webhook_endpoints?limit=100",
   );
+  const requiredEvents = [
+    "checkout.session.completed",
+    "checkout.session.async_payment_succeeded",
+    "checkout.session.expired",
+  ] as const;
+  const existing = page.data.find(
+    (endpoint) => endpoint.url === url && endpoint.status === "enabled",
+  );
   if (
-    page.data.some(
-      (endpoint) => endpoint.url === url && endpoint.status === "enabled",
-    )
+    existing &&
+    (existing.enabled_events.includes("*") ||
+      requiredEvents.every((event) => existing.enabled_events.includes(event)))
   ) {
     return;
   }
 
-  const form = new URLSearchParams({ url });
-  form.append("enabled_events[]", "checkout.session.completed");
-  form.append("enabled_events[]", "checkout.session.async_payment_succeeded");
-  await stripeRequest<Stripe.WebhookEndpoint>("/v1/webhook_endpoints", {
-    method: "POST",
-    form,
-  });
+  const form = new URLSearchParams();
+  if (!existing) form.set("url", url);
+  for (const event of requiredEvents) {
+    form.append("enabled_events[]", event);
+  }
+  await stripeRequest<Stripe.WebhookEndpoint>(
+    existing
+      ? `/v1/webhook_endpoints/${encodeURIComponent(existing.id)}`
+      : "/v1/webhook_endpoints",
+    {
+      method: "POST",
+      form,
+    },
+  );
 }

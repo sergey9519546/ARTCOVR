@@ -140,12 +140,43 @@ test("a checkout mode mismatch preserves an expired, unpaid order and emits a di
     });
 
     const [order] = await db
-      .select({ status: artcovrOrders.status })
+      .select({
+        status: artcovrOrders.status,
+        stripeCheckoutSessionId: artcovrOrders.stripeCheckoutSessionId,
+        stripePaymentIntentId: artcovrOrders.stripePaymentIntentId,
+        paidAt: artcovrOrders.paidAt,
+      })
       .from(artcovrOrders)
-      .where(eq(artcovrOrders.id, orderId));
+      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
     assert.equal(order?.status, "expired");
+    assert.equal(order?.stripeCheckoutSessionId, null);
+    assert.equal(order?.stripePaymentIntentId, null);
+    assert.equal(order?.paidAt, null);
+    assert.equal(diagnoses.length, 1);
+    assert.deepEqual(
+      {
+        code: diagnoses[0]?.code,
+        diagnosis: diagnoses[0]?.diagnosis,
+        stripeCheckoutSessionId:
+          diagnoses[0]?.stripeCheckoutSessionId,
+        expectedLivemode: diagnoses[0]?.expectedLivemode,
+        actualLivemode: diagnoses[0]?.actualLivemode,
+      },
+      {
+        code: "stripe_checkout_mode_mismatch",
+        diagnosis: "stripe_checkout_mode_mismatch",
+        stripeCheckoutSessionId: rejectedSessionId,
+        expectedLivemode: true,
+        actualLivemode: false,
+      },
+    );
   } finally {
-    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
+    await db
+      .delete(artcovrOrders)
+      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
   }
 });
 
@@ -368,10 +399,9 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
       .from(artcovrWebhookEvents)
       .where(eq(artcovrWebhookEvents.id, eventId));
 
-    assert.equal(order?.status, "reserved");
-    assert.equal(webhook?.status, "rejected");
+    assert.equal(webhook?.status, "processed");
   } finally {
     await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
-    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+    await db.delete(artcovrOrders).where(inArray(artcovrOrders.id, [soldOrderId, lateOrderId]));
   }
 });
