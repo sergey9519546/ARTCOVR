@@ -562,6 +562,54 @@ function reconciliationReport(
   );
 }
 
+test("reconciliation CLI accepts and reports an order without a Stripe session ID", async () => {
+  const report = reconciliationReport([
+    {
+      id: "order_without_session",
+      artworkId: artwork.id,
+      status: "expired",
+      stripeCheckoutSessionId: null,
+      stripePaymentIntentId: null,
+    },
+  ]);
+  const output: string[] = [];
+  const diagnostics: string[] = [];
+
+  assert.deepEqual(report.historicalOrders, [
+    {
+      id: "order_without_session",
+      artworkId: artwork.id,
+      status: "expired",
+      stripeCheckoutSessionId: null,
+      stripePaymentIntentId: null,
+      checkoutSessionFound: false,
+      checkoutSessionDiagnosis: "missing_session_id",
+    },
+  ]);
+  assert.deepEqual(report.reconciliation.unmatchedCheckoutSessionOrderIds, []);
+  assert.deepEqual(report.reconciliation.staleTestDataOrderIds, []);
+  assert.deepEqual(report.reconciliation.unresolvedOrderIds, []);
+  assert.deepEqual(report.reconciliation.alerts, []);
+
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--reconcile-only"],
+    audit: async () => report,
+    log: (message) => output.push(message),
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 0);
+  assert.match(output[0] ?? "", /"id": "order_without_session"/);
+  assert.match(
+    output[0] ?? "",
+    /"checkoutSessionDiagnosis": "missing_session_id"/,
+  );
+  assert.doesNotMatch(
+    diagnostics.join("\n"),
+    /Stripe reconciliation (?:warning|ERROR|failed)/,
+  );
+});
+
 test("reconciliation CLI fails and diagnoses each unresolved order", async () => {
   const report = reconciliationReport([
     {
