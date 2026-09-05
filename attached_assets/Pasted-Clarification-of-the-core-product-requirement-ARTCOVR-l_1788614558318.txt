@@ -1,0 +1,26 @@
+Clarification of the core product requirement:
+
+ARTCOVR lets customers buy cover artwork and customize that artwork with high-end generative AI. Every generation MUST use the artwork they are currently working on as its primary image reference. This applies to every prompt, whether or not they upload a photo. Never generate a disconnected image from text alone.
+
+Customers must be able to:
+- Add, remove, or change objects, backgrounds, colors, clothing, and other visual elements.
+- Add their artist name and cover title with the exact requested spelling.
+- Upload a photo of themselves and have their face or full body placed naturally into the cover artwork, preserving their likeness and matching the scene’s lighting, perspective, and visual treatment.
+- Continue editing the latest result, or explicitly reset to the original purchased artwork.
+
+Correct the earlier “uploaded image is style-only” restriction. Uploaded photos must support identity/person insertion. Use the user's request to determine their purpose; do not indiscriminately blend the photo over the cover.
+
+The backend must send the actual current artwork image, the user's editing instructions, and any uploaded identity/reference photo to a capable image-editing model. Keep the artwork as the visual foundation while allowing substantial changes when explicitly requested. A photo upload supplements the mandatory artwork reference; it never replaces it.
+
+Implement this in the actual generation pipeline, replacing the prompt-hashed Sharp color-filter behavior. Inspect existing Replit integrations and credentials without exposing secrets. Select a model that supports image editing with multiple reference images and strong likeness preservation.
+
+Verify with real development-account generations:
+1. Edit an artwork using only a text instruction.
+2. Add an exact artist name and title.
+3. Insert an uploaded person into the artwork.
+4. Make another edit to that result while retaining the person.
+5. Reset to the original artwork.
+
+Add integration coverage proving that every model request includes the correct artwork image and that uploaded photos reach the model when supplied. Preserve purchase permissions, private storage, watermarking, allowances, and failure handling.
+
+Then complete the tests, synchronize the finished work to GitHub main without discarding changes, republish, and verify the deployed flow. Report actual results and any blockers.
