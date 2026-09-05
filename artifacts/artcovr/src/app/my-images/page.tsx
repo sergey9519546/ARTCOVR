@@ -23,6 +23,7 @@ export default function MyImagesPage() {
   const [state, setState] = useState<"loading" | "signed-out" | "ready" | "error">("loading");
   const [data, setData] = useState<AccountData>({
     totalCreditBalance: 0,
+    creditActivity: [],
     purchases: [],
     generations: [],
     downloads: [],
@@ -159,6 +160,32 @@ export default function MyImagesPage() {
           <span className="font-bold">{data.totalCreditBalance}</span>{" "}
           image-edit credit{data.totalCreditBalance === 1 ? "" : "s"} available across your purchases.
         </p>
+      )}
+      {state === "ready" && data.creditActivity.length > 0 && (
+        <section className="mb-16 border-t-2 border-current pt-5" aria-labelledby="credit-activity">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">Account history</p>
+              <h2 id="credit-activity" className="mt-2 text-3xl font-extrabold tracking-tight">Credit activity</h2>
+            </div>
+            <p className="text-sm text-[var(--muted-foreground)]">Changes across your purchases.</p>
+          </div>
+          <ol className="mt-6 divide-y divide-current/15 border-y border-current/15">
+            {data.creditActivity.map((activity, index) => (
+              <li key={`${activity.purchaseId}-${activity.occurredAt}-${activity.event}-${index}`} className="flex items-center justify-between gap-5 py-4 text-sm">
+                <div className="min-w-0">
+                  <p className="font-bold">{activity.label}</p>
+                  <p className="mt-1 truncate text-[var(--muted-foreground)]">
+                    {activity.artworkTitle} · <time dateTime={activity.occurredAt}>{formatDate(activity.occurredAt)}</time>
+                  </p>
+                </div>
+                <span className={`shrink-0 font-bold tabular-nums ${activity.amount > 0 ? "text-[var(--signal)] dark:text-[var(--muted-foreground)]" : ""}`}>
+                  {activity.amount > 0 ? "+" : ""}{activity.amount}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
       )}
       {state === "ready" && data.purchases.map((purchase) => {
         const purchaseGenerations = data.generations.filter((generation) => generation.purchaseId === purchase.id);
