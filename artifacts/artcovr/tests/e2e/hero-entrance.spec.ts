@@ -17,6 +17,32 @@ type IntroArtworkState = {
   collapsed: number;
 };
 
+type IntroCompositionState = {
+  stack: {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    width: number;
+    height: number;
+  };
+  wordmark: {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    width: number;
+    height: number;
+  };
+  counter: {
+    right: number;
+    top: number;
+    bottom: number;
+  };
+  overlapWidth: number;
+  overlapHeight: number;
+};
+
 async function readIntroArtworkCenterOffset(
   page: import("@playwright/test").Page,
 ) {
@@ -124,6 +150,63 @@ async function readIntroArtworkState(
   });
 }
 
+async function readIntroCompositionState(
+  page: import("@playwright/test").Page,
+): Promise<IntroCompositionState> {
+  return page.locator(".artcovr-intro-lockup").evaluate((lockup) => {
+    const stackRects = [...lockup.querySelectorAll(".artcovr-intro-stack img")]
+      .map((image) => image.getBoundingClientRect())
+      .filter((rect) => rect.width > 1 && rect.height > 1);
+    if (stackRects.length === 0) {
+      throw new Error("The intro artwork stack is not active");
+    }
+
+    const stack = {
+      left: Math.min(...stackRects.map((rect) => rect.left)),
+      right: Math.max(...stackRects.map((rect) => rect.right)),
+      top: Math.min(...stackRects.map((rect) => rect.top)),
+      bottom: Math.max(...stackRects.map((rect) => rect.bottom)),
+    };
+    const wordmarkRect = lockup
+      .querySelector<HTMLElement>(".artcovr-intro-wordmark")!
+      .getBoundingClientRect();
+    const counterRect = lockup
+      .querySelector<HTMLElement>(".artcovr-intro-counter")!
+      .getBoundingClientRect();
+
+    return {
+      stack: {
+        ...stack,
+        width: stack.right - stack.left,
+        height: stack.bottom - stack.top,
+      },
+      wordmark: {
+        left: wordmarkRect.left,
+        right: wordmarkRect.right,
+        top: wordmarkRect.top,
+        bottom: wordmarkRect.bottom,
+        width: wordmarkRect.width,
+        height: wordmarkRect.height,
+      },
+      counter: {
+        right: counterRect.right,
+        top: counterRect.top,
+        bottom: counterRect.bottom,
+      },
+      overlapWidth: Math.max(
+        0,
+        Math.min(stack.right, wordmarkRect.right) -
+          Math.max(stack.left, wordmarkRect.left),
+      ),
+      overlapHeight: Math.max(
+        0,
+        Math.min(stack.bottom, wordmarkRect.bottom) -
+          Math.max(stack.top, wordmarkRect.top),
+      ),
+    };
+  });
+}
+
 test("animated desktop stages the hero before the curtain opens, then reveals it without inline transform writes", async ({
   browser,
 }) => {
@@ -164,6 +247,99 @@ test("animated desktop stages the hero before the curtain opens, then reveals it
     expect((await readHeroState(page)).inlineTransformWrites).toEqual([]);
   } finally {
     await context.close();
+  }
+});
+
+test.describe("intro lockup composition", () => {
+  const viewports = [
+    {
+      name: "desktop",
+      viewport: { width: 1440, height: 1000 },
+      hasTouch: false,
+      isMobile: false,
+    },
+    {
+      name: "mobile",
+      viewport: { width: 402, height: 874 },
+      hasTouch: true,
+      isMobile: true,
+    },
+  ] as const;
+  const themes = ["light", "dark"] as const;
+
+  for (const theme of themes) {
+    for (const presentation of viewports) {
+      test(`${presentation.name} ${theme} keeps the active stack lockup composed`, async ({
+        browser,
+      }) => {
+        const context = await browser.newContext({
+          viewport: presentation.viewport,
+          colorScheme: theme,
+          hasTouch: presentation.hasTouch,
+          isMobile: presentation.isMobile,
+          reducedMotion: "no-preference",
+        });
+        await context.addInitScript((initialTheme) => {
+          (
+            window as Window & { __artcovrIntroVisualTest?: boolean }
+          ).__artcovrIntroVisualTest = true;
+          localStorage.setItem("theme", initialTheme);
+          document.documentElement.setAttribute("data-theme", initialTheme);
+        }, theme);
+        const page = await context.newPage();
+
+        try {
+          await page.goto("/", { waitUntil: "domcontentloaded" });
+          const preloader = page.locator("#artcovr-preloader");
+          await expect(preloader).toBeVisible();
+          await expect(preloader).toHaveAttribute(
+            "aria-label",
+            "Loading 52 percent",
+          );
+          await page.evaluate(() => document.fonts.ready);
+          await expect
+            .poll(async () => (await readIntroArtworkState(page)).rendered)
+            .toBe((await page.locator(".artcovr-intro-stack img").count()));
+
+          const composition = await readIntroCompositionState(page);
+          expect(
+            Math.abs(
+              (composition.stack.left + composition.stack.right) / 2 -
+                presentation.viewport.width / 2,
+            ),
+          ).toBeLessThanOrEqual(3);
+          expect(
+            Math.abs(
+              (composition.stack.top + composition.stack.bottom) / 2 -
+                presentation.viewport.height / 2,
+            ),
+          ).toBeLessThanOrEqual(3);
+          expect(composition.overlapWidth).toBeGreaterThan(
+            composition.wordmark.width * 0.5,
+          );
+          expect(composition.overlapHeight).toBeGreaterThan(
+            composition.wordmark.height * 0.8,
+          );
+          expect(composition.counter.bottom).toBeLessThanOrEqual(
+            composition.wordmark.top + 1,
+          );
+          expect(
+            Math.abs(composition.counter.right - composition.wordmark.right),
+          ).toBeLessThanOrEqual(2);
+
+          await expect(preloader).toHaveScreenshot(
+            `intro-lockup-${presentation.name}-${theme}.png`,
+            {
+              animations: "disabled",
+              caret: "hide",
+              scale: "css",
+            },
+          );
+        } finally {
+          await context.close();
+        }
+      });
+    }
   }
 });
 

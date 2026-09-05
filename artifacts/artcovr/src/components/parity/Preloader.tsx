@@ -43,10 +43,16 @@ type PreloaderProps = {
 
 export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
   const staticPresentation = window.matchMedia(PRELOADER_STATIC_MEDIA_QUERY).matches;
+  const visualTestPresentation =
+    import.meta.env.DEV &&
+    (window as Window & { __artcovrIntroVisualTest?: boolean })
+      .__artcovrIntroVisualTest === true;
   const [visibleImages, setVisibleImages] = useState(
-    staticPresentation ? PRELOADER_IMAGES.length : 0,
+    staticPresentation || visualTestPresentation ? PRELOADER_IMAGES.length : 0,
   );
-  const [counter, setCounter] = useState(staticPresentation ? 100 : 0);
+  const [counter, setCounter] = useState(
+    staticPresentation ? 100 : visualTestPresentation ? 52 : 0,
+  );
   const [exited, setExited] = useState(staticPresentation);
   const [dismissed, setDismissed] = useState(staticPresentation);
   const onExitStartRef = useRef(onExitStart);
@@ -62,6 +68,11 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
 
   useEffect(() => {
     document.documentElement.classList.add("ready");
+    if (visualTestPresentation) {
+      setVisibleImages(PRELOADER_IMAGES.length);
+      setCounter(52);
+      return;
+    }
     if (staticPresentation) {
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
@@ -136,7 +147,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
       aria-live={exited ? undefined : "polite"}
       aria-label={exited ? undefined : `Loading ${counter} percent`}
     >
-      <div className="relative">
+      <div className="artcovr-intro-lockup relative">
         {/*
          * The archive intro stacks every cover on the exact same centre point,
          * each one rotated and punched in from scale 0. The cards must not be
@@ -148,7 +159,10 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
          * blue cover. The build punch-in is untouched — only `exited` reads
          * here, and it stays false until the counter reaches 100.
          */}
-        <div className="fixed inset-0 flex items-center justify-center" style={{ contain: "layout paint style" }}>
+        <div
+          className="artcovr-intro-stack fixed inset-0 flex items-center justify-center"
+          style={{ contain: "layout paint style" }}
+        >
           {PRELOADER_IMAGES.map((artwork, index) => {
             const visible = index < visibleImages;
             const shown = visible && !exited;
@@ -177,7 +191,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
         </div>
         <div
           aria-hidden="true"
-          className="artcovr-wordmark text-cream relative mx-auto w-fit max-w-[88vw] overflow-visible text-center text-[clamp(2.8rem,9vw,8.5rem)] mix-blend-difference"
+          className="artcovr-wordmark artcovr-intro-wordmark text-cream relative mx-auto w-fit max-w-[88vw] overflow-visible text-center text-[clamp(2.8rem,9vw,8.5rem)] mix-blend-difference"
           style={{
             zIndex: 50,
             opacity: exited ? 0 : 1,
@@ -186,7 +200,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
         >
           ARTCOVR
         </div>
-        <div className="absolute -top-10 right-0 overflow-hidden text-2xl mix-blend-difference">
+        <div className="artcovr-intro-counter absolute -top-10 right-0 overflow-hidden text-2xl mix-blend-difference">
           <span className="text-cream block text-right">{String(counter).padStart(3, "0")}</span>
         </div>
       </div>
