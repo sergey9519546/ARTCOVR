@@ -2,7 +2,7 @@
 
 import Link from "@/components/compat/Link";
 import { useLocation } from "wouter";
-import { useAuth, useClerk } from "@clerk/react";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import { useEffect, useState } from "react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 
@@ -16,8 +16,7 @@ export function Header({
    const [pathname] = useLocation();
 const archiveSelected = pathname === "/archive" || pathname.startsWith("/product/");
    const accountSelected = pathname === "/my-images";
-    const { isLoaded, isSignedIn } = useAuth();
-    const { signOut } = useClerk();
+    const { isLoaded, isSignedIn, signOut } = useArtcovrAuth();
     const [showBrand, setShowBrand] = useState(false);
 
     useEffect(() => {
@@ -42,11 +41,11 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
      >
        <div className="mx-auto flex w-full items-center justify-between px-4 py-6 lg:px-6 lg:py-8">
           <Link
-            className={`artcovr-wordmark artcovr-wordmark-optical mr-2 inline-flex min-h-11 items-center text-2xl transition-[opacity,visibility] duration-300 lg:mr-6 ${showBrand ? "visible opacity-100" : "pointer-events-none invisible opacity-0"}`}
-            href="/"
-            aria-label="ARTCOVR home"
-            aria-hidden={!showBrand}
-            tabIndex={showBrand ? undefined : -1}
+             className={`artcovr-wordmark artcovr-wordmark-optical mr-2 inline-flex min-h-11 items-center text-2xl transition-[opacity,visibility] duration-300 lg:mr-6 ${showBrand ? "visible opacity-100" : "pointer-events-none invisible opacity-0"}`}
+             href="/"
+             aria-label="ARTCOVR home"
+             aria-hidden={!showBrand}
+             tabIndex={showBrand ? undefined : -1}
           >
            ARTCOVR
          </Link>
@@ -66,7 +65,7 @@ const archiveSelected = pathname === "/archive" || pathname.startsWith("/product
                  aria-expanded={menuOpen}
                  aria-controls="mobile-menu"
                >
-                 {menuOpen ? "Close" : "Menu"}
+                  {menuOpen ? "Close" : "menu"}
                </button>
              </li>
            </ul>

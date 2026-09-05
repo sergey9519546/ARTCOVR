@@ -2,59 +2,57 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>ARTCOVR — Cover art, made yours</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- ARTCOVR_ROUTE_META_START -->
+    <title>ARTCOVR | Curated Cover Art</title>
     <meta name="description" content="ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing." />
     <meta name="robots" content="index, follow" />
-    <meta property="og:title" content="ARTCOVR — Cover art, made yours" />
+    <meta property="og:title" content="ARTCOVR | Curated Cover Art" />
     <meta property="og:description" content="ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ARTCOVR" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://artcovr.com/" />
     <meta property="og:image" content="https://artcovr.com/og-image.png" />
     <meta property="og:image:alt" content="ARTCOVR curated cover art" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="ARTCOVR — Cover art, made yours" />
+    <meta name="twitter:title" content="ARTCOVR | Curated Cover Art" />
     <meta name="twitter:description" content="ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing." />
     <meta name="twitter:image" content="https://artcovr.com/og-image.png" />
     <meta name="twitter:image:alt" content="ARTCOVR curated cover art" />
     <link rel="canonical" href="https://artcovr.com/" />
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "Organization",
-            "@id": "https://artcovr.com/#organization",
-            "name": "ARTCOVR",
-            "url": "https://artcovr.com/",
-            "logo": "https://artcovr.com/icon-512.png",
-            "description": "ARTCOVR is a storefront for owner-approved cover artwork with commercial licensing and prompt-based image editing."
-          },
-          {
-            "@type": "WebSite",
-            "@id": "https://artcovr.com/#website",
-            "name": "ARTCOVR",
-            "url": "https://artcovr.com/",
-            "publisher": { "@id": "https://artcovr.com/#organization" },
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": "https://artcovr.com/archive?query={search_term_string}",
-              "query-input": "required name=search_term_string"
-            }
-          }
-        ]
+    <!-- ARTCOVR_ROUTE_META_END -->
+    <!-- Keep the pre-React paint on the same surface as the intro curtain. -->
+    <style>
+      html,
+      body {
+        background: #f3ecd9;
       }
+    </style>
+    <!-- ARTCOVR_ROUTE_STRUCTURED_DATA_START -->
+    <script type="application/ld+json" data-artcovr-static-structured-data="true">
+      {"@context":"https://schema.org","@type":"WebSite","name":"ARTCOVR","url":"https://artcovr.com/"}
     </script>
+    <!-- ARTCOVR_ROUTE_STRUCTURED_DATA_END -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="%BASE_URL%manifest.json" />
+    <link rel="apple-touch-icon" href="%BASE_URL%apple-touch-icon.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- No-JavaScript crawlers get a semantic homepage without affecting the React preloader frame. -->
+    <!-- ARTCOVR_HOME_NOSCRIPT_START -->
+    <noscript>
+      <h1>Curated cover art for music releases and artists.</h1>
+      <p>ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing.</p>
+      <p><a href="/archive">Browse the cover art archive</a> · <a href="/license">Read the commercial license</a></p>
+    </noscript>
+    <!-- ARTCOVR_HOME_NOSCRIPT_END -->
+    <div id="root">
+      <!-- ARTCOVR_STATIC_CONTENT_START -->
+      <!-- ARTCOVR_STATIC_CONTENT_END -->
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

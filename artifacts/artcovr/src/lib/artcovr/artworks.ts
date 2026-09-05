@@ -365,6 +365,19 @@ export function getCheckoutTotal(priceCents: number | null) {
       }).format(priceCents / 100);
 }
 
+export function getArtworkLicenseLabel(artwork: Artwork) {
+  if (!isCheckoutReady(artwork)) return "Pending owner approval";
+  return artwork.saleMode === "exclusive"
+    ? "Exclusive commercial license"
+    : "Non-exclusive commercial license";
+}
+
+export function getArtworkPriceLabel(artwork: Artwork) {
+  return isCheckoutReady(artwork)
+    ? getCheckoutTotal(artwork.priceCents)
+    : "Price pending owner approval";
+}
+
 export function isPromptReady(prompt: string) {
   return prompt.trim().length >= 8;
 }

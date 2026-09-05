@@ -143,6 +143,19 @@ test("searching a displayed genre finds the filtered artwork", async ({
   ).toHaveCount(1);
 });
 
+test("empty archive results explain how to recover", async ({ page }) => {
+  await page.goto("/archive");
+  await page.locator("#archive-search").fill("no-match-for-this-catalog");
+
+  const empty = page.getByRole("region", { name: "No matching artwork" });
+  await expect(empty).toBeVisible();
+  await expect(empty).toContainText("No works match those filters.");
+  await expect(empty.getByRole("button", { name: "Clear filters" })).toBeVisible();
+
+  await empty.getByRole("button", { name: "Clear filters" }).click();
+  await expect(catalogStatus(page)).toHaveText(`${ARCHIVE_TOTAL} / ${ARCHIVE_TOTAL} works`);
+});
+
 test("archive search and facets restore from the URL", async ({ page }) => {
   await page.goto("/archive");
   const genreChoice = choices(facet(page, "genre")).first();
@@ -157,6 +170,138 @@ test("archive search and facets restore from the URL", async ({ page }) => {
   await expect(catalogStatus(page)).toHaveText(`${filteredCount} / ${ARCHIVE_TOTAL} works`);
   await expect(page.locator(`[data-facet="genre"] button[aria-pressed="true"]`)).toHaveAttribute("aria-pressed", "true");
   await expect(page.url()).toContain("genre=");
+});
+
+test("homepage journey survives repeated reloads and route transitions", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+
+  const journeyErrors: string[] = [];
+  const recordJourneyError = (message: string) => {
+    if (/removeChild|Invalid hook call/i.test(message)) {
+      journeyErrors.push(message);
+    }
+  };
+
+  page.on("console", (message) => recordJourneyError(message.text()));
+  page.on("pageerror", (error) => recordJourneyError(error.message));
+
+  for (let cycle = 0; cycle < 2; cycle += 1) {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+      timeout: 8_000,
+    });
+    await expect(
+      page.locator('[aria-label="ARTCOVR archive journey"]'),
+    ).toHaveCount(1);
+    await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+    await page.locator("#hero-link").click();
+    await expect(page).toHaveURL(/\/archive$/);
+    await expect(
+      page.locator('[aria-label="ARTCOVR archive journey"]'),
+    ).toHaveCount(1);
+    await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+    await page.locator('a[aria-label="ARTCOVR home"]').click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+      timeout: 8_000,
+    });
+    await expect(page.locator(".pin-spacer")).toHaveCount(1);
+  }
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+    timeout: 8_000,
+  });
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+  expect(journeyErrors).toEqual([]);
+});
+
+test("archive journey recovers after browser back and forward navigation", async ({
+  page,
+}) => {
+  const journeyErrors: string[] = [];
+  const recordJourneyError = (message: string) => {
+    if (/removeChild|Invalid hook call/i.test(message)) {
+      journeyErrors.push(message);
+    }
+  };
+
+  page.on("console", (message) => recordJourneyError(message.text()));
+  page.on("pageerror", (error) => recordJourneyError(error.message));
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+    timeout: 8_000,
+  });
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  await page.locator("#hero-link").click();
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  await page.goForward();
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  expect(journeyErrors).toEqual([]);
+});
+
+test("archive journey recovers after viewing an artwork", async ({ page }) => {
+  const journeyErrors: string[] = [];
+  const recordJourneyError = (message: string) => {
+    if (/removeChild|Invalid hook call/i.test(message)) {
+      journeyErrors.push(message);
+    }
+  };
+
+  page.on("console", (message) => recordJourneyError(message.text()));
+  page.on("pageerror", (error) => recordJourneyError(error.message));
+
+  await page.goto("/archive", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  const artworkLink = page
+    .locator('section[aria-label="Artwork archive"] article a')
+    .first();
+  await expect(artworkLink).toHaveAttribute("href", /\/product\/.+/);
+  await artworkLink.click();
+  await expect(page).toHaveURL(/\/product\/[^/]+$/);
+  await expect(page.locator("main h1")).toBeVisible();
+
+  await page
+    .getByRole("navigation", { name: "Breadcrumb" })
+    .getByRole("link", { name: "Archive", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(
+    page.locator('[aria-label="ARTCOVR archive journey"]'),
+  ).toHaveCount(1);
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+
+  expect(journeyErrors).toEqual([]);
 });
 
 test("curation workspace redirects signed-out visitors to sign in", async ({ page }) => {

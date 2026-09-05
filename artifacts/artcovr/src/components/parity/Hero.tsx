@@ -43,9 +43,6 @@ export function Hero() {
               >
                 Commercial license
               </Link>
-              <p className="mt-4 text-[11px] font-bold uppercase tracking-[.12em] opacity-60">
-                Secure Stripe checkout · Commercial license included · 30-day download access
-              </p>
             </div>
           </div>
           <div className="col-span-5 flex justify-end md:col-span-1" id="hero-copyright">© 2026</div>

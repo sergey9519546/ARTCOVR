@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { createServer } from "node:http";
 import test from "node:test";
+import express from "express";
 import type Stripe from "stripe";
 import { and, eq, inArray } from "drizzle-orm";
 import {
@@ -16,7 +18,12 @@ import {
   expireStaleExclusiveReservations,
   fulfillCheckoutSession,
 } from "./commerceService";
-import { checkoutReturnUrls } from "./routes/commerce";
+import {
+  checkoutReturnUrls,
+  createCheckoutHandler,
+} from "./routes/commerce";
+import { getPublicCatalog } from "./catalog";
+import { StripeCheckoutModeError } from "./stripeClient";
 
 function orderValues(input: {
   id: string;
@@ -70,9 +77,118 @@ test("checkout return URLs use the configured public origin, never a forwarded h
   assert.equal(urls.successUrl.includes("forwarded"), false);
 });
 
+test("a checkout mode mismatch preserves an expired, unpaid order and emits a diagnosis", async (context) => {
+  const previousOrigin = process.env.ARTCOVR_PUBLIC_ORIGIN;
+  process.env.ARTCOVR_PUBLIC_ORIGIN = "https://artcovr.example";
+  context.after(() => {
+    if (previousOrigin === undefined) delete process.env.ARTCOVR_PUBLIC_ORIGIN;
+    else process.env.ARTCOVR_PUBLIC_ORIGIN = previousOrigin;
+  });
+  const artwork = getPublicCatalog().find(
+    (candidate) => candidate.saleMode === "repeatable",
+  );
+  assert.ok(artwork);
+  const idempotencyKey = randomUUID();
+  const rejectedSessionId = `cs_test_rejected_${idempotencyKey}`;
+  const diagnoses: Array<Record<string, unknown>> = [];
+  const testApp = express();
+  testApp.use(express.json());
+  testApp.use((req, _res, next) => {
+    const auth = Object.assign(
+      () => ({ userId: null, tokenType: "session_token" }),
+      { [Symbol.for("@clerk/express.auth")]: true },
+    );
+    (req as unknown as { auth: typeof auth }).auth = auth;
+    next();
+  });
+  testApp.post(
+    "/checkout",
+    createCheckoutHandler({
+      getStripePriceForArtwork: async () =>
+        ({ id: "price_test_mode_guard" }) as Stripe.Price,
+      retrieveCheckoutSession: async () => {
+        throw new Error("A new checkout must not retrieve an existing session.");
+      },
+      createCheckoutSession: async () => {
+        throw new StripeCheckoutModeError(
+          { id: rejectedSessionId, livemode: false },
+          true,
+        );
+      },
+      logCheckoutFailure: (details) => diagnoses.push(details),
+    }),
+  );
+  const server = createServer(testApp);
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  if (!address || typeof address === "string") {
+    server.close();
+    throw new Error("The checkout test server did not expose a TCP address.");
+  }
+
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:${address.port}/checkout`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          artworkId: artwork.id,
+          email: "mode-mismatch@example.test",
+          idempotencyKey,
+        }),
+      },
+    );
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), {
+      code: "stripe_checkout_mode_mismatch",
+      message: "Stripe could not open checkout. Please try again.",
+    });
+
+    const [order] = await db
+      .select({
+        status: artcovrOrders.status,
+        stripeCheckoutSessionId: artcovrOrders.stripeCheckoutSessionId,
+        stripePaymentIntentId: artcovrOrders.stripePaymentIntentId,
+        paidAt: artcovrOrders.paidAt,
+      })
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
+    assert.equal(order?.status, "expired");
+    assert.equal(order?.stripeCheckoutSessionId, null);
+    assert.equal(order?.stripePaymentIntentId, null);
+    assert.equal(order?.paidAt, null);
+    assert.equal(diagnoses.length, 1);
+    assert.deepEqual(
+      {
+        code: diagnoses[0]?.code,
+        diagnosis: diagnoses[0]?.diagnosis,
+        stripeCheckoutSessionId:
+          diagnoses[0]?.stripeCheckoutSessionId,
+        expectedLivemode: diagnoses[0]?.expectedLivemode,
+        actualLivemode: diagnoses[0]?.actualLivemode,
+      },
+      {
+        code: "stripe_checkout_mode_mismatch",
+        diagnosis: "stripe_checkout_mode_mismatch",
+        stripeCheckoutSessionId: rejectedSessionId,
+        expectedLivemode: true,
+        actualLivemode: false,
+      },
+    );
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
+    await db
+      .delete(artcovrOrders)
+      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey));
+  }
+});
+
 test("simultaneous exclusive reservations create only one active order", async () => {
   const suffix = randomUUID();
-  const artworkId = `concurrent-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
   const orderIds = [`order-a-${suffix}`, `order-b-${suffix}`];
 
   try {
@@ -102,8 +218,8 @@ test("simultaneous exclusive reservations create only one active order", async (
 
 test("guest purchases claim only for a matching verified email and move credits once", async () => {
   const suffix = randomUUID();
-  const artworkId = `guest-claim-${suffix}`;
-  const orderId = `order-guest-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
+  const orderId = `order-test-mismatch-${suffix}`;
   const ledgerId = `credit-guest-${suffix}`;
   const sourceId = `checkout:guest-${suffix}`;
   const buyerEmail = "buyer@example.test";
@@ -182,8 +298,8 @@ test("guest purchases claim only for a matching verified email and move credits 
 
 test("expired exclusive reservations are released before a new checkout", async () => {
   const suffix = randomUUID();
-  const artworkId = `expired-${suffix}`;
-  const orderId = `order-expired-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
+  const orderId = `order-test-mismatch-${suffix}`;
 
   try {
     await db.insert(artcovrOrders).values(
@@ -210,12 +326,12 @@ test("expired exclusive reservations are released before a new checkout", async 
 
 test("a late conflicting exclusive payment is automatically refunded", async () => {
   const suffix = randomUUID();
-  const artworkId = `paid-conflict-${suffix}`;
+  const artworkId = `test-mismatch-${suffix}`;
   const soldOrderId = `order-sold-${suffix}`;
   const lateOrderId = `order-late-${suffix}`;
-  const sessionId = `cs_${suffix}`;
+  const sessionId = `cs_live_${suffix}`;
   const paymentIntentId = `pi_${suffix}`;
-  const eventId = `evt_${suffix}`;
+  const eventId = `evt_live_${suffix}`;
   const refundId = `re_${suffix}`;
   let refundCalls = 0;
 
@@ -240,10 +356,12 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
 
     const event = {
       id: eventId,
+      livemode: false,
       type: "checkout.session.completed",
       data: {
         object: {
           id: sessionId,
+          livemode: false,
           payment_status: "paid",
           payment_intent: paymentIntentId,
           customer: "cus_test",
@@ -259,6 +377,11 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
         assert.equal(input.orderId, lateOrderId);
         assert.equal(idempotencyKey, `exclusive-conflict:${lateOrderId}`);
         return { id: refundId } as Stripe.Refund;
+      },
+    });
+    await fulfillCheckoutSession(event, {
+      refundPaymentIntent: async () => {
+        throw new Error("duplicate webhook must not refund twice");
       },
     });
 
@@ -281,21 +404,10 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
       .select({ status: artcovrWebhookEvents.status })
       .from(artcovrWebhookEvents)
       .where(eq(artcovrWebhookEvents.id, eventId));
+
     assert.equal(webhook?.status, "processed");
   } finally {
-    await db
-      .delete(artcovrCreditLedger)
-      .where(eq(artcovrCreditLedger.orderId, lateOrderId));
-    await db
-      .delete(artcovrWebhookEvents)
-      .where(eq(artcovrWebhookEvents.id, eventId));
-    await db
-      .delete(artcovrOrders)
-      .where(
-        and(
-          eq(artcovrOrders.artworkId, artworkId),
-          inArray(artcovrOrders.id, [soldOrderId, lateOrderId]),
-        ),
-      );
+    await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
+    await db.delete(artcovrOrders).where(inArray(artcovrOrders.id, [soldOrderId, lateOrderId]));
   }
 });

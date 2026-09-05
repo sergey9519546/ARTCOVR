@@ -34,6 +34,9 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/artcovr_test
       PORT: 45180
       BASE_PATH: /
+      VITE_SITE_URL: https://artcovr.com
+      # Public build-only fixture; CI does not publish this bundle.
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ vars.VITE_CLERK_PUBLISHABLE_KEY || 'pk_live_Y2xlcmsuYXJ0Y292ci5leGFtcGxlJA' }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -42,17 +45,25 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # This service is disposable; never use a production URL for schema push.
-      - name: Create current workspace test schema
-        run: pnpm --filter @workspace/db run push
+      - name: Apply versioned migrations to disposable PostgreSQL
+        run: pnpm run db:migrate
       - name: Contracts, commerce, types, and production builds
         run: pnpm run verify:ci
+      - name: Verify current database contract
+        run: pnpm run verify:database
+      - name: Test verifier and legacy baseline classifications
+        env:
+          TEST_DATABASE_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+        run: pnpm run test:database && pnpm run test:database:baseline
+      - name: Verify Replit deployment routing contract
+        run: pnpm --filter @workspace/scripts run verify:runtime-contract
       - name: Retained Supabase migration regression gate
         env:
           PGHOST: 127.0.0.1
           PGPORT: 5432
           PGUSER: postgres
           PGPASSWORD: postgres
+        working-directory: .migration-backup
         run: bash scripts/db/verify-database.sh
 
   # Replit owns Clerk keys and deployment. This checks the deployed product,
@@ -73,7 +84,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @workspace/artcovr exec playwright install --with-deps chromium
       - name: Read-only browser journeys against the Replit deployment
-        run: pnpm run test:e2e
+        run: pnpm --filter @workspace/artcovr exec playwright test auth.spec.ts catalog-filters.spec.ts routes-and-navigation.spec.ts seo-head-navigation.spec.ts
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

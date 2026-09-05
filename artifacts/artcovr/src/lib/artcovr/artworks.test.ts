@@ -7,7 +7,9 @@ import {
   displayArtworks,
   featuredArtworks,
   getArtworkBySlug,
+  getArtworkLicenseLabel,
   getCheckoutTotal,
+  getArtworkPriceLabel,
   getArtworkDiscoveryKeywords,
   getRelatedArtworks,
   isCheckoutReady,
@@ -167,5 +169,7 @@ describe("artwork helpers", () => {
     const artwork = reviewCatalog[0];
     assert.ok(artwork);
     assert.equal(isCheckoutReady(artwork), false);
+    assert.equal(getArtworkLicenseLabel(artwork), "Pending owner approval");
+    assert.equal(getArtworkPriceLabel(artwork), "Price pending owner approval");
   });
 });

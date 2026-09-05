@@ -19,6 +19,44 @@ export class StripeProxyError extends Error {
   }
 }
 
+export function expectedStripeLivemode(
+  env: Record<string, string | undefined> = process.env,
+) {
+  return env.NODE_ENV === "production";
+}
+
+export class StripeCheckoutModeError extends Error {
+  readonly code = "stripe_checkout_mode_mismatch";
+  readonly sessionId: string;
+  readonly expectedLivemode: boolean;
+  readonly actualLivemode: boolean;
+
+  constructor(
+    session: Pick<Stripe.Checkout.Session, "id" | "livemode">,
+    expectedLivemode: boolean,
+  ) {
+    const expectedMode = expectedLivemode ? "live" : "test";
+    const actualMode = session.livemode ? "live" : "test";
+    super(
+      `Stripe checkout session ${session.id} is in ${actualMode} mode; expected ${expectedMode} mode.`,
+    );
+    this.name = "StripeCheckoutModeError";
+    this.sessionId = session.id;
+    this.expectedLivemode = expectedLivemode;
+    this.actualLivemode = session.livemode;
+  }
+}
+
+export function validateCheckoutSessionMode(
+  session: Stripe.Checkout.Session,
+  expectedLivemode = expectedStripeLivemode(),
+) {
+  if (session.livemode !== expectedLivemode) {
+    throw new StripeCheckoutModeError(session, expectedLivemode);
+  }
+  return session;
+}
+
 async function stripeRequest<T>(
   path: string,
   options: StripeRequestOptions = {},
@@ -52,12 +90,17 @@ async function stripeRequest<T>(
   return payload;
 }
 
-export async function listStripeProducts() {
+export async function listStripeProducts(
+  options: { active?: boolean } = { active: true },
+) {
   const products: Stripe.Product[] = [];
   let startingAfter: string | undefined;
 
   do {
-    const search = new URLSearchParams({ active: "true", limit: "100" });
+    const search = new URLSearchParams({ limit: "100" });
+    if (options.active !== undefined) {
+      search.set("active", String(options.active));
+    }
     if (startingAfter) search.set("starting_after", startingAfter);
     const page = await stripeRequest<Stripe.ApiList<Stripe.Product>>(
       `/v1/products?${search.toString()}`,
@@ -72,11 +115,14 @@ export async function listStripeProducts() {
   return products;
 }
 
-export async function createStripeProduct(input: {
-  name: string;
-  description: string;
-  metadata: Record<string, string>;
-}) {
+export async function createStripeProduct(
+  input: {
+    name: string;
+    description: string;
+    metadata: Record<string, string>;
+  },
+  idempotencyKey?: string,
+) {
   const form = new URLSearchParams({
     name: input.name,
     description: input.description,
@@ -87,41 +133,142 @@ export async function createStripeProduct(input: {
   return stripeRequest<Stripe.Product>("/v1/products", {
     method: "POST",
     form,
+    idempotencyKey,
   });
 }
 
 export async function updateStripeProduct(
   productId: string,
-  input: { defaultPrice: string },
+  input: { defaultPrice?: string | null; active?: boolean },
+  idempotencyKey?: string,
 ) {
+  const form = new URLSearchParams();
+  if (input.defaultPrice !== undefined) {
+    // Stripe uses an empty value to remove a product's default price.
+    form.set("default_price", input.defaultPrice ?? "");
+  }
+  if (input.active !== undefined) form.set("active", String(input.active));
   return stripeRequest<Stripe.Product>(
     `/v1/products/${encodeURIComponent(productId)}`,
     {
       method: "POST",
-      form: new URLSearchParams({ default_price: input.defaultPrice }),
+      form,
+      idempotencyKey,
     },
   );
 }
 
-export async function listStripePrices(productId: string) {
-  const query = new URLSearchParams({
-    product: productId,
-    active: "true",
+export async function listStripePrices(
+  productId: string,
+  options: { active?: boolean; type?: "one_time" } = {
+    active: true,
     type: "one_time",
-    limit: "100",
-  });
-  const page = await stripeRequest<Stripe.ApiList<Stripe.Price>>(
-    `/v1/prices?${query.toString()}`,
-  );
-  return page.data;
+  },
+) {
+  const prices: Stripe.Price[] = [];
+  let startingAfter: string | undefined;
+
+  do {
+    const query = new URLSearchParams({ product: productId, limit: "100" });
+    if (options.active !== undefined) {
+      query.set("active", String(options.active));
+    }
+    if (options.type) query.set("type", options.type);
+    if (startingAfter) query.set("starting_after", startingAfter);
+    const page = await stripeRequest<Stripe.ApiList<Stripe.Price>>(
+      `/v1/prices?${query.toString()}`,
+    );
+    prices.push(...page.data);
+    startingAfter =
+      page.has_more && page.data.length
+        ? page.data[page.data.length - 1]?.id
+        : undefined;
+  } while (startingAfter);
+
+  return prices;
 }
 
-export async function createStripePrice(input: {
-  productId: string;
-  amountCents: number;
-  currency: string;
-  metadata: Record<string, string>;
-}) {
+export async function deactivateStripeProduct(
+  productId: string,
+  idempotencyKey?: string,
+) {
+  return updateStripeProduct(productId, { active: false }, idempotencyKey);
+}
+
+export async function deactivateStripePrice(
+  priceId: string,
+  idempotencyKey?: string,
+) {
+  return stripeRequest<Stripe.Price>(
+    `/v1/prices/${encodeURIComponent(priceId)}`,
+    {
+      method: "POST",
+      form: new URLSearchParams({ active: "false" }),
+      idempotencyKey,
+    },
+  );
+}
+
+function appendExpand(search: URLSearchParams, value: string) {
+  search.append("expand[]", value);
+}
+
+export async function listStripeCheckoutSessions(
+  requestPage: (
+    path: string,
+  ) => Promise<Stripe.ApiList<Stripe.Checkout.Session>> = (path) =>
+    stripeRequest<Stripe.ApiList<Stripe.Checkout.Session>>(path),
+) {
+  const sessions: Stripe.Checkout.Session[] = [];
+  let startingAfter: string | undefined;
+
+  do {
+    const search = new URLSearchParams({ limit: "100" });
+    appendExpand(search, "data.line_items.data.price");
+    if (startingAfter) search.set("starting_after", startingAfter);
+    const page = await requestPage(
+      `/v1/checkout/sessions?${search.toString()}`,
+    );
+    sessions.push(...page.data);
+    startingAfter =
+      page.has_more && page.data.length
+        ? page.data[page.data.length - 1]?.id
+        : undefined;
+  } while (startingAfter);
+
+  return sessions;
+}
+
+export async function listStripePaymentLinks() {
+  const paymentLinks: Stripe.PaymentLink[] = [];
+  let startingAfter: string | undefined;
+
+  do {
+    const search = new URLSearchParams({ limit: "100" });
+    appendExpand(search, "data.line_items.data.price");
+    if (startingAfter) search.set("starting_after", startingAfter);
+    const page = await stripeRequest<Stripe.ApiList<Stripe.PaymentLink>>(
+      `/v1/payment_links?${search.toString()}`,
+    );
+    paymentLinks.push(...page.data);
+    startingAfter =
+      page.has_more && page.data.length
+        ? page.data[page.data.length - 1]?.id
+        : undefined;
+  } while (startingAfter);
+
+  return paymentLinks;
+}
+
+export async function createStripePrice(
+  input: {
+    productId: string;
+    amountCents: number;
+    currency: string;
+    metadata: Record<string, string>;
+  },
+  idempotencyKey?: string,
+) {
   const form = new URLSearchParams({
     product: input.productId,
     unit_amount: String(input.amountCents),
@@ -133,6 +280,7 @@ export async function createStripePrice(input: {
   return stripeRequest<Stripe.Price>("/v1/prices", {
     method: "POST",
     form,
+    idempotencyKey,
   });
 }
 
@@ -171,11 +319,15 @@ export async function createCheckoutSession(
   for (const [key, value] of Object.entries(input.metadata)) {
     form.set(`metadata[${key}]`, value);
   }
-  return stripeRequest<Stripe.Checkout.Session>("/v1/checkout/sessions", {
-    method: "POST",
-    form,
-    idempotencyKey,
-  });
+  const session = await stripeRequest<Stripe.Checkout.Session>(
+    "/v1/checkout/sessions",
+    {
+      method: "POST",
+      form,
+      idempotencyKey,
+    },
+  );
+  return validateCheckoutSessionMode(session);
 }
 
 export async function refundPaymentIntent(
@@ -207,15 +359,34 @@ export async function ensureStripeWebhook(url: string) {
   const page = await stripeRequest<Stripe.ApiList<Stripe.WebhookEndpoint>>(
     "/v1/webhook_endpoints?limit=100",
   );
-  if (page.data.some((endpoint) => endpoint.url === url && endpoint.status === "enabled")) {
+  const requiredEvents = [
+    "checkout.session.completed",
+    "checkout.session.async_payment_succeeded",
+    "checkout.session.expired",
+  ] as const;
+  const existing = page.data.find(
+    (endpoint) => endpoint.url === url && endpoint.status === "enabled",
+  );
+  if (
+    existing &&
+    (existing.enabled_events.includes("*") ||
+      requiredEvents.every((event) => existing.enabled_events.includes(event)))
+  ) {
     return;
   }
 
-  const form = new URLSearchParams({ url });
-  form.append("enabled_events[]", "checkout.session.completed");
-  form.append("enabled_events[]", "checkout.session.async_payment_succeeded");
-  await stripeRequest<Stripe.WebhookEndpoint>("/v1/webhook_endpoints", {
-    method: "POST",
-    form,
-  });
+  const form = new URLSearchParams();
+  if (!existing) form.set("url", url);
+  for (const event of requiredEvents) {
+    form.append("enabled_events[]", event);
+  }
+  await stripeRequest<Stripe.WebhookEndpoint>(
+    existing
+      ? `/v1/webhook_endpoints/${encodeURIComponent(existing.id)}`
+      : "/v1/webhook_endpoints",
+    {
+      method: "POST",
+      form,
+    },
+  );
 }

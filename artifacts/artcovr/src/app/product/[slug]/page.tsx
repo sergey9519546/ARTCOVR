@@ -8,14 +8,17 @@ import { SiteHeader } from "@/components/artcovr/SiteHeader";
 import {
   displayArtworks,
   getArtworkBySlug,
+  getArtworkLicenseLabel,
+  getArtworkPriceLabel,
   displayGenreLabel,
-  getCheckoutTotal,
   getArtworkGenres,
   getRelatedArtworks,
   isCheckoutReady,
 } from "@/lib/artcovr/artworks";
 import {
   buildArtworkStructuredData,
+  buildOrganizationStructuredData,
+  combineStructuredData,
   serializeJsonLd,
 } from "@/lib/artcovr/seo";
 import {
@@ -38,13 +41,12 @@ export default function ProductPage() {
     ...art.moodTags,
     ...getVisualKeywords(art.slug).map(displayVisualLabel),
   ])];
-  const jsonLd = buildArtworkStructuredData({ ...art, genres });
+  const jsonLd = combineStructuredData(
+    buildOrganizationStructuredData(),
+    buildArtworkStructuredData({ ...art, genres }),
+  );
   const checkoutReady = isCheckoutReady(art);
-  const licenseMode = art.saleMode === "exclusive"
-    ? "Exclusive commercial license"
-    : art.saleMode === "repeatable"
-      ? "Non-exclusive commercial license"
-      : "License mode pending";
+  const licenseMode = getArtworkLicenseLabel(art);
 
   return (
     <>
@@ -67,6 +69,7 @@ export default function ProductPage() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1.45fr_.55fr] lg:gap-14">
           <figure className="artcovr-plate relative aspect-square overflow-hidden">
             <Image src={art.image} alt={art.alt} fill preload loading="eager" sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover" />
+            <figcaption className="sr-only">{art.alt}</figcaption>
           </figure>
 
           <section aria-labelledby="license-summary" className="lg:sticky lg:top-24 lg:self-start">
@@ -74,7 +77,7 @@ export default function ProductPage() {
               License and pricing
             </h2>
             <p className="mt-3 text-2xl font-extrabold tracking-tight">
-              {checkoutReady ? getCheckoutTotal(art.priceCents) : "Price pending"}
+              {getArtworkPriceLabel(art)}
             </p>
             <p className="mt-2 text-sm font-bold uppercase tracking-[.08em]">
               {checkoutReady ? licenseMode : "Rights and pricing pending owner approval"}
@@ -89,7 +92,7 @@ export default function ProductPage() {
             <dl className="mt-7 divide-y divide-current/20 border-y border-current/20 text-sm">
               <div className="flex justify-between gap-6 py-3"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending"}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
-              <div className="flex justify-between gap-6 py-3"><dt>Pricing</dt><dd className="text-right">{getCheckoutTotal(art.priceCents)}</dd></div>
+              <div className="flex justify-between gap-6 py-3"><dt>Pricing</dt><dd className="text-right">{getArtworkPriceLabel(art)}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>Genre</dt><dd className="text-right">{genres.map(displayGenreLabel).join(" · ")}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>Visual category</dt><dd className="text-right">{art.category}</dd></div>
             </dl>
@@ -144,7 +147,7 @@ export default function ProductPage() {
             ) : null}
 
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-bold uppercase tracking-[.08em] opacity-60">
-              <li className="flex items-center gap-1.5"><span aria-hidden="true">✓</span> Rights approved</li>
+              <li className="flex items-center gap-1.5"><span aria-hidden="true">{checkoutReady ? "✓" : "·"}</span> {checkoutReady ? "Rights approved" : "Rights in review"}</li>
               <li className="flex items-center gap-1.5"><span aria-hidden="true">✓</span> Owner-verified source</li>
               <li className="flex items-center gap-1.5"><Link href="/refunds" className="link-hover">Return policy</Link></li>
             </ul>

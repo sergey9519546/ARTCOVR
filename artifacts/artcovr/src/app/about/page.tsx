@@ -11,7 +11,7 @@ export default function AboutPage() {
         Choose an artwork, describe any change in a freeform prompt, and build from each
         visible generated image. Published works include clear pricing, sale mode,
         commercial-license terms, and customer access through My Images. Images are
-        generated with AI from original ARTCOVR compositions.
+        generated with AI from base compositions published by ARTCOVR.
       </p>
       <div className="mt-10 flex flex-wrap gap-4">
         <Link href="/archive" className="artcovr-button px-5 py-3 text-xs font-bold uppercase tracking-[.08em]">

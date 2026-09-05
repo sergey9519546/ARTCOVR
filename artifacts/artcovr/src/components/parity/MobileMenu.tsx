@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useAuth, useClerk } from "@clerk/react";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import Link from "@/components/compat/Link";
+import { ThemeToggle } from "@/components/artcovr/ThemeToggle";
 
 const items = [
+  { label: "home", href: "/" },
   { label: "archive", href: "/archive" },
   { label: "my images", href: "/my-images" },
+  { label: "about", href: "/about" },
 ];
 
 export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { signOut } = useClerk();
+  const { isLoaded, isSignedIn, signOut } = useArtcovrAuth();
   const visibleItems = isSignedIn
     ? [...items, { label: "curation", href: "/catalog-intelligence" }]
     : items;
@@ -138,11 +140,12 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             ) : isSignedIn ? (
               <button type="button" className="link-hover w-fit" onClick={() => { onClose(); void signOut({ redirectUrl: "/" }); }}>Log out</button>
             ) : (
-              <div className="flex gap-4">
-                <Link href="/sign-in" className="link-hover" onClick={onClose}>Sign in</Link>
-                <Link href="/sign-up" className="link-hover" onClick={onClose}>Sign up</Link>
+             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <Link href="/sign-in" className="link-hover inline-flex min-h-11 items-center" onClick={onClose}>Sign in</Link>
+                <Link href="/sign-up" className="link-hover inline-flex min-h-11 items-center" onClick={onClose}>Sign up</Link>
               </div>
             )}
+          <ThemeToggle />
           <p className="opacity-70">Cover art, made yours.</p>
           <p className="opacity-70">© 2026 ARTCOVR</p>
         </div>

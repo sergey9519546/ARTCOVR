@@ -2,7 +2,7 @@
 
 import Link from "@/components/compat/Link";
 import { useLocation } from "wouter";
-import { useAuth, useClerk } from "@clerk/react";
+import { useArtcovrAuth } from "@/lib/artcovr/auth";
 import { useCallback, useEffect, useState } from "react";
 import { MobileMenu } from "@/components/parity/MobileMenu";
 import { ThemeToggle } from "@/components/artcovr/ThemeToggle";
@@ -17,8 +17,7 @@ const links = [
 export function SiteHeader() {
   const [pathname] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isLoaded, isSignedIn } = useAuth();
-  const { signOut } = useClerk();
+  const { isLoaded, isSignedIn, signOut } = useArtcovrAuth();
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const visibleLinks = isSignedIn
     ? [...links, { href: "/catalog-intelligence", label: "Curation" }]

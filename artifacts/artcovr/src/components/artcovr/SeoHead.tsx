@@ -1,132 +1,28 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import {
-  absoluteSiteUrl,
   getSiteUrl,
   isSearchIndexingDisabled,
 } from "@/lib/artcovr/seo";
 import {
   displayArtworks,
-  getArtworkBySlug,
   getArtworkGenres,
   displayGenreLabel,
 } from "@/lib/artcovr/artworks";
-
-type RouteMetadata = {
-  title: string;
-  description: string;
-  path: string;
-  index: boolean;
-  image?: { url: string; alt: string };
-};
-
-const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
-  "/": {
-    title: "ARTCOVR | Curated Cover Art",
-    description:
-      "ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing.",
-    index: true,
-  },
-  "/archive": {
-    title: "Cover Art Archive | ARTCOVR",
-    description:
-      "Browse 187 owner-approved cover artworks by music genre, mood, color, and visual topic. Each published work includes clear license terms.",
-    index: true,
-  },
-  "/about": {
-    title: "About ARTCOVR | Cover Art Made Yours",
-    description:
-      "ARTCOVR pairs original cover artwork with prompt-based editing, commercial licensing, and downloadable images for music releases and creative projects.",
-    index: true,
-  },
-  "/faq": {
-    title: "Cover Art Licensing FAQ | ARTCOVR",
-    description:
-      "Find direct answers about ARTCOVR cover art licenses, exclusive and repeatable artwork, AI-generated edits, downloads, refunds, and permitted use.",
-    index: true,
-  },
-  "/contact": {
-    title: "Contact ARTCOVR | Custom Cover Art",
-    description:
-      "Contact ARTCOVR about a custom release, cover art licensing needs, or a published artwork. Sign in with email to send a verified inquiry.",
-    index: true,
-  },
-  "/license": {
-    title: "Commercial Cover Art License | ARTCOVR",
-    description:
-      "Read the ARTCOVR commercial cover art license, including permitted uses, restrictions, exclusive and repeatable artwork, duration, territory, and refunds.",
-    index: true,
-  },
-  "/refunds": {
-    title: "Digital Cover Art Refunds | ARTCOVR",
-    description:
-      "Review ARTCOVR’s digital cover art refund process, license revocation rules, download access, and EU and UK withdrawal information.",
-    index: true,
-  },
-  "/legal/privacy": {
-    title: "Privacy Policy | ARTCOVR",
-    description:
-      "Read how ARTCOVR handles account, purchase, prompt, generated-image, inquiry, and download information.",
-    index: true,
-  },
-  "/legal/terms": {
-    title: "Terms of Use | ARTCOVR",
-    description:
-      "Read the ARTCOVR terms for cover art purchases, Stripe payment verification, commercial licenses, generated images, downloads, refunds, and service access.",
-    index: true,
-  },
-  "/sign-in": {
-    title: "Sign In | ARTCOVR",
-    description: "Sign in to access ARTCOVR purchases, generated images, prompts, and downloads.",
-    index: false,
-  },
-  "/my-images": {
-    title: "My Images | ARTCOVR",
-    description: "Access your ARTCOVR purchases, generated images, prompts, and authorized downloads.",
-    index: false,
-  },
-  "/catalog-intelligence": {
-    title: "Catalog Intelligence | ARTCOVR",
-    description: "Protected ARTCOVR owner workspace for aggregate visual curation insights.",
-    index: false,
-  },
-};
-
-function trimTitle(value: string, maxLength = 60) {
-  return value.length <= maxLength ? value : `${value.slice(0, maxLength - 1).trimEnd()}…`;
-}
+import {
+  getRouteMetadata,
+  getSocialPreviewMetadata,
+} from "@/lib/artcovr/route-metadata";
 
 function routePath(location: string) {
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   const pathname = location.split("?")[0] || "/";
-  if (base && pathname.startsWith(base)) {
-    return pathname.slice(base.length) || "/";
+  const normalizedPathname =
+    pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  if (base && normalizedPathname.startsWith(base)) {
+    return normalizedPathname.slice(base.length) || "/";
   }
-  return pathname;
-}
-
-function getRouteMetadata(path: string): RouteMetadata {
-  const productMatch = path.match(/^\/product\/([^/]+)$/);
-  if (productMatch) {
-    const artwork = getArtworkBySlug(decodeURIComponent(productMatch[1]));
-    if (artwork) {
-      const genres = getArtworkGenres(artwork).slice(0, 2).map(displayGenreLabel);
-      return {
-        title: trimTitle(`${artwork.title} | ${genres.join(" · ")} Cover Art | ARTCOVR`),
-        description: `${artwork.title} is ${genres.join(" and ")} cover artwork from ARTCOVR’s approved catalog. Review its commercial license and prompt-based editing options.`,
-        path,
-        index: artwork.published && artwork.rightsApproved,
-        image: { url: artwork.image, alt: artwork.alt },
-      };
-    }
-  }
-
-  const metadata = STATIC_METADATA[path] ?? {
-    title: "Page Not Found | ARTCOVR",
-    description: "The requested ARTCOVR page could not be found.",
-    index: false,
-  };
-  return { ...metadata, path };
+  return normalizedPathname;
 }
 
 function upsertMeta(attribute: "name" | "property", key: string, content: string) {
@@ -153,14 +49,27 @@ function updateCanonical(href: string) {
   link.href = href;
 }
 
+function updateImageSource(href: string) {
+  let link = document.head.querySelector<HTMLLinkElement>('link[rel="image_src"]');
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "image_src";
+    link.dataset.artcovrSeo = "true";
+    document.head.appendChild(link);
+  }
+  link.href = href;
+}
+
 export function SeoHead() {
   const [location] = useLocation();
 
   useEffect(() => {
     const path = routePath(location);
-    const metadata = getRouteMetadata(path);
+    const metadata = getRouteMetadata(path, displayArtworks, (artwork) =>
+      getArtworkGenres(artwork).map(displayGenreLabel),
+    );
     const siteUrl = getSiteUrl();
-    const canonical = absoluteSiteUrl(metadata.path, siteUrl);
+    const social = getSocialPreviewMetadata(metadata, siteUrl);
     const catalogRoute =
       metadata.path === "/" ||
       metadata.path === "/archive" ||
@@ -169,27 +78,38 @@ export function SeoHead() {
       metadata.index &&
       !isSearchIndexingDisabled() &&
       (!catalogRoute || displayArtworks.length > 0);
-    const imageUrl = metadata.image
-      ? absoluteSiteUrl(metadata.image.url, siteUrl)
-      : absoluteSiteUrl("/og-image.png", siteUrl);
-    const imageAlt = metadata.image?.alt ?? "ARTCOVR curated cover art";
+    // Static route rendering puts JSON-LD in the document head for crawlers.
+    // The interactive pages render their own route-specific JSON-LD in the
+    // page body, so remove the prerendered copy after the SPA mounts. React
+    // then removes the body copy naturally when the route changes.
+    document.head
+      .querySelectorAll<HTMLScriptElement>(
+        'script[type="application/ld+json"][data-artcovr-static-structured-data="true"]',
+      )
+      .forEach((script) => script.remove());
 
-    document.title = metadata.title;
-    upsertMeta("name", "description", metadata.description);
+    document.title = social.title;
+    upsertMeta("name", "description", social.description);
     upsertMeta("name", "robots", shouldIndex ? "index, follow" : "noindex, nofollow, noarchive");
-    upsertMeta("property", "og:title", metadata.title);
-    upsertMeta("property", "og:description", metadata.description);
-    upsertMeta("property", "og:url", canonical);
+    upsertMeta("property", "og:title", social.title);
+    upsertMeta("property", "og:description", social.description);
+    upsertMeta("property", "og:url", social.canonical);
     upsertMeta("property", "og:site_name", "ARTCOVR");
-    upsertMeta("property", "og:type", metadata.path.startsWith("/product/") ? "product" : "website");
-    upsertMeta("property", "og:image", imageUrl);
-    upsertMeta("property", "og:image:alt", imageAlt);
+    upsertMeta("property", "og:locale", "en_US");
+    upsertMeta("property", "og:type", social.openGraphType);
+    upsertMeta("property", "og:image", social.imageUrl);
+    upsertMeta("property", "og:image:secure_url", social.imageUrl);
+    upsertMeta("property", "og:image:alt", social.imageAlt);
+    upsertMeta("property", "og:image:width", String(social.imageWidth));
+    upsertMeta("property", "og:image:height", String(social.imageHeight));
+    upsertMeta("property", "og:image:type", social.imageType);
     upsertMeta("name", "twitter:card", "summary_large_image");
-    upsertMeta("name", "twitter:title", metadata.title);
-    upsertMeta("name", "twitter:description", metadata.description);
-    upsertMeta("name", "twitter:image", imageUrl);
-    upsertMeta("name", "twitter:image:alt", imageAlt);
-    updateCanonical(canonical);
+    upsertMeta("name", "twitter:title", social.title);
+    upsertMeta("name", "twitter:description", social.description);
+    upsertMeta("name", "twitter:image", social.imageUrl);
+    upsertMeta("name", "twitter:image:alt", social.imageAlt);
+    updateCanonical(social.canonical);
+    updateImageSource(social.imageUrl);
   }, [location]);
 
   return null;

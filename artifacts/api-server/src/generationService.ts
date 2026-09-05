@@ -43,6 +43,26 @@ function isActiveEntitlement(order: Parameters<typeof effectiveEntitlement>[0]) 
   return Boolean(expiry && expiry.getTime() > Date.now());
 }
 
+export function isSelectedPreviewForOrder(
+  generation: Pick<
+    typeof artcovrGenerations.$inferSelect,
+    "id" | "artworkId" | "clerkUserId" | "purchaseId" | "phase" | "status"
+  >,
+  order: Pick<
+    typeof artcovrOrders.$inferSelect,
+    "artworkId" | "clerkUserId" | "selectedPreviewId"
+  >,
+) {
+  return (
+    generation.status === "succeeded" &&
+    generation.phase === "preview" &&
+    generation.purchaseId === null &&
+    generation.artworkId === order.artworkId &&
+    generation.clerkUserId === order.clerkUserId &&
+    generation.id === order.selectedPreviewId
+  );
+}
+
 export async function admitGeneration(input: {
   userId: string;
   artworkId: string;
@@ -238,7 +258,12 @@ export async function generationStatus(id: string, userId: string) {
     entitled = Boolean(order && !order.accessRevokedAt && isActiveEntitlement(order));
   } else {
     const selected = (await db.select().from(artcovrOrders).where(and(eq(artcovrOrders.clerkUserId, userId), eq(artcovrOrders.selectedPreviewId, generation.id))).limit(1))[0];
-    selectedPreview = Boolean(selected && !selected.accessRevokedAt && isActiveEntitlement(selected));
+    selectedPreview = Boolean(
+      selected &&
+      isSelectedPreviewForOrder(generation, selected) &&
+      !selected.accessRevokedAt &&
+      isActiveEntitlement(selected),
+    );
   }
   if (generation.status === "succeeded" && generation.previewObjectKey && (active || selectedPreview) && entitled) {
     result.previewUrl = await signPrivate(generation.previewObjectKey);
@@ -278,7 +303,12 @@ export async function serializeAccount(userId: string) {
     }
   };
   const serializedGenerations = await Promise.all(generations.map(async (generation) => {
-    const selected = orders.some((order) => isActiveEntitlement(order) && !order.accessRevokedAt && order.selectedPreviewId === generation.id);
+    const selected = orders.some(
+      (order) =>
+        isSelectedPreviewForOrder(generation, order) &&
+        isActiveEntitlement(order) &&
+        !order.accessRevokedAt,
+    );
     const allowed = !generation.purchaseId || activeOrders.has(generation.purchaseId);
     const previewUrl = generation.previewObjectKey && generation.status === "succeeded" && allowed && (selected || generation.expiresAt.getTime() > Date.now())
       ? await optionalSign(generation.previewObjectKey) : undefined;
@@ -297,7 +327,9 @@ export async function serializeAccount(userId: string) {
     if (!expiry || !isActiveEntitlement(order) || order.accessRevokedAt) return [];
     const artwork = getPublicArtworkById(order.artworkId);
     if (!artwork) return [];
-    const selected = generations.find((generation) => generation.id === order.selectedPreviewId && generation.status === "succeeded");
+    const selected = generations.find((generation) =>
+      isSelectedPreviewForOrder(generation, order),
+    );
     const successful = generations.filter((generation) => generation.purchaseId === order.id && generation.status === "succeeded");
     return [
       { kind: "base" as const, generationId: null, key: ensureBaseObject(artwork.id, artwork.slug) },

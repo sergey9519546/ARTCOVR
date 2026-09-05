@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
@@ -365,7 +366,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
               data-artwork="true"
               className="group block"
             >
-              <img
+              <Image
                 src={artwork.image}
                 alt={artwork.alt}
                 width={320}
@@ -420,7 +421,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       </div>
       <div
         ref={stageRef}
-        className="absolute top-0 left-0 h-full w-full will-change-transform"
+        className="absolute inset-0 h-full w-full will-change-transform"
         style={{ transformStyle: "preserve-3d", transform: "rotateZ(-5deg)", opacity: 0 }}
       >
         {ITEMS.map((artwork, index) => (
@@ -455,7 +456,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
                     : "0 30px 60px color-mix(in srgb, var(--foreground) 18%, transparent)",
               }}
             >
-              <img
+              <Image
                 src={artwork.image}
                 alt=""
                 className="h-full w-full object-cover"

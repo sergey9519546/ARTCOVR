@@ -5,15 +5,15 @@ import { useTheme, type Theme } from "@/hooks/artcovr/useTheme";
 const SWATCH_RING = "shadow-[inset_0_0_0_0.05em_var(--foreground)]";
 const THEMES: { id: Theme; label: string; bg: string; shadow: string }[] = [
   {
-    id: "dark",
-    label: "Switch to dark theme",
-    bg: "bg-black",
-    shadow: SWATCH_RING,
-  },
-  {
     id: "light",
     label: "Switch to light theme",
     bg: "bg-cream",
+    shadow: SWATCH_RING,
+  },
+  {
+    id: "dark",
+    label: "Switch to dark theme",
+    bg: "bg-black",
     shadow: SWATCH_RING,
   },
 ];

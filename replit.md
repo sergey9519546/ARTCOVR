@@ -1,39 +1,63 @@
 # ARTCOVR
 
-ARTCOVR licenses owner-approved cover artwork through a React/Vite storefront,
-with an Express API, Clerk authentication, Stripe commerce, and private Replit storage.
+ARTCOVR is a curated cover-art catalog and storefront with commercial licensing and prompt-based editing.
 
-## Workspace
+## Run & Operate
 
-- artifacts/artcovr: public storefront and browser tests.
-- artifacts/api-server: authenticated customer media and commerce endpoints.
-- lib/db: Drizzle schema and additive SQL repairs.
-- lib/api-spec, lib/api-zod, lib/api-client-react: shared API contract and generated clients.
-- .migration-backup: retained Next.js/Supabase sources and owner-approved catalog inputs.
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm run typecheck` — full typecheck across all packages
+- `pnpm run verify:ci` — full typecheck plus unit and API tests
+- `pnpm run test:e2e` — deterministic storefront Playwright suite; starts isolated API and Vite servers
+- `pnpm run verify:release` — portable checks followed by the storefront browser suite
+- `pnpm run verify:live-release` — non-mutating smoke checks against `ARTCOVR_RELEASE_URL`; rejects missing/invalid webhooks without creating a payment
+- `pnpm run db:migrate` — apply committed Drizzle migrations to development or disposable PostgreSQL
+- `NODE_ENV=development pnpm run db:baseline` — adopt a matching legacy development schema once without changing commerce data
+- `pnpm run verify:database` — read-only PostgreSQL readiness, migration-history, and required-commerce-table check
+- `pnpm run build` — typecheck + build all packages
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm --filter @workspace/db run generate` — generate a reviewable migration after changing `lib/db/src/schema`
+- Required env: `DATABASE_URL` — Postgres connection string
+- Production API also requires `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `ARTCOVR_PUBLIC_ORIGIN`, `ARTCOVR_STOREFRONT_ORIGINS`, and `STRIPE_WEBHOOK_SECRET`. Missing values fail API startup with the variable names.
+- The production web artifact is static at `/` and proxies `/api` to the API service. The API startup probe is `/api/healthz`; it checks PostgreSQL readiness rather than only process liveness.
+- `VITE_SITE_URL` must be the canonical HTTPS origin only. `BASE_PATH` is currently `/`; changing it requires updating the artifact rewrites and release smoke target together.
+- Stripe webhook verification uses the raw request bytes, a configured signing secret, a five-minute timestamp tolerance, and event-id retrieval through the server-side Stripe connector. Duplicate event IDs are ignored transactionally.
+- Optional browser-test env: `PLAYWRIGHT_BASE_URL` targets an already-running storefront; otherwise the Playwright config uses isolated local ports. Failure traces and screenshots are retained under `/tmp/artcovr-playwright-results`.
+- API trust policy: set `ARTCOVR_PUBLIC_ORIGIN` to the canonical HTTPS storefront
+  origin and `ARTCOVR_STOREFRONT_ORIGINS` to the comma-separated browser
+  allowlist. State-changing `/api` requests require a matching trusted
+  `Origin` or `Referer`; Stripe webhooks are verified separately from their
+  raw body and signature.
 
-Use Node 24 and the packageManager-pinned pnpm version. Run pnpm install --frozen-lockfile.
-The Replit configuration owns deployment and credentials. Git synchronization does
-not apply production migrations or change Replit secrets.
+## Stack
 
-## Verification
+- pnpm workspaces, Node.js 24, TypeScript 5.9
+- API: Express 5
+- DB: PostgreSQL + Drizzle ORM
+- Validation: Zod (`zod/v4`), `drizzle-zod`
+- API codegen: Orval (from OpenAPI spec)
+- Build: esbuild (CJS bundle)
 
-Set DATABASE_URL to a disposable PostgreSQL 16 database, PORT=45180, and BASE_PATH=/.
-Create its schema with pnpm --filter @workspace/db run push, then run pnpm run verify:ci.
-This checks catalog projection, frontend/API tests, all workspace types, and all builds.
-The retained Supabase regression gate is pnpm run db:verify (requires psql and PG*).
+## Where things live
+- Web storefront: `artifacts/artcovr`
+- API and commerce: `artifacts/api-server`
+- PostgreSQL schema: `lib/db/src/schema`
+- API contract: `lib/api-spec/openapi.yaml`
+- Release checks: `scripts/release` and `scripts/db/verify-database.sh`
 
-Run pnpm run test:e2e with a real Clerk test tenant for a local candidate, or set
-PLAYWRIGHT_BASE_URL to a Replit preview URL. CI's hosted-smoke job checks the existing
-https://artcovr.com deployment. A hosted pass does not prove the candidate is deployed.
+## Architecture decisions
+- The storefront is static and prerendered; the API is a separate `/api` service.
+- Checkout prices and entitlements are derived from server-side catalog data.
+- Stripe webhooks require cryptographic signature verification before server-side event retrieval.
 
-## Catalog and database updates
+## Product
+- Browse, search, license, purchase, and edit curated cover artwork.
 
-Regenerate the active public catalog with pnpm --filter @workspace/artcovr run catalog:project.
-Its approval and pricing inputs live in .migration-backup/catalog. Never hand-edit prices
-in the generated public projection or infer commercial rights from technical checks.
+## User preferences
+No standing preferences recorded.
 
-The customer API requires lib/db/migrations/20260905_restore_customer_schema.sql.
-This additive, transactional repair adds missing customer-media tables and entitlement
-columns to the existing commerce schema. It was tested against a disposable original
-schema, including a repeated application. Inspect/apply it through Replit's approved
-production deployment process; post-merge hooks only install dependencies.
+## Gotchas
+- `verify:release` is safe for CI and local development; `verify:live-release` is the only check that contacts a deployed URL.
+- `verify:database` is read-only and reports connectivity failures separately from migration/schema drift. Schema changes use committed Drizzle migrations and are not silently performed by release checks.
+
+## Pointers
+- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details

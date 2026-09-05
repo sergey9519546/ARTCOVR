@@ -53,8 +53,8 @@ export type GenerationStatus = {
     | "timed_out";
   previewUrl?: string;
   cleanUrl?: string;
-  errorCode?: string | null;
-  finishedAt?: string | null;
+  errorCode: string | null;
+  finishedAt: string | null;
 };
 
 export type AccountPurchase = {
@@ -63,7 +63,13 @@ export type AccountPurchase = {
   artworkTitle: string;
   artworkSlug: string;
   saleMode: "exclusive" | "repeatable";
-  status: "reserved" | "pending" | "paid" | "expired" | "refunded";
+  status:
+    | "reserved"
+    | "pending"
+    | "paid"
+    | "expired"
+    | "refunded"
+    | "refunded_conflict";
   amountCents: number;
   currency: string;
   paidAt: string | null;
@@ -230,23 +236,33 @@ export function createCheckout(
   artworkId: string,
   idempotencyKey: string,
   selectedPreviewId?: string,
+  email?: string,
 ) {
   return localRequest<{
     purchaseId: string;
     checkoutUrl: string;
     expiresAt: string;
+    includedCredits: number;
   }>("/checkout", {
     method: "POST",
     body: JSON.stringify({
       artworkId,
       idempotencyKey,
       selectedPreviewId: selectedPreviewId || null,
+      email: email || null,
     }),
   });
 }
 
 export function getMyImages() {
   return request<AccountData>("/functions/v1/my-images", { method: "GET" });
+}
+
+export function claimGuestPurchases() {
+  return request<{
+    claimedOrderIds: string[];
+    claimedCredits: number;
+  }>("/functions/v1/claim-guest-purchases", { method: "POST" });
 }
 
 export function getOwnerCatalogIntelligenceAccess() {

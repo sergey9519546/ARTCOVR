@@ -44,6 +44,7 @@ onlyBuiltDependencies:
 
 overrides:
   '@esbuild-kit/esm-loader': npm:tsx@^4.21.0
+  uuid: 11.1.1
   esbuild: 0.28.1
   brace-expansion: 5.0.9
   fast-uri: 3.1.6

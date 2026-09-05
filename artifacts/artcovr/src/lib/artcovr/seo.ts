@@ -53,6 +53,17 @@ export function serializeJsonLd(value: unknown): string {
     .replace(/\u2029/g, "\\u2029");
 }
 
+export function combineStructuredData(
+  ...values: Record<string, unknown>[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@graph": values.flatMap((value) =>
+      Array.isArray(value["@graph"]) ? value["@graph"] : [value],
+    ),
+  };
+}
+
 type PageMetadataOptions = {
   title: string;
   description: string;
@@ -111,19 +122,66 @@ export type ArtworkStructuredDataInput = {
   moodTags?: string[];
 };
 
+export const ARTWORK_IMAGE_WIDTH = 1200;
+export const ARTWORK_IMAGE_HEIGHT = 1200;
+
+function artworkImageDerivative(image: string, suffix: "" | "-640") {
+  if (!image.startsWith("/assets/artworks/") || !image.endsWith(".jpg")) {
+    return image;
+  }
+  const filename = image.slice("/assets/artworks/".length, -".jpg".length);
+  return `/assets/artworks/optimized/${filename}${suffix}.webp`;
+}
+
+export function buildArtworkImageObject(
+  artwork: ArtworkStructuredDataInput,
+  siteUrl = getSiteUrl(),
+  options: { representativeOfPage?: boolean } = {},
+) {
+  const productUrl = absoluteSiteUrl(`/product/${artwork.slug}`, siteUrl);
+  const imageUrl = absoluteSiteUrl(artwork.image, siteUrl);
+  const keywords = [
+    ...(artwork.genres ?? []),
+    artwork.category,
+    ...(artwork.moodTags ?? []),
+  ].filter((value): value is string => Boolean(value));
+
+  return {
+    "@type": "ImageObject",
+    "@id": `${productUrl}#artwork`,
+    name: `${artwork.title} cover artwork`,
+    description: artwork.description,
+    contentUrl: imageUrl,
+    url: imageUrl,
+    thumbnailUrl: absoluteSiteUrl(
+      artworkImageDerivative(artwork.image, "-640"),
+      siteUrl,
+    ),
+    encodingFormat: "image/jpeg",
+    width: ARTWORK_IMAGE_WIDTH,
+    height: ARTWORK_IMAGE_HEIGHT,
+    caption: artwork.alt,
+    alternativeHeadline: artwork.alt,
+    representativeOfPage: options.representativeOfPage ?? false,
+    creditText: "ARTCOVR",
+    copyrightNotice: "ARTCOVR",
+    copyrightHolder: { "@id": `${siteUrl}#organization` },
+    publisher: { "@id": `${siteUrl}#organization` },
+    license: absoluteSiteUrl("/license", siteUrl),
+    acquireLicensePage: productUrl,
+    ...(keywords.length ? { keywords: keywords.join(", ") } : {}),
+  };
+}
+
 export function buildArtworkStructuredData(
   artwork: ArtworkStructuredDataInput,
   siteUrl = getSiteUrl(),
 ) {
   const productUrl = absoluteSiteUrl(`/product/${artwork.slug}`, siteUrl);
-  const imageUrl = absoluteSiteUrl(artwork.image, siteUrl);
   const imageObject = {
-    "@type": "ImageObject",
-    "@id": `${productUrl}#artwork`,
-    name: artwork.title,
-    description: artwork.description,
-    contentUrl: imageUrl,
-    caption: artwork.alt,
+    ...buildArtworkImageObject(artwork, siteUrl, {
+      representativeOfPage: true,
+    }),
     ...(artwork.creatorName
       ? { creator: { "@type": "Person", name: artwork.creatorName } }
       : {}),
@@ -180,6 +238,56 @@ export function buildArtworkStructuredData(
   return {
     "@context": "https://schema.org",
     "@graph": [imageObject, breadcrumb, ...(product ? [product] : [])],
+  };
+}
+
+export function buildArtworkCollectionStructuredData(
+  artworks: readonly ArtworkStructuredDataInput[],
+  siteUrl = getSiteUrl(),
+  options: {
+    path?: string;
+    name?: string;
+    description?: string;
+  } = {},
+) {
+  const path = options.path ?? "/archive";
+  const collectionUrl = absoluteSiteUrl(path, siteUrl);
+  const imageObjects = artworks.map((artwork) =>
+    buildArtworkImageObject(artwork, siteUrl),
+  );
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["CollectionPage", "WebPage"],
+        "@id": `${collectionUrl}#collection`,
+        url: collectionUrl,
+        name: options.name ?? "ARTCOVR cover art archive",
+        description:
+          options.description ??
+          "A searchable archive of owner-approved square cover artwork organized by genre, mood, color, and visual topic.",
+        isPartOf: { "@id": `${siteUrl}#website` },
+        about: {
+          "@type": "Thing",
+          name: "Cover artwork for music releases",
+        },
+        mainEntity: {
+          "@type": "ItemList",
+          numberOfItems: artworks.length,
+          itemListOrder: "https://schema.org/ItemListOrderAscending",
+          itemListElement: artworks.map((artwork, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: artwork.title,
+            url: absoluteSiteUrl(`/product/${artwork.slug}`, siteUrl),
+            image: { "@id": `${absoluteSiteUrl(`/product/${artwork.slug}`, siteUrl)}#artwork` },
+          })),
+        },
+        associatedMedia: imageObjects.map((image) => ({ "@id": image["@id"] })),
+      },
+      ...imageObjects,
+    ],
   };
 }
 

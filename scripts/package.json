@@ -6,6 +6,10 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed:artcovr-products": "tsx ./src/seed-products.ts",
+    "verify:runtime-contract": "node ./release/verify-runtime-contract.mjs",
+    "verify:live-release": "node ./release/verify-live-release.mjs",
+    "verify:stripe-reconciliation": "node ./release/verify-stripe-reconciliation.mjs",
+    "test": "node --test ./release/*.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {

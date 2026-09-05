@@ -13,3 +13,12 @@
 - [GSAP pinned journey lifecycle](gsap-pinned-journey-lifecycle.md) — keep the pin host mounted across mode swaps and disable it before animated route transitions.
 - [Customer media boundary](customer-media-boundary.md) — expose opaque media IDs; resolve server-owned keys only after Clerk ownership and entitlement checks.
 - [Public artwork delivery](public-artwork-delivery.md) — optimize static catalog images with responsive derivatives before considering App Storage.
+- [Artwork GEO contract](artwork-geo-contract.md) — every public cover is a licensed ImageObject and image-sitemap record tied to its canonical product page.
+- [Drizzle migration output](drizzle-migration-output.md) — keep the Drizzle migration output path package-relative so repeated generation can read its metadata.
+- [Legacy database baseline](legacy-database-baseline.md) — only mark a matching existing development schema; fresh and partial databases take different paths.
+- [Preloader image budget](preloader-image-budget.md) — animated intro covers must use responsive derivatives; eager original assets can dominate the first-page payload.
+- [Intro visual regression timing](intro-visual-regression.md) — freeze timed intro composition at a fixed active state before taking cross-viewport snapshots.
+- [Route transition curtain](route-transition-curtain.md) — keep lazy-route fallback states behind the branded curtain and warm destination chunks before navigation.
+- [Clerk theme tokens](clerk-theme-tokens.md) — style embedded auth with storefront theme variables so light/dark mode never makes credentials unreadable.
+- [Stripe catalog cleanup limits](stripe-catalog-cleanup.md) — audit price pages sequentially through the proxy; destructive duplicate cleanup stays confirmation-gated.
+- [Stripe environment account checks](stripe-environment-account-check.md) — verify account identity and session metadata instead of inferring ownership from environment labels.

@@ -1,9 +1,9 @@
 import { createInsertSchema } from "drizzle-zod";
 import {
   integer,
-  jsonb,
   index,
   pgTable,
+  jsonb,
   text,
   timestamp,
   uniqueIndex,
@@ -40,10 +40,10 @@ export const artcovrOrders = pgTable(
       .notNull()
       .defaultNow(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
+    refundedAt: timestamp("refunded_at", { withTimezone: true }),
     entitlementExpiresAt: timestamp("entitlement_expires_at", { withTimezone: true }),
     accessRevokedAt: timestamp("access_revoked_at", { withTimezone: true }),
     accessRevocationReason: text("access_revocation_reason"),
-    refundedAt: timestamp("refunded_at", { withTimezone: true }),
   },
   (table) => ({
     idempotencyKeyIdx: uniqueIndex("artcovr_orders_idempotency_key_idx").on(
@@ -62,8 +62,93 @@ export const artcovrOrders = pgTable(
     clerkUserIdx: index("artcovr_orders_clerk_user_id_idx").on(
       table.clerkUserId,
     ),
+    customerEmailIdx: index("artcovr_orders_customer_email_idx").on(
+      table.customerEmail,
+    ),
   }),
 );
+
+export const artcovrReferenceUploads = pgTable(
+  "artcovr_reference_uploads",
+  {
+    id: text("id").primaryKey(),
+    clerkUserId: text("clerk_user_id").notNull(),
+    artworkId: text("artwork_id").notNull(),
+    objectKey: text("object_key").notNull().unique(),
+    sha256: text("sha256"),
+    width: integer("width"),
+    height: integer("height"),
+    bytes: integer("bytes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    uploadedAt: timestamp("uploaded_at", { withTimezone: true }),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (table) => ({
+    ownerCreatedIdx: index("artcovr_reference_uploads_owner_created_idx").on(
+      table.clerkUserId,
+      table.createdAt,
+    ),
+    expiryIdx: index("artcovr_reference_uploads_expiry_idx").on(table.expiresAt),
+  }),
+);
+
+export const artcovrGenerations = pgTable(
+  "artcovr_generations",
+  {
+    id: text("id").primaryKey(),
+    artworkId: text("artwork_id").notNull(),
+    clerkUserId: text("clerk_user_id").notNull(),
+    purchaseId: text("purchase_id"),
+    parentGenerationId: text("parent_generation_id"),
+    referenceUploadId: text("reference_upload_id"),
+    phase: text("phase").notNull(),
+    status: text("status").notNull().default("queued"),
+    allowanceSlot: integer("allowance_slot"),
+    prompt: text("prompt").notNull(),
+    sourceObjectKey: text("source_object_key").notNull(),
+    previewObjectKey: text("preview_object_key"),
+    cleanObjectKey: text("clean_object_key"),
+    providerRequestId: text("provider_request_id"),
+    providerUsage: jsonb("provider_usage").$type<Record<string, unknown>>().notNull().default({}),
+    errorCode: text("error_code"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    ownerCreatedIdx: index("artcovr_generations_owner_created_idx").on(
+      table.clerkUserId,
+      table.createdAt,
+    ),
+    artworkIdx: index("artcovr_generations_artwork_idx").on(table.artworkId),
+    purchaseIdx: index("artcovr_generations_purchase_idx").on(table.purchaseId),
+    expiryIdx: index("artcovr_generations_expiry_idx").on(table.expiresAt),
+  }),
+);
+
+export const artcovrInquiries = pgTable(
+  "artcovr_inquiries",
+  {
+    id: text("id").primaryKey(),
+    clerkUserId: text("clerk_user_id").notNull(),
+    email: text("email").notNull(),
+    name: text("name"),
+    message: text("message").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    ownerCreatedIdx: index("artcovr_inquiries_owner_created_idx").on(
+      table.clerkUserId,
+      table.createdAt,
+    ),
+  }),
+);
+
+export type ArtcovrReferenceUpload = typeof artcovrReferenceUploads.$inferSelect;
+export type ArtcovrGeneration = typeof artcovrGenerations.$inferSelect;
+export type ArtcovrInquiry = typeof artcovrInquiries.$inferSelect;
 
 export const artcovrCreditLedger = pgTable(
   "artcovr_credit_ledger",
@@ -120,58 +205,3 @@ export type InsertArtcovrWebhookEvent = z.infer<
   typeof insertArtcovrWebhookEventSchema
 >;
 export type ArtcovrWebhookEvent = typeof artcovrWebhookEvents.$inferSelect;
-// Customer media is private. Routes expose opaque IDs after checking Clerk ownership.
-export const artcovrReferenceUploads = pgTable("artcovr_reference_uploads", {
-  id: text("id").primaryKey(),
-  clerkUserId: text("clerk_user_id").notNull(),
-  artworkId: text("artwork_id").notNull(),
-  objectKey: text("object_key").notNull(),
-  sha256: text("sha256").notNull(),
-  width: integer("width").notNull(),
-  height: integer("height").notNull(),
-  bytes: integer("bytes").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  uploadedAt: timestamp("uploaded_at", { withTimezone: true }),
-  consumedAt: timestamp("consumed_at", { withTimezone: true }),
-}, (table) => ({
-  ownerIdx: index("artcovr_reference_uploads_owner_idx").on(table.clerkUserId),
-  objectIdx: uniqueIndex("artcovr_reference_uploads_object_idx").on(table.objectKey),
-}));
-
-export const artcovrGenerations = pgTable("artcovr_generations", {
-  id: text("id").primaryKey(),
-  clerkUserId: text("clerk_user_id").notNull(),
-  artworkId: text("artwork_id").notNull(),
-  purchaseId: text("purchase_id"),
-  parentGenerationId: text("parent_generation_id"),
-  referenceUploadId: text("reference_upload_id"),
-  phase: text("phase").notNull(),
-  status: text("status").notNull().default("queued"),
-  allowanceSlot: integer("allowance_slot"),
-  prompt: text("prompt").notNull(),
-  sourceObjectKey: text("source_object_key").notNull(),
-  cleanObjectKey: text("clean_object_key"),
-  previewObjectKey: text("preview_object_key"),
-  providerRequestId: text("provider_request_id"),
-  providerUsage: jsonb("provider_usage").$type<Record<string, unknown>>(),
-  errorCode: text("error_code"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  startedAt: timestamp("started_at", { withTimezone: true }),
-  finishedAt: timestamp("finished_at", { withTimezone: true }),
-}, (table) => ({
-  ownerCreatedIdx: index("artcovr_generations_owner_created_idx").on(table.clerkUserId, table.createdAt),
-  purchaseIdx: index("artcovr_generations_purchase_idx").on(table.purchaseId),
-}));
-
-export const artcovrInquiries = pgTable("artcovr_inquiries", {
-  id: text("id").primaryKey(),
-  clerkUserId: text("clerk_user_id").notNull(),
-  email: text("email").notNull(),
-  name: text("name"),
-  message: text("message").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (table) => ({
-  ownerCreatedIdx: index("artcovr_inquiries_owner_created_idx").on(table.clerkUserId, table.createdAt),
-}));

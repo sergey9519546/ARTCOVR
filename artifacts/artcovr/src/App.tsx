@@ -1,30 +1,35 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import {
+  lazy,
+  Suspense,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useTransition,
+} from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ClerkProvider, useAuth, useClerk } from "@clerk/react";
+import { useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import AboutPage from "@/app/about/page";
-import ArchivePage from "@/app/archive/page";
-import AuthCallbackPage from "@/app/auth/callback/page";
-import ContactPage from "@/app/contact/page";
-import CheckoutPageComponent from "@/app/checkout/[slug]/page";
-import FaqPage from "@/app/faq/page";
 import Home from "@/app/page";
-import PrivacyPage from "@/app/legal/privacy/page";
-import TermsPage from "@/app/legal/terms/page";
-import LicensePage from "@/app/license/page";
-import MyImagesPage from "@/app/my-images/page";
-import CatalogIntelligencePage from "@/app/catalog-intelligence/page";
-import NotFound from "@/pages/not-found";
-import ProductPage from "@/app/product/[slug]/page";
-import RefundsPage from "@/app/refunds/page";
-import SignInPage from "@/app/sign-in/page";
-import SignUpPage from "@/app/sign-up/page";
 import { SeoHead } from "@/components/artcovr/SeoHead";
-import { Route, Switch, Redirect, useLocation, Router as WouterRouter } from "wouter";
+import {
+  ArtcovrAuthProvider,
+  useArtcovrAuth,
+} from "@/lib/artcovr/auth";
+import { isDevelopmentClerkKey } from "@/lib/artcovr/clerk-config";
+import {
+  Route,
+  Switch,
+  Redirect,
+  useLocation,
+  Router as WouterRouter,
+  type NavigateOptions,
+  type Path,
+} from "wouter";
 
 const queryClient = new QueryClient();
 const clerkPubKey = publishableKeyFromHost(
@@ -34,6 +39,44 @@ const clerkPubKey = publishableKeyFromHost(
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
+// Keep the homepage eager so its preloader owns the first visible frame and
+// the existing animation sequence starts without a route-chunk boundary.
+// Everything else is route-only code and should not be part of the homepage
+// entry chunk.
+const AboutPage = lazy(() => import("@/app/about/page"));
+const ArchivePage = lazy(() => import("@/app/archive/page"));
+const AuthCallbackPage = lazy(() => import("@/app/auth/callback/page"));
+const ContactPage = lazy(() => import("@/app/contact/page"));
+const CheckoutPageComponent = lazy(() => import("@/app/checkout/[slug]/page"));
+const FaqPage = lazy(() => import("@/app/faq/page"));
+const CoverArtLicensingGuidePage = lazy(() =>
+  import("@/app/guides/page").then((module) => ({
+    default: module.CoverArtLicensingGuidePage,
+  })),
+);
+const ExclusiveCoverArtGuidePage = lazy(() =>
+  import("@/app/guides/page").then((module) => ({
+    default: module.ExclusiveCoverArtGuidePage,
+  })),
+);
+const AiGeneratedCoverArtGuidePage = lazy(() =>
+  import("@/app/guides/page").then((module) => ({
+    default: module.AiGeneratedCoverArtGuidePage,
+  })),
+);
+const PrivacyPage = lazy(() => import("@/app/legal/privacy/page"));
+const TermsPage = lazy(() => import("@/app/legal/terms/page"));
+const LicensePage = lazy(() => import("@/app/license/page"));
+const MyImagesPage = lazy(() => import("@/app/my-images/page"));
+const CatalogIntelligencePage = lazy(
+  () => import("@/app/catalog-intelligence/page"),
+);
+const ProductPage = lazy(() => import("@/app/product/[slug]/page"));
+const RefundsPage = lazy(() => import("@/app/refunds/page"));
+const SignInPage = lazy(() => import("@/app/sign-in/page"));
+const SignUpPage = lazy(() => import("@/app/sign-up/page"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+
 function stripBase(path: string) {
   return basePath && path.startsWith(basePath)
     ? path.slice(basePath.length) || "/"
@@ -42,6 +85,12 @@ function stripBase(path: string) {
 
 if (!clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY.");
+}
+
+if (import.meta.env.PROD && isDevelopmentClerkKey(clerkPubKey)) {
+  throw new Error(
+    "Production builds cannot use a development Clerk publishable key.",
+  );
 }
 
 const clerkAppearance = {
@@ -55,40 +104,41 @@ const clerkAppearance = {
     socialButtonsVariant: "blockButton" as const,
   },
   variables: {
-    colorPrimary: "#122519",
-    colorForeground: "#0b0b0b",
-    colorMutedForeground: "#5d5d58",
+    colorPrimary: "var(--foreground)",
+    colorForeground: "var(--foreground)",
+    colorMutedForeground: "color-mix(in srgb, var(--foreground) 68%, transparent)",
     colorDanger: "#a11212",
-    colorBackground: "#f3ecd9",
-    colorInput: "#fffdf5",
-    colorInputForeground: "#0b0b0b",
-    colorNeutral: "#b5ad9b",
+    colorBackground: "var(--background)",
+    colorInput: "transparent",
+    colorInputForeground: "var(--foreground)",
+    colorNeutral: "var(--border)",
     fontFamily: "ARTCOVR Grotesk, Arial, sans-serif",
     borderRadius: "0",
   },
   elements: {
     rootBox: "w-full flex justify-center",
-    cardBox: "bg-[#f3ecd9] rounded-none w-[440px] max-w-full overflow-hidden",
-    card: "!shadow-none !bg-transparent",
-    headerTitle: "text-[#0b0b0b] font-extrabold tracking-tight",
-    headerSubtitle: "text-[#5d5d58]",
-    socialButtonsBlockButtonText: "text-[#0b0b0b] font-bold",
-    formFieldLabel: "text-[#0b0b0b] font-bold",
-    footerActionLink: "text-[#122519] font-bold underline underline-offset-4",
-    footerActionText: "text-[#5d5d58]",
-    dividerText: "text-[#5d5d58]",
-    identityPreviewEditButton: "text-[#122519]",
-    formFieldSuccessText: "text-[#122519]",
+    cardBox: "!bg-transparent !border-0 rounded-none w-[560px] max-w-full overflow-hidden",
+    card: "!shadow-none !border-0 !bg-transparent !rounded-none",
+    footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
+    headerTitle: "text-foreground font-extrabold tracking-tight",
+    headerSubtitle: "text-foreground/70",
+    socialButtonsBlockButtonText: "text-[#000000] font-extrabold",
+    formFieldLabel: "text-foreground font-bold",
+    footerActionLink: "text-foreground font-bold underline underline-offset-4",
+    footerActionText: "text-foreground/70",
+    dividerText: "text-foreground/60",
+    identityPreviewEditButton: "text-foreground",
+    formFieldSuccessText: "text-foreground",
     alertText: "text-[#a11212]",
     logoBox: "h-12",
     logoImage: "max-h-12",
-    socialButtonsBlockButton: "border border-[#0b0b0b]/30 !bg-transparent",
-    formButtonPrimary: "bg-[#122519] text-[#f3ecd9] rounded-none hover:bg-[#0b0b0b]",
-    formFieldInput: "border border-[#0b0b0b]/30 !bg-[#fffdf5] text-[#0b0b0b] rounded-none",
+    socialButtonsBlockButton: "border border-foreground/30 !bg-cream",
+    formButtonPrimary: "bg-foreground text-background rounded-none hover:opacity-85",
+    formFieldInput: "border border-foreground/30 !bg-transparent text-foreground rounded-none",
     footerAction: "!bg-transparent",
-    dividerLine: "bg-[#0b0b0b]/20",
+    dividerLine: "bg-foreground/20",
     alert: "border border-[#a11212]/40 !bg-transparent",
-    otpCodeFieldInput: "border-[#0b0b0b]/30 !bg-[#fffdf5]",
+    otpCodeFieldInput: "border-foreground/30 !bg-transparent",
     formFieldRow: "gap-2",
     main: "gap-5",
   },
@@ -99,32 +149,50 @@ function Router() {
     // Keep a shared shell (sidebar, navbar) outside the boundary so it
     // survives a page crash.
     <RoutedErrorBoundary>
-      <Switch>
-        <Route path="/" component={HomeEntry} />
-        <Route path="/about" component={AboutPage} />
-        <Route path="/archive" component={ArchivePage} />
-        <Route path="/auth/callback" component={AuthCallbackPage} />
-        <Route path="/bag">
-          <Redirect to="/archive" />
-        </Route>
-        <Route path="/checkout/:slug" component={CheckoutRoute} />
-        <Route path="/contact" component={ContactPage} />
-        <Route path="/faq" component={FaqPage} />
-        <Route path="/legal/privacy" component={PrivacyPage} />
-        <Route path="/legal/terms" component={TermsPage} />
-        <Route path="/license" component={LicensePage} />
-        <Route path="/my-images" component={ProtectedMyImagesRoute} />
-        <Route path="/catalog-intelligence" component={ProtectedCatalogIntelligenceRoute} />
-        <Route path="/product/:slug" component={ProductPage} />
-        <Route path="/refunds" component={RefundsPage} />
-        <Route path="/shipping-and-return">
-          <Redirect to="/refunds" />
-        </Route>
-        <Route path="/sign-in/*?" component={SignInPage} />
-        <Route path="/sign-up/*?" component={SignUpPage} />
-        <Route component={NotFound} />
-      </Switch>
+      <Suspense fallback={<RouteLoading />}>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/about" component={AboutPage} />
+          <Route path="/archive" component={ArchivePage} />
+          <Route path="/auth/callback" component={AuthCallbackPage} />
+          <Route path="/bag">
+            <Redirect to="/archive" />
+          </Route>
+          <Route path="/checkout/:slug" component={CheckoutRoute} />
+          <Route path="/contact" component={ContactPage} />
+          <Route path="/faq" component={FaqPage} />
+          <Route path="/guides/cover-art-licensing" component={CoverArtLicensingGuidePage} />
+          <Route path="/guides/exclusive-cover-art" component={ExclusiveCoverArtGuidePage} />
+          <Route path="/guides/ai-generated-cover-art" component={AiGeneratedCoverArtGuidePage} />
+          <Route path="/legal/privacy" component={PrivacyPage} />
+          <Route path="/legal/terms" component={TermsPage} />
+          <Route path="/license" component={LicensePage} />
+          <Route path="/my-images" component={ProtectedMyImagesRoute} />
+          <Route path="/catalog-intelligence" component={ProtectedCatalogIntelligenceRoute} />
+          <Route path="/product/:slug" component={ProductPage} />
+          <Route path="/refunds" component={RefundsPage} />
+          <Route path="/shipping-and-return">
+            <Redirect to="/refunds" />
+          </Route>
+          <Route path="/sign-in/*?" component={SignInPage} />
+          <Route path="/sign-up/*?" component={SignUpPage} />
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
     </RoutedErrorBoundary>
+  );
+}
+
+function RouteLoading() {
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center bg-black text-white dark:bg-cream dark:text-black"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading page"
+    >
+      <div className="artcovr-wordmark artcovr-wordmark-optical text-4xl">ARTCOVR</div>
+    </div>
   );
 }
 
@@ -133,18 +201,37 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
+function ScrollToTop() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    window.history.scrollRestoration = "manual";
+
+    const lenis = (
+      window as Window & {
+        __lenis?: {
+          scrollTo: (
+            target: number,
+            options?: { immediate?: boolean; force?: boolean },
+          ) => void;
+        };
+      }
+    ).__lenis;
+    lenis?.scrollTo(0, { immediate: true, force: true });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location]);
+
+  return null;
+}
+
 function CheckoutRoute() {
   return <CheckoutPageComponent />;
 }
 
-function HomeEntry() {
-  const { isLoaded, isSignedIn } = useAuth();
-  if (isLoaded && isSignedIn) return <Redirect to="/my-images" />;
-  return <Home />;
-}
-
 function ProtectedMyImagesRoute() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
   if (!isLoaded) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm opacity-60" aria-live="polite">
@@ -157,7 +244,7 @@ function ProtectedMyImagesRoute() {
 }
 
 function ProtectedCatalogIntelligenceRoute() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useArtcovrAuth();
   if (!isLoaded) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm opacity-60" aria-live="polite">
@@ -189,9 +276,12 @@ function ClerkQueryClientCacheInvalidator() {
 
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
+  const deterministicAuth = import.meta.env.DEV &&
+    import.meta.env.VITE_E2E_AUTH === "1" &&
+    window.localStorage.getItem("artcovr:e2e-auth") === "signed-in";
 
   return (
-    <ClerkProvider
+    <ArtcovrAuthProvider
       publishableKey={clerkPubKey}
       proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
@@ -210,22 +300,36 @@ function ClerkProviderWithRoutes() {
             subtitle: "Start making your next cover yours",
           },
         },
+        socialButtonsBlockButton: "CONTINUE WITH GOOGLE",
       }}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
-      <ClerkQueryClientCacheInvalidator />
+      {!deterministicAuth ? <ClerkQueryClientCacheInvalidator /> : null}
+      <ScrollToTop />
       <SeoHead />
       <Router />
-    </ClerkProvider>
+    </ArtcovrAuthProvider>
   );
 }
 
 function App() {
+  const [, startTransition] = useTransition();
+  const aroundNavigation = useCallback(
+    (
+      navigate: (to: Path, options?: NavigateOptions) => void,
+      to: Path,
+      options?: NavigateOptions,
+    ) => {
+      startTransition(() => navigate(to, options));
+    },
+    [startTransition],
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={basePath}>
+        <WouterRouter base={basePath} aroundNav={aroundNavigation}>
           <ClerkProviderWithRoutes />
         </WouterRouter>
         <Toaster />

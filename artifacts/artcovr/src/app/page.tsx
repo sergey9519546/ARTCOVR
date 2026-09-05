@@ -40,10 +40,13 @@ export default function Home() {
     const mediaQuery = window.matchMedia(STATIC_MEDIA_QUERY);
     const reducedMotionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
     const updateMode = () => {
-      const allowed = !mediaQuery.matches;
+      const staticPresentation = mediaQuery.matches;
+      const allowed = !staticPresentation;
       setMotionAllowed(allowed);
-      if (reducedMotionQuery.matches) {
+      if (staticPresentation) {
         setHeroEntranceReady(true);
+      }
+      if (reducedMotionQuery.matches) {
         setPreloaderDone(true);
       }
     };
@@ -225,7 +228,9 @@ export default function Home() {
           <ProductGrid />
         </ErrorBoundary>
         <ErrorBoundary label="journey">
-          <ScrollJourney enabled={preloaderDone && motionAllowed} />
+          <ScrollJourney
+            enabled={preloaderDone && motionAllowed && !transitionActive}
+          />
         </ErrorBoundary>
         <ErrorBoundary label="editorial">
           <FullScreenSnap />
