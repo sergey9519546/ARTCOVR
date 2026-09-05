@@ -550,17 +550,99 @@ test("cleanup report identifies test-mode orders as stale when the account is li
 
 function reconciliationReport(
   historicalOrders: StripeCatalogSnapshot["historicalOrders"],
+  stripeAccountMode: StripeCatalogSnapshot["stripeAccountMode"] = "live",
 ) {
   return buildStripeCatalogCleanupReport(
     {
       ...snapshot([], new Map()),
-      stripeAccountMode: "live",
+      stripeAccountMode,
       historicalOrders,
     },
     [],
     "dry_run",
   );
 }
+
+test("ambiguous Stripe account modes keep absent sessions unresolved", async () => {
+  for (const accountMode of ["mixed", "unknown"] as const) {
+    const missingOrderId = `order_missing_${accountMode}`;
+    const ambiguousTestOrderId = `order_test_${accountMode}`;
+    const report = reconciliationReport(
+      [
+        {
+          id: missingOrderId,
+          artworkId: artwork.id,
+          status: "paid",
+          stripeCheckoutSessionId: `cs_missing_${accountMode}`,
+          stripePaymentIntentId: `pi_missing_${accountMode}`,
+        },
+        {
+          id: ambiguousTestOrderId,
+          artworkId: artwork.id,
+          status: "expired",
+          stripeCheckoutSessionId: `cs_test_${accountMode}`,
+          stripePaymentIntentId: null,
+        },
+      ],
+      accountMode,
+    );
+    const output: string[] = [];
+    const diagnostics: string[] = [];
+
+    assert.deepEqual(
+      report.historicalOrders.map((order) => ({
+        id: order.id,
+        diagnosis: order.checkoutSessionDiagnosis,
+      })),
+      [
+        {
+          id: missingOrderId,
+          diagnosis: "missing_from_connected_account",
+        },
+        {
+          id: ambiguousTestOrderId,
+          diagnosis: "missing_from_connected_account",
+        },
+      ],
+    );
+    assert.deepEqual(report.reconciliation.staleTestDataOrderIds, []);
+    assert.deepEqual(report.reconciliation.unresolvedOrderIds, [
+      missingOrderId,
+      ambiguousTestOrderId,
+    ]);
+    assert.ok(
+      report.reconciliation.alerts.every(
+        (alert) =>
+          alert.diagnosis === "missing_from_connected_account" &&
+          alert.severity === "error",
+      ),
+    );
+
+    const exitCode = await runStripeCatalogCleanupCli({
+      args: ["--reconcile-only"],
+      audit: async () => report,
+      log: (message) => output.push(message),
+      error: (message) => diagnostics.push(message),
+    });
+
+    assert.equal(exitCode, 2);
+    assert.match(
+      diagnostics.join("\n"),
+      new RegExp(
+        `Stripe reconciliation ERROR: order ${missingOrderId} \\(missing_from_connected_account; checkout session cs_missing_${accountMode}; connected account mode ${accountMode}\\)`,
+      ),
+    );
+    assert.match(
+      diagnostics.join("\n"),
+      /Stripe reconciliation failed: 2 unresolved live-order reference/,
+    );
+    assert.doesNotMatch(
+      diagnostics.join("\n"),
+      /Stripe reconciliation warning/,
+    );
+    assert.match(output[0] ?? "", new RegExp(`"${accountMode}"`));
+  }
+});
 
 test("reconciliation CLI accepts and reports an order without a Stripe session ID", async () => {
   const report = reconciliationReport([
