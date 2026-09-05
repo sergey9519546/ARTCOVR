@@ -1,2 +1,2 @@
-export { openai } from "./client";
-export { editImageBuffers, type ImageEditClient, type ImageEditInput } from "./image";
+export { getOpenAI } from "./client";
+export { editImageBuffers, editImageWithMetadata, ImageProviderError, type ImageEditClient, type ImageEditInput } from "./image";

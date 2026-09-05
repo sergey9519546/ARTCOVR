@@ -1,1 +1,1 @@
-export { editImageBuffers, type ImageEditClient, type ImageEditInput } from "./client";
+export { editImageBuffers, editImageWithMetadata, ImageProviderError, type ImageEditClient, type ImageEditInput } from "./client";

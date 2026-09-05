@@ -77,6 +77,8 @@ export const GenerationRequestStyleMode = {
 } as const;
 
 export interface GenerationRequest {
+  /** Stable identifier for one edit, reused across transport retries. */
+  requestId?: string;
   /**
      * @minLength 1
      * @maxLength 200

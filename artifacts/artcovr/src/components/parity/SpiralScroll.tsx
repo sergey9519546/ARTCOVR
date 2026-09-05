@@ -180,6 +180,10 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       const targetScale = targetSize / cardSize;
       const targetRowWidth =
         targetSize * exitGridCount + gridGap * (exitGridCount - 1);
+      // Cards are center-anchored inside the stage. Moving the spiral origin
+      // left by half the viewport makes the first covers enter from the
+      // actual left edge instead of beginning around the viewport midpoint.
+      const spiralOriginX = -viewportWidth / 2;
 
       itemElements.forEach((element, index) => {
         if (index === 0) {
@@ -194,7 +198,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
           // The lead card is center-anchored, so x=0 places its left edge
           // halfway across the viewport. Start it flush with the left edge;
           // otherwise the spiral opens with a large empty band on the right.
-          const leftEdgeStart = -window.innerWidth / 2 + cardSize / 2;
+          const leftEdgeStart = spiralOriginX + cardSize / 2;
           const x =
             leftEdgeStart + leadT * (window.innerWidth * 0.72 + cardSize);
           const y = -arc * RADIUS_Y * 0.72;
@@ -217,7 +221,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
         const fadeIn = Math.min(1, (z - DEPTH_FAR) / FADE_IN);
         const fadeOut = Math.min(1, (DEPTH_NEAR - z) / FADE_OUT);
 
-        const normalX = position.x + drift;
+        const normalX = spiralOriginX + position.x + drift;
         const normalY = position.y;
         const normalZ = drawn ? z : DEPTH_FAR;
         const normalOpacity = drawn

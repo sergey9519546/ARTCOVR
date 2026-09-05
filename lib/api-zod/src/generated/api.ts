@@ -149,6 +149,7 @@ export const createGenerationBodyCoverTextOneArtistNameMax = 120;
 
 
 export const CreateGenerationBody = zod.object({
+  "requestId": zod.string().uuid().optional().describe('Stable identifier for one edit, reused across transport retries.'),
   "artworkId": zod.string().min(1).max(createGenerationBodyArtworkIdMax),
   "prompt": zod.string().min(1).max(createGenerationBodyPromptMax),
   "purchaseId": zod.string().min(1).max(createGenerationBodyPurchaseIdMax).nullish(),

@@ -5,19 +5,20 @@ export class ArtcovrApiError extends ArtcovrApiErrorBase {}
 export type GenerationRequest = {
   artworkId: string;
   prompt: string;
+  /** Stable across transport retries for one edit. */
+  requestId?: string;
   purchaseId?: string;
   /** A prior generated result to continue editing from. */
   referenceGenerationId?: string;
   /**
-   * An image the user uploaded through {@link uploadReference}. It supplements
-   * the primary artwork reference and may be sent together with
-   * `referenceGenerationId`.
+   * A supplementary photo from {@link uploadReference}. Can accompany a
+   * previous result; the selected artwork/result remains the primary source.
    */
   referenceUploadId?: string;
   resetToBase?: boolean;
   /**
    * Optional cover typography rendered INTO the generated image by the model.
-   * Verbatim spelling is enforced server-side in the enrichment template.
+   * The model is instructed to preserve spelling; inspect generated lettering.
    */
   coverText?: { title?: string; artistName?: string };
   /** "exact" (default) locks the reference style; "expand" allows reinterpretation. */
@@ -78,6 +79,8 @@ export type AccountPurchase = {
   resetSource: "original";
   accessRevokedAt: string | null;
   accessRevocationReason: string | null;
+  includedCredits: number;
+  remainingCredits: number;
   remainingGenerations: number;
 };
 
@@ -104,6 +107,7 @@ export type AccountDownload = {
 };
 
 export type AccountData = {
+  totalCreditBalance: number;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];

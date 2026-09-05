@@ -21,7 +21,12 @@ function formatDate(value: string | null) {
 
 export default function MyImagesPage() {
   const [state, setState] = useState<"loading" | "signed-out" | "ready" | "error">("loading");
-  const [data, setData] = useState<AccountData>({ purchases: [], generations: [], downloads: [] });
+  const [data, setData] = useState<AccountData>({
+    totalCreditBalance: 0,
+    purchases: [],
+    generations: [],
+    downloads: [],
+  });
   const [message, setMessage] = useState("");
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
@@ -66,7 +71,7 @@ export default function MyImagesPage() {
         if (error instanceof ArtcovrApiError && error.code === "unauthorized") {
           setState("signed-out");
         } else {
-          setState("error");
+          if (!quiet) setState("error");
           setMessage(error instanceof Error ? error.message : "My Images is unavailable.");
         }
       }
@@ -75,7 +80,9 @@ export default function MyImagesPage() {
   }, []);
 
   const refreshAccount = useCallback(async () => {
-    await loadAccount(false);
+    // Keep the selected canvas and pending edit mounted while refreshing the
+    // allowance. A temporary fetch error must not reset an artist's workspace.
+    await loadAccount(true);
   }, [loadAccount]);
 
   useEffect(() => {
@@ -110,6 +117,9 @@ export default function MyImagesPage() {
   return (
     <PublicPage eyebrow="Account" title="MY IMAGES">
       {state === "loading" && <p role="status">Loading your images…</p>}
+      {state === "ready" && message && (
+        <p role="status" className="mb-4 text-sm">{message} Your current edit is preserved. <button type="button" className="underline" onClick={() => void loadAccount(true)}>Refresh account</button></p>
+      )}
       {state === "signed-out" && (
         <section className="border-y border-current/20 py-10">
           <p className="text-xl font-bold tracking-tight">Sign in to view your images.</p>
@@ -143,6 +153,12 @@ export default function MyImagesPage() {
             Browse the archive
           </Link>
         </section>
+      )}
+      {state === "ready" && data.purchases.length > 0 && (
+        <p className="mb-10 border-y border-current/20 py-4 text-sm">
+          <span className="font-bold">{data.totalCreditBalance}</span>{" "}
+          image-edit credit{data.totalCreditBalance === 1 ? "" : "s"} available across your purchases.
+        </p>
       )}
       {state === "ready" && data.purchases.map((purchase) => {
         const purchaseGenerations = data.generations.filter((generation) => generation.purchaseId === purchase.id);
@@ -186,7 +202,7 @@ export default function MyImagesPage() {
               {artwork && <Link href={`/product/${purchase.artworkSlug}`} className="link-hover text-xs font-bold uppercase tracking-[.08em]">View artwork</Link>}
             </div>
             <dl className="mt-6 grid gap-4 border-y border-current/20 py-5 text-sm sm:grid-cols-3">
-              <div><dt className="opacity-60">Generations remaining</dt><dd className="mt-1 font-bold">{purchase.remainingGenerations}</dd></div>
+              <div><dt className="opacity-60">Credits remaining</dt><dd className="mt-1 font-bold">{purchase.remainingCredits}</dd></div>
               <div><dt className="opacity-60">Access expires</dt><dd className="mt-1 font-bold">{formatDate(purchase.entitlementExpiresAt)}</dd></div>
               <div><dt className="opacity-60">Paid</dt><dd className="mt-1 font-bold">{purchase.paidAt ? `${(purchase.amountCents / 100).toLocaleString("en-US", { style: "currency", currency: purchase.currency })} · ${formatDate(purchase.paidAt)}` : "—"}</dd></div>
             </dl>

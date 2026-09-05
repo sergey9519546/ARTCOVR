@@ -571,6 +571,10 @@ components:
     GenerationRequest:
       type: object
       properties:
+        requestId:
+          type: string
+          format: uuid
+          description: Stable identifier for one edit, reused across transport retries.
         artworkId:
           type: string
           minLength: 1

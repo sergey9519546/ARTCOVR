@@ -154,8 +154,13 @@ export const artcovrCreditLedger = pgTable(
   "artcovr_credit_ledger",
   {
     id: text("id").primaryKey(),
+    // Guest grants use a purchase-scoped guest principal until a verified
+    // Clerk account claims the order; settled entries are never ownerless.
+    clerkUserId: text("clerk_user_id").notNull(),
     accountKey: text("account_key").notNull(),
-    orderId: text("order_id"),
+    // Every credit event belongs to one purchase, including guest grants
+    // before they are claimed by a Clerk account.
+    orderId: text("order_id").notNull(),
     entryType: text("entry_type").notNull(),
     amount: integer("amount").notNull(),
     reason: text("reason").notNull(),
@@ -166,6 +171,10 @@ export const artcovrCreditLedger = pgTable(
       .defaultNow(),
   },
   (table) => ({
+    clerkUserIdx: index("artcovr_credit_ledger_clerk_user_id_idx").on(
+      table.clerkUserId,
+    ),
+    orderIdx: index("artcovr_credit_ledger_order_id_idx").on(table.orderId),
     sourceIdx: uniqueIndex("artcovr_credit_ledger_source_id_idx").on(
       table.sourceId,
     ),

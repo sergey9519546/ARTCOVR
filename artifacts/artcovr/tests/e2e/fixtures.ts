@@ -26,7 +26,7 @@ export function accountFixture() {
     purchases: [
       {
         id: "purchase-e2e",
-        artworkId: "art_382f017ddad8dcd971",
+        artworkId: "art_382f017ddadad8dcd971",
         artworkTitle: "Buried Clocks",
         artworkSlug: "buried-clocks",
         saleMode: "repeatable",
@@ -45,7 +45,7 @@ export function accountFixture() {
     generations: [
       {
         id: "generation-purchased",
-        artworkId: "art_382f017ddad8dcd971",
+        artworkId: "art_382f017ddadad8dcd971",
         purchaseId: "purchase-e2e",
         prompt: "Add a quiet amber glow.",
         phase: "purchased",
@@ -71,7 +71,7 @@ export function accountFixture() {
       {
         kind: "base",
         purchaseId: "purchase-e2e",
-        artworkId: "art_382f017ddad8dcd971",
+        artworkId: "art_382f017ddadad8dcd971",
         generationId: null,
         expiresAt: "2030-09-20T12:00:00.000Z",
         url: fixtureImage,
@@ -79,7 +79,7 @@ export function accountFixture() {
       {
         kind: "purchased_result",
         purchaseId: "purchase-e2e",
-        artworkId: "art_382f017ddad8dcd971",
+        artworkId: "art_382f017ddadad8dcd971",
         generationId: "generation-purchased",
         expiresAt: "2030-09-20T12:00:00.000Z",
         url: fixtureImage,
