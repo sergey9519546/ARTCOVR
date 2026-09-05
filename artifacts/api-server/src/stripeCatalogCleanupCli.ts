@@ -7,6 +7,7 @@ import {
   type StripeCatalogCleanupProgress,
   type StripeCatalogCleanupReport,
 } from "./stripeCatalogCleanup";
+import { StripeCatalogCleanupLeaseError } from "./stripeCatalogCleanupLease";
 
 export const STRIPE_CATALOG_CLEANUP_INTERRUPTED_EXIT_CODE = 75;
 
@@ -57,23 +58,35 @@ export async function runStripeCatalogCleanupCli({
     error(cause instanceof Error ? cause.message : String(cause));
     return 1;
   }
-  const report = reconciliationOnly
-    ? await audit()
-    : await cleanup({
-        confirmation: confirmed
-          ? STRIPE_CATALOG_DEACTIVATION_CONFIRMATION
-          : undefined,
-        maxMutations,
-        onProgress: (progress) => {
-          if (progress.status === "not_started") return;
-          const last = progress.lastCompletedMutation
-            ? `; last completed ${progress.lastCompletedMutation.category}/${progress.lastCompletedMutation.objectId}`
-            : "";
-          error(
-            `Stripe catalog cleanup ${progress.status}: ${progress.completedMutations}/${progress.totalMutations} mutations${last}`,
-          );
-        },
-      });
+  let report: StripeCatalogCleanupReport;
+  try {
+    report = reconciliationOnly
+      ? await audit()
+      : await cleanup({
+          confirmation: confirmed
+            ? STRIPE_CATALOG_DEACTIVATION_CONFIRMATION
+            : undefined,
+          maxMutations,
+          onProgress: (progress) => {
+            if (progress.status === "not_started") return;
+            const last = progress.lastCompletedMutation
+              ? `; last completed ${progress.lastCompletedMutation.category}/${progress.lastCompletedMutation.objectId}`
+              : "";
+            error(
+              `Stripe catalog cleanup ${progress.status}: ${progress.completedMutations}/${progress.totalMutations} mutations${last}`,
+            );
+          },
+        });
+  } catch (cause) {
+    if (cause instanceof StripeCatalogCleanupLeaseError) {
+      const active = cause.activeOperation;
+      error(
+        `Stripe catalog cleanup already active: operation ${active.operationId}; pid ${active.pid ?? "unknown"}; acquired ${active.acquiredAt}; lease expires ${active.expiresAt}. Retry after the lease expires.`,
+      );
+      return STRIPE_CATALOG_CLEANUP_INTERRUPTED_EXIT_CODE;
+    }
+    throw cause;
+  }
 
   log(JSON.stringify(report, null, 2));
   if (report.progress.status === "completed") {

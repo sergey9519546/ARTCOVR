@@ -16,6 +16,10 @@ import {
   selectStripePriceCandidate,
   type StripePriceCandidate,
 } from "./stripeCatalog";
+import {
+  acquireStripeCatalogCleanupLease,
+  type StripeCatalogCleanupLease,
+} from "./stripeCatalogCleanupLease";
 
 export const STRIPE_CATALOG_DEACTIVATION_CONFIRMATION =
   "DEACTIVATE_DUPLICATE_STRIPE_CATALOG";
@@ -780,6 +784,7 @@ type StripeCatalogCleanupDependencies = {
   updateProduct: typeof updateStripeProduct;
   deactivatePrice: typeof deactivateStripePrice;
   deactivateProduct: typeof deactivateStripeProduct;
+  acquireLease: typeof acquireStripeCatalogCleanupLease;
 };
 
 const defaultStripeCatalogCleanupDependencies: StripeCatalogCleanupDependencies =
@@ -788,6 +793,7 @@ const defaultStripeCatalogCleanupDependencies: StripeCatalogCleanupDependencies 
     updateProduct: updateStripeProduct,
     deactivatePrice: deactivateStripePrice,
     deactivateProduct: deactivateStripeProduct,
+    acquireLease: acquireStripeCatalogCleanupLease,
   };
 
 export async function cleanupStripeCatalog(
@@ -811,10 +817,12 @@ export async function cleanupStripeCatalog(
     throw new RangeError("maxMutations must be a positive integer.");
   }
 
-  const before = await dependencies.audit();
   if (options.confirmation !== STRIPE_CATALOG_DEACTIVATION_CONFIRMATION) {
-    return before;
+    return dependencies.audit();
   }
+  const lease: StripeCatalogCleanupLease = await dependencies.acquireLease();
+  try {
+  const before = await dependencies.audit();
   if (
     before.readiness.readyArtworkCount !== before.readiness.expectedArtworkCount
   ) {
@@ -908,6 +916,7 @@ export async function cleanupStripeCatalog(
   const completedProducts: string[] = [];
 
   const reportProgress = async () => {
+    await lease.refresh();
     await options.onProgress?.({
       ...progress,
       lastCompletedMutation: progress.lastCompletedMutation
@@ -1004,6 +1013,9 @@ export async function cleanupStripeCatalog(
       defaultPrices: completedDefaultPrices,
     },
   };
+  } finally {
+    await lease.release();
+  }
 }
 
 export function stripeCatalogCleanupIdempotencyKey(
