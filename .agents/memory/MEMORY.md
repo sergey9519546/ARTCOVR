@@ -23,3 +23,4 @@
 - [Stripe catalog cleanup limits](stripe-catalog-cleanup.md) — audit price pages sequentially through the proxy; destructive duplicate cleanup stays confirmation-gated.
 - [Stripe environment account checks](stripe-environment-account-check.md) — verify account identity and session metadata instead of inferring ownership from environment labels.
 - [Artwork edit provider contract](artwork-edit-provider-contract.md) — always send the current artwork first; uploaded identity photos supplement it and never replace it.
+- [Real Clerk E2E prerequisites](real-clerk-e2e-prerequisites.md) — live account journeys stay skipped until disposable test-account inputs are configured.
