@@ -106,8 +106,24 @@ export type AccountDownload = {
   url: string;
 };
 
+export type AccountCreditActivity = {
+  purchaseId: string;
+  artworkTitle: string;
+  event:
+    | "grant"
+    | "generation"
+    | "release"
+    | "refund"
+    | "expiration"
+    | "revocation";
+  label: string;
+  amount: number;
+  occurredAt: string;
+};
+
 export type AccountData = {
   totalCreditBalance: number;
+  creditActivity: AccountCreditActivity[];
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];

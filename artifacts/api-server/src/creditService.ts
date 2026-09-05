@@ -4,6 +4,71 @@ import { randomUUID } from "node:crypto";
 
 type CreditExecutor = Pick<typeof db, "select" | "insert">;
 
+export type CreditActivityEvent =
+  | "grant"
+  | "generation"
+  | "release"
+  | "refund"
+  | "expiration"
+  | "revocation";
+
+export type CreditActivity = {
+  purchaseId: string;
+  event: CreditActivityEvent;
+  label: string;
+  amount: number;
+  occurredAt: Date;
+};
+
+function classifyCreditActivity(
+  entryType: string,
+  reason: string,
+): Pick<CreditActivity, "event" | "label"> {
+  if (entryType === "grant") return { event: "grant", label: "Credits added" };
+  if (entryType === "spend") {
+    return { event: "generation", label: "Generation used" };
+  }
+  if (entryType === "release") {
+    return { event: "release", label: "Credits returned" };
+  }
+  if (/refund/i.test(reason)) {
+    return { event: "refund", label: "Refund adjustment" };
+  }
+  if (/expir/i.test(reason)) {
+    return { event: "expiration", label: "Expiration adjustment" };
+  }
+  return { event: "revocation", label: "Access revocation" };
+}
+
+export async function listUserCreditActivity(
+  executor: CreditExecutor,
+  userId: string,
+): Promise<CreditActivity[]> {
+  const rows = await executor
+    .select({
+      purchaseId: artcovrCreditLedger.orderId,
+      entryType: artcovrCreditLedger.entryType,
+      amount: artcovrCreditLedger.amount,
+      reason: artcovrCreditLedger.reason,
+      occurredAt: artcovrCreditLedger.createdAt,
+    })
+    .from(artcovrCreditLedger)
+    .where(
+      or(
+        eq(artcovrCreditLedger.clerkUserId, userId),
+        eq(artcovrCreditLedger.accountKey, userId),
+      ),
+    )
+    .orderBy(sql`${artcovrCreditLedger.createdAt} desc`);
+
+  return rows.map((row) => ({
+    purchaseId: row.purchaseId,
+    ...classifyCreditActivity(row.entryType, row.reason),
+    amount: row.amount,
+    occurredAt: row.occurredAt,
+  }));
+}
+
 export type CreditBalance = {
   purchaseId: string;
   balance: number;

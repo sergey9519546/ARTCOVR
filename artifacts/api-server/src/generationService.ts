@@ -22,6 +22,7 @@ import {
 import {
   getPurchaseCreditBalance,
   getUserCreditBalance,
+  listUserCreditActivity,
   listPurchaseCreditBalances,
   releasePurchaseCredit,
   revokePurchaseCredits,
@@ -779,13 +780,31 @@ export async function serializeAccount(userId: string) {
         ),
       ),
   );
-  const purchaseBalances = new Map(
-    (await listPurchaseCreditBalances(db, userId)).map((balance) => [
-      balance.purchaseId,
-      balance.balance,
-    ]),
+  const [creditActivity, purchaseBalances, totalCreditBalance] =
+    await Promise.all([
+      listUserCreditActivity(db, userId),
+      listPurchaseCreditBalances(db, userId),
+      getUserCreditBalance(db, userId),
+    ]);
+  const purchaseBalancesById = new Map(
+    purchaseBalances.map((balance) => [balance.purchaseId, balance.balance]),
   );
-  const totalCreditBalance = await getUserCreditBalance(db, userId);
+  const ordersById = new Map(orders.map((order) => [order.id, order]));
+  const serializedCreditActivity = creditActivity.flatMap((activity) => {
+    const order = ordersById.get(activity.purchaseId);
+    if (!order) return [];
+    const artwork = getPublicArtworkById(order.artworkId);
+    return [
+      {
+        purchaseId: activity.purchaseId,
+        artworkTitle: artwork?.title ?? order.artworkSlug,
+        event: activity.event,
+        label: activity.label,
+        amount: activity.amount,
+        occurredAt: activity.occurredAt.toISOString(),
+      },
+    ];
+  });
   const purchases = orders.map((order) => {
     const artwork = getPublicArtworkById(order.artworkId);
     const entitlementExpiresAt = effectiveEntitlement(order);
@@ -807,11 +826,11 @@ export async function serializeAccount(userId: string) {
       includedCredits: order.includedCredits,
       remainingCredits:
         isActiveEntitlement(order) && !order.accessRevokedAt
-          ? Math.max(0, purchaseBalances.get(order.id) ?? 0)
+          ? Math.max(0, purchaseBalancesById.get(order.id) ?? 0)
           : 0,
       remainingGenerations:
         isActiveEntitlement(order) && !order.accessRevokedAt
-          ? Math.max(0, purchaseBalances.get(order.id) ?? 0)
+          ? Math.max(0, purchaseBalancesById.get(order.id) ?? 0)
           : 0,
     };
   });
@@ -920,6 +939,7 @@ export async function serializeAccount(userId: string) {
   ).filter(Boolean);
   return {
     totalCreditBalance: Math.max(0, totalCreditBalance),
+    creditActivity: serializedCreditActivity,
     purchases,
     generations: serializedGenerations,
     downloads,
