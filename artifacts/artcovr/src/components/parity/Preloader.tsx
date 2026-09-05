@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "@/components/compat/Image";
 import { featuredArtworks as displayArtworks, pickIntroArtworks } from "@/lib/artcovr/artworks";
 import {
   PRELOADER_COMPLETE_TIME_MS,
@@ -152,7 +153,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
             const visible = index < visibleImages;
             const shown = visible && !exited;
             return (
-              <img
+              <Image
                 key={artwork.id}
                 src={artwork.image}
                 alt=""

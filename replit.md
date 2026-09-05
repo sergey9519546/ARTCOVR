@@ -11,6 +11,7 @@ ARTCOVR is a curated cover-art catalog and storefront with commercial licensing 
 - `pnpm run verify:release` — portable checks followed by the storefront browser suite
 - `pnpm run verify:live-release` — non-mutating smoke checks against `ARTCOVR_RELEASE_URL`; rejects missing/invalid webhooks without creating a payment
 - `pnpm run db:migrate` — apply committed Drizzle migrations to development or disposable PostgreSQL
+- `NODE_ENV=development pnpm run db:baseline` — adopt a matching legacy development schema once without changing commerce data
 - `pnpm run verify:database` — read-only PostgreSQL readiness, migration-history, and required-commerce-table check
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec

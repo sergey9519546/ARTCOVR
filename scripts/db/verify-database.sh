@@ -43,6 +43,7 @@ if ! applied_hashes="$(
     "select hash from drizzle.__drizzle_migrations order by id"
 )"; then
   echo "DB SCHEMA DRIFT: Drizzle migration history is missing or unreadable." >&2
+  echo "For an existing development schema only, run NODE_ENV=development pnpm run db:baseline once." >&2
   exit 11
 fi
 
