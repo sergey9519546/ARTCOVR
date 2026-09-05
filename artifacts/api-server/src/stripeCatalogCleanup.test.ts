@@ -4,7 +4,10 @@ import type Stripe from "stripe";
 import type { PublicCatalogArtwork } from "./catalog";
 import {
   buildStripeCatalogCleanupReport,
+  cleanupStripeCatalog,
   compareStripeCanonicalSelections,
+  stripeCatalogCleanupIdempotencyKey,
+  STRIPE_CATALOG_DEACTIVATION_CONFIRMATION,
   type StripeCatalogSnapshot,
 } from "./stripeCatalogCleanup";
 import { runStripeCatalogCleanupCli } from "./stripeCatalogCleanupCli";
@@ -205,6 +208,167 @@ test("cleanup report clears a redundant default before deactivating its price", 
       changes: [],
     },
   );
+});
+
+test("an interrupted cleanup resumes from a fresh audit without repeating completed mutations", async () => {
+  const canonicalProduct = product(
+    "prod_resume_canonical",
+    1,
+    "price_resume_canonical",
+  );
+  let duplicateProduct = product(
+    "prod_resume_duplicate",
+    2,
+    "price_resume_duplicate",
+  );
+  const canonicalPrice = price(
+    "price_resume_canonical",
+    canonicalProduct.id,
+    1,
+  );
+  let duplicatePrice = price(
+    "price_resume_duplicate",
+    duplicateProduct.id,
+    2,
+  );
+  const calls: Array<{
+    category: "default_price" | "price" | "product";
+    objectId: string;
+    idempotencyKey: string | undefined;
+  }> = [];
+
+  const audit = async () =>
+    buildStripeCatalogCleanupReport(
+      {
+        ...snapshot(
+          [canonicalProduct, duplicateProduct],
+          new Map([
+            [canonicalProduct.id, [canonicalPrice]],
+            [duplicateProduct.id, [duplicatePrice]],
+          ]),
+        ),
+        defaultPriceReferences:
+          duplicateProduct.default_price && duplicateProduct.active
+            ? [
+                {
+                  kind: "default_price" as const,
+                  objectId: duplicateProduct.id,
+                  priceId: String(duplicateProduct.default_price),
+                  productId: duplicateProduct.id,
+                  active: true,
+                  historical: false,
+                },
+              ]
+            : [],
+      },
+      [artwork],
+      "dry_run",
+    );
+  const dependencies = {
+    audit,
+    updateProduct: async (
+      productId: string,
+      input: { defaultPrice?: string | null; active?: boolean },
+      idempotencyKey?: string,
+    ) => {
+      calls.push({
+        category: "default_price",
+        objectId: productId,
+        idempotencyKey,
+      });
+      duplicateProduct = {
+        ...duplicateProduct,
+        default_price: input.defaultPrice ?? null,
+      };
+      return duplicateProduct;
+    },
+    deactivatePrice: async (
+      priceId: string,
+      idempotencyKey?: string,
+    ) => {
+      calls.push({ category: "price", objectId: priceId, idempotencyKey });
+      duplicatePrice = { ...duplicatePrice, active: false };
+      return duplicatePrice;
+    },
+    deactivateProduct: async (
+      productId: string,
+      idempotencyKey?: string,
+    ) => {
+      calls.push({ category: "product", objectId: productId, idempotencyKey });
+      duplicateProduct = { ...duplicateProduct, active: false };
+      return duplicateProduct;
+    },
+  };
+
+  const interrupted = await cleanupStripeCatalog(
+    {
+      confirmation: STRIPE_CATALOG_DEACTIVATION_CONFIRMATION,
+      maxMutations: 1,
+    },
+    dependencies,
+  );
+
+  assert.equal(interrupted.mode, "interrupted");
+  assert.deepEqual(interrupted.progress, {
+    status: "interrupted",
+    totalMutations: 3,
+    completedMutations: 1,
+    lastCompletedMutation: {
+      category: "default_price",
+      objectId: duplicateProduct.id,
+    },
+    interruptionReason:
+      "Mutation limit reached after 1 of 3; rerun the cleanup to resume.",
+  });
+  assert.deepEqual(interrupted.deactivated?.defaultPrices, [
+    {
+      productId: duplicateProduct.id,
+      priceId: duplicatePrice.id,
+    },
+  ]);
+
+  const resumed = await cleanupStripeCatalog(
+    {
+      confirmation: STRIPE_CATALOG_DEACTIVATION_CONFIRMATION,
+    },
+    dependencies,
+  );
+
+  assert.equal(resumed.mode, "deactivated");
+  assert.equal(resumed.progress.status, "completed");
+  assert.equal(resumed.progress.totalMutations, 2);
+  assert.equal(resumed.progress.completedMutations, 2);
+  assert.deepEqual(resumed.deactivated, {
+    prices: [duplicatePrice.id],
+    products: [duplicateProduct.id],
+    defaultPrices: [],
+  });
+  assert.deepEqual(calls, [
+    {
+      category: "default_price",
+      objectId: duplicateProduct.id,
+      idempotencyKey: stripeCatalogCleanupIdempotencyKey(
+        "default_price",
+        duplicateProduct.id,
+      ),
+    },
+    {
+      category: "price",
+      objectId: duplicatePrice.id,
+      idempotencyKey: stripeCatalogCleanupIdempotencyKey(
+        "price",
+        duplicatePrice.id,
+      ),
+    },
+    {
+      category: "product",
+      objectId: duplicateProduct.id,
+      idempotencyKey: stripeCatalogCleanupIdempotencyKey(
+        "product",
+        duplicateProduct.id,
+      ),
+    },
+  ]);
 });
 
 test("cleanup report blocks duplicate prices used by live Stripe objects", () => {

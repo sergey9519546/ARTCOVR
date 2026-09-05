@@ -775,6 +775,21 @@ export async function auditStripeCatalog(): Promise<StripeCatalogCleanupReport> 
   );
 }
 
+type StripeCatalogCleanupDependencies = {
+  audit: typeof auditStripeCatalog;
+  updateProduct: typeof updateStripeProduct;
+  deactivatePrice: typeof deactivateStripePrice;
+  deactivateProduct: typeof deactivateStripeProduct;
+};
+
+const defaultStripeCatalogCleanupDependencies: StripeCatalogCleanupDependencies =
+  {
+    audit: auditStripeCatalog,
+    updateProduct: updateStripeProduct,
+    deactivatePrice: deactivateStripePrice,
+    deactivateProduct: deactivateStripeProduct,
+  };
+
 export async function cleanupStripeCatalog(
   options: {
     confirmation?: string;
@@ -783,7 +798,12 @@ export async function cleanupStripeCatalog(
       progress: StripeCatalogCleanupProgress,
     ) => void | Promise<void>;
   } = {},
+  dependencyOverrides: Partial<StripeCatalogCleanupDependencies> = {},
 ): Promise<StripeCatalogCleanupReport> {
+  const dependencies = {
+    ...defaultStripeCatalogCleanupDependencies,
+    ...dependencyOverrides,
+  };
   if (
     options.maxMutations !== undefined &&
     (!Number.isInteger(options.maxMutations) || options.maxMutations < 1)
@@ -791,7 +811,7 @@ export async function cleanupStripeCatalog(
     throw new RangeError("maxMutations must be a positive integer.");
   }
 
-  const before = await auditStripeCatalog();
+  const before = await dependencies.audit();
   if (options.confirmation !== STRIPE_CATALOG_DEACTIVATION_CONFIRMATION) {
     return before;
   }
@@ -850,7 +870,7 @@ export async function cleanupStripeCatalog(
       category: "default_price" as const,
       objectId: productId,
       run: () =>
-        updateStripeProduct(
+        dependencies.updateProduct(
           productId,
           { defaultPrice: null },
           stripeCatalogCleanupIdempotencyKey("default_price", productId),
@@ -860,7 +880,7 @@ export async function cleanupStripeCatalog(
       category: "price" as const,
       objectId: priceId,
       run: () =>
-        deactivateStripePrice(
+        dependencies.deactivatePrice(
           priceId,
           stripeCatalogCleanupIdempotencyKey("price", priceId),
         ),
@@ -869,7 +889,7 @@ export async function cleanupStripeCatalog(
       category: "product" as const,
       objectId: productId,
       run: () =>
-        deactivateStripeProduct(
+        dependencies.deactivateProduct(
           productId,
           stripeCatalogCleanupIdempotencyKey("product", productId),
         ),
@@ -956,7 +976,7 @@ export async function cleanupStripeCatalog(
 
   progress = { ...progress, status: "completed" };
   await reportProgress();
-  const after = await auditStripeCatalog();
+  const after = await dependencies.audit();
   const canonicalSelection = compareStripeCanonicalSelections(
     before.canonicalSelection.after,
     after.canonicalSelection.after,
