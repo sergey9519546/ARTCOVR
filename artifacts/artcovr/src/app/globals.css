@@ -1,0 +1,522 @@
+@layer theme, base, clerk, components, utilities;
+@import "tailwindcss";
+@import "@clerk/themes/shadcn.css";
+@import "tw-animate-css";
+
+/* These variants and tokens are part of the supplied archive UI contract. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-cream: #f3ecd9;
+  --color-paper: #f3ecd9;
+  --color-carbon: #0b0b0b;
+  --color-white: #f3ecd9;
+  --color-signal: #122519;
+  --color-graphite: #74746f;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --grid-cols-16: repeat(16, minmax(0, 1fr));
+  --font-sans: var(--font-artcovr);
+  --ease-out-extreme: cubic-bezier(.19, 1, .22, 1);
+}
+
+:root {
+  --paper: #f3ecd9;
+  --carbon: #0b0b0b;
+  --signal: #122519;
+  --background: #000;
+  --foreground: #f3ecd9;
+  --card: #171717;
+  --card-foreground: #f3ecd9;
+  --border: rgb(243 236 217 / 16%);
+  --input: rgb(243 236 217 / 22%);
+  --ring: rgb(243 236 217 / 55%);
+  --cursor-color: #f3ecd9;
+  --motion-ease: cubic-bezier(.19, 1, .22, 1);
+  --radius: .625rem;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --background: #f3ecd9;
+  --foreground: #000;
+  --card: #fff;
+  --card-foreground: #000;
+  --border: rgb(0 0 0 / 14%);
+  --input: rgb(0 0 0 / 18%);
+  --ring: rgb(0 0 0 / 45%);
+  --cursor-color: #122519;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #000;
+  --foreground: #f3ecd9;
+  --card: #171717;
+  --card-foreground: #f3ecd9;
+  --border: rgb(243 236 217 / 16%);
+  --input: rgb(243 236 217 / 22%);
+  --ring: rgb(243 236 217 / 55%);
+  --cursor-color: #f3ecd9;
+}
+* { box-sizing: border-box; }
+html {
+  background: var(--background);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-artcovr), Arial, sans-serif;
+  line-height: 1.5;
+  transition: background-color .35s var(--motion-ease), color .35s var(--motion-ease);
+}
+button, input, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+::selection { background: var(--signal); color: #f3ecd9; }
+
+.link-hover { position: relative; }
+.link-hover::after {
+  position: absolute;
+  right: 0;
+  bottom: -.18em;
+  left: 0;
+  height: max(1px, .1em);
+  content: "";
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .5s cubic-bezier(.83, 0, .17, 1);
+}
+.link-hover:hover::after,
+.link-hover:focus-visible::after,
+.link-hover[data-selected]::after,
+.link-hover[aria-current="page"]::after { transform: scaleX(1); }
+
+.artcovr-catalog-controls {
+  position: relative;
+  border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  padding: 1.35rem 0 1.65rem;
+}
+.artcovr-catalog-controls[data-compact="true"] {
+  border-top: 0;
+  border-bottom: 0;
+  padding: 0;
+}
+.artcovr-catalog-controls[data-compact="true"] .artcovr-catalog-facets {
+  margin-top: 0;
+}
+.artcovr-catalog-controls[data-compact="true"] > .artcovr-catalog-clear {
+  position: absolute;
+  top: .35rem;
+  right: 0;
+}
+.artcovr-catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.artcovr-catalog-heading,
+.artcovr-catalog-count,
+.artcovr-catalog-clear,
+.artcovr-catalog-facet-head h3,
+.artcovr-catalog-facet-head span {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+.artcovr-catalog-heading { color: color-mix(in srgb, currentColor 70%, transparent); }
+.artcovr-catalog-count {
+  margin-top: .3rem;
+  color: color-mix(in srgb, currentColor 48%, transparent);
+}
+.artcovr-catalog-clear {
+  padding: .2rem 0;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, currentColor 70%, transparent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.artcovr-catalog-clear:hover,
+.artcovr-catalog-clear:focus-visible { color: var(--foreground); }
+.artcovr-catalog-facets {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.25rem;
+}
+.artcovr-catalog-facet {
+  min-width: 0;
+  padding: 1rem 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+}
+.artcovr-catalog-facet:last-child {
+  border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+}
+.artcovr-catalog-facet-head {
+  min-width: 5.5rem;
+  padding-top: .65rem;
+}
+.artcovr-catalog-facet-head h3 {
+  margin: 0;
+  font-size: 12px;
+}
+.artcovr-catalog-facet-choices {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: .2rem 1.15rem;
+}
+.artcovr-catalog-facet[data-facet="color"] .artcovr-catalog-facet-choices {
+  flex-wrap: nowrap;
+  gap: .55rem;
+  overflow-x: auto;
+  padding: .05rem 0 .2rem;
+  scrollbar-width: thin;
+}
+.artcovr-catalog-facet[data-facet="category"],
+.artcovr-catalog-facet[data-facet="mood"],
+.artcovr-catalog-facet[data-facet="color"] {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 1.25rem;
+}
+@media (min-width: 768px) {
+  .artcovr-catalog-facet[data-facet="category"] .artcovr-catalog-facet-choices,
+  .artcovr-catalog-facet[data-facet="mood"] .artcovr-catalog-facet-choices,
+  .artcovr-catalog-facet[data-facet="color"] .artcovr-catalog-facet-choices {
+    justify-content: space-between;
+  }
+}
+
+.artcovr-filter-control {
+  position: relative;
+  display: inline-flex;
+  width: auto;
+  min-height: 3.2rem;
+  align-items: center;
+  justify-content: flex-start;
+  gap: .45rem;
+  padding: .55rem .15rem .45rem;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: color-mix(in srgb, currentColor 62%, transparent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .025em;
+  line-height: 1.15;
+  text-align: left;
+  text-transform: uppercase;
+  transition:
+    color .35s var(--motion-ease),
+    border-color .35s var(--motion-ease);
+}
+.artcovr-filter-control::before {
+  width: .42rem;
+  height: .42rem;
+  border: 1px solid currentColor;
+  content: "";
+  transform: rotate(45deg);
+  transition:
+    background-color .35s var(--motion-ease),
+    transform .35s var(--motion-ease);
+}
+.artcovr-filter-control:hover:not(:disabled),
+.artcovr-filter-control:focus-visible,
+.artcovr-filter-control[data-active="true"] {
+  color: var(--foreground);
+  border-bottom-color: currentColor;
+}
+.artcovr-filter-control[data-active="true"] {
+  border-bottom-width: 2px;
+}
+.artcovr-filter-control[data-active="true"]::before {
+  background: currentColor;
+  transform: rotate(45deg) scale(.8);
+}
+.artcovr-filter-control[data-swatch-only="true"] {
+  width: 2.75rem;
+  justify-content: center;
+  padding-right: 0;
+  padding-left: 0;
+}
+.artcovr-filter-control[data-swatch-only="true"]::before {
+  display: none;
+}
+.artcovr-filter-control:disabled {
+  cursor: not-allowed;
+  color: color-mix(in srgb, currentColor 25%, transparent);
+}
+.artcovr-filter-swatch {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: none;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 0;
+}
+@media (max-width: 767px) {
+  .artcovr-catalog-header { align-items: flex-start; }
+  .artcovr-catalog-facet[data-facet="category"],
+  .artcovr-catalog-facet[data-facet="mood"],
+  .artcovr-catalog-facet[data-facet="color"] {
+    display: block;
+  }
+  .artcovr-catalog-facet-head {
+    padding-top: 0;
+    padding-bottom: .45rem;
+  }
+  .artcovr-catalog-facet[data-facet="color"] .artcovr-catalog-facet-choices {
+    overflow-x: auto;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  top: .5rem;
+  left: .5rem;
+  z-index: 110;
+  padding: .75rem 1rem;
+  background: #000;
+  color: #f3ecd9;
+  transform: translateY(-150%);
+  transition: transform .2s ease;
+}
+.skip-link:focus { transform: translateY(0); }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+/*
+ * One wordmark lockup. Every ARTCOVR wordmark — header, hero, footer, page
+ * transition, intro — carries identical weight, tracking, and leading, and
+ * differs only in font-size. These had drifted to four different tracking
+ * values with leading set on the hero alone, so the small marks read as a
+ * different logo from the large one.
+ */
+.artcovr-wordmark {
+  font-weight: 900;
+  line-height: .8;
+  letter-spacing: -.095em;
+}
+
+/*
+ * Paint every animated hero target in the same state GSAP starts from. The
+ * preloader curtain can then open without exposing final content that GSAP
+ * hides again one frame later. Static presentation modes bypass these states.
+ */
+@media (prefers-reduced-motion: no-preference) and (pointer: fine) and (min-width: 768px) {
+  .artcovr-hero-wordmark {
+    transition:
+      opacity .78s cubic-bezier(.19, 1, .22, 1),
+      visibility 0s,
+      transform .78s cubic-bezier(.19, 1, .22, 1);
+  }
+
+  #hero-line {
+    transition: transform .65s cubic-bezier(.19, 1, .22, 1) .36s;
+  }
+
+  :is(
+    #hero-title,
+    #hero-subtitle,
+    #hero-paragraph,
+    #hero-link,
+    #hero-license-link,
+    #hero-copyright,
+    #hero-license-link-mobile
+  ) {
+    transition:
+      opacity .5s cubic-bezier(.19, 1, .22, 1),
+      visibility 0s,
+      transform .5s cubic-bezier(.19, 1, .22, 1);
+  }
+
+  #hero-title { transition-delay: .72s, 0s, .72s; }
+  #hero-subtitle { transition-delay: .765s, 0s, .765s; }
+  #hero-paragraph { transition-delay: .81s, 0s, .81s; }
+  #hero-link { transition-delay: .855s, 0s, .855s; }
+  #hero-license-link { transition-delay: .9s, 0s, .9s; }
+  #hero-copyright { transition-delay: .945s, 0s, .945s; }
+  #hero-license-link-mobile { transition-delay: .99s, 0s, .99s; }
+
+  html:not(.loaded) .artcovr-hero-wordmark {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(18%);
+  }
+
+  html:not(.loaded) #hero-line {
+    transform: scaleX(0);
+  }
+
+  html:not(.loaded) :is(
+    #hero-title,
+    #hero-subtitle,
+    #hero-paragraph,
+    #hero-link,
+    #hero-license-link,
+    #hero-copyright,
+    #hero-license-link-mobile
+  ) {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+  }
+}
+
+/*
+ * Optical compensation for the small wordmarks.
+ *
+ * The family ships Regular/Medium/Bold only (400/700/800), so `font-weight: 900`
+ * has no matching face and `font-synthesis: none` forbids faking it — every mark
+ * already renders at Bold, the heaviest weight available. At 20-36px that face
+ * rasterises visibly lighter than the same face at 300px, so the header mark
+ * reads thinner than the hero even though the geometry is identical.
+ *
+ * A stroke in `em` restores the apparent weight proportionally, and
+ * `paint-order` keeps it outside the glyph so counters stay open.
+ *
+ * Tracking is reset to 0 rather than inheriting -.095em. That value is a
+ * DISPLAY setting: measured by rasterising the wordmark and counting clear
+ * vertical columns between glyphs, -.095em leaves zero separation at 20-24px —
+ * the letters fuse into one shape. Tracking in `em` scales proportionally, which
+ * is precisely wrong optically, since small type needs more air, not the same
+ * ratio. At 0 tracking the small marks recover 4-5 of 6 letter gaps while
+ * measuring 0.20 ink density against the hero's 0.211, i.e. the same apparent
+ * weight without the fusing.
+ *
+ * Delete this rule the moment a Black/Heavy face is added and set the real
+ * weight instead — this is a workaround for a missing font file, not a design.
+ */
+.artcovr-wordmark-optical {
+  -webkit-text-stroke: .026em currentColor;
+  paint-order: stroke fill;
+  letter-spacing: 0;
+}
+
+.artcovr-button {
+  background: var(--foreground);
+  color: var(--background);
+}
+.artcovr-button:hover:not(:disabled) { filter: contrast(1.12); }
+.artwork-frame { contain: layout paint style; }
+.product-card-wrapper { content-visibility: auto; contain-intrinsic-size: 300px; }
+.carousel-card, .spiral-item { will-change: transform; }
+[data-artwork], [data-product], .carousel-card, .spiral-item {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+html.has-custom-cursor,
+html.has-custom-cursor * { cursor: none !important; }
+html.has-custom-cursor input,
+html.has-custom-cursor textarea,
+html.has-custom-cursor button,
+html.has-custom-cursor a,
+html.has-custom-cursor [contenteditable] { cursor: auto !important; }
+html.has-custom-cursor input:focus,
+html.has-custom-cursor textarea:focus,
+html.has-custom-cursor button:focus,
+html.has-custom-cursor a:focus { cursor: auto !important; }
+@media (pointer: coarse), (hover: none) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * { cursor: auto !important; }
+}
+
+#header, .theme-control {
+  opacity: 0;
+  transform: translateY(-6rem);
+  transition: opacity 2s var(--ease-out-extreme), transform 2s var(--ease-out-extreme);
+  transition-delay: .5s;
+}
+html.loaded #header,
+html.loaded .theme-control { opacity: 1; transform: translateY(0); }
+
+html.lenis, html.lenis body { height: auto; }
+.lenis { scroll-behavior: auto !important; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  #header, .theme-control { opacity: 1; transform: none; }
+}
+
+/*
+ * Home grid clamp: the artwork grid opens on eight rows and reveals the rest
+ * behind a button. The lead block is a fixed 13 cards, so the number of cards
+ * this trailing block may show to reach eight rows depends on the column count
+ * — 2 columns spends 7 rows on the lead block and leaves one row (2 cards), 3
+ * columns spends 5 and leaves three rows (9), 4 columns spends 4 and leaves
+ * four rows (16). Each breakpoint re-shows what the narrower rule hid before
+ * hiding its own overflow.
+ */
+.artwork-grid-clamp > *:nth-child(n+3) { display: none; }
+@media (min-width: 768px) {
+  .artwork-grid-clamp > *:nth-child(n+3) { display: block; }
+  .artwork-grid-clamp > *:nth-child(n+10) { display: none; }
+}
+@media (min-width: 1024px) {
+  .artwork-grid-clamp > *:nth-child(n+10) { display: block; }
+  .artwork-grid-clamp > *:nth-child(n+17) { display: none; }
+}
+
+@media (scripting: none) {
+  #artcovr-preloader, #layer { display: none !important; }
+  #page, #page-shell, #header { visibility: visible !important; opacity: 1 !important; transform: none !important; }
+  /* Without scripting the reveal button cannot run, so the full grid ships. */
+  .artwork-grid-clamp > * { display: block !important; }
+  .artwork-grid-reveal { display: none !important; }
+}
+
+/*
+ * Image plate: the ground an artwork sits on before its bytes arrive, and the
+ * matte around any image that does not fill its frame.
+ *
+ * Derived from the theme tokens rather than a fixed hex. The product and studio
+ * frames previously hard-coded #e9e2d7 / #d2cac3, which is a light-theme cream:
+ * in the dark theme those plates flashed a bright rectangle before every image
+ * painted. Mixing the foreground into the background keeps the plate one step
+ * off the page in whichever theme is active.
+ */
+/*
+ * Prompt bar: an elevated surface one step further off the page than the
+ * plate, with a soft focus glow driven by the theme's own --ring token so it
+ * reads correctly on both grounds. backdrop-filter is deliberately absent —
+ * the bar sits over the page background, not over imagery.
+ */
+.artcovr-promptbar {
+  background: color-mix(in srgb, var(--foreground) 10%, var(--background));
+  transition: border-color .2s var(--motion-ease), box-shadow .2s var(--motion-ease);
+}
+.artcovr-promptbar:focus-within {
+  border-color: currentColor;
+  box-shadow: 0 0 0 1px var(--ring), 0 0 14px color-mix(in srgb, var(--ring) 55%, transparent);
+}
+
+.artcovr-plate {
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+}
+

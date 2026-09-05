@@ -1,0 +1,175 @@
+@font-face {
+  font-family: "ARTCOVR Grotesk";
+  src: url("/__mockup/assets/NeueHaasGroteskTextPro-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ARTCOVR Grotesk";
+  src: url("/__mockup/assets/NeueHaasGroteskTextPro-Medium.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ARTCOVR Grotesk";
+  src: url("/__mockup/assets/NeueHaasGroteskTextPro-Bold.woff2") format("woff2");
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f3ecd9;
+  --foreground: #000;
+  --font-artcovr: "ARTCOVR Grotesk", Arial, sans-serif;
+  --motion-ease: cubic-bezier(.19, 1, .22, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--paper);
+  color: var(--foreground);
+  font-family: var(--font-artcovr);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mt-26 {
+  margin-top: 6.5rem;
+}
+
+.artcovr-wordmark {
+  font-weight: 900;
+  line-height: .8;
+  letter-spacing: -.095em;
+}
+
+.artcovr-hero-wordmark {
+  /*
+   * This fill-mode is the sandbox equivalent of the production CSS start
+   * state. In production, html.loaded removes the hidden selector before GSAP
+   * clears the completed transform, so the wordmark cannot snap back.
+   */
+  animation: artcovr-wordmark-reveal .8s var(--motion-ease) both;
+}
+
+#hero-line {
+  animation: artcovr-line-reveal .65s var(--motion-ease) .28s both;
+  transform-origin: left;
+}
+
+#hero-title,
+#hero-subtitle,
+#hero-paragraph,
+#hero-link,
+#hero-license-link,
+#hero-copyright,
+#hero-license-link-mobile {
+  animation: artcovr-copy-reveal .55s var(--motion-ease) .4s both;
+}
+
+#hero-subtitle {
+  animation-delay: .46s;
+}
+
+#hero-paragraph {
+  animation-delay: .52s;
+}
+
+#hero-link {
+  animation-delay: .58s;
+}
+
+#hero-license-link,
+#hero-copyright,
+#hero-license-link-mobile {
+  animation-delay: .64s;
+}
+
+@keyframes artcovr-wordmark-reveal {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes artcovr-line-reveal {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes artcovr-copy-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px) {
+  .artcovr-hero-wordmark,
+  #hero-line,
+  #hero-title,
+  #hero-subtitle,
+  #hero-paragraph,
+  #hero-link,
+  #hero-license-link,
+  #hero-copyright,
+  #hero-license-link-mobile {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.link-hover {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+.link-hover::after {
+  position: absolute;
+  right: 0;
+  bottom: -.18em;
+  left: 0;
+  height: max(1px, .1em);
+  content: "";
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .5s cubic-bezier(.83, 0, .17, 1);
+}
+
+.link-hover:hover::after,
+.link-hover:focus-visible::after {
+  transform: scaleX(1);
+}
+
+a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}

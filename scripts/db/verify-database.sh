@@ -21,7 +21,7 @@ DB="${ARTCOVR_TEST_DB:-artcovr_verify}"
 export PGHOST PGPORT PGUSER
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "$root"
+cd "$root/.migration-backup"
 
 echo "==> target: $PGUSER@$PGHOST:$PGPORT, database $DB"
 psql -q -d postgres -v ON_ERROR_STOP=1 \

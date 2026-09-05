@@ -1,0 +1,107 @@
+kind = "web"
+previewPath = "/"
+title = "artcovr"
+description = "A curated digital art gallery for discovering, collecting, and generating distinctive artwork through an immersive visual experience."
+version = "1.0.0"
+id = "artifacts/artcovr"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22424
+
+[services.development]
+run = "pnpm --filter @workspace/artcovr run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/artcovr", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/artcovr/dist/public"
+
+[[services.production.rewrites]]
+from = "/archive"
+to = "/archive/index.html"
+
+[[services.production.rewrites]]
+from = "/about"
+to = "/about/index.html"
+
+[[services.production.rewrites]]
+from = "/faq"
+to = "/faq/index.html"
+
+[[services.production.rewrites]]
+from = "/contact"
+to = "/contact/index.html"
+
+[[services.production.rewrites]]
+from = "/license"
+to = "/license/index.html"
+
+[[services.production.rewrites]]
+from = "/refunds"
+to = "/refunds/index.html"
+
+[[services.production.rewrites]]
+from = "/legal/privacy"
+to = "/legal/privacy/index.html"
+
+[[services.production.rewrites]]
+from = "/legal/terms"
+to = "/legal/terms/index.html"
+
+[[services.production.rewrites]]
+from = "/sign-in"
+to = "/sign-in/index.html"
+
+[[services.production.rewrites]]
+from = "/sign-up"
+to = "/sign-up/index.html"
+
+[[services.production.rewrites]]
+from = "/my-images"
+to = "/my-images/index.html"
+
+[[services.production.rewrites]]
+from = "/catalog-intelligence"
+to = "/catalog-intelligence/index.html"
+
+[[services.production.rewrites]]
+from = "/auth/callback"
+to = "/auth/callback/index.html"
+
+[[services.production.rewrites]]
+from = "/bag"
+to = "/bag/index.html"
+
+[[services.production.rewrites]]
+from = "/shipping-and-return"
+to = "/shipping-and-return/index.html"
+
+[[services.production.rewrites]]
+from = "/product/*"
+to = "/product/*/index.html"
+
+[[services.production.rewrites]]
+from = "/checkout/*"
+to = "/checkout/index.html"
+
+[[services.production.rewrites]]
+from = "/sign-in/*"
+to = "/sign-in/index.html"
+
+[[services.production.rewrites]]
+from = "/sign-up/*"
+to = "/sign-up/index.html"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/404.html"
+
+[services.env]
+VITE_SITE_URL = "https://artcovr.com"
+PORT = "22424"
+BASE_PATH = "/"
+
+ARTCOVR_PREVIEW_PROXY = "1"

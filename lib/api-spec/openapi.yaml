@@ -1,0 +1,121 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: account
+    description: Authenticated customer operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /functions/v1/my-images:
+    get:
+      operationId: getMyImages
+      tags: [account]
+      summary: Load the signed-in customer's account data
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Account data scoped to the signed-in Clerk user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountData"
+        "401":
+          description: Authentication required
+  /checkout:
+    post:
+      operationId: createCheckout
+      tags: [account]
+      summary: Start an authenticated checkout
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [artworkId, idempotencyKey]
+              properties:
+                artworkId:
+                  type: string
+                idempotencyKey:
+                  type: string
+                  format: uuid
+                selectedPreviewId:
+                  type: [string, "null"]
+      responses:
+        "200":
+          description: Checkout session created
+        "401":
+          description: Authentication required
+components:
+  securitySchemes:
+    clerkSession:
+      type: apiKey
+      in: cookie
+      name: __session
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    AccountData:
+      type: object
+      properties:
+        purchases:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccountPurchase"
+        generations:
+          type: array
+          items:
+            type: object
+        downloads:
+          type: array
+          items:
+            type: object
+      required: [purchases, generations, downloads]
+    AccountPurchase:
+      type: object
+      properties:
+        id: { type: string }
+        artworkId: { type: string }
+        artworkTitle: { type: string }
+        artworkSlug: { type: string }
+        saleMode: { type: string }
+        status: { type: string }
+        amountCents: { type: integer }
+        currency: { type: string }
+        paidAt: { type: [string, "null"], format: date-time }
+        entitlementExpiresAt: { type: [string, "null"], format: date-time }
+        selectedPreviewGenerationId: { type: [string, "null"] }
+        resetSource: { type: string }
+        accessRevokedAt: { type: [string, "null"], format: date-time }
+        accessRevocationReason: { type: [string, "null"] }
+        remainingGenerations: { type: integer }
+      required: [id, artworkId, artworkTitle, artworkSlug, saleMode, status, amountCents, currency, remainingGenerations]
+

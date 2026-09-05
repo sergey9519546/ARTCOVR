@@ -1,0 +1,14 @@
+{
+  "name": "artcovr-reference-transcode",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run index.ts",
+    "start": "bun run index.ts",
+    "smoke": "bun run smoke.ts"
+  },
+  "dependencies": {
+    "sharp": "^0.35.4"
+  }
+}
