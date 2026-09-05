@@ -280,20 +280,42 @@ async function loadHistoricalOrders(): Promise<HistoricalOrderReference[]> {
   return orders;
 }
 
-async function loadCatalogSnapshot(): Promise<StripeCatalogSnapshot> {
+type StripeCatalogSnapshotDependencies = {
+  listProducts: typeof listStripeProducts;
+  listCheckoutSessions: typeof listStripeCheckoutSessions;
+  listPaymentLinks: typeof listStripePaymentLinks;
+  listPrices: typeof listStripePrices;
+  loadHistoricalOrders: typeof loadHistoricalOrders;
+};
+
+const stripeCatalogSnapshotDependencies: StripeCatalogSnapshotDependencies = {
+  listProducts: listStripeProducts,
+  listCheckoutSessions: listStripeCheckoutSessions,
+  listPaymentLinks: listStripePaymentLinks,
+  listPrices: listStripePrices,
+  loadHistoricalOrders,
+};
+
+export async function loadCatalogSnapshot(
+  dependencyOverrides: Partial<StripeCatalogSnapshotDependencies> = {},
+): Promise<StripeCatalogSnapshot> {
+  const dependencies = {
+    ...stripeCatalogSnapshotDependencies,
+    ...dependencyOverrides,
+  };
   const [products, checkoutSessions, paymentLinks, historicalOrders] =
     await Promise.all([
-      listStripeProducts({ active: undefined }),
-      listStripeCheckoutSessions(),
-      listStripePaymentLinks(),
-      loadHistoricalOrders(),
+      dependencies.listProducts({ active: undefined }),
+      dependencies.listCheckoutSessions(),
+      dependencies.listPaymentLinks(),
+      dependencies.loadHistoricalOrders(),
     ]);
 
   const pricesByProduct = new Map<string, Stripe.Price[]>();
   for (const product of products) {
     pricesByProduct.set(
       product.id,
-      await listStripePrices(product.id, { active: undefined }),
+      await dependencies.listPrices(product.id, { active: undefined }),
     );
   }
   const defaultPriceReferences: CatalogReference[] = [];
