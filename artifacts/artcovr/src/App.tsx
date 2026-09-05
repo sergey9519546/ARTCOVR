@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import { lazy, Suspense, type ReactNode, useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
@@ -6,23 +6,7 @@ import { shadcn } from "@clerk/themes";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import AboutPage from "@/app/about/page";
-import ArchivePage from "@/app/archive/page";
-import AuthCallbackPage from "@/app/auth/callback/page";
-import ContactPage from "@/app/contact/page";
-import CheckoutPageComponent from "@/app/checkout/[slug]/page";
-import FaqPage from "@/app/faq/page";
 import Home from "@/app/page";
-import PrivacyPage from "@/app/legal/privacy/page";
-import TermsPage from "@/app/legal/terms/page";
-import LicensePage from "@/app/license/page";
-import MyImagesPage from "@/app/my-images/page";
-import CatalogIntelligencePage from "@/app/catalog-intelligence/page";
-import NotFound from "@/pages/not-found";
-import ProductPage from "@/app/product/[slug]/page";
-import RefundsPage from "@/app/refunds/page";
-import SignInPage from "@/app/sign-in/page";
-import SignUpPage from "@/app/sign-up/page";
 import { SeoHead } from "@/components/artcovr/SeoHead";
 import {
   ArtcovrAuthProvider,
@@ -37,6 +21,29 @@ const clerkPubKey = publishableKeyFromHost(
 );
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// Keep the homepage eager so its preloader owns the first visible frame and
+// the existing animation sequence starts without a route-chunk boundary.
+// Everything else is route-only code and should not be part of the homepage
+// entry chunk.
+const AboutPage = lazy(() => import("@/app/about/page"));
+const ArchivePage = lazy(() => import("@/app/archive/page"));
+const AuthCallbackPage = lazy(() => import("@/app/auth/callback/page"));
+const ContactPage = lazy(() => import("@/app/contact/page"));
+const CheckoutPageComponent = lazy(() => import("@/app/checkout/[slug]/page"));
+const FaqPage = lazy(() => import("@/app/faq/page"));
+const PrivacyPage = lazy(() => import("@/app/legal/privacy/page"));
+const TermsPage = lazy(() => import("@/app/legal/terms/page"));
+const LicensePage = lazy(() => import("@/app/license/page"));
+const MyImagesPage = lazy(() => import("@/app/my-images/page"));
+const CatalogIntelligencePage = lazy(
+  () => import("@/app/catalog-intelligence/page"),
+);
+const ProductPage = lazy(() => import("@/app/product/[slug]/page"));
+const RefundsPage = lazy(() => import("@/app/refunds/page"));
+const SignInPage = lazy(() => import("@/app/sign-in/page"));
+const SignUpPage = lazy(() => import("@/app/sign-up/page"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 function stripBase(path: string) {
   return basePath && path.startsWith(basePath)
@@ -103,32 +110,46 @@ function Router() {
     // Keep a shared shell (sidebar, navbar) outside the boundary so it
     // survives a page crash.
     <RoutedErrorBoundary>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/about" component={AboutPage} />
-        <Route path="/archive" component={ArchivePage} />
-        <Route path="/auth/callback" component={AuthCallbackPage} />
-        <Route path="/bag">
-          <Redirect to="/archive" />
-        </Route>
-        <Route path="/checkout/:slug" component={CheckoutRoute} />
-        <Route path="/contact" component={ContactPage} />
-        <Route path="/faq" component={FaqPage} />
-        <Route path="/legal/privacy" component={PrivacyPage} />
-        <Route path="/legal/terms" component={TermsPage} />
-        <Route path="/license" component={LicensePage} />
-        <Route path="/my-images" component={ProtectedMyImagesRoute} />
-        <Route path="/catalog-intelligence" component={ProtectedCatalogIntelligenceRoute} />
-        <Route path="/product/:slug" component={ProductPage} />
-        <Route path="/refunds" component={RefundsPage} />
-        <Route path="/shipping-and-return">
-          <Redirect to="/refunds" />
-        </Route>
-        <Route path="/sign-in/*?" component={SignInPage} />
-        <Route path="/sign-up/*?" component={SignUpPage} />
-        <Route component={NotFound} />
-      </Switch>
+      <Suspense fallback={<RouteLoading />}>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/about" component={AboutPage} />
+          <Route path="/archive" component={ArchivePage} />
+          <Route path="/auth/callback" component={AuthCallbackPage} />
+          <Route path="/bag">
+            <Redirect to="/archive" />
+          </Route>
+          <Route path="/checkout/:slug" component={CheckoutRoute} />
+          <Route path="/contact" component={ContactPage} />
+          <Route path="/faq" component={FaqPage} />
+          <Route path="/legal/privacy" component={PrivacyPage} />
+          <Route path="/legal/terms" component={TermsPage} />
+          <Route path="/license" component={LicensePage} />
+          <Route path="/my-images" component={ProtectedMyImagesRoute} />
+          <Route path="/catalog-intelligence" component={ProtectedCatalogIntelligenceRoute} />
+          <Route path="/product/:slug" component={ProductPage} />
+          <Route path="/refunds" component={RefundsPage} />
+          <Route path="/shipping-and-return">
+            <Redirect to="/refunds" />
+          </Route>
+          <Route path="/sign-in/*?" component={SignInPage} />
+          <Route path="/sign-up/*?" component={SignUpPage} />
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
     </RoutedErrorBoundary>
+  );
+}
+
+function RouteLoading() {
+  return (
+    <div
+      className="flex min-h-[100dvh] items-center justify-center px-4 text-sm opacity-60"
+      role="status"
+      aria-live="polite"
+    >
+      Loading page…
+    </div>
   );
 }
 

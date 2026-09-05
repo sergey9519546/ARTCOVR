@@ -1,3 +1,4 @@
+-- release-verifier: required-commerce-table
 CREATE TABLE "artcovr_credit_ledger" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_key" text NOT NULL,
@@ -42,6 +43,7 @@ CREATE TABLE "artcovr_inquiries" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+-- release-verifier: required-commerce-table
 CREATE TABLE "artcovr_orders" (
 	"id" text PRIMARY KEY NOT NULL,
 	"clerk_user_id" text,
@@ -85,6 +87,7 @@ CREATE TABLE "artcovr_reference_uploads" (
 	CONSTRAINT "artcovr_reference_uploads_object_key_unique" UNIQUE("object_key")
 );
 --> statement-breakpoint
+-- release-verifier: required-commerce-table
 CREATE TABLE "artcovr_webhook_events" (
 	"id" text PRIMARY KEY NOT NULL,
 	"type" text NOT NULL,

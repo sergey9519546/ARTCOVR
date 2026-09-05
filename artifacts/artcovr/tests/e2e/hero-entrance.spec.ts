@@ -17,6 +17,15 @@ type IntroArtworkState = {
   collapsed: number;
 };
 
+async function readIntroArtworkCenterOffset(
+  page: import("@playwright/test").Page,
+) {
+  return page.locator("#artcovr-preloader img").first().evaluate((image) => {
+    const rect = image.getBoundingClientRect();
+    return Math.abs(rect.left + rect.width / 2 - window.innerWidth / 2);
+  });
+}
+
 const staticMediaQuery =
   "(prefers-reduced-motion: reduce), (pointer: coarse), (max-width: 767px)";
 
@@ -134,6 +143,14 @@ test("animated desktop stages the hero before the curtain opens, then reveals it
     expect(initial.transformY).toBeLessThan(initial.wordmarkHeight * 0.35);
     expect(initial.inlineTransformWrites).toEqual([]);
     await expect(page.locator("#hero-title")).toHaveCSS("opacity", "0");
+    await expect
+      .poll(async () => (await readIntroArtworkState(page)).rendered, {
+        timeout: 3_500,
+      })
+      .toBeGreaterThan(0);
+    await expect
+      .poll(() => readIntroArtworkCenterOffset(page))
+      .toBeLessThan(2);
 
     await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
       timeout: 8_000,
@@ -176,6 +193,9 @@ test("mobile intro renders its artwork stack before collapsing it on exit", asyn
         timeout: 3_500,
       })
       .toBeGreaterThan(0);
+    await expect
+      .poll(() => readIntroArtworkCenterOffset(page))
+      .toBeLessThan(2);
     await expect(preloader).toHaveAttribute(
       "aria-label",
       /Loading \d+ percent/,
