@@ -26,7 +26,7 @@ export default function LicensePage() {
         no visually similar work exists anywhere else.
       </p>
       <p className="mt-4">
-        ARTCOVR owns the base artwork and grants you a commercial license to the
+        ARTCOVR publishes and licenses the base artwork and grants you a commercial license to the
         purchased files. You may not claim authorship of the AI-generated result.
         Copyright in the base artwork is retained unless a separate written agreement,
         signed by the rights holder, expressly transfers it.

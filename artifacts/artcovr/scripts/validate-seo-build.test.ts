@@ -5,6 +5,7 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with {
   type: "json",
 };
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
+import { ANSWER_GUIDE_BY_PATH } from "../src/lib/artcovr/answer-guides";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
 import {
   getIndexableRoutePaths,
@@ -229,6 +230,42 @@ test("keeps interactive and static social previews equivalent for public informa
     assert.equal(
       getSocialPreviewMetadata(fixture.metadata, siteUrl).imageUrl,
       `${siteUrl}/og-image.png`,
+    );
+  }
+});
+
+test("publishes source-backed guide content and citable structured data", () => {
+  for (const [path, guide] of ANSWER_GUIDE_BY_PATH) {
+    const guideMetadata = getRouteMetadata(path, publicCatalog);
+    const generatedDocument = renderGeneratedPublicDocument({
+      route: path,
+      metadata: guideMetadata,
+    });
+
+    assert.match(generatedDocument, /Key takeaways/);
+    assert.match(generatedDocument, /Sources and scope/);
+    assert.match(generatedDocument, new RegExp(guide.lastReviewed));
+    for (const source of guide.sources) {
+      assert.match(generatedDocument, new RegExp(source.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      assert.match(generatedDocument, new RegExp(source.href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    }
+
+    const structuredData = JSON.parse(
+      generatedDocument.match(
+        /<script type="application\/ld\+json" data-artcovr-static-structured-data="true">([\s\S]*?)<\/script>/,
+      )?.[1] ?? "null",
+    );
+    const types = structuredData["@graph"].map((entry: { ["@type"]?: string | string[] }) =>
+      Array.isArray(entry["@type"]) ? entry["@type"].join(",") : entry["@type"],
+    );
+    assert.ok(types.includes("Article"), `${path} should expose Article structured data`);
+    assert.ok(types.includes("FAQPage"), `${path} should expose FAQPage structured data`);
+    const article = structuredData["@graph"].find(
+      (entry: { ["@type"]?: string }) => entry["@type"] === "Article",
+    );
+    assert.deepEqual(
+      article.citation,
+      guide.sources.map((source) => new URL(source.href, `${siteUrl}/`).toString()),
     );
   }
 });

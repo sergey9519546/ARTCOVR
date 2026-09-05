@@ -87,7 +87,7 @@ export function buildCatalogFactsJson(
       aiGeneration: {
         disclosed: true,
         statement:
-          "The base artwork is an original ARTCOVR composition. Prompt-based generated results are produced by a third-party AI model and licensed commercially.",
+          "ARTCOVR publishes and licenses the base artwork. Prompt-based generated results are produced by a third-party AI model and licensed commercially.",
       },
     };
   });

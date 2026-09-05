@@ -16,6 +16,20 @@ function GuidePage({ guide }: { guide: AnswerGuide }) {
         {guide.introduction}
       </p>
 
+      <section
+        className="mt-8 border-y border-current/25 py-6"
+        aria-labelledby="guide-takeaways"
+      >
+        <h2 id="guide-takeaways" className="text-sm font-extrabold uppercase tracking-[.12em]">
+          Key takeaways
+        </h2>
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 opacity-80">
+          {guide.keyTakeaways.map((takeaway) => (
+            <li key={takeaway}>{takeaway}</li>
+          ))}
+        </ul>
+      </section>
+
       <div className="mt-12 space-y-10">
         {guide.sections.map((section, index) => {
           const headingId = `guide-question-${index + 1}`;
@@ -32,6 +46,35 @@ function GuidePage({ guide }: { guide: AnswerGuide }) {
           );
         })}
       </div>
+
+      <section className="mt-14 border-t border-current/25 pt-8" aria-labelledby="guide-sources">
+        <h2 id="guide-sources" className="text-2xl font-extrabold tracking-tight">
+          Sources and scope
+        </h2>
+        <p className="mt-3 text-sm leading-6 opacity-80">
+          This page is general information, not legal advice. External sources provide
+          general context; the ARTCOVR license and terms control an ARTCOVR purchase.
+        </p>
+        <ul className="mt-5 space-y-4 text-sm leading-6">
+          {guide.sources.map((source) => (
+            <li key={source.href}>
+              <a
+                href={source.href}
+                className="font-bold underline underline-offset-4"
+                {...(source.href.startsWith("http")
+                  ? { target: "_blank", rel: "noreferrer" }
+                  : {})}
+              >
+                {source.title}
+              </a>{" "}
+              <span className="opacity-70">— {source.publisher}. {source.description}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-5 text-xs uppercase tracking-[.1em] opacity-60">
+          Last reviewed {guide.lastReviewed}
+        </p>
+      </section>
 
       <section className="mt-14 border-t border-current/25 pt-8" aria-labelledby="guide-artwork">
         <h2 id="guide-artwork" className="text-2xl font-extrabold tracking-tight">

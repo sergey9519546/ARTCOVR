@@ -35,11 +35,11 @@ type RenderContext = {
 };
 
 const FAQ_QUESTIONS = [
-  ["What am I licensing?", "A commercial license to use the purchased artwork and your included generated images in commercial projects. ARTCOVR owns the base artwork and grants you a commercial license to the purchased files. You may not claim authorship of the AI-generated result."],
+  ["What am I licensing?", "A commercial license to use the purchased artwork and your included generated images in commercial projects. ARTCOVR publishes and licenses the base artwork and grants you a commercial license to the purchased files. You may not claim authorship of the AI-generated result."],
   ["Can I alter the image?", "Yes. The artwork page has one freeform prompt box. Each successful generated image becomes the starting point for your next prompt, and Reset returns to the original artwork."],
   ["What is exclusive artwork?", "Exclusive artwork is reserved for one checkout at a time for about 30 minutes and removed from ARTCOVR after verified payment. Expired or failed reservations are released; a currently reserved or sold exclusive cover cannot be purchased again. Exclusivity does not assign copyright or promise worldwide uniqueness."],
   ["What is repeatable artwork?", "Repeatable artwork may be purchased by more than one customer under a non-exclusive commercial license."],
-  ["Are the images AI-generated?", "Yes. The base artwork is an original ARTCOVR composition. Generated results are produced by a third-party AI model from your prompt and delivered under the commercial license."],
+  ["Are the images AI-generated?", "Yes. The base artwork is published by ARTCOVR. Generated results are produced by a third-party AI model from your prompt and delivered under the commercial license."],
   ["Where are my images?", "Sign in to My Images to see purchases, prompts, generated images, remaining generations, expiration dates, and downloads."],
   ["What is your refund window?", "Refund requests are reviewed by the owner within a reasonable period. Approved refunds revoke the commercial license for the refunded artwork and disable unused generations and download links."],
   ["Can I resell the image file itself?", "No. Standalone resale, stock or template redistribution, and sublicensing for independent reuse are prohibited."],
@@ -263,7 +263,7 @@ const INFO_CONTENT: Record<string, { eyebrow: string; title: string; body: strin
     eyebrow: "ARTCOVR",
     title: "Cover art made yours.",
     body: `<p>ARTCOVR starts with distinctive artwork and gives you one direct way to reshape it.</p>
-      <p>Choose an artwork, describe any change in a freeform prompt, and build from each visible generated image. Published works include clear pricing, sale mode, commercial-license terms, and customer access through My Images. Images are generated with AI from original ARTCOVR compositions.</p>
+      <p>Choose an artwork, describe any change in a freeform prompt, and build from each visible generated image. Published works include clear pricing, sale mode, commercial-license terms, and customer access through My Images. Images are generated with AI from base compositions published by ARTCOVR.</p>
       <p>${link("/archive", "Browse the archive")} ${link("/license", "Read the commercial license")}</p>`,
   },
   "/license": {
@@ -351,7 +351,14 @@ function renderAnswerGuide({ artworks, metadata }: RenderContext) {
   return pageLayout(`<main id="main">
     <header><p>${escapeHtml(guide.eyebrow)}</p><h1>${escapeHtml(guide.displayTitle)}</h1></header>
     <p>${escapeHtml(guide.introduction)}</p>
+    <section aria-labelledby="guide-takeaways"><h2 id="guide-takeaways">Key takeaways</h2><ul>${guide.keyTakeaways.map((takeaway) => `<li>${escapeHtml(takeaway)}</li>`).join("")}</ul></section>
     <article>${questions}</article>
+    <section aria-labelledby="guide-sources">
+      <h2 id="guide-sources">Sources and scope</h2>
+      <p>This page is general information, not legal advice. External sources provide general context; the ARTCOVR license and terms control an ARTCOVR purchase.</p>
+      <ul>${guide.sources.map((source) => `<li>${link(source.href, source.title)} — ${escapeHtml(source.publisher)}. ${escapeHtml(source.description)}</li>`).join("")}</ul>
+      <p>Last reviewed ${escapeHtml(guide.lastReviewed)}</p>
+    </section>
     <section aria-labelledby="guide-artwork"><h2 id="guide-artwork">Browse licensed cover artwork</h2><ul>${artworkLinks}</ul></section>
     <nav aria-label="Related guidance">${relatedLinks}</nav>
   </main>`);
@@ -395,16 +402,36 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
   }
   if (ANSWER_GUIDE_BY_PATH.has(metadata.path)) {
     const guide = ANSWER_GUIDE_BY_PATH.get(metadata.path)!;
+    const guideUrl = absoluteUrl(metadata.path, siteUrl);
+    const organizationId = `${siteUrl}#organization`;
     return combineStructuredData(
       buildOrganizationStructuredData(siteUrl),
       {
         "@type": "WebPage",
-        "@id": `${absoluteUrl(metadata.path, siteUrl)}#webpage`,
-        url: absoluteUrl(metadata.path, siteUrl),
+        "@id": `${guideUrl}#webpage`,
+        url: guideUrl,
         name: metadata.title,
         description: metadata.description,
         isPartOf: { "@id": `${siteUrl}#website` },
         about: guide.eyebrow,
+        mainEntity: { "@id": `${guideUrl}#faq` },
+      },
+      {
+        "@type": "Article",
+        "@id": `${guideUrl}#article`,
+        headline: guide.title,
+        description: metadata.description,
+        url: guideUrl,
+        dateModified: guide.lastReviewed,
+        author: { "@id": organizationId },
+        publisher: { "@id": organizationId },
+        mainEntityOfPage: { "@id": `${guideUrl}#webpage` },
+        citation: guide.sources.map((source) => absoluteUrl(source.href, siteUrl)),
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${guideUrl}#faq`,
+        url: guideUrl,
         mainEntity: guide.sections.map((section) => ({
           "@type": "Question",
           name: section.heading,
