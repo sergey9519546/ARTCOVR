@@ -519,16 +519,19 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         ) : null}
 
         {/* THE BAR, pinned in reach while the canvas scrolls. */}
-        <div className="sticky bottom-4 mt-4">
-          <label htmlFor="prompt" className="sr-only">Describe the image you want</label>
+        <div className="sticky bottom-4 mt-6">
           <div
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => {
               event.preventDefault();
               void pickReference(event.dataTransfer.files?.[0]);
             }}
-            className="artcovr-promptbar flex items-end gap-2 rounded-[1.75rem] border border-current/30 p-2"
+            className="artcovr-promptbar rounded-[1.75rem] p-3"
           >
+            <div className="mb-2 flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.12em]">
+              <label htmlFor="prompt" className="opacity-60">Describe your edit</label>
+              <span className="opacity-40">Enter to generate</span>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
@@ -538,48 +541,62 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               tabIndex={-1}
               onChange={(event) => void pickReference(event.target.files?.[0])}
             />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label={armedUploadId ? "Reference photo attached — replace it" : "Attach a reference photo"}
-              className={`grid size-9 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
-            >
-              +
-            </button>
-            <textarea
-              id="prompt"
-              ref={promptBoxRef}
-              value={prompt}
-              maxLength={2000}
-              onChange={(event) => {
-                setPrompt(event.target.value);
-                autosizePromptBox();
-              }}
-              onKeyDown={(event) => {
-                // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  generate();
-                }
-              }}
-              placeholder="Describe the image you want…"
-              rows={1}
-              aria-keyshortcuts="Enter"
-              className="max-h-[240px] min-h-12 w-full resize-none self-center overflow-y-auto border-0 bg-transparent px-2 py-2 text-base leading-6 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none"
-            />
-            <button
-              type="button"
-              onClick={generate}
-              disabled={!ready || phase === "generating" || restoring}
-              aria-label={phase === "generating" ? "Generating…" : "Generate image"}
-              className="artcovr-button grid size-9 shrink-0 place-items-center rounded-full text-lg leading-none disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {phase === "generating" ? (
-                <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                <span aria-hidden="true">↑</span>
-              )}
-            </button>
+            <div className="flex items-end gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                aria-label={armedUploadId ? "Reference photo attached — replace it" : "Attach a reference photo"}
+                className={`grid size-10 shrink-0 place-items-center rounded-full border text-lg leading-none transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+              <textarea
+                id="prompt"
+                ref={promptBoxRef}
+                value={prompt}
+                maxLength={2000}
+                onChange={(event) => {
+                  setPrompt(event.target.value);
+                  autosizePromptBox();
+                }}
+                onKeyDown={(event) => {
+                  // The usual chatbox contract: Enter sends, Shift+Enter breaks a line.
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    generate();
+                  }
+                }}
+                placeholder="Make this cover feel…"
+                rows={1}
+                aria-keyshortcuts="Enter"
+                className="max-h-[240px] min-h-16 w-full resize-none self-center overflow-y-auto border-0 bg-transparent px-1 py-1 text-base leading-6 outline-none ring-0 focus:border-0 focus:outline-none focus:ring-0 focus-visible:border-0 focus-visible:outline-none"
+              />
+              <button
+                type="button"
+                onClick={generate}
+                disabled={!ready || phase === "generating" || restoring}
+                aria-label={phase === "generating" ? "Generating…" : "Generate image"}
+                className="artcovr-button inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[11px] font-bold uppercase tracking-[0.1em] transition-[filter,opacity] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {phase === "generating" ? (
+                  <>
+                    <span aria-hidden="true" className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <span>Working</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Generate</span>
+                    <span aria-hidden="true" className="text-base leading-none">↑</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="mt-2 flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.1em] opacity-45">
+              <span>{armedUploadId ? "Reference photo ready" : "Artwork stays the visual foundation"}</span>
+              <span className="tabular-nums" aria-label={`${prompt.length} of 2000 characters`}>
+                {prompt.length}/2000
+              </span>
+            </div>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
@@ -604,9 +621,6 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               Reset
             </button>
             <span className="opacity-50">1:1 · 1024 px · 1 image</span>
-            <span className="tabular-nums opacity-50" aria-label={`${prompt.length} of 2000 characters`}>
-              {prompt.length}/2000
-            </span>
           </div>
         </div>
 
