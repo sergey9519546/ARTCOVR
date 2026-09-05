@@ -3,10 +3,10 @@ import test from "node:test";
 import { editImageBuffers, type ImageEditClient } from "@workspace/integrations-openai-ai-server/image";
 
 test("sends the artwork first and an uploaded identity reference second", async () => {
-  let request: { image?: unknown[]; prompt?: string } | undefined;
+  let request: { image?: unknown[]; prompt?: string; model?: string } | undefined;
   const client = {
     images: {
-      edit: async (input: { image: unknown[]; prompt: string }) => {
+      edit: async (input: { image: unknown[]; prompt: string; model: string }) => {
         request = input;
         return { data: [{ b64_json: Buffer.from("edited-image").toString("base64") }] };
       },
@@ -23,6 +23,7 @@ test("sends the artwork first and an uploaded identity reference second", async 
   );
 
   assert.equal(result.toString(), "edited-image");
+  assert.equal(request?.model, "gpt-image-2");
   assert.equal(request?.prompt, "Place the person from the second image naturally into the artwork.");
   assert.equal(request?.image?.length, 2);
   assert.equal((request?.image?.[0] as { name?: string }).name, "artwork-reference.jpg");

@@ -1,6 +1,8 @@
 import { toFile, type OpenAI } from "openai";
 import { openai } from "../client";
 
+export const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-2";
+
 export type ImageEditInput = {
   bytes: Uint8Array;
   filename: string;
@@ -26,7 +28,7 @@ export async function editImageBuffers(
     ),
   );
   const response = await client.images.edit({
-    model: "gpt-image-1",
+    model: IMAGE_MODEL,
     image: images,
     prompt,
     size: "1024x1024",

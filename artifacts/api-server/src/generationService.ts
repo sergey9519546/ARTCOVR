@@ -17,7 +17,7 @@ import { downloadPrivate, removePrivate, signPrivate, uploadPrivate } from "./li
 
 const PREVIEW_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 const PURCHASE_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000;
-const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1";
+const IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-2";
 
 export class GenerationServiceError extends Error {
   constructor(
