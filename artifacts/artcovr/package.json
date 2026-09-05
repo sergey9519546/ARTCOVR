@@ -9,10 +9,11 @@
     "bundle:check": "node scripts/validate-bundle-budget.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "tsx --test src/lib/artcovr/*.test.ts scripts/catalog-intelligence-import.test.ts scripts/validate-prospect-reports.test.ts scripts/validate-seo-build.test.ts && pnpm run prospects:validate",
+    "test": "tsx --test src/lib/artcovr/*.test.ts scripts/catalog-intelligence-import.test.ts scripts/validate-guide-sources.test.ts scripts/validate-prospect-reports.test.ts scripts/validate-seo-build.test.ts && pnpm run prospects:validate",
     "optimize:artworks": "node scripts/optimize-artworks.mjs",
     "test:e2e": "playwright test",
     "seo:validate": "tsx scripts/validate-seo-build.ts",
+    "guides:sources:check": "tsx scripts/validate-guide-sources.ts",
     "catalog-intelligence:manifest": "tsx scripts/catalog-intelligence-manifest.ts",
     "catalog-intelligence:import": "tsx scripts/catalog-intelligence-import.ts",
     "prospects:validate": "tsx scripts/validate-prospect-reports.ts"

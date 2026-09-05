@@ -8,6 +8,7 @@ import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { ANSWER_GUIDE_BY_PATH } from "../src/lib/artcovr/answer-guides";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
 import {
+  STATIC_METADATA,
   getIndexableRoutePaths,
   getRouteMetadata,
   getSocialPreviewMetadata,
@@ -236,6 +237,8 @@ test("keeps interactive and static social previews equivalent for public informa
 
 test("publishes source-backed guide content and citable structured data", () => {
   for (const [path, guide] of ANSWER_GUIDE_BY_PATH) {
+    assert.match(guide.lastReviewed, /^\d{4}-\d{2}-\d{2}$/, `${path} should use an ISO review date`);
+    assert.ok(guide.sources.length > 0, `${path} should cite at least one source`);
     const guideMetadata = getRouteMetadata(path, publicCatalog);
     const generatedDocument = renderGeneratedPublicDocument({
       route: path,
@@ -245,8 +248,27 @@ test("publishes source-backed guide content and citable structured data", () => 
     assert.match(generatedDocument, /Key takeaways/);
     assert.match(generatedDocument, /Sources and scope/);
     assert.match(generatedDocument, new RegExp(guide.lastReviewed));
+    assert.match(
+      generatedDocument,
+      new RegExp(`<time datetime="${guide.lastReviewed}">${guide.lastReviewed}</time>`),
+    );
     for (const source of guide.sources) {
+      assert.ok(source.title.trim(), `${path} has a source without a title`);
+      assert.ok(source.publisher.trim(), `${path} has a source without a publisher`);
+      assert.ok(source.description.trim(), `${path} has a source without a description`);
+      if (source.kind === "external") {
+        const sourceUrl = new URL(source.href);
+        assert.equal(sourceUrl.protocol, "https:", `${path} external sources must use HTTPS`);
+      } else {
+        assert.ok(source.href.startsWith("/"), `${path} first-party sources must be root-relative`);
+        assert.ok(
+          source.href in STATIC_METADATA,
+          `${path} first-party source ${source.href} must be a known public route`,
+        );
+      }
       assert.match(generatedDocument, new RegExp(source.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      assert.match(generatedDocument, new RegExp(source.publisher.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      assert.match(generatedDocument, new RegExp(source.description.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
       assert.match(generatedDocument, new RegExp(source.href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     }
 
@@ -263,9 +285,19 @@ test("publishes source-backed guide content and citable structured data", () => 
     const article = structuredData["@graph"].find(
       (entry: { ["@type"]?: string }) => entry["@type"] === "Article",
     );
+    assert.equal(article.dateModified, guide.lastReviewed);
     assert.deepEqual(
       article.citation,
-      guide.sources.map((source) => new URL(source.href, `${siteUrl}/`).toString()),
+      guide.sources.map((source) => ({
+        "@type": "CreativeWork",
+        name: source.title,
+        publisher: {
+          "@type": "Organization",
+          name: source.publisher,
+        },
+        url: new URL(source.href, `${siteUrl}/`).toString(),
+        description: source.description,
+      })),
     );
   }
 });

@@ -357,7 +357,7 @@ function renderAnswerGuide({ artworks, metadata }: RenderContext) {
       <h2 id="guide-sources">Sources and scope</h2>
       <p>This page is general information, not legal advice. External sources provide general context; the ARTCOVR license and terms control an ARTCOVR purchase.</p>
       <ul>${guide.sources.map((source) => `<li>${link(source.href, source.title)} — ${escapeHtml(source.publisher)}. ${escapeHtml(source.description)}</li>`).join("")}</ul>
-      <p>Last reviewed ${escapeHtml(guide.lastReviewed)}</p>
+     <p>Last reviewed <time datetime="${escapeHtml(guide.lastReviewed)}">${escapeHtml(guide.lastReviewed)}</time></p>
     </section>
     <section aria-labelledby="guide-artwork"><h2 id="guide-artwork">Browse licensed cover artwork</h2><ul>${artworkLinks}</ul></section>
     <nav aria-label="Related guidance">${relatedLinks}</nav>
@@ -426,7 +426,16 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
         author: { "@id": organizationId },
         publisher: { "@id": organizationId },
         mainEntityOfPage: { "@id": `${guideUrl}#webpage` },
-        citation: guide.sources.map((source) => absoluteUrl(source.href, siteUrl)),
+        citation: guide.sources.map((source) => ({
+          "@type": "CreativeWork",
+          name: source.title,
+          publisher: {
+            "@type": "Organization",
+            name: source.publisher,
+          },
+          url: absoluteUrl(source.href, siteUrl),
+          description: source.description,
+        })),
       },
       {
         "@type": "FAQPage",
