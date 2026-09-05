@@ -26,15 +26,15 @@ const ROTATIONS = [
 // in the low single digits for a long time (the "really slow start"), then the
 // gaps between steps shrink and the increments grow as it ramps toward 100.
 const COUNTER_STEPS = [
-  { d: 1100, v: 1 }, { d: 1600, v: 2 }, { d: 2050, v: 4 },
-  { d: 2450, v: 9 }, { d: 2800, v: 16 }, { d: 3100, v: 29 },
-  { d: 3350, v: 52 }, { d: 3550, v: 76 }, { d: 3700, v: 92 },
-  { d: 3780, v: 100 },
+  { d: 560, v: 1 }, { d: 820, v: 2 }, { d: 1050, v: 4 },
+  { d: 1280, v: 9 }, { d: 1500, v: 16 }, { d: 1710, v: 29 },
+  { d: 1900, v: 52 }, { d: 2070, v: 76 }, { d: 2200, v: 92 },
+  { d: 2280, v: 100 },
 ];
-const IMAGE_START = 840;
-const IMAGE_INTERVAL = 168;
-const EXIT_TIME = 4060;
-const DISMISS_TIME = 5180;
+const IMAGE_START = 420;
+const IMAGE_INTERVAL = 92;
+const EXIT_TIME = 2440;
+const DISMISS_TIME = 3020;
 
 type PreloaderProps = {
   onExitStart?: () => void;
