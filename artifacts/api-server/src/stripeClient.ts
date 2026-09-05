@@ -213,7 +213,12 @@ function appendExpand(search: URLSearchParams, value: string) {
   search.append("expand[]", value);
 }
 
-export async function listStripeCheckoutSessions() {
+export async function listStripeCheckoutSessions(
+  requestPage: (
+    path: string,
+  ) => Promise<Stripe.ApiList<Stripe.Checkout.Session>> = (path) =>
+    stripeRequest<Stripe.ApiList<Stripe.Checkout.Session>>(path),
+) {
   const sessions: Stripe.Checkout.Session[] = [];
   let startingAfter: string | undefined;
 
@@ -221,7 +226,7 @@ export async function listStripeCheckoutSessions() {
     const search = new URLSearchParams({ limit: "100" });
     appendExpand(search, "data.line_items.data.price");
     if (startingAfter) search.set("starting_after", startingAfter);
-    const page = await stripeRequest<Stripe.ApiList<Stripe.Checkout.Session>>(
+    const page = await requestPage(
       `/v1/checkout/sessions?${search.toString()}`,
     );
     sessions.push(...page.data);

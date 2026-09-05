@@ -9,6 +9,7 @@ import {
   buildStripeCatalogCleanupReport,
   cleanupStripeCatalog,
   compareStripeCanonicalSelections,
+  loadCatalogSnapshot,
   stripeCatalogCleanupIdempotencyKey,
   STRIPE_CATALOG_DEACTIVATION_CONFIRMATION,
   type StripeCatalogSnapshot,
@@ -653,6 +654,121 @@ test("cleanup report distinguishes active, expired, and completed checkout prote
   assert.equal(report.artworks[0]?.canonicalProductId, canonicalProduct.id);
   assert.equal(report.artworks[0]?.canonicalPriceId, "price_old");
 });
+
+for (const fixture of [
+  {
+    stripeStatus: "open",
+    reportStatus: "active",
+    protectsDuplicates: true,
+  },
+  {
+    stripeStatus: "expired",
+    reportStatus: "expired",
+    protectsDuplicates: false,
+  },
+  {
+    stripeStatus: "complete",
+    reportStatus: "completed",
+    protectsDuplicates: false,
+  },
+] as const) {
+  test(`production snapshot mapping treats ${fixture.stripeStatus} Checkout sessions as ${fixture.reportStatus}`, async () => {
+    const canonicalProduct = product(
+      `prod_${fixture.stripeStatus}_canonical`,
+      1,
+      `price_${fixture.stripeStatus}_canonical`,
+    );
+    const duplicateProduct = product(
+      `prod_${fixture.stripeStatus}_duplicate`,
+      2,
+    );
+    const canonicalPrice = price(
+      `price_${fixture.stripeStatus}_canonical`,
+      canonicalProduct.id,
+      1,
+    );
+    const duplicatePrices = [
+      price(
+        `price_${fixture.stripeStatus}_duplicate_a`,
+        duplicateProduct.id,
+        2,
+      ),
+      price(
+        `price_${fixture.stripeStatus}_duplicate_b`,
+        duplicateProduct.id,
+        3,
+      ),
+    ];
+    const checkoutSession = {
+      id: `cs_${fixture.stripeStatus}_multi_line`,
+      object: "checkout.session",
+      livemode: false,
+      status: fixture.stripeStatus,
+      line_items: {
+        object: "list",
+        data: duplicatePrices.map(
+          (stripePrice, index) =>
+            ({
+              id: `li_${fixture.stripeStatus}_${index}`,
+              object: "item",
+              price: stripePrice,
+            }) as Stripe.LineItem,
+        ),
+        has_more: false,
+        url: `/v1/checkout/sessions/cs_${fixture.stripeStatus}_multi_line/line_items`,
+      },
+    } as Stripe.Checkout.Session;
+
+    const catalogSnapshot = await loadCatalogSnapshot({
+      listProducts: async () => [canonicalProduct, duplicateProduct],
+      listCheckoutSessions: async () => [checkoutSession],
+      listPaymentLinks: async () => [],
+      listPrices: async (productId) =>
+        productId === canonicalProduct.id ? [canonicalPrice] : duplicatePrices,
+      loadHistoricalOrders: async () => [],
+    });
+    const report = buildStripeCatalogCleanupReport(
+      catalogSnapshot,
+      [artwork],
+      "dry_run",
+    );
+
+    assert.deepEqual(
+      catalogSnapshot.checkoutSessionProtection,
+      new Map([[checkoutSession.id, fixture.reportStatus]]),
+    );
+    assert.equal(catalogSnapshot.checkoutReferences.length, 2);
+    assert.ok(
+      catalogSnapshot.checkoutReferences.every(
+        (reference) =>
+          reference.checkoutSessionProtectionStatus === fixture.reportStatus,
+      ),
+    );
+    assert.equal(report.referenceCounts.checkoutSessions, 1);
+    assert.deepEqual(report.referenceCounts.checkoutSessionProtection, {
+      active: fixture.reportStatus === "active" ? 1 : 0,
+      expired: fixture.reportStatus === "expired" ? 1 : 0,
+      completed: fixture.reportStatus === "completed" ? 1 : 0,
+    });
+    assert.deepEqual(
+      report.artworks[0]?.deactivatablePriceIds,
+      fixture.protectsDuplicates
+        ? []
+        : duplicatePrices.map((stripePrice) => stripePrice.id),
+    );
+    assert.deepEqual(
+      report.artworks[0]?.blockedPrices.map((blocked) => blocked.id),
+      fixture.protectsDuplicates
+        ? duplicatePrices.map((stripePrice) => stripePrice.id)
+        : [],
+    );
+    assert.equal(
+      report.artworks[0]?.canonicalProductId,
+      canonicalProduct.id,
+    );
+    assert.equal(report.artworks[0]?.canonicalPriceId, canonicalPrice.id);
+  });
+}
 
 test("a fresh audit releases a duplicate after its checkout session expires", () => {
   const canonicalProduct = product("prod_old", 1, "price_old");
