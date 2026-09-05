@@ -4,6 +4,11 @@ import {
   listStripePrices,
   listStripeProducts,
 } from "./stripeClient";
+import {
+  productsForArtwork,
+  selectStripePriceCandidate,
+  type StripePriceCandidate,
+} from "./stripeCatalog";
 
 export class StripeCatalogError extends Error {
   readonly code = "stripe_price_missing";
@@ -18,28 +23,34 @@ export async function getStripePriceForArtwork(
   artwork: PublicCatalogArtwork,
 ): Promise<Stripe.Price> {
   const products = await listStripeProducts();
-  const product = products.find(
-    (candidate) => candidate.metadata.artwork_id === artwork.id,
-  );
+  const artworkProducts = productsForArtwork(products, artwork.id);
 
-  if (!product) {
+  if (!artworkProducts.length) {
     throw new StripeCatalogError(
       `No Stripe product is configured for artwork ${artwork.slug}.`,
     );
   }
 
-  const prices = await listStripePrices(product.id);
-  const price = prices.find(
-    (candidate) =>
-      candidate.currency === "usd" &&
-      candidate.unit_amount === artwork.priceCents,
+  const candidates: StripePriceCandidate[] = (
+    await Promise.all(
+      artworkProducts.map(async (product) =>
+        (await listStripePrices(product.id)).map((price) => ({
+          product,
+          price,
+        })),
+      ),
+    )
+  ).flat();
+  const selected = selectStripePriceCandidate(
+    artwork,
+    candidates,
   );
 
-  if (!price) {
+  if (!selected) {
     throw new StripeCatalogError(
       `No matching Stripe price is configured for artwork ${artwork.slug}.`,
     );
   }
 
-  return price;
+  return selected.price;
 }
