@@ -1200,6 +1200,50 @@ test("cleanup CLI diagnoses canonical product and price changes deterministicall
   );
 });
 
+test("confirmed cleanup fails when readiness triggers a safety stop", async () => {
+  const safetyStop =
+    "Deactivation was not attempted because the pre-cleanup readiness audit has missing artwork prices.";
+  const report = {
+    ...reconciliationReport([]),
+    safetyStop,
+    readiness: {
+      expectedArtworkCount: 1,
+      readyArtworkCount: 0,
+      missingArtworkIds: [artwork.id],
+      protectedDuplicateDefaultPriceReferences: 0,
+    },
+  };
+  const diagnostics: string[] = [];
+
+  const exitCode = await runStripeCatalogCleanupCli({
+    args: ["--confirm-deactivate"],
+    cleanup: async () => report,
+    log: () => {},
+    error: (message) => diagnostics.push(message),
+  });
+
+  assert.equal(exitCode, 1);
+  assert.deepEqual(diagnostics, [
+    `Stripe catalog cleanup safety stop: ${safetyStop}`,
+  ]);
+
+  const dryRunExitCode = await runStripeCatalogCleanupCli({
+    args: [],
+    cleanup: async () => report,
+    log: () => {},
+    error: () => {},
+  });
+  const reconciliationExitCode = await runStripeCatalogCleanupCli({
+    args: ["--reconcile-only"],
+    audit: async () => report,
+    log: () => {},
+    error: () => {},
+  });
+
+  assert.equal(dryRunExitCode, 0);
+  assert.equal(reconciliationExitCode, 0);
+});
+
 test("cleanup CLI reports resumable interruptions and passes a mutation budget", async () => {
   const report = {
     ...reconciliationReport([]),
