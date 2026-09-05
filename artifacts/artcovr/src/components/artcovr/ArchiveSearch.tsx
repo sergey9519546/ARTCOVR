@@ -79,7 +79,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
             Search archive
           </label>
           <div className="flex items-center gap-5">
-            <p className="text-[11px] font-bold uppercase tracking-[.1em] text-current/50" role="status" aria-live="polite">
+            <p className="text-[11px] font-bold uppercase tracking-[.1em] text-[var(--muted-foreground)]" role="status" aria-live="polite">
               {filteredItems.length} / {items.length} works
             </p>
             {hasActiveSearch ? (

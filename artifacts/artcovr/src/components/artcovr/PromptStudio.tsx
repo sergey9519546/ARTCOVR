@@ -492,7 +492,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 )}
               </button>
             </div>
-            <div className="mt-2 flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.1em] opacity-45">
+            <div className="mt-2 flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
               <span>{armedUploadId ? "Reference photo ready" : "Artwork stays the visual foundation"}</span>
               <span className="tabular-nums" aria-label={`${prompt.length} of 2000 characters`}>
                 {prompt.length}/2000
@@ -521,7 +521,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
             <button type="button" onClick={reset} disabled={busy} className="link-hover font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
               Reset
             </button>
-            <span className="opacity-50">1:1 · 1024 px · 1 image</span>
+            <span className="text-[var(--muted-foreground)]">1:1 · 1024 px · 1 image</span>
           </div>
         </div>
 
