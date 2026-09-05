@@ -1,24 +1,13 @@
 name: CI
 
-# Until now nothing verified pushes or pull requests: the only enforcement was
-# the local git hooks in .githooks. This runs the portable gate set — every gate
-# that does not need the owner's private curation tree.
-#
-# Deliberately NOT run here: `catalog:search:check` and the build-search-index
-# determinism test, which rebuild the search index from the private semantic-lab
-# source tree (see CLAUDE.md). They stay owner-machine gates; the test reports as
-# an explicit skip rather than a silent pass.
-
 on:
   push:
-    # The repository default branch is still artcovr-storefront while main is the
-    # consolidated product branch, and both are kept in sync. Cover both so the
-    # gates run whichever one a change lands on.
     branches: [main, artcovr-storefront]
-  # No base filter: a pull request against ANY branch is verified. With a
-  # branches: [main] filter, a PR opened against the default branch would have
-  # run no checks at all.
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -28,125 +17,66 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.11
-
-      # The build pipeline runs node --experimental-strip-types, which needs >= 22.6.
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Verify (portable gate set)
-        run: bun run verify:ci
-
-      - name: Verify storefront entry bundle budget
-        env:
-          BASE_PATH: /
-          PORT: 5000
-          VITE_SITE_URL: https://artcovr.com
-        run: bun run --cwd artifacts/artcovr bundle:check
-
-      - name: Verify production runtime contract
-        run: node scripts/release/verify-runtime-contract.mjs
-
-  # G5 in .agent-state/RELEASE_GATES.md. Until now this only ever ran when
-  # somebody remembered to run it by hand, so a regression in the browser
-  # journeys could reach the default branch unnoticed. Kept a separate job so a
-  # browser flake never masks a real failure in the gate set above.
-  e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.11
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      # Installs the browser build this repo's pinned @playwright/test expects.
-      # Do not swap for a system Chromium: a version mismatch fails at launch
-      # with an "Executable doesn't exist" error that reads like a test failure.
-      - name: Install Playwright browsers
-        run: bunx playwright install --with-deps chromium
-
-      # playwright.config.ts starts the API and Vite servers via its webServer block.
-      - name: Browser journeys
-        run: bun run test:e2e
-
-      - name: Upload failure artifacts
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-failures
-          path: /tmp/artcovr-playwright-results/
-          retention-days: 7
-
-  # The database gate runs on every push against a disposable PostgreSQL 16.
-  #
-  # Scope: this proves the migrations apply cleanly, the schema contract holds,
-  # and the release check can distinguish an outage from schema drift. It does
-  # not connect to or mutate a production database.
-  database:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
-        ports:
-          - 5432:5432
+          POSTGRES_DB: artcovr_test
+        ports: [5432:5432]
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/artcovr_test
+      PORT: 45180
+      BASE_PATH: /
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10.26.1
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Apply versioned migrations
+      - run: pnpm install --frozen-lockfile
+      # This service is disposable; never use a production URL for schema push.
+      - name: Create current workspace test schema
+        run: pnpm --filter @workspace/db run push
+      - name: Contracts, commerce, types, and production builds
+        run: pnpm run verify:ci
+      - name: Retained Supabase migration regression gate
         env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
-        run: pnpm run db:migrate
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: bash scripts/db/verify-database.sh
 
-      - name: Test database verifier classifications
-        env:
-          TEST_DATABASE_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
-        run: pnpm run test:database
-
-      - name: Test legacy adoption and repeated post-merge setup
-        env:
-          TEST_DATABASE_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
-        run: pnpm run test:database:baseline
-
-      - name: Verify database contract
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
-        run: pnpm run verify:database
+  # Replit owns Clerk keys and deployment. This checks the deployed product,
+  # not the candidate commit; candidate browser validation needs a Replit preview.
+  hosted-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_BASE_URL: https://artcovr.com
+      PLAYWRIGHT_OUTPUT_DIR: ${{ github.workspace }}/playwright-results
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @workspace/artcovr exec playwright install --with-deps chromium
+      - name: Read-only browser journeys against the Replit deployment
+        run: pnpm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-failures
+          path: playwright-results/
+          retention-days: 7
