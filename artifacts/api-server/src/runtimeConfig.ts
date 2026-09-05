@@ -23,7 +23,7 @@ export function validateProductionEnvironment(
 
   if (!env.CLERK_PUBLISHABLE_KEY?.trim().startsWith("pk_live_")) {
     throw new Error(
-      "Production runtime configuration cannot use a development Clerk publishable key.",
+      "Production runtime configuration requires a live Clerk publishable key.",
     );
   }
 }
