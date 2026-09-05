@@ -134,7 +134,7 @@ jobs:
           TEST_DATABASE_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
         run: pnpm run test:database
 
-      - name: Test legacy database baseline adoption
+      - name: Test legacy adoption and repeated post-merge setup
         env:
           TEST_DATABASE_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
         run: pnpm run test:database:baseline

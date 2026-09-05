@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Prove that adopting a legacy push-created schema preserves data and leaves
-# fresh, partial, and mismatched databases on the safe path.
+# Prove that adopting a legacy push-created schema preserves data, repeated
+# post-merge setup is safe, and fresh, partial, and mismatched databases stay
+# on the correct path.
 #
 # The CI job supplies TEST_DATABASE_ADMIN_URL for its disposable PostgreSQL
 # service. The default is the local PostgreSQL service used by development.
@@ -82,6 +83,22 @@ run_baseline() {
 
 run_normal_migrations() {
   DATABASE_URL="$test_database_url" pnpm run db:migrate >/dev/null
+}
+
+run_development_migration() {
+  local run_label="$1"
+  set +e
+  development_migration_output="$(
+    NODE_ENV=development DATABASE_URL="$test_database_url" \
+      bash scripts/db/migrate-development.sh 2>&1
+  )"
+  development_migration_status=$?
+  set -e
+  if [[ "$development_migration_status" -ne 0 ]]; then
+    echo "[$run_label] expected scripts/db/migrate-development.sh to succeed, got exit $development_migration_status." >&2
+    printf '%s\n' "$development_migration_output" >&2
+    exit 1
+  fi
 }
 
 assert_status() {
@@ -242,9 +259,22 @@ if [[ "$(row_counts)" != "$before_counts" || "$(content_hash)" != "$before_conte
   echo "[legacy adoption] baseline changed commerce row counts or contents." >&2
   exit 1
 fi
-run_normal_migrations
+
+# Post-merge setup must remain safe after adoption. Run the same entry point
+# twice to prove a routine repeat does not duplicate history or touch commerce
+# data.
+run_development_migration "post-merge setup (first run)"
+assert_query "post-merge setup first run migration count" "${#migration_files[@]}" \
+  "select count(*)::text from drizzle.__drizzle_migrations"
 if [[ "$(row_counts)" != "$before_counts" || "$(content_hash)" != "$before_content_hash" ]]; then
-  echo "[normal migration] migration changed legacy commerce row counts or contents." >&2
+  echo "[post-merge setup first run] migration changed legacy commerce row counts or contents." >&2
+  exit 1
+fi
+run_development_migration "post-merge setup (second run)"
+assert_query "post-merge setup second run migration count" "${#migration_files[@]}" \
+  "select count(*)::text from drizzle.__drizzle_migrations"
+if [[ "$(row_counts)" != "$before_counts" || "$(content_hash)" != "$before_content_hash" ]]; then
+  echo "[post-merge setup second run] migration changed legacy commerce row counts or contents." >&2
   exit 1
 fi
 
