@@ -80,3 +80,30 @@ test("a development React update keeps the preview rendered", async ({
     await writeFile(appPath, originalApp);
   }
 });
+
+test("the managed preview does not emit an HMR WebSocket error", async ({
+  page,
+}) => {
+  test.skip(
+    !process.env.PLAYWRIGHT_BASE_URL,
+    "The managed preview proxy is only exercised through the deployed preview URL",
+  );
+
+  const browserErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") browserErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#root")).toBeVisible();
+  await page.waitForTimeout(1_000);
+
+  expect(
+    browserErrors.filter((message) => /HMR|WebSocket|vite.*connect/i.test(message)),
+  ).toEqual([]);
+  expect(
+    pageErrors.filter((message) => /HMR|WebSocket|vite.*connect/i.test(message)),
+  ).toEqual([]);
+});

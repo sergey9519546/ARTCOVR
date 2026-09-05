@@ -21,6 +21,7 @@ import {
   renderStaticRoute,
   renderStaticRouteMetadata,
 } from './src/lib/artcovr/static-render';
+import { assertProductionClerkKey } from './src/lib/artcovr/clerk-config';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -40,7 +41,7 @@ if (Number.isNaN(port) || port <= 0) {
 
 const basePath = process.env.BASE_PATH;
 
-const usePreviewProxyHmr = process.env.ARTCOVR_PREVIEW_PROXY === '1';
+const usePreviewProxy = process.env.ARTCOVR_PREVIEW_PROXY === '1';
 const apiProxyTarget = process.env.PLAYWRIGHT_API_URL;
 
 if (!basePath) {
@@ -311,6 +312,12 @@ export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, path.resolve(import.meta.dirname), '');
   const configuredSiteUrl = env.VITE_SITE_URL || process.env.VITE_SITE_URL || '';
   const metadataSiteUrl = resolveSiteUrl(configuredSiteUrl, mode === 'production');
+  const clerkPublishableKey =
+    env.VITE_CLERK_PUBLISHABLE_KEY ||
+    process.env.VITE_CLERK_PUBLISHABLE_KEY;
+  if (mode === 'production') {
+    assertProductionClerkKey(clerkPublishableKey);
+  }
   const indexingDisabled =
     env.ARTCOVR_ALLOW_INDEXING === '0' ||
     env.VITE_ARTCOVR_PRIVATE_STAGING === '1';
@@ -384,7 +391,10 @@ export default defineConfig(async ({ mode }) => {
             },
           }
         : {}),
-      ...(usePreviewProxyHmr ? { hmr: { clientPort: 80 } } : {}),
+      // The managed preview proxy does not forward Vite's HMR WebSocket
+      // reliably. Disable only that client in the proxied workflow so the
+      // preview stays error-free; direct local Vite development keeps HMR.
+      ...(usePreviewProxy ? { hmr: false } : {}),
       fs: {
         strict: true,
       },
