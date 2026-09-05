@@ -21,3 +21,4 @@
 - [Route transition curtain](route-transition-curtain.md) — keep lazy-route fallback states behind the branded curtain and warm destination chunks before navigation.
 - [Clerk theme tokens](clerk-theme-tokens.md) — style embedded auth with storefront theme variables so light/dark mode never makes credentials unreadable.
 - [Stripe catalog cleanup limits](stripe-catalog-cleanup.md) — audit price pages sequentially through the proxy; destructive duplicate cleanup stays confirmation-gated.
+- [Stripe environment account checks](stripe-environment-account-check.md) — verify account identity and session metadata instead of inferring ownership from environment labels.
