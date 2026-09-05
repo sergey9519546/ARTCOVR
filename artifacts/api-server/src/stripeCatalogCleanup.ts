@@ -22,6 +22,11 @@ export const STRIPE_CATALOG_DEACTIVATION_CONFIRMATION =
 
 export type StripeAccountMode = "live" | "test" | "mixed" | "unknown";
 
+export type CheckoutSessionProtectionStatus =
+  | "active"
+  | "expired"
+  | "completed";
+
 export type CheckoutSessionDiagnosis =
   | "found"
   | "stale_test_data"
@@ -50,6 +55,7 @@ export type CatalogReference = {
   productId: string;
   active: boolean;
   historical: boolean;
+  checkoutSessionProtectionStatus?: CheckoutSessionProtectionStatus;
 };
 
 export type DefaultPriceAction = {
@@ -70,6 +76,10 @@ export type StripeCatalogCleanupReport = {
   referenceCounts: {
     historicalOrders: number;
     checkoutSessions: number;
+    checkoutSessionProtection: Record<
+      CheckoutSessionProtectionStatus,
+      number
+    >;
     paymentLinks: number;
     defaultPriceReferences: number;
     duplicateDefaultPriceReferences: number;
@@ -141,6 +151,7 @@ export type StripeCatalogSnapshot = {
   products: Stripe.Product[];
   pricesByProduct: Map<string, Stripe.Price[]>;
   checkoutSessionIds: string[];
+  checkoutSessionProtection?: Map<string, CheckoutSessionProtectionStatus>;
   stripeAccountMode: StripeAccountMode;
   checkoutReferences: CheckoutReference[];
   paymentLinkReferences: PaymentLinkReference[];
@@ -182,6 +193,14 @@ function diagnoseCheckoutSession(
   return "missing_from_connected_account";
 }
 
+function checkoutSessionProtectionStatus(
+  status: string | null | undefined,
+): CheckoutSessionProtectionStatus {
+  if (status === "complete") return "completed";
+  if (status === "expired") return "expired";
+  return "active";
+}
+
 function lineItemReferences(
   object: {
     id: string;
@@ -191,10 +210,14 @@ function lineItemReferences(
   },
   kind: CheckoutReference["kind"] | PaymentLinkReference["kind"],
 ): Array<CheckoutReference | PaymentLinkReference> {
+  const checkoutProtection =
+    kind === "checkout_session"
+      ? checkoutSessionProtectionStatus(object.status)
+      : undefined;
   const historical =
-    object.status === "complete" ||
-    object.status === "expired" ||
-    object.active === false;
+    checkoutProtection !== undefined
+      ? checkoutProtection !== "active"
+      : object.active === false;
   return (object.line_items?.data ?? []).flatMap((lineItem) => {
     const price = lineItem.price;
     if (!price || typeof price === "string") return [];
@@ -208,11 +231,13 @@ function lineItemReferences(
         priceId,
         productId,
         active:
-          object.active ??
-          (object.status === "complete" || object.status === "expired"
-            ? false
-            : true),
+          checkoutProtection !== undefined
+            ? checkoutProtection === "active"
+            : (object.active ?? true),
         historical,
+        ...(checkoutProtection
+          ? { checkoutSessionProtectionStatus: checkoutProtection }
+          : {}),
       },
     ];
   });
@@ -265,6 +290,12 @@ async function loadCatalogSnapshot(): Promise<StripeCatalogSnapshot> {
     products,
     pricesByProduct,
     checkoutSessionIds: checkoutSessions.map((session) => session.id),
+    checkoutSessionProtection: new Map(
+      checkoutSessions.map((session) => [
+        session.id,
+        checkoutSessionProtectionStatus(session.status),
+      ]),
+    ),
     stripeAccountMode: stripeAccountMode(products, checkoutSessions),
     checkoutReferences: checkoutSessions.flatMap((session) =>
       lineItemReferences(session, "checkout_session"),
@@ -320,6 +351,39 @@ export function buildStripeCatalogCleanupReport(
     ...snapshot.defaultPriceReferences,
   ];
   const checkoutSessionCount = snapshot.checkoutSessionIds.length;
+  const checkoutSessionProtection: Record<
+    CheckoutSessionProtectionStatus,
+    number
+  > = {
+    active: 0,
+    expired: 0,
+    completed: 0,
+  };
+  const inferredCheckoutProtection = new Map<
+    string,
+    CheckoutSessionProtectionStatus
+  >();
+  for (const reference of snapshot.checkoutReferences) {
+    if (inferredCheckoutProtection.has(reference.objectId)) continue;
+    inferredCheckoutProtection.set(
+      reference.objectId,
+      reference.checkoutSessionProtectionStatus ??
+        (reference.active
+          ? "active"
+          : reference.historical
+            ? "completed"
+            : "active"),
+    );
+  }
+  for (const sessionId of snapshot.checkoutSessionIds) {
+    const status =
+      snapshot.checkoutSessionProtection?.get(sessionId) ??
+      inferredCheckoutProtection.get(sessionId) ??
+      // A snapshot without a session status must remain conservative: an
+      // unclassified session can still be open and protect its price.
+      "active";
+    checkoutSessionProtection[status]++;
+  }
   const paymentLinkCount = new Set(
     snapshot.paymentLinkReferences.map((reference) => reference.objectId),
   ).size;
@@ -536,6 +600,7 @@ export function buildStripeCatalogCleanupReport(
     referenceCounts: {
       historicalOrders: snapshot.historicalOrders.length,
       checkoutSessions: checkoutSessionCount,
+      checkoutSessionProtection,
       paymentLinks: paymentLinkCount,
       defaultPriceReferences: defaultPriceCount,
       duplicateDefaultPriceReferences,

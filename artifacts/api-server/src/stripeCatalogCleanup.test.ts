@@ -258,6 +258,137 @@ test("cleanup report blocks duplicate prices used by live Stripe objects", () =>
   ]);
 });
 
+test("cleanup report distinguishes active, expired, and completed checkout protection", () => {
+  const canonicalProduct = product("prod_old", 1, "price_old");
+  const duplicateProduct = product("prod_duplicate", 2);
+  const duplicatePrice = price("price_duplicate", duplicateProduct.id, 2);
+  const report = buildStripeCatalogCleanupReport(
+    {
+      ...snapshot(
+        [canonicalProduct, duplicateProduct],
+        new Map([
+          [canonicalProduct.id, [price("price_old", canonicalProduct.id, 1)]],
+          [duplicateProduct.id, [duplicatePrice]],
+        ]),
+      ),
+      checkoutSessionIds: ["cs_open", "cs_expired", "cs_complete"],
+      checkoutSessionProtection: new Map([
+        ["cs_open", "active"],
+        ["cs_expired", "expired"],
+        ["cs_complete", "completed"],
+      ]),
+      checkoutReferences: [
+        {
+          kind: "checkout_session",
+          objectId: "cs_open",
+          priceId: duplicatePrice.id,
+          productId: duplicateProduct.id,
+          active: true,
+          historical: false,
+          checkoutSessionProtectionStatus: "active",
+        },
+        {
+          kind: "checkout_session",
+          objectId: "cs_expired",
+          priceId: duplicatePrice.id,
+          productId: duplicateProduct.id,
+          active: false,
+          historical: true,
+          checkoutSessionProtectionStatus: "expired",
+        },
+        {
+          kind: "checkout_session",
+          objectId: "cs_complete",
+          priceId: duplicatePrice.id,
+          productId: duplicateProduct.id,
+          active: false,
+          historical: true,
+          checkoutSessionProtectionStatus: "completed",
+        },
+      ],
+    },
+    [artwork],
+    "dry_run",
+  );
+
+  assert.deepEqual(report.referenceCounts.checkoutSessionProtection, {
+    active: 1,
+    expired: 1,
+    completed: 1,
+  });
+  assert.deepEqual(report.artworks[0]?.deactivatablePriceIds, []);
+  assert.deepEqual(report.artworks[0]?.blockedPrices, [
+    {
+      id: duplicatePrice.id,
+      reasons: ["open_checkout_session"],
+    },
+  ]);
+  assert.equal(report.artworks[0]?.canonicalProductId, canonicalProduct.id);
+  assert.equal(report.artworks[0]?.canonicalPriceId, "price_old");
+});
+
+test("a fresh audit releases a duplicate after its checkout session expires", () => {
+  const canonicalProduct = product("prod_old", 1, "price_old");
+  const duplicateProduct = product("prod_duplicate", 2);
+  const duplicatePrice = price("price_duplicate", duplicateProduct.id, 2);
+  const products = [canonicalProduct, duplicateProduct];
+  const pricesByProduct = new Map([
+    [canonicalProduct.id, [price("price_old", canonicalProduct.id, 1)]],
+    [duplicateProduct.id, [duplicatePrice]],
+  ]);
+
+  const activeReport = buildStripeCatalogCleanupReport(
+    {
+      ...snapshot(products, pricesByProduct),
+      checkoutSessionIds: ["cs_checkout"],
+      checkoutSessionProtection: new Map([["cs_checkout", "active"]]),
+      checkoutReferences: [
+        {
+          kind: "checkout_session",
+          objectId: "cs_checkout",
+          priceId: duplicatePrice.id,
+          productId: duplicateProduct.id,
+          active: true,
+          historical: false,
+          checkoutSessionProtectionStatus: "active",
+        },
+      ],
+    },
+    [artwork],
+    "dry_run",
+  );
+  assert.deepEqual(activeReport.artworks[0]?.deactivatablePriceIds, []);
+
+  const expiredReport = buildStripeCatalogCleanupReport(
+    {
+      ...snapshot(products, pricesByProduct),
+      checkoutSessionIds: ["cs_checkout"],
+      checkoutSessionProtection: new Map([["cs_checkout", "expired"]]),
+      checkoutReferences: [
+        {
+          kind: "checkout_session",
+          objectId: "cs_checkout",
+          priceId: duplicatePrice.id,
+          productId: duplicateProduct.id,
+          active: false,
+          historical: true,
+          checkoutSessionProtectionStatus: "expired",
+        },
+      ],
+    },
+    [artwork],
+    "dry_run",
+  );
+  assert.deepEqual(expiredReport.artworks[0]?.deactivatablePriceIds, [
+    duplicatePrice.id,
+  ]);
+  assert.deepEqual(expiredReport.artworks[0]?.deactivatableProductIds, [
+    duplicateProduct.id,
+  ]);
+  assert.equal(expiredReport.artworks[0]?.canonicalProductId, canonicalProduct.id);
+  assert.equal(expiredReport.artworks[0]?.canonicalPriceId, "price_old");
+});
+
 test("historical checkout sessions are reported but do not block cleanup", () => {
   const canonicalProduct = product("prod_old", 1, "price_old");
   const duplicateProduct = product("prod_duplicate", 2);
