@@ -105,6 +105,11 @@ export async function runStripeCatalogCleanupCli({
     throw cause;
   }
 
+  const canonicalSafetyStop =
+    report.canonicalSelection.safetyStop ||
+    report.canonicalSelection.changes.length > 0;
+  const confirmedCleanupSafetyStop = confirmed && Boolean(report.safetyStop);
+
   log(JSON.stringify(report, null, 2));
   if (report.progress.status === "completed") {
     error(
@@ -129,12 +134,13 @@ export async function runStripeCatalogCleanupCli({
       `Stripe reconciliation failed: ${report.reconciliation.unresolvedOrderIds.length} unresolved live-order reference(s).`,
     );
   }
-  if (
-    report.canonicalSelection.safetyStop ||
-    report.canonicalSelection.changes.length > 0
-  ) {
+  if (canonicalSafetyStop || confirmedCleanupSafetyStop) {
     error(
-      `Stripe catalog cleanup safety stop: ${canonicalSelectionDiagnostic(report)}`,
+      `Stripe catalog cleanup safety stop: ${
+        canonicalSafetyStop
+          ? canonicalSelectionDiagnostic(report)
+          : `${report.safetyStop?.replace(/[.\s]+$/, "")}.`
+      }`,
     );
   }
   if (!confirmed && !reconciliationOnly) {
@@ -144,10 +150,7 @@ export async function runStripeCatalogCleanupCli({
   }
 
   if (report.reconciliation.unresolvedOrderIds.length > 0) return 2;
-  if (
-    report.canonicalSelection.safetyStop ||
-    report.canonicalSelection.changes.length > 0
-  ) {
+  if (canonicalSafetyStop || confirmedCleanupSafetyStop) {
     return 1;
   }
   if (report.progress.status === "interrupted") {
