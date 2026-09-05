@@ -60,7 +60,7 @@ export function PurchasedGenerationStudio({
   const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const ready = isPromptReady(prompt) && purchase.remainingGenerations > 0 && !reference.uploading;
+  const ready = isPromptReady(prompt) && purchase.remainingCredits > 0 && !reference.uploading;
 
   const { phase, setPhase, message, setMessage, hasPending, start, resume } = useGenerationJob({
     onAccepted(request) { if (request.referenceUploadId) reference.clear(); },
@@ -71,7 +71,7 @@ export function PurchasedGenerationStudio({
       resetRequested.current = false;
       setResult(status.previewUrl);
       setResultIsGenerated(true);
-      setMessage("Generated image ready. Your next prompt will build from this result.");
+       setMessage("Generated image ready. Your next prompt will build from this result.");
       trackEvent("generation_succeeded", {
         artwork_slug: artwork.slug, surface: "purchased",
         duration_ms: Math.max(0, Date.now() - (generationStartedAt.current ?? Date.now())),
@@ -239,7 +239,7 @@ export function PurchasedGenerationStudio({
               aria-atomic="true"
               className="text-xs opacity-60"
             >
-              {message || `${purchase.remainingGenerations} generations remaining.`}
+               {message || `${purchase.remainingCredits} image-edit credits remaining.`}
             </span>
           </div>
         </div>

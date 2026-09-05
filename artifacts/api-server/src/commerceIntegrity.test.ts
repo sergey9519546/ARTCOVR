@@ -238,6 +238,7 @@ test("guest purchases claim only for a matching verified email and move credits 
     );
     await db.insert(artcovrCreditLedger).values({
       id: ledgerId,
+      clerkUserId: `guest:${orderId}`,
       accountKey: buyerEmail,
       orderId,
       entryType: "grant",
@@ -409,5 +410,82 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
   } finally {
     await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
     await db.delete(artcovrOrders).where(inArray(artcovrOrders.id, [soldOrderId, lateOrderId]));
+  }
+});
+
+test("a Stripe refund revokes the remaining credits exactly once", async () => {
+  const suffix = randomUUID();
+  const orderId = `order-refund-${suffix}`;
+  const eventId = `evt-refund-${suffix}`;
+  const paymentIntentId = `pi-refund-${suffix}`;
+  const refundId = `re-refund-${suffix}`;
+
+  try {
+    await db.insert(artcovrOrders).values({
+      ...orderValues({
+        id: orderId,
+        artworkId: `test-refund-${suffix}`,
+        idempotencyKey: `refund-${suffix}`,
+        status: "paid",
+        stripePaymentIntentId: paymentIntentId,
+        saleMode: "repeatable",
+      }),
+      clerkUserId: `user-refund-${suffix}`,
+    });
+    await db.insert(artcovrCreditLedger).values({
+      id: `grant-refund-${suffix}`,
+      clerkUserId: `user-refund-${suffix}`,
+      accountKey: `user-refund-${suffix}`,
+      orderId,
+      entryType: "grant",
+      amount: 3,
+      reason: "Test purchase credit grant",
+      sourceId: `checkout:refund:${suffix}`,
+    });
+
+    const event = {
+      id: eventId,
+      livemode: false,
+      type: "charge.refunded",
+      data: {
+        object: {
+          id: `ch-refund-${suffix}`,
+          payment_intent: paymentIntentId,
+          refunded: true,
+          refunds: { data: [{ id: refundId }] },
+        },
+      },
+    } as Stripe.Event;
+
+    await fulfillCheckoutSession(event);
+    await fulfillCheckoutSession(event);
+
+    const [order] = await db
+      .select({
+        status: artcovrOrders.status,
+        accessRevokedAt: artcovrOrders.accessRevokedAt,
+        stripeRefundId: artcovrOrders.stripeRefundId,
+      })
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.id, orderId));
+    assert.equal(order?.status, "refunded");
+    assert.equal(order?.stripeRefundId, refundId);
+    assert.ok(order?.accessRevokedAt);
+
+    const ledger = await db
+      .select({
+        entryType: artcovrCreditLedger.entryType,
+        amount: artcovrCreditLedger.amount,
+      })
+      .from(artcovrCreditLedger)
+      .where(eq(artcovrCreditLedger.orderId, orderId));
+    assert.deepEqual(ledger, [
+      { entryType: "grant", amount: 3 },
+      { entryType: "revoke", amount: -3 },
+    ]);
+  } finally {
+    await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, orderId));
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+    await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
   }
 });

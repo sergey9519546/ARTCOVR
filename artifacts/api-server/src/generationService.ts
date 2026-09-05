@@ -19,6 +19,14 @@ import {
   signPrivate,
   uploadPrivate,
 } from "./lib/mediaStorage";
+import {
+  getPurchaseCreditBalance,
+  getUserCreditBalance,
+  listPurchaseCreditBalances,
+  releasePurchaseCredit,
+  revokePurchaseCredits,
+  spendPurchaseCredit,
+} from "./creditService";
 
 const PREVIEW_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 const PURCHASE_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000;
@@ -33,21 +41,40 @@ const generationIO = {
 };
 
 async function expireStalledGenerations(userId: string) {
-  await db
-    .update(artcovrGenerations)
-    .set({
-      status: "timed_out",
-      allowanceSlot: null,
-      errorCode: "generation_timeout",
-      finishedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(artcovrGenerations.clerkUserId, userId),
-        sql`${artcovrGenerations.status} in ('queued', 'running')`,
-        sql`${artcovrGenerations.createdAt} < ${new Date(Date.now() - JOB_DEADLINE_MS)}`,
-      ),
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtext(${`generation:${userId}`}))`,
     );
+    const stalled = await tx
+      .update(artcovrGenerations)
+      .set({
+        status: "timed_out",
+        allowanceSlot: null,
+        errorCode: "generation_timeout",
+        finishedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(artcovrGenerations.clerkUserId, userId),
+          sql`${artcovrGenerations.status} in ('queued', 'running')`,
+          sql`${artcovrGenerations.createdAt} < ${new Date(Date.now() - JOB_DEADLINE_MS)}`,
+        ),
+      )
+      .returning({
+        id: artcovrGenerations.id,
+        purchaseId: artcovrGenerations.purchaseId,
+      });
+    for (const generation of stalled) {
+      if (generation.purchaseId) {
+        await releasePurchaseCredit(tx, {
+          userId,
+          purchaseId: generation.purchaseId,
+          generationId: generation.id,
+          reason: "Timed-out image generation credit release",
+        });
+      }
+    }
+  });
 }
 
 export class GenerationServiceError extends Error {
@@ -429,34 +456,60 @@ export async function admitGeneration(
         .where(eq(artcovrReferenceUploads.id, referenceUpload.id));
     }
 
-    const limit = input.purchaseId ? 4 : 2;
-    const successful = await tx
-      .select({ slot: artcovrGenerations.allowanceSlot })
-      .from(artcovrGenerations)
-      .where(
-        and(
-          eq(artcovrGenerations.clerkUserId, input.userId),
-          eq(artcovrGenerations.artworkId, artwork.id),
-          input.purchaseId
-            ? eq(artcovrGenerations.purchaseId, input.purchaseId)
-            : isNull(artcovrGenerations.purchaseId),
-          sql`${artcovrGenerations.status} in ('queued','running','succeeded')`,
-        ),
+    let slot: number | null = null;
+    if (input.purchaseId) {
+      const balance = await getPurchaseCreditBalance(
+        tx,
+        input.userId,
+        input.purchaseId,
       );
-    const used = new Set(
-      successful
-        .map((row) => row.slot)
-        .filter((slot): slot is number => slot !== null),
-    );
-    const slot = Array.from({ length: limit }, (_, index) => index + 1).find(
-      (value) => !used.has(value),
-    );
-    if (!slot)
-      fail(
-        409,
-        "generation_allowance_exhausted",
-        "No generation allowance remains for this artwork.",
+      if (balance < 1)
+        fail(
+          409,
+          "generation_credits_exhausted",
+          "No image-edit credits remain for this purchase.",
+        );
+      const spent = await spendPurchaseCredit(tx, {
+        userId: input.userId,
+        purchaseId: input.purchaseId,
+        generationId: id,
+      });
+      if (!spent)
+        fail(
+          409,
+          "generation_credits_exhausted",
+          "No image-edit credits remain for this purchase.",
+        );
+      // Retain this field as an audit-friendly sequence for older records. It
+      // is not used for admission; the ledger is the source of truth.
+      slot = Math.max(1, (order?.includedCredits ?? 1) - balance + 1);
+    } else {
+      const successful = await tx
+        .select({ slot: artcovrGenerations.allowanceSlot })
+        .from(artcovrGenerations)
+        .where(
+          and(
+            eq(artcovrGenerations.clerkUserId, input.userId),
+            eq(artcovrGenerations.artworkId, artwork.id),
+            isNull(artcovrGenerations.purchaseId),
+            sql`${artcovrGenerations.status} in ('queued','running','succeeded')`,
+          ),
+        );
+      const used = new Set(
+        successful
+          .map((row) => row.slot)
+          .filter((value): value is number => value !== null),
       );
+      slot = Array.from({ length: 2 }, (_, index) => index + 1).find(
+        (value) => !used.has(value),
+      ) ?? null;
+      if (!slot)
+        fail(
+          409,
+          "generation_allowance_exhausted",
+          "No generation allowance remains for this artwork.",
+        );
+    }
 
     const expiresAt = new Date(
       Date.now() + (input.purchaseId ? PURCHASE_EXPIRY_MS : PREVIEW_EXPIRY_MS),
@@ -560,28 +613,41 @@ export async function runGeneration(
     const timedOut =
       providerCode === "provider_timeout" ||
       (error instanceof Error && /timeout|timedout|abort/i.test(error.name));
-    await db
-      .update(artcovrGenerations)
-      .set({
-        status: timedOut ? "timed_out" : "failed",
-        allowanceSlot: null,
-        errorCode: timedOut
-          ? "provider_timeout"
-          : error instanceof GenerationServiceError
-            ? error.code
-            : providerCode === "invalid_provider_image" ||
-                providerCode === "provider_failed"
-              ? providerCode
-              : "generation_failed",
-        finishedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(artcovrGenerations.id, job.id),
-          eq(artcovrGenerations.clerkUserId, userId),
-          eq(artcovrGenerations.status, "running"),
-        ),
-      );
+    await db.transaction(async (tx) => {
+      const failed = await tx
+        .update(artcovrGenerations)
+        .set({
+          status: timedOut ? "timed_out" : "failed",
+          allowanceSlot: null,
+          errorCode: timedOut
+            ? "provider_timeout"
+            : error instanceof GenerationServiceError
+              ? error.code
+              : providerCode === "invalid_provider_image" ||
+                  providerCode === "provider_failed"
+                ? providerCode
+                : "generation_failed",
+          finishedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(artcovrGenerations.id, job.id),
+            eq(artcovrGenerations.clerkUserId, userId),
+            eq(artcovrGenerations.status, "running"),
+          ),
+        )
+        .returning({ id: artcovrGenerations.id });
+      if (failed.length && job.purchaseId) {
+        await releasePurchaseCredit(tx, {
+          userId,
+          purchaseId: job.purchaseId,
+          generationId: job.id,
+          reason: timedOut
+            ? "Timed-out image generation credit release"
+            : "Failed image generation credit release",
+        });
+      }
+    });
   } finally {
     // Photo cleanup must never turn a successful provider result into a refund.
     if (ownsJob && job.referenceKey) {
@@ -695,13 +761,34 @@ export async function serializeAccount(userId: string) {
       .where(eq(artcovrGenerations.clerkUserId, userId))
       .orderBy(desc(artcovrGenerations.createdAt)),
   ]);
+  await Promise.all(
+    orders
+      .filter(
+        (order) =>
+          order.accessRevokedAt ||
+          (order.status === "paid" && !isActiveEntitlement(order)),
+      )
+      .map((order) =>
+        revokePurchaseCredits(
+          order.id,
+          order.accessRevocationReason ??
+            (order.status === "paid"
+              ? "Purchase entitlement expired"
+              : "Purchase access revoked"),
+          `purchase:${order.id}:revoke`,
+        ),
+      ),
+  );
+  const purchaseBalances = new Map(
+    (await listPurchaseCreditBalances(db, userId)).map((balance) => [
+      balance.purchaseId,
+      balance.balance,
+    ]),
+  );
+  const totalCreditBalance = await getUserCreditBalance(db, userId);
   const purchases = orders.map((order) => {
     const artwork = getPublicArtworkById(order.artworkId);
     const entitlementExpiresAt = effectiveEntitlement(order);
-    const successful = generations.filter(
-      (generation) =>
-        generation.purchaseId === order.id && generation.status === "succeeded",
-    ).length;
     return {
       id: order.id,
       artworkId: order.artworkId,
@@ -717,9 +804,14 @@ export async function serializeAccount(userId: string) {
       resetSource: "original" as const,
       accessRevokedAt: order.accessRevokedAt?.toISOString() ?? null,
       accessRevocationReason: order.accessRevocationReason,
+      includedCredits: order.includedCredits,
+      remainingCredits:
+        isActiveEntitlement(order) && !order.accessRevokedAt
+          ? Math.max(0, purchaseBalances.get(order.id) ?? 0)
+          : 0,
       remainingGenerations:
         isActiveEntitlement(order) && !order.accessRevokedAt
-          ? Math.max(0, 4 - successful)
+          ? Math.max(0, purchaseBalances.get(order.id) ?? 0)
           : 0,
     };
   });
@@ -826,5 +918,10 @@ export async function serializeAccount(userId: string) {
       }),
     )
   ).filter(Boolean);
-  return { purchases, generations: serializedGenerations, downloads };
+  return {
+    totalCreditBalance: Math.max(0, totalCreditBalance),
+    purchases,
+    generations: serializedGenerations,
+    downloads,
+  };
 }

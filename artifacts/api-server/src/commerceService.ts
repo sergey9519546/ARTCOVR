@@ -1,5 +1,5 @@
 import type Stripe from "stripe";
-import { and, eq, inArray, isNull, lte, ne, or } from "drizzle-orm";
+import { and, eq, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import {
   artcovrCreditLedger,
   artcovrOrders,
@@ -9,6 +9,7 @@ import {
 import { commerceConfig, licenseTermsForSaleMode } from "./commerce-config";
 import { logger } from "./lib/logger";
 import { expectedStripeLivemode, refundPaymentIntent } from "./stripeClient";
+import { revokePurchaseCreditsInTransaction } from "./creditService";
 
 export const checkoutReservationMs = 31 * 60_000;
 const activeExclusiveStatuses = ["reserved", "paid"] as const;
@@ -39,6 +40,10 @@ export async function fulfillCheckoutSession(
   event: Stripe.Event,
   dependencies: FulfillmentDependencies = fulfillmentDependencies,
 ): Promise<void> {
+  if (event.type === "charge.refunded") {
+    await revokeRefundedCharge(event);
+    return;
+  }
   if (
     event.type !== "checkout.session.completed" &&
     event.type !== "checkout.session.async_payment_succeeded"
@@ -193,6 +198,7 @@ export async function fulfillCheckoutSession(
           .insert(artcovrCreditLedger)
           .values({
             id: `credit_${crypto.randomUUID()}`,
+            clerkUserId: order.clerkUserId ?? `guest:${order.id}`,
             accountKey,
             orderId: order.id,
             entryType: "grant",
@@ -217,6 +223,57 @@ export async function fulfillCheckoutSession(
     await tx
       .update(artcovrWebhookEvents)
       .set({ status: paid ? "processed" : "received", processedAt: new Date() })
+      .where(eq(artcovrWebhookEvents.id, event.id));
+  });
+}
+
+async function revokeRefundedCharge(event: Stripe.Event) {
+  const charge = event.data.object as Stripe.Charge;
+  const paymentIntentId = stripeId(charge.payment_intent);
+  if (!paymentIntentId) return;
+
+  await db.transaction(async (tx) => {
+    const [received] = await tx
+      .insert(artcovrWebhookEvents)
+      .values({ id: event.id, type: event.type, status: "received" })
+      .onConflictDoNothing()
+      .returning({ id: artcovrWebhookEvents.id });
+    if (!received) return;
+
+    const [order] = await tx
+      .select()
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.stripePaymentIntentId, paymentIntentId))
+      .limit(1);
+    if (!order) throw new Error(`No ARTCOVR order found for payment ${paymentIntentId}`);
+
+    const refundId = charge.refunds?.data[0]?.id ?? null;
+    await tx
+      .update(artcovrOrders)
+      .set({
+        status: "refunded",
+        stripeRefundId: refundId,
+        refundedAt: new Date(),
+        accessRevokedAt: new Date(),
+        accessRevocationReason: "stripe_refund",
+      })
+      .where(eq(artcovrOrders.id, order.id));
+
+    if (order.clerkUserId) {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${`credits:${order.id}`}))`,
+      );
+      await revokePurchaseCreditsInTransaction(tx, {
+        userId: order.clerkUserId,
+        purchaseId: order.id,
+        reason: "Purchase refunded",
+        sourceId: `purchase:${order.id}:refund`,
+      });
+    }
+
+    await tx
+      .update(artcovrWebhookEvents)
+      .set({ status: "processed", processedAt: new Date() })
       .where(eq(artcovrWebhookEvents.id, event.id));
   });
 }
@@ -287,7 +344,7 @@ export async function claimGuestPurchases(
     const orderIds = claimed.map((order) => order.id);
     await tx
       .update(artcovrCreditLedger)
-      .set({ accountKey: clerkUserId })
+      .set({ clerkUserId, accountKey: clerkUserId })
       .where(
         and(
           inArray(artcovrCreditLedger.orderId, orderIds),

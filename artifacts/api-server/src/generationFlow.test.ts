@@ -3,7 +3,13 @@ import { randomUUID } from "node:crypto";
 import test from "node:test";
 import sharp from "sharp";
 import { eq, inArray } from "drizzle-orm";
-import { artcovrGenerations, artcovrOrders, artcovrReferenceUploads, db } from "@workspace/db";
+import {
+  artcovrCreditLedger,
+  artcovrGenerations,
+  artcovrOrders,
+  artcovrReferenceUploads,
+  db,
+} from "@workspace/db";
 import { ImageProviderError, type ImageEditClient } from "@workspace/integrations-openai-ai-server/image";
 import { getPublicCatalog } from "./catalog";
 import { admitGeneration, runGeneration, generationStatus } from "./generationService";
@@ -42,11 +48,22 @@ async function fixture() {
   async function order(selectedPreviewId?: string) {
     const id = randomUUID();
     await db.insert(artcovrOrders).values({ id, clerkUserId: userId, artworkId: artwork.id, artworkSlug: artwork.slug, idempotencyKey: id, amountCents: 3500, saleMode: "repeatable", licenseTerms: "test", includedCredits: 4, status: "paid", paidAt: new Date(), selectedPreviewId });
+    await db.insert(artcovrCreditLedger).values({
+      id: `credit-${id}`,
+      clerkUserId: userId,
+      accountKey: userId,
+      orderId: id,
+      entryType: "grant",
+      amount: 4,
+      reason: "Test purchase credit grant",
+      sourceId: `checkout:test:${id}`,
+    });
     return id;
   }
   async function cleanup() {
     await db.delete(artcovrGenerations).where(eq(artcovrGenerations.clerkUserId, userId));
     if (photoIds.length) await db.delete(artcovrReferenceUploads).where(inArray(artcovrReferenceUploads.id, photoIds));
+    await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.accountKey, userId));
     await db.delete(artcovrOrders).where(eq(artcovrOrders.clerkUserId, userId));
   }
   return { userId, source, requests, files, io, input, photo, order, cleanup };
