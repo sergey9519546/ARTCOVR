@@ -42,7 +42,7 @@ test("Stripe webhook signatures reject replayed timestamps and missing secrets",
     /outside the allowed time window/,
   );
   assert.throws(
-    () => verifyStripeWebhookSignature(payload, signatureFor(payload), undefined, timestamp),
+    () => verifyStripeWebhookSignature(payload, signatureFor(payload), "", timestamp),
     /STRIPE_WEBHOOK_SECRET is required/,
   );
 });
