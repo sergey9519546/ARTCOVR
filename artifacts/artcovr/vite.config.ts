@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
 import curatedPublic from './src/lib/artcovr/curated-public.json' with { type: 'json' };
 import {
+  buildCatalogFactsJson,
   buildLlmsFullTxt,
   buildLlmsTxt,
   buildSitemapXml,
@@ -50,8 +51,8 @@ if (!basePath) {
   );
 }
 
-const publicCatalog = selectPublicCatalog(curatedPublic as RouteArtwork[]);
-const discoveryCatalog = (curatedPublic as typeof curatedPublic).map((item) => ({
+const publicCatalog = selectPublicCatalog(curatedPublic);
+const discoveryCatalog = publicCatalog.map((item) => ({
   ...item,
   genres: getArtworkGenres(item).map(displayGenreLabel),
 }));
@@ -83,6 +84,7 @@ function discoveryPlugin(siteUrl: string) {
     'sitemap.xml': buildSitemapXml(publicCatalog, siteUrl),
     'llms.txt': buildLlmsTxt(discoveryCatalog, siteUrl),
     'llms-full.txt': buildLlmsFullTxt(discoveryCatalog, siteUrl),
+    'catalog-facts.json': buildCatalogFactsJson(discoveryCatalog, siteUrl),
     'robots.txt': `User-agent: *\nAllow: /\n\nUser-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`,
   };
 
@@ -99,7 +101,11 @@ function discoveryPlugin(siteUrl: string) {
         response.statusCode = 200;
         response.setHeader(
           'Content-Type',
-          pathname === 'sitemap.xml' ? 'application/xml; charset=utf-8' : 'text/plain; charset=utf-8',
+          pathname === 'sitemap.xml'
+            ? 'application/xml; charset=utf-8'
+            : pathname === 'catalog-facts.json'
+              ? 'application/json; charset=utf-8'
+              : 'text/plain; charset=utf-8',
         );
         response.end(source);
       });
@@ -110,7 +116,13 @@ function discoveryPlugin(siteUrl: string) {
       }
     },
     async writeBundle() {
-      for (const fileName of ['sitemap.xml', 'robots.txt']) {
+      for (const fileName of [
+        'sitemap.xml',
+        'robots.txt',
+        'llms.txt',
+        'llms-full.txt',
+        'catalog-facts.json',
+      ]) {
         try {
           await access(path.join(path.resolve(import.meta.dirname, 'dist/public'), fileName));
         } catch {
@@ -237,7 +249,7 @@ function routeMetadataPlugin(
       .replace(
         HOME_NOSCRIPT_PATTERN,
         routePath === "/"
-          ? `<!-- ARTCOVR_HOME_NOSCRIPT_START -->\n    <noscript>\n      <h1>Curated cover art for music releases and artists.</h1>\n      <p>ARTCOVR is a curated storefront for distinctive square cover art with commercial licensing and prompt-based editing.</p>\n      <p><a href="/archive">Browse the cover art archive</a> · <a href="/license">Read the commercial license</a></p>\n    </noscript>\n    <!-- ARTCOVR_HOME_NOSCRIPT_END -->`
+          ? `<!-- ARTCOVR_HOME_NOSCRIPT_START -->\n    <noscript>\n${rendered.bodyHtml}\n    </noscript>\n    <!-- ARTCOVR_HOME_NOSCRIPT_END -->`
           : "",
       );
   };
@@ -279,7 +291,7 @@ function routeMetadataPlugin(
       }
 
       const homepage = routeDocument(shell, '/');
-      if (/<main\b/.test(homepage)) {
+      if (!/<div id="root">\s*<\/div>/i.test(homepage)) {
         throw new Error(
           'Homepage static content would paint before the React preloader. Keep the homepage root empty.',
         );
