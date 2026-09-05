@@ -15,6 +15,76 @@ for command in psql sha256sum; do
   }
 done
 
+mapfile -t migration_files < <(find "$root/lib/db/drizzle" -maxdepth 1 -type f -name '*.sql' -print | sort)
+if [[ "${#migration_files[@]}" -eq 0 ]]; then
+  echo "A committed Drizzle migration is required for the database verifier contract tests." >&2
+  exit 2
+fi
+for migration_file in "${migration_files[@]}"; do
+  if [[ ! -s "$migration_file" ]]; then
+    echo "A committed Drizzle migration is empty: $migration_file" >&2
+    exit 2
+  fi
+done
+migration_count="${#migration_files[@]}"
+
+required_commerce_tables_file="$root/scripts/db/required-commerce-tables.txt"
+if [[ ! -s "$required_commerce_tables_file" ]]; then
+  echo "The required commerce table inventory is required for the database verifier contract tests." >&2
+  exit 2
+fi
+mapfile -t required_commerce_tables < <(
+  awk '
+    {
+      sub(/#.*/, "")
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "")
+      if (length > 0) print
+    }
+  ' "$required_commerce_tables_file"
+)
+if [[ "${#required_commerce_tables[@]}" -eq 0 ]]; then
+  echo "The required commerce table inventory must not be empty." >&2
+  exit 2
+fi
+declare -A seen_commerce_tables=()
+for table_name in "${required_commerce_tables[@]}"; do
+  if [[ ! "$table_name" =~ ^artcovr_[a-z0-9_]+$ ]]; then
+    echo "Invalid required commerce table name: $table_name" >&2
+    exit 2
+  fi
+  if [[ -n "${seen_commerce_tables[$table_name]:-}" ]]; then
+    echo "Duplicate required commerce table name: $table_name" >&2
+    exit 2
+  fi
+  seen_commerce_tables["$table_name"]=1
+done
+
+mapfile -t marked_commerce_tables < <(
+  awk '
+    /-- release-verifier: required-commerce-table/ {
+      marked = 1
+      next
+    }
+    marked && /^[[:space:]]*CREATE TABLE[[:space:]]+"[^"]+"/ {
+      table_name = $0
+      sub(/^.*CREATE TABLE[[:space:]]+"/, "", table_name)
+      sub(/".*$/, "", table_name)
+      print table_name
+      marked = 0
+    }
+  ' "${migration_files[@]}"
+)
+manifest_table_list="$(printf '%s\n' "${required_commerce_tables[@]}" | sort -u)"
+marked_table_list="$(printf '%s\n' "${marked_commerce_tables[@]}" | sort -u)"
+if [[ "$manifest_table_list" != "$marked_table_list" ]]; then
+  echo "Required commerce table contract failed: every migration table marked for release verification must be in $required_commerce_tables_file, and every manifest entry must be marked in a migration." >&2
+  echo "--- manifest ---" >&2
+  printf '%s\n' "$manifest_table_list" >&2
+  echo "--- migration markers ---" >&2
+  printf '%s\n' "$marked_table_list" >&2
+  exit 1
+fi
+
 admin_url="${TEST_DATABASE_ADMIN_URL:-postgresql://postgres:postgres@127.0.0.1:5432/postgres}"
 case "$admin_url" in
   *127.0.0.1*|*localhost*) ;;
@@ -28,19 +98,6 @@ psql "$admin_url" -X -v ON_ERROR_STOP=1 -Atqc "select 1" >/dev/null || {
   echo "The disposable PostgreSQL service is not reachable at TEST_DATABASE_ADMIN_URL." >&2
   exit 2
 }
-
-mapfile -t migration_files < <(find "$root/lib/db/drizzle" -maxdepth 1 -type f -name '*.sql' -print | sort)
-if [[ "${#migration_files[@]}" -eq 0 ]]; then
-  echo "A committed Drizzle migration is required for the database verifier contract tests." >&2
-  exit 2
-fi
-for migration_file in "${migration_files[@]}"; do
-  if [[ ! -s "$migration_file" ]]; then
-    echo "A committed Drizzle migration is empty: $migration_file" >&2
-    exit 2
-  fi
-done
-migration_count="${#migration_files[@]}"
 
 test_database_name="artcovr_verify_test_${BASHPID}_${RANDOM}"
 test_database_url="${admin_url%/*}/$test_database_name"

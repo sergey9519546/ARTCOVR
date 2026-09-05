@@ -18,11 +18,42 @@ command -v psql >/dev/null || {
 
 drizzle_dir="$root/lib/db/drizzle"
 journal="$drizzle_dir/meta/_journal.json"
+required_commerce_tables_file="$root/scripts/db/required-commerce-tables.txt"
 mapfile -t migration_files < <(find "$drizzle_dir" -maxdepth 1 -type f -name '*.sql' -print | sort)
 if [[ ! -s "$journal" || "${#migration_files[@]}" -eq 0 ]]; then
   echo "DB SCHEMA DRIFT: no versioned Drizzle migrations are available." >&2
   exit 11
 fi
+if [[ ! -s "$required_commerce_tables_file" ]]; then
+  echo "DB SCHEMA DRIFT: required commerce table inventory is missing." >&2
+  exit 11
+fi
+
+mapfile -t required_commerce_tables < <(
+  awk '
+    {
+      sub(/#.*/, "")
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "")
+      if (length > 0) print
+    }
+  ' "$required_commerce_tables_file"
+)
+if [[ "${#required_commerce_tables[@]}" -eq 0 ]]; then
+  echo "DB SCHEMA DRIFT: required commerce table inventory is empty." >&2
+  exit 11
+fi
+declare -A seen_commerce_tables=()
+for table_name in "${required_commerce_tables[@]}"; do
+  if [[ ! "$table_name" =~ ^artcovr_[a-z0-9_]+$ ]]; then
+    echo "DB SCHEMA DRIFT: invalid required commerce table name: $table_name." >&2
+    exit 11
+  fi
+  if [[ -n "${seen_commerce_tables[$table_name]:-}" ]]; then
+    echo "DB SCHEMA DRIFT: required commerce table inventory contains a duplicate: $table_name." >&2
+    exit 11
+  fi
+  seen_commerce_tables["$table_name"]=1
+done
 
 expected_count="${#migration_files[@]}"
 journal_count="$(grep -c '"tag":' "$journal" || true)"
@@ -59,14 +90,16 @@ if [[ "$applied_hashes" != "$expected_hashes" ]]; then
 fi
 
 echo "==> checking ARTCOVR commerce tables"
+required_table_values=""
+for table_name in "${required_commerce_tables[@]}"; do
+  required_table_values+="${required_table_values:+,}"$'\n'"        ('$table_name')"
+done
 missing_commerce_tables="$(
   psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
     select coalesce(string_agg(table_name, ', ' order by table_name), '')
     from (
       values
-        ('artcovr_orders'),
-        ('artcovr_credit_ledger'),
-        ('artcovr_webhook_events')
+${required_table_values}
     ) as required_tables(table_name)
     where to_regclass('public.' || table_name) is null
   "

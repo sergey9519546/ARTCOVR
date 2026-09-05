@@ -1,0 +1,7 @@
+# Tables required by the release database verifier.
+#
+# Keep this list in sync with migration tables marked with:
+#   -- release-verifier: required-commerce-table
+artcovr_credit_ledger
+artcovr_orders
+artcovr_webhook_events
