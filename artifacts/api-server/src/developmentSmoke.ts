@@ -34,6 +34,142 @@ export function developmentSmokeOptions(args: string[], env: NodeJS.ProcessEnv) 
   return { base: base.origin, origin: origin.origin, generate, artworkId: values.get("--artwork-id") };
 }
 
+type SmokeGenerationCleanupRow = {
+  id: string;
+  artworkId: string;
+  cleanObjectKey: string | null;
+  previewObjectKey: string | null;
+};
+
+export type DevelopmentSmokeCleanupDependencies = {
+  timeoutRunningGenerations: () => Promise<void>;
+  listGenerations: () => Promise<SmokeGenerationCleanupRow[]>;
+  removePrivate: (keys: string[]) => Promise<void>;
+  deleteGeneration: (id: string) => Promise<void>;
+  deleteLedger: (ids: string[]) => Promise<void>;
+  deleteOrders: (ids: string[]) => Promise<void>;
+  remainingGenerationIds: () => Promise<string[]>;
+  remainingLedgerIds: () => Promise<string[]>;
+  remainingOrderIds: () => Promise<string[]>;
+  revokeSession: (id: string) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+  closePool: () => Promise<void>;
+};
+
+export type DevelopmentSmokeCleanupInput = {
+  runId: string;
+  users: string[];
+  sessions: string[];
+  orderIds: string[];
+  ledgerIds: string[];
+  generationIds: string[];
+};
+
+const cleanupCategory = {
+  generationObjects: "fixture generation objects",
+  generations: "fixture generations",
+  ledger: "fixture credit ledger",
+  orders: "fixture orders",
+  verification: "cleanup verification",
+  session: "Clerk session",
+  user: "Clerk test user",
+  database: "database connection",
+} as const;
+
+/**
+ * Cleanup is intentionally dependency-injected so failure paths can be tested
+ * with disposable fakes. Every operation is attempted independently: a
+ * storage or database failure must not prevent Clerk accounts or other fixture
+ * categories from being cleaned up and reported.
+ */
+export async function cleanupDevelopmentSmokeFixtures(
+  input: DevelopmentSmokeCleanupInput,
+  dependencies: DevelopmentSmokeCleanupDependencies,
+): Promise<void> {
+  const incomplete = new Set<string>();
+  const reportIncomplete = (category: string) => incomplete.add(category);
+  const attempt = async (category: string, operation: () => Promise<void>) => {
+    try {
+      await operation();
+    } catch {
+      reportIncomplete(category);
+    }
+  };
+
+  if (input.users.length) {
+    await attempt(cleanupCategory.generationObjects, async () => {
+      await dependencies.timeoutRunningGenerations();
+      const rows = await dependencies.listGenerations();
+      for (const row of rows) {
+        const keys = [row.cleanObjectKey, row.previewObjectKey].filter(
+          (key): key is string => Boolean(key),
+        );
+        if (
+          keys.some(
+            (key) => !key.startsWith(`generated/${row.artworkId}/${row.id}/`),
+          )
+        ) {
+          throw new Error("Unexpected cleanup object path");
+        }
+        if (keys.length) await dependencies.removePrivate(keys);
+        await dependencies.deleteGeneration(row.id);
+      }
+    });
+  }
+
+  await attempt(cleanupCategory.ledger, async () => {
+    if (input.ledgerIds.length) await dependencies.deleteLedger(input.ledgerIds);
+  });
+
+  await attempt(cleanupCategory.orders, async () => {
+    if (input.orderIds.length) await dependencies.deleteOrders(input.orderIds);
+  });
+
+  const verifyEmpty = async (
+    category: string,
+    ids: string[],
+    findRemaining: () => Promise<string[]>,
+  ) => {
+    if (!ids.length) return;
+    try {
+      if ((await findRemaining()).length) reportIncomplete(category);
+    } catch {
+      reportIncomplete(cleanupCategory.verification);
+    }
+  };
+  await verifyEmpty(
+    cleanupCategory.generations,
+    input.generationIds,
+    dependencies.remainingGenerationIds,
+  );
+  await verifyEmpty(
+    cleanupCategory.ledger,
+    input.ledgerIds,
+    dependencies.remainingLedgerIds,
+  );
+  await verifyEmpty(
+    cleanupCategory.orders,
+    input.orderIds,
+    dependencies.remainingOrderIds,
+  );
+
+  for (const session of input.sessions) {
+    await attempt(cleanupCategory.session, () =>
+      dependencies.revokeSession(session),
+    );
+  }
+  for (const user of input.users) {
+    await attempt(cleanupCategory.user, () => dependencies.deleteUser(user));
+  }
+  await attempt(cleanupCategory.database, dependencies.closePool);
+
+  if (incomplete.size) {
+    throw new SmokeError(
+      `Cleanup incomplete for ${[...incomplete].join(", ")}; run marker ${input.runId}.`,
+    );
+  }
+}
+
 // pnpm --filter @workspace/api-server exec tsx src/developmentSmoke.ts --dev-smoke --base-url http://127.0.0.1:3001
 // Append --generate to spend one development model edit; --origin must match the API's configured storefront origin.
 export async function runDevelopmentSmoke(args: string[]) {
@@ -60,7 +196,6 @@ export async function runDevelopmentSmoke(args: string[]) {
   const generationIds: string[] = [];
   const checks: string[] = [];
   const artifacts: string[] = [];
-  const cleanupErrors: string[] = [];
   let step = "health";
 
   async function api(path: string, session?: string, body?: object) {
@@ -255,67 +390,77 @@ export async function runDevelopmentSmoke(args: string[]) {
     const codes = typeof error === "object" && error && "errors" in error && Array.isArray(error.errors) ? error.errors.map((item: { code?: string }) => item.code).filter(Boolean).join(", ") : "";
     throw new SmokeError(`Development smoke failed at ${step}${codes ? ` (${codes})` : ""}. Credentials and response bodies were withheld.`);
   } finally {
-    if (users.length) {
-      try {
-        // Scope every mutation to users created in this run; never customer rows.
-        await db.update(artcovrGenerations).set({ status: "timed_out", allowanceSlot: null }).where(and(inArray(artcovrGenerations.clerkUserId, users), sql`${artcovrGenerations.status} in ('queued','running')`));
-        const rows = await db.select().from(artcovrGenerations).where(inArray(artcovrGenerations.clerkUserId, users));
-        for (const row of rows) {
-          const keys = [row.cleanObjectKey, row.previewObjectKey].filter((key): key is string => Boolean(key));
-          if (keys.some((key) => !key.startsWith(`generated/${row.artworkId}/${row.id}/`))) throw new Error("Unexpected cleanup object path");
-          if (keys.length) await removePrivate(keys);
+    await cleanupDevelopmentSmokeFixtures(
+      { runId, users, sessions, orderIds, ledgerIds, generationIds },
+      {
+        timeoutRunningGenerations: async () => {
+          // Scope every mutation to users created in this run; never customer rows.
+          await db
+            .update(artcovrGenerations)
+            .set({ status: "timed_out", allowanceSlot: null })
+            .where(
+              and(
+                inArray(artcovrGenerations.clerkUserId, users),
+                sql`${artcovrGenerations.status} in ('queued','running')`,
+              ),
+            );
+        },
+        listGenerations: async () =>
+          db
+            .select()
+            .from(artcovrGenerations)
+            .where(inArray(artcovrGenerations.clerkUserId, users)),
+        removePrivate,
+        deleteGeneration: async (id) => {
           await db
             .delete(artcovrGenerations)
             .where(
               and(
-                eq(artcovrGenerations.id, row.id),
+                eq(artcovrGenerations.id, id),
                 inArray(artcovrGenerations.clerkUserId, users),
               ),
             );
-        }
-      } catch { cleanupErrors.push("fixture rows/private images"); }
-    }
-    try {
-      if (ledgerIds.length) {
-        await db
-          .delete(artcovrCreditLedger)
-          .where(inArray(artcovrCreditLedger.id, ledgerIds));
-      }
-    } catch { cleanupErrors.push("fixture credit ledger"); }
-    try {
-      if (orderIds.length) {
-        await db
-          .delete(artcovrOrders)
-          .where(inArray(artcovrOrders.id, orderIds));
-      }
-    } catch { cleanupErrors.push("fixture orders"); }
-    try {
-      if (generationIds.length) {
-        const remainingGenerations = await db
-          .select({ id: artcovrGenerations.id })
-          .from(artcovrGenerations)
-          .where(inArray(artcovrGenerations.id, generationIds));
-        if (remainingGenerations.length) cleanupErrors.push("fixture generations");
-      }
-      if (ledgerIds.length) {
-        const remainingLedger = await db
-          .select({ id: artcovrCreditLedger.id })
-          .from(artcovrCreditLedger)
-          .where(inArray(artcovrCreditLedger.id, ledgerIds));
-        if (remainingLedger.length) cleanupErrors.push("fixture credit ledger");
-      }
-      if (orderIds.length) {
-        const remainingOrders = await db
-          .select({ id: artcovrOrders.id })
-          .from(artcovrOrders)
-          .where(inArray(artcovrOrders.id, orderIds));
-        if (remainingOrders.length) cleanupErrors.push("fixture orders");
-      }
-    } catch { cleanupErrors.push("cleanup verification"); }
-    for (const session of sessions) await clerkClient.sessions.revokeSession(session).catch(() => { cleanupErrors.push("Clerk session"); });
-    for (const user of users) await clerkClient.users.deleteUser(user).catch(() => { cleanupErrors.push("Clerk test user"); });
-    await pool.end();
-    if (cleanupErrors.length) throw new SmokeError(`Cleanup incomplete for ${cleanupErrors.join(", ")}; run marker ${runId}.`);
+        },
+        deleteLedger: async (ids) => {
+          await db
+            .delete(artcovrCreditLedger)
+            .where(inArray(artcovrCreditLedger.id, ids));
+        },
+        deleteOrders: async (ids) => {
+          await db
+            .delete(artcovrOrders)
+            .where(inArray(artcovrOrders.id, ids));
+        },
+        remainingGenerationIds: async () =>
+          (
+            await db
+              .select({ id: artcovrGenerations.id })
+              .from(artcovrGenerations)
+              .where(inArray(artcovrGenerations.id, generationIds))
+          ).map((row) => row.id),
+        remainingLedgerIds: async () =>
+          (
+            await db
+              .select({ id: artcovrCreditLedger.id })
+              .from(artcovrCreditLedger)
+              .where(inArray(artcovrCreditLedger.id, ledgerIds))
+          ).map((row) => row.id),
+        remainingOrderIds: async () =>
+          (
+            await db
+              .select({ id: artcovrOrders.id })
+              .from(artcovrOrders)
+              .where(inArray(artcovrOrders.id, orderIds))
+          ).map((row) => row.id),
+        revokeSession: async (id) => {
+          await clerkClient.sessions.revokeSession(id);
+        },
+        deleteUser: async (id) => {
+          await clerkClient.users.deleteUser(id);
+        },
+        closePool: () => pool.end(),
+      },
+    );
   }
   return { runId, checks, realGeneration: options.generate, artifacts, cleanup: "complete", visualReview: options.generate ? "required; API success does not establish edit quality" : "not run" };
 }
