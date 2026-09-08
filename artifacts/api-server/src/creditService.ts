@@ -20,6 +20,52 @@ export type CreditActivity = {
   occurredAt: Date;
 };
 
+export const CREDIT_ACTIVITY_PAGE_SIZE = 25;
+
+export type CreditActivityPage = {
+  activities: CreditActivity[];
+  nextCursor: string | null;
+};
+
+export class InvalidCreditActivityCursorError extends Error {
+  constructor() {
+    super("Invalid credit activity cursor.");
+    this.name = "InvalidCreditActivityCursorError";
+  }
+}
+
+type CreditActivityCursor = {
+  occurredAt: string;
+  id: string;
+};
+
+function encodeCreditActivityCursor(cursor: CreditActivityCursor) {
+  return Buffer.from(JSON.stringify(cursor), "utf8").toString("base64url");
+}
+
+function decodeCreditActivityCursor(value: string): CreditActivityCursor {
+  try {
+    const decoded = JSON.parse(
+      Buffer.from(value, "base64url").toString("utf8"),
+    ) as Partial<CreditActivityCursor>;
+    if (
+      typeof decoded.occurredAt !== "string" ||
+      Number.isNaN(Date.parse(decoded.occurredAt)) ||
+      typeof decoded.id !== "string" ||
+      decoded.id.length === 0 ||
+      decoded.id.length > 200
+    ) {
+      throw new Error("invalid cursor fields");
+    }
+    return {
+      occurredAt: new Date(decoded.occurredAt).toISOString(),
+      id: decoded.id,
+    };
+  } catch {
+    throw new InvalidCreditActivityCursorError();
+  }
+}
+
 function classifyCreditActivity(
   entryType: string,
   reason: string,
@@ -43,9 +89,16 @@ function classifyCreditActivity(
 export async function listUserCreditActivity(
   executor: CreditExecutor,
   userId: string,
-): Promise<CreditActivity[]> {
+  cursor?: string,
+): Promise<CreditActivityPage> {
+  const decodedCursor = cursor ? decodeCreditActivityCursor(cursor) : null;
+  const ownerScope = or(
+    eq(artcovrCreditLedger.clerkUserId, userId),
+    eq(artcovrCreditLedger.accountKey, userId),
+  );
   const rows = await executor
     .select({
+      id: artcovrCreditLedger.id,
       purchaseId: artcovrCreditLedger.orderId,
       entryType: artcovrCreditLedger.entryType,
       amount: artcovrCreditLedger.amount,
@@ -54,19 +107,36 @@ export async function listUserCreditActivity(
     })
     .from(artcovrCreditLedger)
     .where(
-      or(
-        eq(artcovrCreditLedger.clerkUserId, userId),
-        eq(artcovrCreditLedger.accountKey, userId),
-      ),
+      decodedCursor
+        ? and(
+            ownerScope,
+            sql`(${artcovrCreditLedger.createdAt}, ${artcovrCreditLedger.id}) < (${decodedCursor.occurredAt}::timestamptz, ${decodedCursor.id})`,
+          )
+        : ownerScope,
     )
-    .orderBy(sql`${artcovrCreditLedger.createdAt} desc`);
+    .orderBy(
+      sql`${artcovrCreditLedger.createdAt} desc`,
+      sql`${artcovrCreditLedger.id} desc`,
+    )
+    .limit(CREDIT_ACTIVITY_PAGE_SIZE + 1);
 
-  return rows.map((row) => ({
-    purchaseId: row.purchaseId,
-    ...classifyCreditActivity(row.entryType, row.reason),
-    amount: row.amount,
-    occurredAt: row.occurredAt,
-  }));
+  const pageRows = rows.slice(0, CREDIT_ACTIVITY_PAGE_SIZE);
+  const lastRow = pageRows.at(-1);
+  return {
+    activities: pageRows.map((row) => ({
+      purchaseId: row.purchaseId,
+      ...classifyCreditActivity(row.entryType, row.reason),
+      amount: row.amount,
+      occurredAt: row.occurredAt,
+    })),
+    nextCursor:
+      rows.length > CREDIT_ACTIVITY_PAGE_SIZE && lastRow
+        ? encodeCreditActivityCursor({
+            occurredAt: lastRow.occurredAt.toISOString(),
+            id: lastRow.id,
+          })
+        : null,
+  };
 }
 
 export type CreditBalance = {

@@ -124,6 +124,7 @@ export type AccountCreditActivity = {
 export type AccountData = {
   totalCreditBalance: number;
   creditActivity: AccountCreditActivity[];
+  creditActivityNextCursor: string | null;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];
@@ -275,8 +276,13 @@ export function createCheckout(
   });
 }
 
-export function getMyImages() {
-  return request<AccountData>("/functions/v1/my-images", { method: "GET" });
+export function getMyImages(creditActivityCursor?: string) {
+  const query = creditActivityCursor
+    ? `?creditActivityCursor=${encodeURIComponent(creditActivityCursor)}`
+    : "";
+  return request<AccountData>(`/functions/v1/my-images${query}`, {
+    method: "GET",
+  });
 }
 
 export function claimGuestPurchases() {

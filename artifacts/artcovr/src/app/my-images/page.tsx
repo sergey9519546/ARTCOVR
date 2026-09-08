@@ -24,11 +24,13 @@ export default function MyImagesPage() {
   const [data, setData] = useState<AccountData>({
     totalCreditBalance: 0,
     creditActivity: [],
+    creditActivityNextCursor: null,
     purchases: [],
     generations: [],
     downloads: [],
   });
   const [message, setMessage] = useState("");
+  const [loadingOlderActivity, setLoadingOlderActivity] = useState(false);
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
   const checkoutReturnTracked = useRef(false);
@@ -79,6 +81,55 @@ export default function MyImagesPage() {
       return null;
     }
   }, []);
+
+  const loadOlderActivity = useCallback(async () => {
+    if (!data.creditActivityNextCursor || loadingOlderActivity) return;
+    setLoadingOlderActivity(true);
+    try {
+      const account = await getMyImages(data.creditActivityNextCursor);
+      if (mounted.current) {
+        setData((current) => {
+          const existing = new Set(
+            current.creditActivity.map((activity) =>
+              [
+                activity.purchaseId,
+                activity.occurredAt,
+                activity.event,
+                activity.amount,
+              ].join(":"),
+            ),
+          );
+          return {
+            ...account,
+            creditActivity: [
+              ...current.creditActivity,
+              ...account.creditActivity.filter(
+                (activity) =>
+                  !existing.has(
+                    [
+                      activity.purchaseId,
+                      activity.occurredAt,
+                      activity.event,
+                      activity.amount,
+                    ].join(":"),
+                  ),
+              ),
+            ],
+          };
+        });
+      }
+    } catch (error) {
+      if (mounted.current) {
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Older credit activity could not be loaded.",
+        );
+      }
+    } finally {
+      if (mounted.current) setLoadingOlderActivity(false);
+    }
+  }, [data.creditActivityNextCursor, loadingOlderActivity]);
 
   const refreshAccount = useCallback(async () => {
     // Keep the selected canvas and pending edit mounted while refreshing the
@@ -185,6 +236,17 @@ export default function MyImagesPage() {
               </li>
             ))}
           </ol>
+          {data.creditActivityNextCursor && (
+            <button
+              type="button"
+              className="link-hover mt-5 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.08em]"
+              onClick={() => void loadOlderActivity()}
+              disabled={loadingOlderActivity}
+              aria-busy={loadingOlderActivity}
+            >
+              {loadingOlderActivity ? "Loading older activity…" : "Load older activity"}
+            </button>
+          )}
         </section>
       )}
       {state === "ready" && data.purchases.map((purchase) => {
