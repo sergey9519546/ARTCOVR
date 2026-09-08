@@ -26,3 +26,4 @@
 - [Real Clerk E2E prerequisites](real-clerk-e2e-prerequisites.md) — live account journeys stay skipped until disposable test-account inputs are configured.
 - [Credit ledger lifecycle](credit-ledger-lifecycle.md) — paid edits debit per purchase atomically; failures release, refunds revoke, and guest grants use a temporary scoped principal.
 - [Playwright query interception](playwright-query-routes.md) — route globs for API calls with query parameters need a trailing wildcard or the request bypasses the mock.
+- [Release process lifecycle tests](release-process-lifecycle-tests.md) — synchronize child-process signal assertions with an explicit harness readiness marker.

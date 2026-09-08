@@ -167,7 +167,10 @@ export async function waitForApiHealth(
   );
 }
 
-async function startDisposableApi(env) {
+export async function startDisposableApi(
+  env,
+  { spawnProcess = spawn } = {},
+) {
   const port = await findAvailableLoopbackPort();
   const baseUrl = `http://127.0.0.1:${port}`;
   console.log(
@@ -184,7 +187,7 @@ async function startDisposableApi(env) {
       env.CLERK_PUBLISHABLE_KEY ?? env.VITE_CLERK_PUBLISHABLE_KEY,
   };
   const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-  const child = spawn(
+  const child = spawnProcess(
     pnpm,
     ["--filter", "@workspace/api-server", "run", "dev"],
     {
@@ -197,6 +200,36 @@ async function startDisposableApi(env) {
     `Disposable API readiness: waiting for database health on isolated port ${port} (readiness phase: database).`,
   );
   return { baseUrl, child, port };
+}
+
+function runDevelopmentSmoke(
+  env,
+  baseUrl,
+  disposableApi,
+  { spawnProcess = spawnSync } = {},
+) {
+  const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+  const smokeArgs = [
+    "--filter",
+    "@workspace/api-server",
+    "exec",
+    "tsx",
+    "src/developmentSmoke.ts",
+    "--dev-smoke",
+    "--base-url",
+    baseUrl,
+  ];
+  if (disposableApi) smokeArgs.push("--origin", disposableApi.baseUrl);
+  return spawnProcess(pnpm, smokeArgs, {
+    env: disposableApi
+      ? {
+          ...env,
+          ARTCOVR_PUBLIC_ORIGIN: disposableApi.baseUrl,
+          ARTCOVR_STOREFRONT_ORIGINS: disposableApi.baseUrl,
+        }
+      : env,
+    stdio: "inherit",
+  });
 }
 
 export function clerkPrivacySmokePreflight(env) {
@@ -248,16 +281,27 @@ export function clerkPrivacySmokePreflight(env) {
   };
 }
 
-export async function runClerkPrivacySmoke(env = process.env) {
+export async function runClerkPrivacySmoke(
+  env = process.env,
+  {
+    startApi = startDisposableApi,
+    waitForHealth = waitForApiHealth,
+    runSmoke = runDevelopmentSmoke,
+    stopApi = stopDisposableApi,
+    log = console.log,
+    error = console.error,
+    warn = console.warn,
+  } = {},
+) {
   const decision = clerkPrivacySmokePreflight(env);
   if (decision.kind === "skipped") {
-    console.error(
+    error(
       `CLERK PRIVACY SMOKE SKIPPED (environment gap): ${decision.reason}`,
     );
     return SKIPPED_ENVIRONMENT_GAP;
   }
   if (decision.kind === "rejected") {
-    console.error(`CLERK PRIVACY SMOKE REJECTED: ${decision.reason}`);
+    error(`CLERK PRIVACY SMOKE REJECTED: ${decision.reason}`);
     return 2;
   }
 
@@ -266,80 +310,62 @@ export async function runClerkPrivacySmoke(env = process.env) {
   try {
     const usesConfiguredTarget = Boolean(env.ARTCOVR_DEV_SMOKE_BASE_URL);
     if (usesConfiguredTarget) {
-      console.log(`Using configured development API target ${decision.baseUrl}.`);
+      log(`Using configured development API target ${decision.baseUrl}.`);
     } else {
-      disposableApi = await startDisposableApi(env);
+      disposableApi = await startApi(env);
       decision.baseUrl = disposableApi.baseUrl;
-      await waitForApiHealth(disposableApi.baseUrl, disposableApi.child);
-      console.log(
+      await waitForHealth(disposableApi.baseUrl, disposableApi.child);
+      log(
         `Disposable API readiness complete: database health is ready on isolated port ${disposableApi.port}.`,
       );
     }
 
-    const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-    const smokeArgs = [
-      "--filter",
-      "@workspace/api-server",
-      "exec",
-      "tsx",
-      "src/developmentSmoke.ts",
-      "--dev-smoke",
-      "--base-url",
-      decision.baseUrl,
-    ];
-    if (disposableApi) smokeArgs.push("--origin", disposableApi.baseUrl);
-    const result = spawnSync(pnpm, smokeArgs, {
-      env: disposableApi
-        ? {
-            ...env,
-            ARTCOVR_PUBLIC_ORIGIN: disposableApi.baseUrl,
-            ARTCOVR_STOREFRONT_ORIGINS: disposableApi.baseUrl,
-          }
-        : env,
-      stdio: "inherit",
-    });
+    const result = await runSmoke(env, decision.baseUrl, disposableApi);
     if (result.error) {
-      console.error(
+      error(
         `CLERK PRIVACY SMOKE FAILED TO START: ${result.error.message}`,
       );
       smokeStatus = 1;
     } else {
       smokeStatus = result.status ?? 1;
     }
-  } catch (error) {
-    console.error(
+  } catch (smokeError) {
+    error(
       `CLERK PRIVACY SMOKE FAILED: ${
-        error instanceof Error ? error.message : String(error)
+        smokeError instanceof Error ? smokeError.message : String(smokeError)
       }`,
     );
     smokeStatus = 1;
   } finally {
-    console.log(
+    log(
       `CLERK PRIVACY SMOKE RESULT: ${
         smokeStatus === 0 ? "passed" : `failed (exit ${smokeStatus})`
       }`,
     );
     if (disposableApi) {
       try {
-        const teardown = await stopDisposableApi(disposableApi.child);
+        const teardown = await stopApi(disposableApi.child);
         if (!teardown.ok) {
-          console.error(
+          error(
             `CLERK PRIVACY SMOKE TEARDOWN FAILED: ${teardown.error}`,
           );
           if (smokeStatus === 0) smokeStatus = 1;
         } else {
-          console.log(
+          log(
             `Disposable API teardown complete: ${teardown.action} (isolated port ${disposableApi.port}).`,
           );
           if (teardown.warning) {
-            console.warn(
+            warn(
               `Disposable API teardown warning: ${teardown.warning}`,
             );
           }
         }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(`CLERK PRIVACY SMOKE TEARDOWN FAILED: ${message}`);
+      } catch (teardownError) {
+        const message =
+          teardownError instanceof Error
+            ? teardownError.message
+            : String(teardownError);
+        error(`CLERK PRIVACY SMOKE TEARDOWN FAILED: ${message}`);
         if (smokeStatus === 0) smokeStatus = 1;
       }
     }

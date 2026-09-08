@@ -1,11 +1,58 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { EventEmitter } from "node:events";
 import test from "node:test";
 import {
   clerkPrivacySmokePreflight,
+  runClerkPrivacySmoke,
   stopDisposableApi,
   waitForApiHealth,
 } from "./verify-clerk-privacy.mjs";
+
+const smokeEnv = {
+  CLERK_SECRET_KEY: "sk_test_fixture",
+  VITE_CLERK_PUBLISHABLE_KEY: "pk_test_fixture",
+  DATABASE_URL: "postgresql://user:fixture@127.0.0.1/disposable",
+  NODE_ENV: "development",
+};
+
+function startHarness({ ignoreSigterm = false } = {}) {
+  const signalHandler = ignoreSigterm
+    ? "process.on('SIGTERM', () => {})"
+    : "";
+  return spawn(
+    process.execPath,
+    [
+      "-e",
+      `${signalHandler}; console.log('ready'); setInterval(() => {}, 1000);`,
+    ],
+    { stdio: ["ignore", "pipe", "ignore"] },
+  );
+}
+
+async function waitForHarnessToStart(child) {
+  await new Promise((resolve, reject) => {
+    child.stdout.setEncoding("utf8");
+    child.stdout.once("data", (output) => {
+      if (output.includes("ready")) resolve();
+      else reject(new Error(`unexpected harness output: ${output}`));
+    });
+    child.once("error", reject);
+  });
+}
+
+function silentLifecycleOptions(child, { smokeStatus = 0, healthError } = {}) {
+  return {
+    startApi: async () => ({ baseUrl: "http://127.0.0.1:4321", child, port: 4321 }),
+    waitForHealth: async () => {
+      if (healthError) throw healthError;
+    },
+    runSmoke: async () => ({ error: undefined, status: smokeStatus }),
+    log: () => {},
+    error: () => {},
+    warn: () => {},
+  };
+}
 
 test("Clerk privacy release check reports an environment gap without running", () => {
   const result = clerkPrivacySmokePreflight({ NODE_ENV: "development" });
@@ -122,4 +169,45 @@ test("Clerk privacy teardown reports when the disposable API ignores both signal
       error: "process did not exit after SIGTERM and SIGKILL within 2ms",
     },
   );
+});
+
+for (const scenario of [
+  { name: "success", smokeStatus: 0 },
+  { name: "smoke failure", smokeStatus: 1 },
+  {
+    name: "startup failure",
+    smokeStatus: 0,
+    healthError: new Error("database health failed"),
+  },
+]) {
+  test(`Clerk privacy lifecycle stops the disposable API after ${scenario.name}`, async () => {
+    const child = startHarness();
+    await waitForHarnessToStart(child);
+
+    const result = await runClerkPrivacySmoke(
+      smokeEnv,
+      silentLifecycleOptions(child, scenario),
+    );
+
+    assert.equal(result, scenario.smokeStatus === 0 && !scenario.healthError ? 0 : 1);
+    assert.equal(child.signalCode, "SIGTERM");
+    assert.equal(child.exitCode, null);
+  });
+}
+
+test("Clerk privacy lifecycle force-stops a child that ignores graceful shutdown", async () => {
+  const child = startHarness({ ignoreSigterm: true });
+  await waitForHarnessToStart(child);
+
+  const result = await runClerkPrivacySmoke(
+    smokeEnv,
+    {
+      ...silentLifecycleOptions(child),
+      stopApi: (apiChild) => stopDisposableApi(apiChild, { stopTimeoutMs: 10 }),
+    },
+  );
+
+  assert.equal(result, 0);
+  assert.equal(child.signalCode, "SIGKILL");
+  assert.equal(child.exitCode, null);
 });
