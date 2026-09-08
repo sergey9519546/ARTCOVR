@@ -56,3 +56,17 @@ mtime_ms = 1788856136193
 storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:a8fb1401-f6a6-4b42-80e9-268ff8dc0fb4/71fd52fb-2f94-4211-8f45-00fea364e887/809e5d12-a5d4-421f-997f-f1ed724b6135"
 storage_version_token = "1788856199165792"
 content_type = "image/jpeg"
+
+[[outputs]]
+id = "vKjTjpP9dhjEzIT7xr5NN"
+uri = "file://attached_assets/storage-batch-01/contact-sheet.jpg"
+type = "image"
+title = "App Storage batch 1 — 9 images"
+description = "Contact sheet for the first batch of all images currently in App Storage."
+logical_id = "5219a9cc-1821-44b7-bdf8-ca74c16707af"
+content_hash = "sha256:0f9a72378e74872e2e79f26c000b98d512861b1c0da623d3c6b0614d7829e83a"
+size = 536062
+mtime_ms = 1788856254957
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:a8fb1401-f6a6-4b42-80e9-268ff8dc0fb4/5219a9cc-1821-44b7-bdf8-ca74c16707af/614d71b5-3b05-4ee9-ab94-d8191fcc11ba"
+storage_version_token = "1788856275513838"
+content_type = "image/jpeg"

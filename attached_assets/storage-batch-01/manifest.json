@@ -1,0 +1,65 @@
+[
+  {
+    "index": 1,
+    "name": ".private/artworks/base/art_07bdf5aba1e72db9acd7.jpg",
+    "output": "attached_assets/storage-batch-01/01.jpg",
+    "contentType": "image/jpeg",
+    "bytes": 845709
+  },
+  {
+    "index": 2,
+    "name": ".private/artworks/base/art_1db3f7422b353d8f7c60.jpg",
+    "output": "attached_assets/storage-batch-01/02.jpg",
+    "contentType": "image/jpeg",
+    "bytes": 184587
+  },
+  {
+    "index": 3,
+    "name": ".private/artworks/base/art_6da3a7473dbfdf826e6c.jpg",
+    "output": "attached_assets/storage-batch-01/03.jpg",
+    "contentType": "image/jpeg",
+    "bytes": 233698
+  },
+  {
+    "index": 4,
+    "name": ".private/generated/art_07bdf5aba1e72db9acd7/ce79b700-463a-4ae1-bff4-ccd0df7954b8/clean.webp",
+    "output": "attached_assets/storage-batch-01/04.webp",
+    "contentType": "image/webp",
+    "bytes": 548890
+  },
+  {
+    "index": 5,
+    "name": ".private/generated/art_07bdf5aba1e72db9acd7/ce79b700-463a-4ae1-bff4-ccd0df7954b8/preview-watermarked.webp",
+    "output": "attached_assets/storage-batch-01/05.webp",
+    "contentType": "image/webp",
+    "bytes": 531040
+  },
+  {
+    "index": 6,
+    "name": ".private/generated/art_1db3f7422b353d8f7c60/3bf18d2a-26e5-47c1-bf9d-860e8a8e6655/clean.webp",
+    "output": "attached_assets/storage-batch-01/06.webp",
+    "contentType": "image/webp",
+    "bytes": 138890
+  },
+  {
+    "index": 7,
+    "name": ".private/generated/art_1db3f7422b353d8f7c60/3bf18d2a-26e5-47c1-bf9d-860e8a8e6655/preview-watermarked.webp",
+    "output": "attached_assets/storage-batch-01/07.webp",
+    "contentType": "image/webp",
+    "bytes": 131668
+  },
+  {
+    "index": 8,
+    "name": ".private/generated/art_1db3f7422b353d8f7c60/c7a05cbc-a5cf-4748-b635-5e390ecc2dda/clean.webp",
+    "output": "attached_assets/storage-batch-01/08.webp",
+    "contentType": "image/webp",
+    "bytes": 133534
+  },
+  {
+    "index": 9,
+    "name": ".private/generated/art_1db3f7422b353d8f7c60/c7a05cbc-a5cf-4748-b635-5e390ecc2dda/preview-watermarked.webp",
+    "output": "attached_assets/storage-batch-01/09.webp",
+    "contentType": "image/webp",
+    "bytes": 126560
+  }
+]
