@@ -876,7 +876,6 @@ export async function serializeAccount(
         id: generation.id,
         artworkId: generation.artworkId,
         purchaseId: generation.purchaseId,
-        prompt: generation.prompt,
         phase: generation.phase,
         status: generation.status,
         createdAt: generation.createdAt.toISOString(),
