@@ -30,6 +30,7 @@ import type {
   GenerationStatus,
   GenerationStatusRequest,
   GetGenerationStatusParams,
+  GetMyImagesParams,
   HealthStatus,
   InquiryRequest,
   InquiryResponse,
@@ -215,21 +216,28 @@ export const useCreateCheckout = <TError = ErrorType<ApiError>,
       return useMutation(getCreateCheckoutMutationOptions(options));
     }
 
-export const getGetMyImagesUrl = () => {
+export const getGetMyImagesUrl = (params?: GetMyImagesParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/functions/v1/my-images`
+  return stringifiedParams.length > 0 ? `/api/functions/v1/my-images?${stringifiedParams}` : `/api/functions/v1/my-images`
 }
 
 /**
- * Returns purchases, generation records, and authorized signed media downloads for the authenticated Clerk user. Download URLs are private and expire with the purchase entitlement.
+ * Returns purchases, generation records, and authorized signed media downloads for the authenticated Clerk user. Download URLs are private and expire with the purchase entitlement. Credit activity is returned in pages of at most 25 events, newest first. The optional cursor pages only credit activity; purchases, generations, and downloads remain the current account snapshot.
  * @summary Load the signed-in customer's account data
  */
-export const getMyImages = async ( options?: Parameters<typeof customFetch>[1]): Promise<AccountData> => {
+export const getMyImages = async (params?: GetMyImagesParams, options?: Parameters<typeof customFetch>[1]): Promise<AccountData> => {
 
-  return customFetch<AccountData>(getGetMyImagesUrl(),
+  return customFetch<AccountData>(getGetMyImagesUrl(params),
   {
     ...options,
     method: 'GET'
@@ -242,23 +250,23 @@ export const getMyImages = async ( options?: Parameters<typeof customFetch>[1]):
 
 
 
-export const getGetMyImagesQueryKey = () => {
+export const getGetMyImagesQueryKey = (params?: GetMyImagesParams,) => {
     return [
-    `/api/functions/v1/my-images`
+    `/api/functions/v1/my-images`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetMyImagesQueryOptions = <TData = Awaited<ReturnType<typeof getMyImages>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyImages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMyImagesQueryOptions = <TData = Awaited<ReturnType<typeof getMyImages>>, TError = ErrorType<ApiError>>(params?: GetMyImagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyImages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMyImagesQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetMyImagesQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyImages>>> = ({ signal }) => getMyImages({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyImages>>> = ({ signal }) => getMyImages(params, { signal, ...requestOptions });
 
 
 
@@ -276,11 +284,11 @@ export type GetMyImagesQueryError = ErrorType<ApiError>
  */
 
 export function useGetMyImages<TData = Awaited<ReturnType<typeof getMyImages>>, TError = ErrorType<ApiError>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyImages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetMyImagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyImages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMyImagesQueryOptions(options)
+  const queryOptions = getGetMyImagesQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

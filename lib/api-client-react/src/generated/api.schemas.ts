@@ -158,6 +158,31 @@ export interface GenerationStatus {
   finishedAt: string | null;
 }
 
+export type AccountCreditActivityEvent = typeof AccountCreditActivityEvent[keyof typeof AccountCreditActivityEvent];
+
+
+export const AccountCreditActivityEvent = {
+  grant: 'grant',
+  generation: 'generation',
+  release: 'release',
+  refund: 'refund',
+  expiration: 'expiration',
+  revocation: 'revocation',
+} as const;
+
+/**
+ * Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
+ */
+export interface AccountCreditActivity {
+  purchaseId: string;
+  artworkTitle: string;
+  event: AccountCreditActivityEvent;
+  label: string;
+  /** Signed credit adjustment; debits are negative and additions are positive. */
+  amount: number;
+  occurredAt: string;
+}
+
 export type AccountPurchaseSaleMode = typeof AccountPurchaseSaleMode[keyof typeof AccountPurchaseSaleMode];
 
 
@@ -244,7 +269,11 @@ export interface AccountGeneration {
   artworkId: string;
   /** @nullable */
   purchaseId: string | null;
-  prompt: string;
+  /**
+     * Legacy response field. Current account snapshots omit prompts to minimize disclosure of customer creative inputs.
+     * @deprecated
+     */
+  prompt?: string;
   phase: AccountGenerationPhase;
   status: AccountGenerationStatus;
   createdAt: string;
@@ -306,6 +335,16 @@ export interface AccountData {
      * @minimum 0
      */
   totalCreditBalance?: number;
+  /**
+     * Purchase-scoped credit events, newest first. Older responses may omit activity history.
+     * @maxItems 25
+     */
+  creditActivity?: AccountCreditActivity[];
+  /**
+     * Opaque continuation cursor for the next older activity page, or null when no older page is available. Older responses may omit this field.
+     * @nullable
+     */
+  creditActivityNextCursor?: string | null;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   /** Authorized signed download URLs for base artwork and generated results. */
@@ -350,6 +389,14 @@ export interface OwnerCatalogIntelligenceAccess {
 export type ArtworkIdParameter = string;
 
 export type GenerationIdParameter = string;
+
+export type GetMyImagesParams = {
+/**
+ * Opaque continuation cursor returned by creditActivityNextCursor. Omit to load the newest activity page.
+ * @minLength 1
+ */
+creditActivityCursor?: string;
+};
 
 export type UploadReferenceParams = {
 /**

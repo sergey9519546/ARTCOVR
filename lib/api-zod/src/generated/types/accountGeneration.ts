@@ -13,7 +13,11 @@ export interface AccountGeneration {
   artworkId: string;
   /** @nullable */
   purchaseId: string | null;
-  prompt: string;
+  /**
+     * Legacy response field. Current account snapshots omit prompts to minimize disclosure of customer creative inputs.
+     * @deprecated
+     */
+  prompt?: string;
   phase: AccountGenerationPhase;
   status: AccountGenerationStatus;
   createdAt: Date;

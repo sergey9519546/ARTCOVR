@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accountCreditActivity';
+export * from './accountCreditActivityEvent';
 export * from './accountData';
 export * from './accountDownload';
 export * from './accountDownloadKind';
@@ -34,6 +36,7 @@ export * from './generationStatus';
 export * from './generationStatusRequest';
 export * from './generationStatusStatus';
 export * from './getGenerationStatusParams';
+export * from './getMyImagesParams';
 export * from './healthStatus';
 export * from './inquiryRequest';
 export * from './inquiryResponse';

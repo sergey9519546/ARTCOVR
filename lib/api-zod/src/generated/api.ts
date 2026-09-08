@@ -49,10 +49,19 @@ export const CreateCheckoutResponse = zod.object({
 
 
 /**
- * Returns purchases, generation records, and authorized signed media downloads for the authenticated Clerk user. Download URLs are private and expire with the purchase entitlement.
+ * Returns purchases, generation records, and authorized signed media downloads for the authenticated Clerk user. Download URLs are private and expire with the purchase entitlement. Credit activity is returned in pages of at most 25 events, newest first. The optional cursor pages only credit activity; purchases, generations, and downloads remain the current account snapshot.
  * @summary Load the signed-in customer's account data
  */
+
+
+
+export const GetMyImagesQueryParams = zod.object({
+  "creditActivityCursor": zod.coerce.string().min(1).optional().describe('Opaque continuation cursor returned by creditActivityNextCursor. Omit to load the newest activity page.')
+})
+
 export const getMyImagesResponseTotalCreditBalanceMin = 0;
+
+export const getMyImagesResponseCreditActivityMax = 25;
 
 export const getMyImagesResponsePurchasesItemIncludedCreditsMin = 0;
 
@@ -64,6 +73,15 @@ export const getMyImagesResponsePurchasesItemRemainingGenerationsMin = 0;
 
 export const GetMyImagesResponse = zod.object({
   "totalCreditBalance": zod.number().int().min(getMyImagesResponseTotalCreditBalanceMin).optional().describe('Current image-edit credit balance. Older responses may omit this field.'),
+  "creditActivity": zod.array(zod.object({
+  "purchaseId": zod.string(),
+  "artworkTitle": zod.string(),
+  "event": zod.enum(['grant', 'generation', 'release', 'refund', 'expiration', 'revocation']),
+  "label": zod.string(),
+  "amount": zod.number().int().describe('Signed credit adjustment; debits are negative and additions are positive.'),
+  "occurredAt": zod.coerce.date()
+}).describe('Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.')).max(getMyImagesResponseCreditActivityMax).optional().describe('Purchase-scoped credit events, newest first. Older responses may omit activity history.'),
+  "creditActivityNextCursor": zod.string().nullish().describe('Opaque continuation cursor for the next older activity page, or null when no older page is available. Older responses may omit this field.'),
   "purchases": zod.array(zod.object({
   "id": zod.string(),
   "artworkId": zod.string(),
@@ -87,7 +105,7 @@ export const GetMyImagesResponse = zod.object({
   "id": zod.string(),
   "artworkId": zod.string(),
   "purchaseId": zod.string().nullable(),
-  "prompt": zod.string(),
+  "prompt": zod.string().optional().describe('Legacy response field. Current account snapshots omit prompts to minimize disclosure of customer creative inputs.'),
   "phase": zod.enum(['preview', 'purchased']),
   "status": zod.enum(['queued', 'running', 'succeeded', 'blocked', 'failed', 'timed_out']),
   "createdAt": zod.coerce.date(),

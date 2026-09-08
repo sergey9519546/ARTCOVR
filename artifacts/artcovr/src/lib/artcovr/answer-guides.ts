@@ -6,6 +6,8 @@ export type AnswerGuide = {
   description: string;
   introduction: string;
   keyTakeaways: readonly string[];
+  /** The first-publication date of the guide in the public guide set. */
+  datePublished: string;
   lastReviewed: string;
   sections: readonly {
     heading: string;
@@ -41,6 +43,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       "Editing and generated-image access are governed by the allowance and restrictions shown at checkout.",
       "Standalone resale, stock redistribution, sublicensing, and model training are outside the ARTCOVR license.",
     ],
+    datePublished: "2026-09-05",
     lastReviewed: "2026-09-05",
     sections: [
       {
@@ -107,6 +110,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       "A temporary checkout reservation is not a completed purchase and expires if payment is not verified.",
       "Exclusivity is a storefront commitment, not a promise of worldwide uniqueness or copyright assignment.",
     ],
+    datePublished: "2026-09-05",
     lastReviewed: "2026-09-05",
     sections: [
       {
@@ -181,6 +185,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       "A prompt or generated result does not, by itself, transfer copyright or authorize a buyer to claim authorship.",
       "Standalone resale, stock redistribution, sublicensing, and model training are not included.",
     ],
+    datePublished: "2026-09-05",
     lastReviewed: "2026-09-05",
     sections: [
       {

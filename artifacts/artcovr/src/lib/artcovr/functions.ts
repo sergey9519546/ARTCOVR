@@ -88,7 +88,8 @@ export type AccountGeneration = {
   id: string;
   artworkId: string;
   purchaseId: string | null;
-  prompt: string;
+  /** Private prompts may be omitted by the account response. */
+  prompt?: string;
   phase: "preview" | "purchased";
   status: GenerationStatus["status"];
   createdAt: string;
@@ -112,8 +113,25 @@ export type AccountUnavailableDownload = Pick<
   AccountDownload, "kind" | "purchaseId" | "artworkId" | "generationId"
 > & { code: "asset_unavailable" };
 
+export type AccountCreditActivity = {
+  purchaseId: string;
+  artworkTitle: string;
+  event:
+    | "grant"
+    | "generation"
+    | "release"
+    | "refund"
+    | "expiration"
+    | "revocation";
+  label: string;
+  amount: number;
+  occurredAt: string;
+};
+
 export type AccountData = {
   totalCreditBalance?: number;
+  creditActivity?: AccountCreditActivity[];
+  creditActivityNextCursor?: string | null;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];
@@ -266,8 +284,13 @@ export function createCheckout(
   });
 }
 
-export function getMyImages() {
-  return request<AccountData>("/functions/v1/my-images", { method: "GET" });
+export function getMyImages(creditActivityCursor?: string) {
+  const query = creditActivityCursor
+    ? `?creditActivityCursor=${encodeURIComponent(creditActivityCursor)}`
+    : "";
+  return request<AccountData>(`/functions/v1/my-images${query}`, {
+    method: "GET",
+  });
 }
 
 export function claimGuestPurchases() {

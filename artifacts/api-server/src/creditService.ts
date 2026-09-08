@@ -9,6 +9,147 @@ export async function lockPurchaseCredits(executor: CreditExecutor, purchaseId: 
   await executor.execute(sql`select pg_advisory_xact_lock(hashtext(${`credits:${purchaseId}`}))`);
 }
 
+export type CreditActivityEvent =
+  | "grant"
+  | "generation"
+  | "release"
+  | "refund"
+  | "expiration"
+  | "revocation";
+
+export type CreditActivity = {
+  purchaseId: string;
+  event: CreditActivityEvent;
+  label: string;
+  amount: number;
+  occurredAt: Date;
+};
+
+export const CREDIT_ACTIVITY_PAGE_SIZE = 25;
+
+export type CreditActivityPage = {
+  activities: CreditActivity[];
+  nextCursor: string | null;
+};
+
+export class InvalidCreditActivityCursorError extends Error {
+  constructor() {
+    super("Invalid credit activity cursor.");
+    this.name = "InvalidCreditActivityCursorError";
+  }
+}
+
+type CreditActivityCursor = {
+  occurredAt: string;
+  id: string;
+};
+
+function encodeCreditActivityCursor(cursor: CreditActivityCursor) {
+  return Buffer.from(JSON.stringify(cursor), "utf8").toString("base64url");
+}
+
+function decodeCreditActivityCursor(value: string): CreditActivityCursor {
+  try {
+    if (value.length > 512 || !/^[A-Za-z0-9_-]+$/.test(value)) throw new Error("invalid cursor encoding");
+    const decoded = JSON.parse(
+      Buffer.from(value, "base64url").toString("utf8"),
+    ) as Partial<CreditActivityCursor>;
+    if (
+      typeof decoded.occurredAt !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,6}Z$/.test(decoded.occurredAt) ||
+      Number.isNaN(Date.parse(decoded.occurredAt)) ||
+      typeof decoded.id !== "string" ||
+      decoded.id.length === 0 ||
+      decoded.id.length > 200
+    ) {
+      throw new Error("invalid cursor fields");
+    }
+    return {
+      occurredAt: decoded.occurredAt,
+      id: decoded.id,
+    };
+  } catch {
+    throw new InvalidCreditActivityCursorError();
+  }
+}
+
+function classifyCreditActivity(
+  entryType: string,
+  reason: string,
+): Pick<CreditActivity, "event" | "label"> {
+  if (entryType === "grant") return { event: "grant", label: "Credits added" };
+  if (entryType === "spend") {
+    return { event: "generation", label: "Generation used" };
+  }
+  if (entryType === "release") {
+    return { event: "release", label: "Credits returned" };
+  }
+  if (/refund/i.test(reason)) {
+    return { event: "refund", label: "Refund adjustment" };
+  }
+  if (/expir/i.test(reason)) {
+    return { event: "expiration", label: "Expiration adjustment" };
+  }
+  return { event: "revocation", label: "Access revocation" };
+}
+
+export async function listUserCreditActivity(
+  executor: CreditExecutor,
+  userId: string,
+  cursor?: string,
+): Promise<CreditActivityPage> {
+  const decodedCursor = cursor ? decodeCreditActivityCursor(cursor) : null;
+  const ownerScope = and(
+    eq(artcovrCreditLedger.clerkUserId, userId),
+    eq(artcovrOrders.clerkUserId, userId),
+  );
+  const rows = await executor
+    .select({
+      id: artcovrCreditLedger.id,
+      purchaseId: artcovrCreditLedger.orderId,
+      entryType: artcovrCreditLedger.entryType,
+      amount: artcovrCreditLedger.amount,
+      reason: artcovrCreditLedger.reason,
+      occurredAt: artcovrCreditLedger.createdAt,
+      // JavaScript Dates lose PostgreSQL microseconds. Keep the exact sort key
+      // in the cursor so activity within one millisecond is not skipped.
+      cursorOccurredAt: sql<string>`to_char(${artcovrCreditLedger.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
+    })
+    .from(artcovrCreditLedger)
+    .innerJoin(artcovrOrders, eq(artcovrOrders.id, artcovrCreditLedger.orderId))
+    .where(
+      decodedCursor
+        ? and(
+            ownerScope,
+            sql`(${artcovrCreditLedger.createdAt}, ${artcovrCreditLedger.id}) < (${decodedCursor.occurredAt}::timestamptz, ${decodedCursor.id})`,
+          )
+        : ownerScope,
+    )
+    .orderBy(
+      sql`${artcovrCreditLedger.createdAt} desc`,
+      sql`${artcovrCreditLedger.id} desc`,
+    )
+    .limit(CREDIT_ACTIVITY_PAGE_SIZE + 1);
+
+  const pageRows = rows.slice(0, CREDIT_ACTIVITY_PAGE_SIZE);
+  const lastRow = pageRows.at(-1);
+  return {
+    activities: pageRows.map((row) => ({
+      purchaseId: row.purchaseId,
+      ...classifyCreditActivity(row.entryType, row.reason),
+      amount: row.amount,
+      occurredAt: row.occurredAt,
+    })),
+    nextCursor:
+      rows.length > CREDIT_ACTIVITY_PAGE_SIZE && lastRow
+        ? encodeCreditActivityCursor({
+            occurredAt: lastRow.cursorOccurredAt,
+            id: lastRow.id,
+          })
+        : null,
+  };
+}
+
 export type CreditBalance = {
   purchaseId: string;
   balance: number;

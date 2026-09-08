@@ -1,7 +1,4 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
-import { artcovrOrders, db } from "@workspace/db";
-import { getPublicArtworkById } from "../catalog";
 import {
   getAuthenticatedUserId,
   getVerifiedClerkEmails,
@@ -9,6 +6,7 @@ import {
 } from "../middlewares/auth";
 import { claimGuestPurchases } from "../commerceService";
 import { serializeAccount } from "../generationService";
+import { InvalidCreditActivityCursorError } from "../creditService";
 
 const router: IRouter = Router();
 
@@ -42,9 +40,32 @@ router.post(
 
 router.get("/functions/v1/my-images", requireAuth, async (req, res): Promise<void> => {
   const clerkUserId = getAuthenticatedUserId(req);
+  const creditActivityCursor =
+    typeof req.query.creditActivityCursor === "string"
+      ? req.query.creditActivityCursor
+      : undefined;
+  if (
+    req.query.creditActivityCursor !== undefined &&
+    !creditActivityCursor
+  ) {
+    res.status(400).json({
+      code: "invalid_credit_activity_cursor",
+      message: "The credit activity page could not be loaded.",
+    });
+    return;
+  }
   try {
-    res.set("Cache-Control", "private, no-store").json(await serializeAccount(clerkUserId));
+    res
+      .set("Cache-Control", "private, no-store")
+      .json(await serializeAccount(clerkUserId, undefined, creditActivityCursor));
   } catch (error) {
+    if (error instanceof InvalidCreditActivityCursorError) {
+      res.status(400).json({
+        code: "invalid_credit_activity_cursor",
+        message: "The credit activity page could not be loaded.",
+      });
+      return;
+    }
     req.log.error({ err: error, clerkUserId }, "Account media load failed");
     res.status(502).json({ code: "account_assets_failed", message: "Account media could not be loaded." });
   }

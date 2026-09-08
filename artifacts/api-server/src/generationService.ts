@@ -23,6 +23,7 @@ import {
 import {
   getPurchaseCreditBalance,
   lockPurchaseCredits,
+  listUserCreditActivity,
   listPurchaseCreditBalances,
   releasePurchaseCredit,
   revokePurchaseCredits,
@@ -755,6 +756,7 @@ export async function generationStatus(id: string, userId: string) {
 export async function serializeAccount(
   userId: string,
   io = { signPrivate, ensureBaseObject },
+  creditActivityCursor?: string,
 ) {
   const [orders, generations] = await Promise.all([
     db
@@ -792,6 +794,23 @@ export async function serializeAccount(
       balance.balance,
     ]),
   );
+  const creditActivityPage = await listUserCreditActivity(db, userId, creditActivityCursor);
+  const ordersById = new Map(orders.map((order) => [order.id, order]));
+  const serializedCreditActivity = creditActivityPage.activities.flatMap((activity) => {
+    const order = ordersById.get(activity.purchaseId);
+    if (!order) return [];
+    const artwork = getPublicArtworkById(order.artworkId);
+    return [
+      {
+        purchaseId: activity.purchaseId,
+        artworkTitle: artwork?.title ?? order.artworkSlug,
+        event: activity.event,
+        label: activity.label,
+        amount: activity.amount,
+        occurredAt: activity.occurredAt.toISOString(),
+      },
+    ];
+  });
   const purchases = orders.map((order) => {
     const artwork = getPublicArtworkById(order.artworkId);
     const entitlementExpiresAt = effectiveEntitlement(order);
@@ -860,7 +879,6 @@ export async function serializeAccount(
         id: generation.id,
         artworkId: generation.artworkId,
         purchaseId: generation.purchaseId,
-        prompt: generation.prompt,
         phase: generation.phase,
         status: generation.status,
         createdAt: generation.createdAt.toISOString(),
@@ -930,5 +948,7 @@ export async function serializeAccount(
     generations: serializedGenerations,
     downloads,
     unavailableDownloads,
+    creditActivity: serializedCreditActivity,
+    creditActivityNextCursor: creditActivityPage.nextCursor,
   };
 }

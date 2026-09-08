@@ -15,6 +15,7 @@ import {
 import { trackEvent } from "@/lib/artcovr/analytics";
 import { resolveCurrentDownload } from "@/lib/artcovr/account-download";
 import { accountCreditBalance, purchaseCreditBalance } from "@/lib/artcovr/account-credits";
+import { appendOlderCreditActivity, generationHistoryLabel } from "@/lib/artcovr/account-activity";
 
 function formatDate(value: string | null) {
   return value
@@ -26,6 +27,8 @@ export default function MyImagesPage() {
   const [state, setState] = useState<"loading" | "signed-out" | "ready" | "error">("loading");
   const [data, setData] = useState<AccountData>({
     totalCreditBalance: 0,
+    creditActivity: [],
+    creditActivityNextCursor: null,
     purchases: [],
     generations: [],
     downloads: [],
@@ -34,6 +37,7 @@ export default function MyImagesPage() {
   const [downloadMessage, setDownloadMessage] = useState<{ purchaseId: string; text: string } | null>(null);
   const [preparingDownload, setPreparingDownload] = useState<string | null>(null);
   const downloadPending = useRef(false);
+  const [loadingOlderActivity, setLoadingOlderActivity] = useState(false);
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
   const checkoutReturnTracked = useRef(false);
@@ -85,6 +89,28 @@ export default function MyImagesPage() {
       return null;
     }
   }, []);
+
+  const loadOlderActivity = useCallback(async () => {
+    const requestedCursor = data.creditActivityNextCursor;
+    if (!requestedCursor || loadingOlderActivity) return;
+    setLoadingOlderActivity(true);
+    try {
+      const account = await getMyImages(requestedCursor);
+      if (mounted.current) {
+        setData((current) => appendOlderCreditActivity(current, account, requestedCursor));
+      }
+    } catch (error) {
+      if (mounted.current) {
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Older credit activity could not be loaded.",
+        );
+      }
+    } finally {
+      if (mounted.current) setLoadingOlderActivity(false);
+    }
+  }, [data.creditActivityNextCursor, loadingOlderActivity]);
 
   const refreshAccount = useCallback(async () => {
     // Keep the selected canvas and pending edit mounted while refreshing the
@@ -215,6 +241,43 @@ export default function MyImagesPage() {
           image-edit credit{totalCreditBalance === 1 ? "" : "s"} available across your purchases.
         </p>
       )}
+      {state === "ready" && (data.creditActivity ?? []).length > 0 && (
+        <section className="mb-16 border-t-2 border-current pt-5" aria-labelledby="credit-activity">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">Account history</p>
+              <h2 id="credit-activity" className="mt-2 text-3xl font-extrabold tracking-tight">Credit activity</h2>
+            </div>
+            <p className="text-sm text-[var(--muted-foreground)]">Changes across your purchases.</p>
+          </div>
+          <ol className="mt-6 divide-y divide-current/15 border-y border-current/15">
+            {(data.creditActivity ?? []).map((activity, index) => (
+              <li key={`${activity.purchaseId}-${activity.occurredAt}-${activity.event}-${index}`} className="flex items-center justify-between gap-5 py-4 text-sm">
+                <div className="min-w-0">
+                  <p className="font-bold">{activity.label}</p>
+                  <p className="mt-1 truncate text-[var(--muted-foreground)]">
+                    {activity.artworkTitle} · <time dateTime={activity.occurredAt}>{formatDate(activity.occurredAt)}</time>
+                  </p>
+                </div>
+                <span className={`shrink-0 font-bold tabular-nums ${activity.amount > 0 ? "text-[var(--signal)] dark:text-[var(--muted-foreground)]" : ""}`}>
+                  {activity.amount > 0 ? "+" : ""}{activity.amount}
+                </span>
+              </li>
+            ))}
+          </ol>
+          {data.creditActivityNextCursor && (
+            <button
+              type="button"
+              className="link-hover mt-5 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.08em]"
+              onClick={() => void loadOlderActivity()}
+              disabled={loadingOlderActivity}
+              aria-busy={loadingOlderActivity}
+            >
+              {loadingOlderActivity ? "Loading older activity…" : "Load older activity"}
+            </button>
+          )}
+        </section>
+      )}
       {state === "ready" && data.purchases.map((purchase) => {
         const purchaseGenerations = data.generations.filter((generation) => generation.purchaseId === purchase.id);
         const downloads = data.downloads.filter((download) => download.purchaseId === purchase.id);
@@ -306,7 +369,7 @@ export default function MyImagesPage() {
             {purchaseGenerations.map((generation) => (
               <div key={generation.id} className="mt-7 border-l border-current/30 pl-5">
                 <p className="text-[11px] font-bold uppercase tracking-[.08em] opacity-60">{generation.status} · expires {formatDate(generation.expiresAt)}</p>
-                <p className="mt-2 text-sm leading-6">{generation.prompt}</p>
+                <p className="mt-2 text-sm leading-6">{generationHistoryLabel(generation)}</p>
                 {generation.previewUrl && <a href={generation.previewUrl} className="link-hover mt-3 inline-block text-xs font-bold uppercase tracking-[.08em]">View result</a>}
               </div>
             ))}
@@ -319,7 +382,7 @@ export default function MyImagesPage() {
           {data.generations.filter((generation) => !generation.purchaseId).map((generation) => (
             <div key={generation.id} className="mt-7 border-l border-current/30 pl-5">
               <p className="text-[11px] font-bold uppercase tracking-[.08em] opacity-60">{generation.status} · expires {formatDate(generation.expiresAt)}</p>
-              <p className="mt-2 text-sm leading-6">{generation.prompt}</p>
+              <p className="mt-2 text-sm leading-6">{generationHistoryLabel(generation)}</p>
               {generation.previewUrl && <a href={generation.previewUrl} className="link-hover mt-3 inline-block text-xs font-bold uppercase tracking-[.08em]">View result</a>}
             </div>
           ))}
