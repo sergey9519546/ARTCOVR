@@ -175,6 +175,63 @@ test("Clerk privacy lifecycle leaves a configured shared API running", async () 
   assert.equal(result, expectedStatus);
 });
 
+test("Clerk privacy smoke explains an unreachable configured target without touching its lifecycle", async () => {
+  const configuredBaseUrl = "http://127.0.0.1:9";
+  const errors = [];
+  let smokeTarget;
+  let startApiCalls = 0;
+  let waitForHealthCalls = 0;
+  let stopApiCalls = 0;
+
+  const result = await runClerkPrivacySmoke(
+    {
+      ...smokeEnv,
+      ARTCOVR_DEV_SMOKE_BASE_URL: configuredBaseUrl,
+    },
+    {
+      startApi: async () => {
+        startApiCalls += 1;
+        assert.fail("configured targets must not start a disposable API");
+      },
+      waitForHealth: async () => {
+        waitForHealthCalls += 1;
+        assert.fail("configured targets must not run disposable API readiness");
+      },
+      runSmoke: async (_env, baseUrl) => {
+        smokeTarget = baseUrl;
+        try {
+          await fetch(`${baseUrl}/api/healthz`, {
+            signal: AbortSignal.timeout(1_000),
+          });
+          return { status: 0 };
+        } catch (error) {
+          return { error };
+        }
+      },
+      stopApi: async () => {
+        stopApiCalls += 1;
+      },
+      log: () => {},
+      error: (message) => errors.push(message),
+      warn: () => {},
+    },
+  );
+
+  assert.equal(result, 1);
+  assert.equal(smokeTarget, configuredBaseUrl);
+  assert.equal(startApiCalls, 0);
+  assert.equal(waitForHealthCalls, 0);
+  assert.equal(stopApiCalls, 0);
+  assert.match(
+    errors.join("\n"),
+    new RegExp(
+      `CLERK PRIVACY SMOKE FAILED FOR CONFIGURED TARGET ${configuredBaseUrl.replaceAll(".", "\\.")}`,
+    ),
+  );
+  assert.match(errors.join("\n"), /configured API may be unreachable/);
+  assert.doesNotMatch(errors.join("\n"), /TEARDOWN FAILED|Disposable API startup/);
+});
+
 test("Clerk privacy readiness errors preserve the final health probe failure", async () => {
   const child = new EventEmitter();
   child.exitCode = null;

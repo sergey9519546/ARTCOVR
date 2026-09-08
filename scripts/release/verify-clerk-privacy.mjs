@@ -307,8 +307,13 @@ export async function runClerkPrivacySmoke(
 
   let disposableApi;
   let smokeStatus = 1;
+  const usesConfiguredTarget = Boolean(env.ARTCOVR_DEV_SMOKE_BASE_URL);
+  const reportConfiguredTargetFailure = (detail) => {
+    error(
+      `CLERK PRIVACY SMOKE FAILED FOR CONFIGURED TARGET ${decision.baseUrl}: ${detail}. The configured API may be unreachable; no disposable API startup or teardown was attempted.`,
+    );
+  };
   try {
-    const usesConfiguredTarget = Boolean(env.ARTCOVR_DEV_SMOKE_BASE_URL);
     if (usesConfiguredTarget) {
       log(`Using configured development API target ${decision.baseUrl}.`);
     } else {
@@ -322,19 +327,30 @@ export async function runClerkPrivacySmoke(
 
     const result = await runSmoke(env, decision.baseUrl, disposableApi);
     if (result.error) {
-      error(
-        `CLERK PRIVACY SMOKE FAILED TO START: ${result.error.message}`,
-      );
+      if (usesConfiguredTarget) {
+        reportConfiguredTargetFailure(result.error.message);
+      } else {
+        error(
+          `CLERK PRIVACY SMOKE FAILED TO START: ${result.error.message}`,
+        );
+      }
       smokeStatus = 1;
     } else {
       smokeStatus = result.status ?? 1;
+      if (usesConfiguredTarget && smokeStatus !== 0) {
+        reportConfiguredTargetFailure(
+          `the smoke command exited with status ${smokeStatus}`,
+        );
+      }
     }
   } catch (smokeError) {
-    error(
-      `CLERK PRIVACY SMOKE FAILED: ${
-        smokeError instanceof Error ? smokeError.message : String(smokeError)
-      }`,
-    );
+    const message =
+      smokeError instanceof Error ? smokeError.message : String(smokeError);
+    if (usesConfiguredTarget) {
+      reportConfiguredTargetFailure(message);
+    } else {
+      error(`CLERK PRIVACY SMOKE FAILED: ${message}`);
+    }
     smokeStatus = 1;
   } finally {
     log(
