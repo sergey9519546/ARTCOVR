@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   cleanupDevelopmentSmokeFixtures,
+  developmentSmokeFailureReason,
   developmentSmokeOptions,
   type DevelopmentSmokeCleanupDependencies,
 } from "./developmentSmoke";
@@ -28,6 +29,29 @@ test("development smoke restricts token destinations and rejects credential-bear
   }
   const replit = { ...environment, REPL_ID: "fixture", REPLIT_DEV_DOMAIN: "this-workspace.replit.dev", DATABASE_URL: "postgresql://user:fixture@helium/database" };
   assert.equal(developmentSmokeOptions(["--dev-smoke", "--base-url", "https://this-workspace.replit.dev"], replit).base, "https://this-workspace.replit.dev");
+});
+
+test("development smoke keeps DNS and timeout failures readable without exposing request details", () => {
+  const dnsCause = Object.assign(
+    new Error("getaddrinfo ENOTFOUND this-workspace.replit.dev"),
+    { code: "ENOTFOUND" },
+  );
+  const timeoutCause = { name: "TimeoutError", message: "The operation was aborted due to timeout" };
+
+  assert.equal(
+    developmentSmokeFailureReason(
+      Object.assign(new TypeError("fetch failed"), { cause: dnsCause }),
+    ),
+    "DNS resolution failed (ENOTFOUND).",
+  );
+  assert.equal(
+    developmentSmokeFailureReason(timeoutCause),
+    "Request timed out (TimeoutError).",
+  );
+  assert.equal(
+    developmentSmokeFailureReason(new Error("unexpected response")),
+    undefined,
+  );
 });
 
 const cleanupInput = {

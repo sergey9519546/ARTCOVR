@@ -27,3 +27,4 @@
 - [Credit ledger lifecycle](credit-ledger-lifecycle.md) — paid edits debit per purchase atomically; failures release, refunds revoke, and guest grants use a temporary scoped principal.
 - [Playwright query interception](playwright-query-routes.md) — route globs for API calls with query parameters need a trailing wildcard or the request bypasses the mock.
 - [Release process lifecycle tests](release-process-lifecycle-tests.md) — synchronize child-process signal assertions with an explicit harness readiness marker.
+- [Release smoke outage reasons](release-smoke-error-reasons.md) — capture sanitized smoke stderr so configured-target DNS and timeout failures do not collapse into exit codes.

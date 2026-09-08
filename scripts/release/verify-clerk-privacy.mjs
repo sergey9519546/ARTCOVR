@@ -228,7 +228,8 @@ function runDevelopmentSmoke(
           ARTCOVR_STOREFRONT_ORIGINS: disposableApi.baseUrl,
         }
       : env,
-    stdio: "inherit",
+    stdio: ["ignore", "inherit", "pipe"],
+    encoding: "utf8",
   });
 }
 
@@ -281,28 +282,34 @@ export function clerkPrivacySmokePreflight(env) {
   };
 }
 
-export function classifyConfiguredTargetFailure({ error, status } = {}) {
-  if (!error) {
+export function classifyConfiguredTargetFailure({ error, status, stderr } = {}) {
+  const output = Buffer.isBuffer(stderr) ? stderr.toString("utf8") : String(stderr ?? "");
+  const outputDetail = output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .at(-1);
+  if (!error && !outputDetail) {
     return {
       category: "smoke",
       detail: `the smoke command exited with status ${status}`,
     };
   }
 
-  const detail = error instanceof Error ? error.message : String(error);
+  const detail = error instanceof Error ? error.message : outputDetail ?? String(error);
   const code = typeof error === "object" && error ? error.code : undefined;
   const name = typeof error === "object" && error ? error.name : undefined;
 
   if (
     ["ENOTFOUND", "EAI_AGAIN", "EAI_FAIL", "EAI_NONAME"].includes(code) ||
-    /getaddrinfo .*(?:ENOTFOUND|EAI_)/i.test(detail)
+    /(?:DNS resolution failed|getaddrinfo .*(?:ENOTFOUND|EAI_))/i.test(detail)
   ) {
     return { category: "dns", detail };
   }
   if (
     ["ETIMEDOUT", "ESOCKETTIMEDOUT"].includes(code) ||
     name === "TimeoutError" ||
-    /(?:timed? ?out|timeout)/i.test(detail)
+    /(?:timed? ?out|timeout|operation was aborted due to timeout)/i.test(detail)
   ) {
     return { category: "timeout", detail };
   }
@@ -378,7 +385,17 @@ export async function runClerkPrivacySmoke(
     } else {
       smokeStatus = result.status ?? 1;
       if (usesConfiguredTarget && smokeStatus !== 0) {
-        reportConfiguredTargetFailure({ status: smokeStatus });
+        reportConfiguredTargetFailure({
+          status: smokeStatus,
+          stderr: result.stderr,
+        });
+      } else if (!usesConfiguredTarget && smokeStatus !== 0 && result.stderr) {
+        const output = Buffer.isBuffer(result.stderr)
+          ? result.stderr.toString("utf8")
+          : String(result.stderr);
+        if (output.trim()) {
+          error(`CLERK PRIVACY SMOKE FAILED: ${output.trim()}`);
+        }
       }
     }
   } catch (smokeError) {

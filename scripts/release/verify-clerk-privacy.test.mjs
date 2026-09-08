@@ -287,17 +287,13 @@ test("Clerk privacy smoke explains an unreachable configured target without touc
 for (const outage of [
   {
     name: "a DNS failure",
-    error: Object.assign(
-      new Error("getaddrinfo ENOTFOUND this-workspace.replit.dev"),
-      { code: "ENOTFOUND" },
-    ),
+    reason: "DNS resolution failed (ENOTFOUND).",
+    category: "dns",
   },
   {
     name: "a request timeout",
-    error: Object.assign(
-      new Error("The operation was aborted due to timeout"),
-      { code: "ETIMEDOUT", name: "TimeoutError" },
-    ),
+    reason: "Request timed out (TimeoutError).",
+    category: "timeout",
   },
 ]) {
   test(`Clerk privacy smoke keeps ${outage.name} scoped to the configured target`, async () => {
@@ -325,7 +321,10 @@ for (const outage of [
         },
         runSmoke: async (_env, baseUrl) => {
           smokeTarget = baseUrl;
-          return { error: outage.error };
+          return {
+            status: 1,
+            stderr: `Development smoke failed at health: ${outage.reason} Credentials and response bodies were withheld.`,
+          };
         },
         stopApi: async () => {
           stopApiCalls += 1;
@@ -348,7 +347,7 @@ for (const outage of [
         `CLERK PRIVACY SMOKE FAILED FOR CONFIGURED TARGET ${configuredBaseUrl.replaceAll(".", "\\.")}`,
       ),
     );
-    assert.match(output, new RegExp(outage.error.message));
+    assert.match(output, new RegExp(outage.reason.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.match(output, /configured API may be unreachable/);
     assert.deepEqual(
       JSON.parse(
@@ -361,9 +360,8 @@ for (const outage of [
           .slice("CLERK PRIVACY SMOKE CONFIGURED TARGET FAILURE: ".length),
       ),
       {
-        category:
-          outage.error.code === "ENOTFOUND" ? "dns" : "timeout",
-        detail: outage.error.message,
+        category: outage.category,
+        detail: `Development smoke failed at health: ${outage.reason} Credentials and response bodies were withheld.`,
       },
     );
     assert.doesNotMatch(output, /Disposable API startup|Disposable API readiness/);

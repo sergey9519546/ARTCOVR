@@ -5,6 +5,51 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 class SmokeError extends Error {}
 
+function smokeErrorChain(error: unknown) {
+  const chain: unknown[] = [];
+  const seen = new Set<unknown>();
+  let current = error;
+  while (current && !seen.has(current)) {
+    chain.push(current);
+    seen.add(current);
+    current =
+      typeof current === "object" && current !== null && "cause" in current
+        ? current.cause
+        : undefined;
+  }
+  return chain;
+}
+
+export function developmentSmokeFailureReason(error: unknown) {
+  for (const cause of smokeErrorChain(error)) {
+    const code =
+      typeof cause === "object" && cause !== null && "code" in cause
+        ? String(cause.code)
+        : "";
+    const name =
+      typeof cause === "object" && cause !== null && "name" in cause
+        ? String(cause.name)
+        : "";
+    const message =
+      typeof cause === "object" && cause !== null && "message" in cause
+        ? String(cause.message)
+        : String(cause);
+    const dnsCode = code.match(/\b(?:ENOTFOUND|EAI_AGAIN|EAI_FAIL|EAI_NONAME)\b/)?.[0];
+    if (dnsCode || /getaddrinfo .*(?:ENOTFOUND|EAI_)/i.test(message)) {
+      return `DNS resolution failed (${dnsCode ?? "name lookup"}).`;
+    }
+    const timeoutCode = code.match(/\b(?:ETIMEDOUT|ESOCKETTIMEDOUT)\b/)?.[0];
+    if (
+      timeoutCode ||
+      name === "TimeoutError" ||
+      /(?:timed? ?out|timeout|operation was aborted due to timeout)/i.test(message)
+    ) {
+      return `Request timed out (${timeoutCode ?? (name || "timeout")}).`;
+    }
+  }
+  return undefined;
+}
+
 // Explicitly opt in; this is not imported by the server or the normal test suite.
 export function developmentSmokeOptions(args: string[], env: NodeJS.ProcessEnv) {
   const values = new Map<string, string>();
@@ -388,7 +433,8 @@ export async function runDevelopmentSmoke(args: string[]) {
   } catch (error) {
     if (error instanceof SmokeError) throw error;
     const codes = typeof error === "object" && error && "errors" in error && Array.isArray(error.errors) ? error.errors.map((item: { code?: string }) => item.code).filter(Boolean).join(", ") : "";
-    throw new SmokeError(`Development smoke failed at ${step}${codes ? ` (${codes})` : ""}. Credentials and response bodies were withheld.`);
+    const reason = developmentSmokeFailureReason(error);
+    throw new SmokeError(`Development smoke failed at ${step}${reason ? `: ${reason}` : codes ? ` (${codes})` : ""} Credentials and response bodies were withheld.`);
   } finally {
     await cleanupDevelopmentSmokeFixtures(
       { runId, users, sessions, orderIds, ledgerIds, generationIds },
