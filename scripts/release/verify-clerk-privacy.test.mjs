@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
+import { EventEmitter } from "node:events";
 import test from "node:test";
-import { clerkPrivacySmokePreflight } from "./verify-clerk-privacy.mjs";
+import {
+  clerkPrivacySmokePreflight,
+  stopDisposableApi,
+  waitForApiHealth,
+} from "./verify-clerk-privacy.mjs";
 
 test("Clerk privacy release check reports an environment gap without running", () => {
   const result = clerkPrivacySmokePreflight({ NODE_ENV: "development" });
@@ -80,6 +85,41 @@ test("Clerk privacy release check allows this workspace's development target", (
     {
       kind: "ready",
       baseUrl: "https://this-workspace.replit.dev",
+    },
+  );
+});
+
+test("Clerk privacy readiness errors preserve the final health probe failure", async () => {
+  const child = new EventEmitter();
+  child.exitCode = null;
+  child.signalCode = null;
+
+  let attempts = 0;
+  await assert.rejects(
+    waitForApiHealth("http://127.0.0.1:4321", child, {
+      startupTimeoutMs: 100,
+      healthPollMs: 0,
+      fetchHealth: async () => {
+        attempts += 1;
+        if (attempts === 1) return { status: 503 };
+        throw new Error("connect ECONNREFUSED 127.0.0.1:4321");
+      },
+    }),
+    /final health failure: connect ECONNREFUSED 127\.0\.0\.1:4321/,
+  );
+});
+
+test("Clerk privacy teardown reports when the disposable API ignores both signals", async () => {
+  const child = new EventEmitter();
+  child.exitCode = null;
+  child.signalCode = null;
+  child.kill = () => true;
+
+  await assert.deepEqual(
+    await stopDisposableApi(child, { stopTimeoutMs: 1 }),
+    {
+      ok: false,
+      error: "process did not exit after SIGTERM and SIGKILL within 2ms",
     },
   );
 });

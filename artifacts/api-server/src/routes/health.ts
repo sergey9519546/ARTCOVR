@@ -20,7 +20,10 @@ router.get("/healthz", async (_req, res): Promise<void> => {
     const data = HealthCheckResponse.parse({ status: "ok" });
     res.json(data);
   } catch (error) {
-    logger.error({ err: error }, "Database readiness check failed");
+    logger.error(
+      { err: error, readinessPhase: "database" },
+      "Database readiness check failed",
+    );
     res.status(503).json({ status: "unhealthy" });
   }
 });

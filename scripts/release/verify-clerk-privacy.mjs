@@ -52,34 +52,82 @@ async function findAvailableLoopbackPort() {
 
 function waitForChildExit(child, timeoutMs) {
   if (child.exitCode !== null || child.signalCode !== null) {
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
   return new Promise((resolve) => {
     let settled = false;
-    const settle = () => {
+    let timeout;
+    const onExit = () => settle(true);
+    const onClose = () => settle(true);
+    const settle = (exited) => {
       if (settled) return;
       settled = true;
       clearTimeout(timeout);
-      resolve();
+      child.removeListener("exit", onExit);
+      child.removeListener("close", onClose);
+      resolve(exited);
     };
-    const timeout = setTimeout(settle, timeoutMs);
-    child.once("exit", settle);
-    child.once("close", settle);
+    timeout = setTimeout(() => settle(false), timeoutMs);
+    child.once("exit", onExit);
+    child.once("close", onClose);
   });
 }
 
-async function stopDisposableApi(child) {
-  if (child.exitCode !== null || child.signalCode !== null) return;
-  child.kill("SIGTERM");
-  await waitForChildExit(child, API_STOP_TIMEOUT_MS);
-  if (child.exitCode === null && child.signalCode === null) {
-    child.kill("SIGKILL");
-    await waitForChildExit(child, API_STOP_TIMEOUT_MS);
+export async function stopDisposableApi(
+  child,
+  { stopTimeoutMs = API_STOP_TIMEOUT_MS } = {},
+) {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return { ok: true, action: "already-exited" };
   }
+
+  let termError;
+  try {
+    child.kill("SIGTERM");
+  } catch (error) {
+    termError = error instanceof Error ? error.message : String(error);
+  }
+  const stoppedAfterTerm = await waitForChildExit(child, stopTimeoutMs);
+  if (stoppedAfterTerm) {
+    return {
+      ok: true,
+      action: "sigterm",
+      ...(termError ? { warning: termError } : {}),
+    };
+  }
+
+  let killError;
+  try {
+    child.kill("SIGKILL");
+  } catch (error) {
+    killError = error instanceof Error ? error.message : String(error);
+  }
+  const stoppedAfterKill = await waitForChildExit(child, stopTimeoutMs);
+  if (stoppedAfterKill) {
+    return {
+      ok: true,
+      action: "sigkill",
+      ...(killError ? { warning: killError } : {}),
+    };
+  }
+  return {
+    ok: false,
+    error:
+      killError ??
+      `process did not exit after SIGTERM and SIGKILL within ${stopTimeoutMs * 2}ms`,
+  };
 }
 
-async function waitForApiHealth(baseUrl, child) {
-  const deadline = Date.now() + API_STARTUP_TIMEOUT_MS;
+export async function waitForApiHealth(
+  baseUrl,
+  child,
+  {
+    startupTimeoutMs = API_STARTUP_TIMEOUT_MS,
+    healthPollMs = API_HEALTH_POLL_MS,
+    fetchHealth = fetch,
+  } = {},
+) {
+  const deadline = Date.now() + startupTimeoutMs;
   let lastFailure = "no health response";
   let childError;
   const onChildError = (error) => {
@@ -89,15 +137,19 @@ async function waitForApiHealth(baseUrl, child) {
   try {
     while (Date.now() < deadline) {
       if (childError) {
-        throw new Error(`Disposable API failed to start: ${childError.message}`);
+        throw new Error(
+          `Disposable API startup failed during process readiness: ${childError.message}`,
+        );
       }
       if (child.exitCode !== null || child.signalCode !== null) {
         throw new Error(
-          `Disposable API exited before readiness (status ${child.exitCode ?? child.signalCode}).`,
+          `Disposable API exited during process readiness (status ${
+            child.exitCode ?? child.signalCode
+          }).`,
         );
       }
       try {
-        const response = await fetch(`${baseUrl}/api/healthz`, {
+        const response = await fetchHealth(`${baseUrl}/api/healthz`, {
           signal: AbortSignal.timeout(2_000),
         });
         if (response.status === 200) return;
@@ -105,19 +157,22 @@ async function waitForApiHealth(baseUrl, child) {
       } catch (error) {
         lastFailure = error instanceof Error ? error.message : String(error);
       }
-      await new Promise((resolve) => setTimeout(resolve, API_HEALTH_POLL_MS));
+      await new Promise((resolve) => setTimeout(resolve, healthPollMs));
     }
   } finally {
     child.removeListener("error", onChildError);
   }
   throw new Error(
-    `Disposable API did not become healthy within ${API_STARTUP_TIMEOUT_MS}ms (${lastFailure}).`,
+    `Disposable API readiness timed out after ${startupTimeoutMs}ms; final health failure: ${lastFailure}.`,
   );
 }
 
 async function startDisposableApi(env) {
   const port = await findAvailableLoopbackPort();
   const baseUrl = `http://127.0.0.1:${port}`;
+  console.log(
+    `Disposable API startup: launching on isolated port ${port} (readiness phase: process startup).`,
+  );
   const childEnv = {
     ...env,
     NODE_ENV: "development",
@@ -138,7 +193,10 @@ async function startDisposableApi(env) {
       stdio: "inherit",
     },
   );
-  return { baseUrl, child };
+  console.log(
+    `Disposable API readiness: waiting for database health on isolated port ${port} (readiness phase: database).`,
+  );
+  return { baseUrl, child, port };
 }
 
 export function clerkPrivacySmokePreflight(env) {
@@ -204,6 +262,7 @@ export async function runClerkPrivacySmoke(env = process.env) {
   }
 
   let disposableApi;
+  let smokeStatus = 1;
   try {
     const usesConfiguredTarget = Boolean(env.ARTCOVR_DEV_SMOKE_BASE_URL);
     if (usesConfiguredTarget) {
@@ -212,7 +271,9 @@ export async function runClerkPrivacySmoke(env = process.env) {
       disposableApi = await startDisposableApi(env);
       decision.baseUrl = disposableApi.baseUrl;
       await waitForApiHealth(disposableApi.baseUrl, disposableApi.child);
-      console.log(`Disposable development API is healthy at ${decision.baseUrl}.`);
+      console.log(
+        `Disposable API readiness complete: database health is ready on isolated port ${disposableApi.port}.`,
+      );
     }
 
     const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
@@ -241,22 +302,49 @@ export async function runClerkPrivacySmoke(env = process.env) {
       console.error(
         `CLERK PRIVACY SMOKE FAILED TO START: ${result.error.message}`,
       );
-      return 1;
+      smokeStatus = 1;
+    } else {
+      smokeStatus = result.status ?? 1;
     }
-    return result.status ?? 1;
   } catch (error) {
     console.error(
       `CLERK PRIVACY SMOKE FAILED: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
-    return 1;
+    smokeStatus = 1;
   } finally {
+    console.log(
+      `CLERK PRIVACY SMOKE RESULT: ${
+        smokeStatus === 0 ? "passed" : `failed (exit ${smokeStatus})`
+      }`,
+    );
     if (disposableApi) {
-      await stopDisposableApi(disposableApi.child);
-      console.log("Disposable development API stopped.");
+      try {
+        const teardown = await stopDisposableApi(disposableApi.child);
+        if (!teardown.ok) {
+          console.error(
+            `CLERK PRIVACY SMOKE TEARDOWN FAILED: ${teardown.error}`,
+          );
+          if (smokeStatus === 0) smokeStatus = 1;
+        } else {
+          console.log(
+            `Disposable API teardown complete: ${teardown.action} (isolated port ${disposableApi.port}).`,
+          );
+          if (teardown.warning) {
+            console.warn(
+              `Disposable API teardown warning: ${teardown.warning}`,
+            );
+          }
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`CLERK PRIVACY SMOKE TEARDOWN FAILED: ${message}`);
+        if (smokeStatus === 0) smokeStatus = 1;
+      }
     }
   }
+  return smokeStatus;
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
