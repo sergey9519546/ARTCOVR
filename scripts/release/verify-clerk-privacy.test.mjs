@@ -222,31 +222,47 @@ for (const scenario of [
   test(`Clerk privacy lifecycle stops the disposable API after ${scenario.name}`, async () => {
     const child = startHarness();
     await waitForHarnessToStart(child);
+    const logs = [];
 
     const result = await runClerkPrivacySmoke(
       smokeEnv,
-      silentLifecycleOptions(child, scenario),
+      {
+        ...silentLifecycleOptions(child, scenario),
+        log: (message) => logs.push(message),
+      },
     );
 
     assert.equal(result, scenario.smokeStatus === 0 && !scenario.healthError ? 0 : 1);
     assert.equal(child.signalCode, "SIGTERM");
     assert.equal(child.exitCode, null);
+    assert.ok(
+      logs.includes(
+        "Disposable API teardown complete: sigterm (isolated port 4321).",
+      ),
+    );
   });
 }
 
 test("Clerk privacy lifecycle force-stops a child that ignores graceful shutdown", async () => {
   const child = startHarness({ ignoreSigterm: true });
   await waitForHarnessToStart(child);
+  const logs = [];
 
   const result = await runClerkPrivacySmoke(
     smokeEnv,
     {
       ...silentLifecycleOptions(child),
       stopApi: (apiChild) => stopDisposableApi(apiChild, { stopTimeoutMs: 10 }),
+      log: (message) => logs.push(message),
     },
   );
 
   assert.equal(result, 0);
   assert.equal(child.signalCode, "SIGKILL");
   assert.equal(child.exitCode, null);
+  assert.ok(
+    logs.includes(
+      "Disposable API teardown complete: sigkill (isolated port 4321).",
+    ),
+  );
 });
