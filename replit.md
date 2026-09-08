@@ -10,6 +10,7 @@ ARTCOVR is a curated cover-art catalog and storefront with commercial licensing 
 - `pnpm run test:e2e` — deterministic storefront Playwright suite; starts isolated API and Vite servers
 - `pnpm run verify:release` — portable checks followed by the storefront browser suite
 - `pnpm run verify:live-release` — non-mutating smoke checks against `ARTCOVR_RELEASE_URL`; rejects missing/invalid webhooks without creating a payment
+- `pnpm run verify:clerk-privacy` — development-only two-session account-privacy gate; reports an environment gap when disposable Clerk test inputs are absent
 - `pnpm run db:migrate` — apply committed Drizzle migrations to development or disposable PostgreSQL
 - `NODE_ENV=development pnpm run db:baseline` — adopt a matching legacy development schema once without changing commerce data
 - `pnpm run verify:database` — read-only PostgreSQL readiness, migration-history, and required-commerce-table check

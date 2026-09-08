@@ -14,6 +14,7 @@
     "verify:ci": "pnpm --filter @workspace/artcovr run catalog:project:check && pnpm run test && pnpm run build",
     "verify:release": "pnpm run verify:ci && pnpm run test:e2e && pnpm --filter @workspace/scripts run verify:runtime-contract && pnpm --filter @workspace/scripts run verify:stripe-reconciliation",
     "verify:live-release": "pnpm --filter @workspace/scripts run verify:live-release",
+    "verify:clerk-privacy": "pnpm --filter @workspace/scripts run verify:clerk-privacy",
     "verify:stripe-reconciliation": "pnpm --filter @workspace/scripts run verify:stripe-reconciliation",
     "verify:database": "bash scripts/db/verify-database.sh",
     "db:baseline": "bash scripts/db/baseline-development.sh",
