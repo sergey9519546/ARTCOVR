@@ -10,6 +10,7 @@ import {
   claimGuestPurchases,
   getMyImages,
   type AccountData,
+  type AccountGeneration,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
 
@@ -33,6 +34,8 @@ function generationStatusDescription(status: AccountGeneration["status"]) {
       return "This edit timed out before a result was ready.";
     case "failed":
       return "This edit failed before a result was ready.";
+    default:
+      return "This edit has an unknown status.";
   }
 }
 
@@ -235,7 +238,7 @@ export default function MyImagesPage() {
         <section className="border-y border-current/20 py-10">
           <p className="text-xl font-bold tracking-tight">Sign in to view your images.</p>
           <p className="mt-3 max-w-[50ch] text-sm leading-6 opacity-70">
-            Purchases, prompts, generated images, allowances, expirations, and downloads stay connected here.
+            Purchases, edit status, generated images, allowances, expirations, and downloads stay connected here.
           </p>
           <Link href="/sign-in" className="artcovr-button mt-7 inline-block px-5 py-4 text-xs font-bold uppercase tracking-[.08em]">
             Sign in with email
