@@ -7,6 +7,8 @@ import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 import {
   carouselCardSizeForViewport,
+  carouselRailCardLeft,
+  carouselRailTravel,
   clamp01,
   journeyPhases,
   SHARED_HANDOFF_SWITCH,
@@ -54,16 +56,12 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
   // The pin maps `pinScroll` page pixels onto `maxTravel` px of track
   // translation. Both effects below need that mapping, so it lives here.
   //
-  // maxTravel is the translation that centres the LAST card. The track carries
-  // `paddingLeft: 50%`, so card i sits at `50vw + i*(CW+CG)` and is centred when
-  // the translation reaches `i*(CW+CG) + CW/2`. Deriving it from the track width
-  // instead (`trackWidth - viewportWidth + CW`) ignores that padding and stops
-  // roughly one card short: at 1920x1080 with 100 cards it ended 204px of the
-  // final cover off-screen and the counter could never reach the last index.
+  // Both the first and final card start at the section's left edge. Keep the
+  // travel, active counter and keyboard focus window on that same rail origin.
   const maxTravel =
     viewportWidth === 0
       ? 0
-      : Math.max(0, (ITEMS.length - 1) * (CW + CG) + CW / 2);
+      : carouselRailTravel(ITEMS.length, CW, CG);
   // The scrolls-per-card stays identical in journey coordinates: the carousel
   // phase consumes exactly `pinScroll` master scroll px, so the master scroll
   // per card equals the old per-card formula unchanged.
@@ -80,7 +78,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
   useEffect(() => {
     const updateSize = () => {
       setCardSize(carouselCardSizeForViewport(window.innerHeight));
-      setViewportWidth(window.innerWidth);
+      setViewportWidth(sectionRef.current?.clientWidth || window.innerWidth);
     };
     updateSize();
     window.addEventListener("resize", updateSize);
@@ -107,7 +105,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
     // the transform by scrolling any focused off-screen card into view.
     const syncFocusWindow = (translate: number) => {
       cards.forEach((card, index) => {
-        const left = viewportWidth / 2 + index * (CW + CG) - translate;
+        const left = carouselRailCardLeft(index, CW, CG, translate);
         const onScreen = left + CW > 0 && left < viewportWidth;
         const nextTabIndex = onScreen ? 0 : -1;
         if (card.tabIndex !== nextTabIndex) card.tabIndex = nextTabIndex;
@@ -121,7 +119,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
       if (track) track.style.transform = `translateX(${-translate}px)`;
 
       if (converge) {
-        // At carouselEndP the final card is exactly centred. The spiral claims
+        // At carouselEndP the final card is left-aligned. The spiral claims
         // that same image and pose on one deterministic frame; there is no
         // crossfade and therefore no translucent double exposure.
         const spiralOwnsLead = ph.handoff >= SHARED_HANDOFF_SWITCH;
@@ -142,7 +140,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
 
       const index = Math.max(
         0,
-        Math.min(ITEMS.length - 1, Math.round((translate - CW / 2) / (CW + CG))),
+        Math.min(ITEMS.length - 1, Math.round(translate / (CW + CG))),
       );
       if (index !== activeIndexRef.current) {
         activeIndexRef.current = index;
@@ -256,6 +254,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
         </div>
 
         <div
+          ref={trackRef}
           className={`flex items-center will-change-transform ${
             staticMode
               ? "mt-16 w-full snap-x snap-mandatory overflow-x-auto"
@@ -263,8 +262,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
           }`}
           style={{
             gap: `${CG}px`,
-            paddingLeft: "50%",
-            paddingRight: staticMode ? "50%" : undefined,
+            paddingRight: staticMode ? `${Math.max(0, viewportWidth - CW)}px` : undefined,
             transform: "translateX(0px)",
           }}
           onScroll={
@@ -288,7 +286,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
           {ITEMS.map((item) => (
             <Link
               key={item.id}
-              className={`carousel-card flex flex-shrink-0 snap-center flex-col items-center gap-3 ${item.bg}`}
+              className={`carousel-card flex flex-shrink-0 snap-start flex-col items-center gap-3 ${item.bg}`}
               style={{ width: `${CW}px`, height: `${CH}px` }}
               href={`/product/${item.slug}`}
               data-artwork="true"
@@ -361,12 +359,12 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
         <div
           ref={trackRef}
           className="flex items-center will-change-transform"
-          style={{ gap: `${CG}px`, paddingLeft: "50%", transform: "translateX(0px)" }}
+          style={{ gap: `${CG}px`, transform: "translateX(0px)" }}
         >
           {ITEMS.map((item) => (
             <Link
               key={item.id}
-              className={`carousel-card flex flex-shrink-0 snap-center flex-col items-center gap-3 ${item.bg}`}
+              className={`carousel-card flex flex-shrink-0 snap-start flex-col items-center gap-3 ${item.bg}`}
               style={{ width: `${CW}px`, height: `${CH}px` }}
               href={`/product/${item.slug}`}
               data-artwork="true"

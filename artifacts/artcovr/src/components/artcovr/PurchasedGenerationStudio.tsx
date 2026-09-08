@@ -29,7 +29,11 @@ function terminalMessage(status: "blocked" | "failed" | "timed_out") {
   return "Generation failed. Your allowance was not used. Choose Generate image to try again.";
 }
 
-export function PurchasedGenerationStudio({
+export function PurchasedGenerationStudio(props: Props) {
+  return <PurchaseEditor key={`${props.purchase.id}:${props.artwork.id}`} {...props} />;
+}
+
+function PurchaseEditor({
   artwork,
   purchase,
   generations,
@@ -115,19 +119,28 @@ export function PurchasedGenerationStudio({
 
   function reset() {
     if (hasPending) return;
+    reference.clear();
+    selectOriginal();
+    setPrompt("");
+    setCoverTitle("");
+    setCoverArtist("");
+    setStyleMode("exact");
+    setMessage("Returned to the original artwork.");
+  }
+
+  function selectOriginal() {
     currentResultId.current = undefined;
     setSelectedVersion("original");
     resetRequested.current = true;
-    setPrompt("");
     setResult(undefined);
     setResultIsGenerated(false);
-    setMessage("Returned to the original artwork.");
+    setMessage("Your next edit will use the original artwork. Your prompt was kept.");
     setPhase("idle");
   }
 
   function selectVersion(id: string) {
     if (hasPending) return;
-    if (id === "original") { reset(); return; }
+    if (id === "original") { selectOriginal(); return; }
     const version = versions.find((generation) => generation.id === id);
     const url = version?.previewUrl ?? (id === purchase.selectedPreviewGenerationId ? selectedPreviewImageUrl : undefined);
     if (!url) return;

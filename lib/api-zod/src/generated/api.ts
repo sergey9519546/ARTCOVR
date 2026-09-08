@@ -91,9 +91,17 @@ export const GetMyImagesResponse = zod.object({
   "purchaseId": zod.string(),
   "artworkId": zod.string(),
   "generationId": zod.string().nullable(),
-  "expiresAt": zod.coerce.date(),
+  "expiresAt": zod.coerce.date().describe('Purchase entitlement expiry; not the signed URL lifetime.'),
+  "urlExpiresAt": zod.coerce.date().optional().describe('Conservative signed URL expiry, capped by the purchase entitlement.'),
   "url": zod.string().url()
-})).describe('Authorized signed download URLs for base artwork and generated results.')
+})).describe('Authorized signed download URLs for base artwork and generated results.'),
+  "unavailableDownloads": zod.array(zod.object({
+  "kind": zod.enum(['base', 'selected_preview', 'purchased_result']),
+  "purchaseId": zod.string(),
+  "artworkId": zod.string(),
+  "generationId": zod.string().nullable(),
+  "code": zod.enum(['asset_unavailable'])
+})).optional().describe('Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned.')
 })
 
 

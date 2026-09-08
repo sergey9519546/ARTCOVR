@@ -671,6 +671,11 @@ components:
           description: Authorized signed download URLs for base artwork and generated results.
           items:
             $ref: "#/components/schemas/AccountDownload"
+        unavailableDownloads:
+          type: array
+          description: Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned.
+          items:
+            $ref: "#/components/schemas/AccountUnavailableDownload"
       required: [purchases, generations, downloads]
 
     AccountPurchase:
@@ -776,10 +781,32 @@ components:
         expiresAt:
           type: string
           format: date-time
+          description: Purchase entitlement expiry; not the signed URL lifetime.
+        urlExpiresAt:
+          type: string
+          format: date-time
+          description: Conservative signed URL expiry, capped by the purchase entitlement.
         url:
           type: string
           format: uri
       required: [kind, purchaseId, artworkId, generationId, expiresAt, url]
+
+    AccountUnavailableDownload:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [base, selected_preview, purchased_result]
+        purchaseId:
+          type: string
+        artworkId:
+          type: string
+        generationId:
+          type: [string, "null"]
+        code:
+          type: string
+          enum: [asset_unavailable]
+      required: [kind, purchaseId, artworkId, generationId, code]
 
     InquiryRequest:
       type: object

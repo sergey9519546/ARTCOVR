@@ -8,6 +8,7 @@ import {
 } from "@workspace/db";
 import { getPublicArtworkById } from "./catalog";
 import { buildGenerationPrompt, PromptLengthError } from "./lib/prompt";
+import { prepareAccountDownload } from "./lib/accountDownload";
 import {
   addWatermark,
   createImageEditResult,
@@ -682,7 +683,10 @@ export async function generationStatus(id: string, userId: string) {
   return result;
 }
 
-export async function serializeAccount(userId: string) {
+export async function serializeAccount(
+  userId: string,
+  io = { signPrivate, ensureBaseObject },
+) {
   const [orders, generations] = await Promise.all([
     db
       .select()
@@ -730,7 +734,7 @@ export async function serializeAccount(userId: string) {
   );
   const optionalSign = async (key: string) => {
     try {
-      return await signPrivate(key);
+      return await io.signPrivate(key);
     } catch {
       return undefined;
     }
@@ -772,7 +776,7 @@ export async function serializeAccount(userId: string) {
       };
     }),
   );
-  const downloads = (
+  const preparedDownloads = (
     await Promise.all(
       orders.flatMap((order) => {
         const expiry = effectiveEntitlement(order);
@@ -792,14 +796,14 @@ export async function serializeAccount(userId: string) {
           {
             kind: "base" as const,
             generationId: null,
-            key: ensureBaseObject(artwork.id, artwork.slug),
+            key: () => io.ensureBaseObject(artwork.id, artwork.slug),
           },
           ...(selected?.cleanObjectKey
             ? [
                 {
                   kind: "selected_preview" as const,
                   generationId: selected.id,
-                  key: Promise.resolve(selected.cleanObjectKey),
+                  key: async () => selected.cleanObjectKey!,
                 },
               ]
             : []),
@@ -808,23 +812,23 @@ export async function serializeAccount(userId: string) {
             .map((generation) => ({
               kind: "purchased_result" as const,
               generationId: generation.id,
-              key: Promise.resolve(generation.cleanObjectKey!),
+              key: async () => generation.cleanObjectKey!,
             })),
-        ].map(async (asset) => {
-          const url = await optionalSign(await asset.key);
-          return url
-            ? {
-                kind: asset.kind,
-                purchaseId: order.id,
-                artworkId: order.artworkId,
-                generationId: asset.generationId,
-                expiresAt: expiry.toISOString(),
-                url,
-              }
-            : null;
-        });
+        ].map((asset) => prepareAccountDownload(
+          {
+            kind: asset.kind,
+            purchaseId: order.id,
+            artworkId: order.artworkId,
+            generationId: asset.generationId,
+          },
+          asset.key,
+          expiry,
+          io.signPrivate,
+        ));
       }),
     )
-  ).filter(Boolean);
-  return { purchases, generations: serializedGenerations, downloads };
+  );
+  const downloads = preparedDownloads.flatMap((asset) => asset.download ? [asset.download] : []);
+  const unavailableDownloads = preparedDownloads.flatMap((asset) => asset.unavailable ? [asset.unavailable] : []);
+  return { purchases, generations: serializedGenerations, downloads, unavailableDownloads };
 }

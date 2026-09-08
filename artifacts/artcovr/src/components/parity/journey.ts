@@ -39,6 +39,20 @@ export function carouselCardSizeForViewport(viewportHeight: number) {
   );
 }
 
+/** A left-aligned rail travels exactly to the last card's left edge. */
+export function carouselRailTravel(count: number, cardSize: number, gap: number) {
+  return Math.max(0, count - 1) * (cardSize + gap);
+}
+
+export function carouselRailCardLeft(index: number, cardSize: number, gap: number, travel: number) {
+  return index * (cardSize + gap) - travel;
+}
+
+/** Center-anchored spiral cards must account for their rendered entrance size. */
+export function spiralLeadEntryX(stageWidth: number, renderedCardSize: number) {
+  return (renderedCardSize - stageWidth) / 2;
+}
+
 /**
  * The handle the pinned {@link ScrollJourney} wrapper hands to each layer.
  * Children register an updater that the master ScrollTrigger calls every frame
