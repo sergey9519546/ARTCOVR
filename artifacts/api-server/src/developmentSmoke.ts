@@ -42,13 +42,22 @@ export async function runDevelopmentSmoke(args: string[]) {
   // getToken(sessionId) uses POST /sessions/:id/tokens, without a JWT template.
   // https://github.com/clerk/openapi-specs/blob/main/bapi/2026-05-12.yml
   const { clerkClient } = await import("@clerk/express");
-  const { db, pool, artcovrGenerations } = await import("@workspace/db");
+  const {
+    db,
+    pool,
+    artcovrCreditLedger,
+    artcovrGenerations,
+    artcovrOrders,
+  } = await import("@workspace/db");
   const { eq, inArray, and, sql } = await import("drizzle-orm");
   const { getPublicCatalog } = await import("./catalog");
   const { downloadPrivate, removePrivate } = await import("./lib/mediaStorage");
   const runId = randomUUID();
   const users: string[] = [];
   const sessions: string[] = [];
+  const orderIds: string[] = [];
+  const ledgerIds: string[] = [];
+  const generationIds: string[] = [];
   const checks: string[] = [];
   const artifacts: string[] = [];
   const cleanupErrors: string[] = [];
@@ -80,20 +89,133 @@ export async function runDevelopmentSmoke(args: string[]) {
       const session = await clerkClient.sessions.createSession({ userId: user.id });
       sessions.push(session.id);
     }
-    step = "authenticated account";
+    step = "seed isolated account fixtures";
+    const artwork = getPublicCatalog().find(
+      (item) => !options.artworkId || item.id === options.artworkId,
+    );
+    if (!artwork) {
+      throw new SmokeError(
+        "Requested artwork was not found in the approved public catalog.",
+      );
+    }
+    for (const [index, userId] of users.entries()) {
+      const orderId = `dev-smoke-order-${runId}-${index}`;
+      const ledgerId = `dev-smoke-credit-${runId}-${index}`;
+      const generationId = `dev-smoke-generation-${runId}-${index}`;
+      const now = new Date();
+      orderIds.push(orderId);
+      ledgerIds.push(ledgerId);
+      generationIds.push(generationId);
+      await db.insert(artcovrOrders).values({
+        id: orderId,
+        clerkUserId: userId,
+        artworkId: artwork.id,
+        artworkSlug: artwork.slug,
+        idempotencyKey: `dev-smoke:${runId}:${index}`,
+        amountCents: 0,
+        currency: "usd",
+        saleMode: "repeatable",
+        licenseTerms: "Development smoke fixture",
+        includedCredits: 2,
+        status: "paid",
+        paidAt: now,
+        entitlementExpiresAt: new Date(now.getTime() + 600_000),
+      });
+      await db.insert(artcovrCreditLedger).values({
+        id: ledgerId,
+        clerkUserId: userId,
+        accountKey: userId,
+        orderId,
+        entryType: "grant",
+        amount: 2,
+        reason: "Development smoke account fixture",
+        sourceId: `dev-smoke:grant:${runId}:${index}`,
+      });
+      await db.insert(artcovrGenerations).values({
+        id: generationId,
+        clerkUserId: userId,
+        artworkId: artwork.id,
+        purchaseId: orderId,
+        phase: "purchased",
+        status: "failed",
+        prompt: `SMOKE_PRIVATE_PROMPT_USER_${index}`,
+        sourceObjectKey: `dev-smoke/${runId}/${index}/source`,
+        expiresAt: new Date(now.getTime() + 600_000),
+      });
+    }
+
+    step = "authenticated account privacy";
     const account = await api("/functions/v1/my-images", sessions[0]);
     assert.equal(account.status, 200);
-    assert.deepEqual(account.json.generations, []);
-    assert.deepEqual(account.json.purchases, []);
-    checks.push("real Clerk JWT authenticates a clean temporary account");
+    const secondAccount = await api("/functions/v1/my-images", sessions[1]);
+    assert.equal(secondAccount.status, 200);
+    type AccountPrivacySnapshot = {
+      purchases: Array<{ id: string }>;
+      creditActivity: Array<
+        Record<string, unknown> & { purchaseId: string }
+      >;
+      generations: Array<Record<string, unknown> & { id: string }>;
+      totalCreditBalance: number;
+    };
+    const accountSnapshot = account.json as unknown as AccountPrivacySnapshot;
+    const secondAccountSnapshot =
+      secondAccount.json as unknown as AccountPrivacySnapshot;
+    assert.deepEqual(
+      accountSnapshot.purchases.map((purchase) => purchase.id),
+      [orderIds[0]],
+    );
+    assert.deepEqual(
+      secondAccountSnapshot.purchases.map((purchase) => purchase.id),
+      [orderIds[1]],
+    );
+    assert.deepEqual(
+      accountSnapshot.creditActivity.map((activity) => activity.purchaseId),
+      [orderIds[0]],
+    );
+    assert.deepEqual(
+      secondAccountSnapshot.creditActivity.map((activity) => activity.purchaseId),
+      [orderIds[1]],
+    );
+    assert.equal(accountSnapshot.totalCreditBalance, 2);
+    assert.equal(secondAccountSnapshot.totalCreditBalance, 2);
+    for (const snapshot of [accountSnapshot, secondAccountSnapshot]) {
+      for (const activity of snapshot.creditActivity) {
+        assert.deepEqual(Object.keys(activity).sort(), [
+          "amount",
+          "artworkTitle",
+          "event",
+          "label",
+          "occurredAt",
+          "purchaseId",
+        ]);
+      }
+      for (const generation of snapshot.generations) {
+        assert.deepEqual(Object.keys(generation).sort(), [
+          "artworkId",
+          "createdAt",
+          "expiresAt",
+          "id",
+          "phase",
+          "purchaseId",
+          "status",
+        ]);
+      }
+    }
+    const accountPayload = JSON.stringify(account.json);
+    const secondAccountPayload = JSON.stringify(secondAccount.json);
+    for (const payload of [accountPayload, secondAccountPayload]) {
+      assert.doesNotMatch(payload, /SMOKE_PRIVATE_PROMPT_USER_/);
+      assert.doesNotMatch(payload, /sourceObjectKey|previewObjectKey|cleanObjectKey/);
+      assert.doesNotMatch(payload, /providerRequestId|providerUsage|ledgerId|sourceId/);
+    }
+    assert.doesNotMatch(accountPayload, new RegExp(orderIds[1]));
+    assert.doesNotMatch(secondAccountPayload, new RegExp(orderIds[0]));
+    checks.push(
+      "real Clerk sessions isolate purchases and credit activity; account payloads omit generation and ledger internals",
+    );
 
     step = "generation ownership isolation";
-    const artwork = getPublicCatalog().find((item) => !options.artworkId || item.id === options.artworkId);
-    if (!artwork) throw new SmokeError("Requested artwork was not found in the approved public catalog.");
-    const fixtureId = `dev-smoke-${runId}`;
-    // Deliberately failed fixture: no model call, output, payment, or entitlement.
-    await db.insert(artcovrGenerations).values({ id: fixtureId, clerkUserId: users[1], artworkId: artwork.id, phase: "preview", status: "failed", prompt: "Development ownership fixture", sourceObjectKey: `dev-smoke/${runId}/no-image`, expiresAt: new Date(Date.now() + 600_000) });
-    const statusPath = `/functions/v1/generation-status?generationId=${encodeURIComponent(fixtureId)}`;
+    const statusPath = `/functions/v1/generation-status?generationId=${encodeURIComponent(generationIds[1])}`;
     assert.equal((await api(statusPath, sessions[1])).status, 200);
     const foreign = await api(statusPath, sessions[0]);
     assert.equal(foreign.status, 404);
@@ -142,10 +264,54 @@ export async function runDevelopmentSmoke(args: string[]) {
           const keys = [row.cleanObjectKey, row.previewObjectKey].filter((key): key is string => Boolean(key));
           if (keys.some((key) => !key.startsWith(`generated/${row.artworkId}/${row.id}/`))) throw new Error("Unexpected cleanup object path");
           if (keys.length) await removePrivate(keys);
-          await db.delete(artcovrGenerations).where(and(eq(artcovrGenerations.id, row.id), inArray(artcovrGenerations.clerkUserId, users)));
+          await db
+            .delete(artcovrGenerations)
+            .where(
+              and(
+                eq(artcovrGenerations.id, row.id),
+                inArray(artcovrGenerations.clerkUserId, users),
+              ),
+            );
         }
       } catch { cleanupErrors.push("fixture rows/private images"); }
     }
+    try {
+      if (ledgerIds.length) {
+        await db
+          .delete(artcovrCreditLedger)
+          .where(inArray(artcovrCreditLedger.id, ledgerIds));
+      }
+    } catch { cleanupErrors.push("fixture credit ledger"); }
+    try {
+      if (orderIds.length) {
+        await db
+          .delete(artcovrOrders)
+          .where(inArray(artcovrOrders.id, orderIds));
+      }
+    } catch { cleanupErrors.push("fixture orders"); }
+    try {
+      if (generationIds.length) {
+        const remainingGenerations = await db
+          .select({ id: artcovrGenerations.id })
+          .from(artcovrGenerations)
+          .where(inArray(artcovrGenerations.id, generationIds));
+        if (remainingGenerations.length) cleanupErrors.push("fixture generations");
+      }
+      if (ledgerIds.length) {
+        const remainingLedger = await db
+          .select({ id: artcovrCreditLedger.id })
+          .from(artcovrCreditLedger)
+          .where(inArray(artcovrCreditLedger.id, ledgerIds));
+        if (remainingLedger.length) cleanupErrors.push("fixture credit ledger");
+      }
+      if (orderIds.length) {
+        const remainingOrders = await db
+          .select({ id: artcovrOrders.id })
+          .from(artcovrOrders)
+          .where(inArray(artcovrOrders.id, orderIds));
+        if (remainingOrders.length) cleanupErrors.push("fixture orders");
+      }
+    } catch { cleanupErrors.push("cleanup verification"); }
     for (const session of sessions) await clerkClient.sessions.revokeSession(session).catch(() => { cleanupErrors.push("Clerk session"); });
     for (const user of users) await clerkClient.users.deleteUser(user).catch(() => { cleanupErrors.push("Clerk test user"); });
     await pool.end();
