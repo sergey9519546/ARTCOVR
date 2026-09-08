@@ -29,10 +29,12 @@ export async function assertProductionSchemaReady(
   }
   const matches = Array.isArray(rows) && rows.length === requiredMigrations.length && rows.every((row, index) => {
     if (row === null || typeof row !== "object") return false;
-    const applied = row as { hash?: unknown; created_at?: unknown };
+    const applied = row as { hash?: unknown };
     const expected = requiredMigrations[index];
-    return applied.hash === expected.hash &&
-      (applied.created_at === expected.createdAt || applied.created_at === String(expected.createdAt));
+    // Drizzle's created_at is the time the migration was applied, while the
+    // journal's createdAt is the time the migration was generated. They are
+    // expected to differ; the ordered hashes are the stable identity.
+    return applied.hash === expected.hash;
   });
   if (!matches) {
     throw new Error("Production startup blocked: applied migrations do not match this API build. Complete the owner-approved maintenance migration and database verification before deployment.");

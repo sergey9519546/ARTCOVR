@@ -6,7 +6,10 @@ const manifest = [
   { hash: "a".repeat(64), createdAt: 1000 },
   { hash: "b".repeat(64), createdAt: 2000 },
 ];
-const applied = manifest.map(({ hash, createdAt }) => ({ hash, created_at: String(createdAt) }));
+const applied = manifest.map(({ hash }, index) => ({
+  hash,
+  created_at: String(9000 + index),
+}));
 
 test("production accepts the exact applied migration history using only a read query", async () => {
   const queries: string[] = [];
@@ -18,9 +21,9 @@ test("production accepts the exact applied migration history using only a read q
   assert.match(migrationHistoryQuery, /^select /);
 });
 
-test("production accepts numeric PostgreSQL timestamps as well as bigint strings", async () => {
+test("production ignores application timestamps because journal times describe generation", async () => {
   await assertProductionSchemaReady("production", manifest, async () => ({
-    rows: manifest.map(({ hash, createdAt }) => ({ hash, created_at: createdAt })),
+    rows: manifest.map(({ hash }, index) => ({ hash, created_at: 7000 + index })),
   }));
 });
 
@@ -40,12 +43,10 @@ test("missing or unreadable history fails closed without exposing database error
   });
 });
 
-test("wrong hashes, timestamps, order, extra and malformed rows fail closed", async () => {
+test("wrong hashes, order, extra and malformed rows fail closed", async () => {
   for (const rows of [
     [...applied].reverse(), [...applied, applied[1]],
     [applied[0], { ...applied[1], hash: "c".repeat(64) }],
-    [applied[0], { ...applied[1], created_at: "2001" }],
-    [applied[0], { ...applied[1], created_at: "02000" }],
     [applied[0], null], [applied[0], {}],
   ]) {
     await assert.rejects(assertProductionSchemaReady("production", manifest, async () => ({ rows })), /applied migrations do not match/);
