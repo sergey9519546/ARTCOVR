@@ -29,3 +29,4 @@
 - [Playwright query interception](playwright-query-routes.md) — route globs for API calls with query parameters need a trailing wildcard or the request bypasses the mock.
 - [Release process lifecycle tests](release-process-lifecycle-tests.md) — synchronize child-process signal assertions with an explicit harness readiness marker.
 - [Release smoke outage reasons](release-smoke-error-reasons.md) — capture sanitized smoke stderr so configured-target DNS and timeout failures do not collapse into exit codes.
+- [Analytics route normalization](analytics-route-normalization.md) — production paths may mix trailing-slash variants; canonicalize them before funnel aggregation.
