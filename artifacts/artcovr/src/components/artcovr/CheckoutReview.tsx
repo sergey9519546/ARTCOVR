@@ -118,16 +118,16 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
   }
 
   return (
-    <main id="main" className="mx-auto max-w-[1200px] px-4 pb-24 pt-32 lg:px-7">
+    <main id="main" className="checkout-review mx-auto max-w-[1200px] px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-32 lg:px-7">
       <p className="text-[11px] font-bold uppercase tracking-[0.1em] opacity-60">Checkout review</p>
-      <div className="mt-4 grid gap-10 border-t-2 border-current pt-5 md:grid-cols-[1fr_.8fr]">
-        <figure className="relative aspect-square overflow-hidden bg-[#e9e2d7]">
+      <div className="mt-4 grid gap-8 border-t-2 border-current pt-5 md:gap-10 md:grid-cols-[1fr_.8fr]">
+        <figure className="checkout-artwork relative mx-auto aspect-square w-full max-w-[36rem] overflow-hidden bg-[#e9e2d7]">
           <Image src={selectedImage || artwork.image} alt={selectedImage ? `Selected generated image for ${artwork.title}` : artwork.alt} fill preload loading="eager" unoptimized={Boolean(selectedImage)} sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
           <figcaption className="absolute bottom-0 left-0 bg-[#f3eee6] px-3 py-2 text-[10px] font-bold uppercase tracking-[.1em] text-black">
             {selectedImage ? "Selected generated image" : "Original artwork"}
           </figcaption>
         </figure>
-        <section>
+        <section className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <h1 className="break-words text-4xl font-extrabold tracking-tighter md:text-6xl">{artwork.title}</h1>
           <p className="mt-4 text-sm font-bold uppercase tracking-[0.08em]">{checkoutReady ? licenseMode : "Rights and pricing review pending"}</p>
           <dl className="mt-8 divide-y divide-current/20 border-y border-current/20 text-sm">
@@ -190,13 +190,15 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
                   placeholder="you@example.com"
                   className="mt-2 w-full rounded-none border border-current/30 bg-transparent px-4 py-4 text-base outline-none focus:border-current"
                 />
-                <button
-                  type="submit"
-                  disabled={!checkoutReady || !accepted || loading || !guestEmailIsValid}
-                  className="artcovr-button mt-4 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {loading ? "Opening checkout…" : "Checkout as guest"}
-                </button>
+                <div className="checkout-commit">
+                  <button
+                    type="submit"
+                    disabled={!checkoutReady || !accepted || loading || !guestEmailIsValid}
+                    className="artcovr-button mt-4 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {loading ? "Opening checkout…" : "Checkout as guest"}
+                  </button>
+                </div>
               </form>
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link
@@ -214,9 +216,11 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
               </div>
             </section>
           ) : (
-            <button type="button" disabled={!checkoutReady || !accepted || loading} onClick={continueToCheckout} className="artcovr-button mt-7 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
-              {checkoutReady ? (loading ? "Opening checkout…" : "Continue to checkout") : "Checkout pending owner approval"}
-            </button>
+            <div className="checkout-commit">
+              <button type="button" disabled={!checkoutReady || !accepted || loading} onClick={continueToCheckout} className="artcovr-button mt-7 w-full px-5 py-4 text-xs font-bold uppercase tracking-[0.08em] disabled:cursor-not-allowed disabled:opacity-40">
+                {checkoutReady ? (loading ? "Opening checkout…" : "Continue to checkout") : "Checkout pending owner approval"}
+              </button>
+            </div>
           )}
           {error && (
             <div className="mt-4 border-l-2 border-[#a11212] pl-4 text-sm text-[#a11212] dark:border-[#ff6b6b] dark:text-[#ff6b6b]">

@@ -89,14 +89,23 @@ test("the signed-in ARTCOVR mark returns to the homepage", async ({ page }) => {
   await expect(page.locator("#hero-title")).toBeVisible();
 });
 
-test("product review moves into checkout without a blank transition", async ({
+test("product checkout CTA moves into checkout without a blank transition", async ({
   page,
 }) => {
   await page.goto("/product/cart-of-hours", { waitUntil: "domcontentloaded" });
-  await page.getByRole("link", { name: "Review license" }).click();
+  await page.getByRole("link", { name: /Continue to checkout/ }).click();
   await expect(page).toHaveURL(/\/checkout\/cart-of-hours$/);
   await expect(page.getByText("Checkout review", { exact: true })).toBeVisible();
   await assertUsablePage(page);
+});
+
+test("trailing slash routes redirect to their canonical URL", async ({ page }) => {
+  await page.goto("/archive/", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/archive$/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /\/archive$/,
+  );
 });
 
 test("a delayed product route keeps the transition curtain instead of flashing a loading page", async ({

@@ -27,6 +27,7 @@ import {
   visualIndex,
 } from "@/lib/artcovr/visual-index";
 import NotFound from "@/pages/not-found";
+import { trackEvent } from "@/lib/artcovr/analytics";
 
 export default function ProductPage() {
   const { slug = "" } = useParams<{ slug: string }>();
@@ -84,7 +85,22 @@ export default function ProductPage() {
             </p>
 
             {checkoutReady ? (
-              <Link href={`/checkout/${art.slug}`} className="artcovr-button mt-6 inline-block w-full px-5 py-4 text-center text-xs font-bold uppercase tracking-[.08em]">Review license</Link>
+              <div className="mt-6 border-y border-current/20 py-4">
+                <p className="text-xs leading-5 text-[var(--muted-foreground)]">
+                  Ready to make this cover yours? Confirm the commercial license in secure checkout.
+                </p>
+                <Link
+                  href={`/checkout/${art.slug}`}
+                  onClick={() => trackEvent("product_checkout_cta_clicked", {
+                    artwork_slug: art.slug,
+                    sale_mode: art.saleMode ?? "unknown",
+                    price_cents: art.priceCents ?? 0,
+                  })}
+                  className="artcovr-button mt-4 inline-flex min-h-12 w-full items-center justify-center px-5 py-4 text-center text-xs font-bold uppercase tracking-[.08em]"
+                >
+                  Continue to checkout <span aria-hidden="true" className="ml-2">↗</span>
+                </Link>
+              </div>
             ) : (
               <p className="mt-6 border border-current/25 px-4 py-3 text-xs font-bold uppercase tracking-[.08em] opacity-60">Checkout pending owner approval</p>
             )}

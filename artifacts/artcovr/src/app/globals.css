@@ -145,6 +145,29 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .discovery-card-action:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 @media (min-width: 1100px) { .discovery-filters { grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(0, 2fr); } .discovery-filters fieldset { grid-column: auto; } }
 @media (max-width: 480px) { .discovery-seed { align-items: flex-start; gap: 12px; } .discovery-seed > img { width: 52px; height: 52px; } .discovery-pill { padding-inline: 11px; } }
+@media (max-width: 767px) {
+  .discovery-results-bar {
+    position: sticky;
+    top: 4.25rem;
+    z-index: 10;
+    background: var(--background);
+    padding-block: 12px;
+  }
+  .discovery-order-slider { flex: 1 1 13rem; }
+  .discovery-order-current { flex: 1 1 auto; min-width: 0; }
+  .checkout-artwork { max-height: min(78vw, 28rem); }
+  .checkout-commit {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin-inline: -1rem;
+    padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--background) 94%, transparent);
+    box-shadow: 0 -8px 24px color-mix(in srgb, var(--foreground) 8%, transparent);
+  }
+  .checkout-commit .artcovr-button { margin-top: 0; }
+}
 @media (prefers-reduced-motion: reduce) { .discovery-pill, .discovery-color { transition: none; } }
 .artcovr-catalog-controls[data-compact="true"] {
   border-top: 0;

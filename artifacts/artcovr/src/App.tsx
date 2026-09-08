@@ -226,6 +226,20 @@ function ScrollToTop() {
   return null;
 }
 
+function CanonicalPathRedirect() {
+  const [location, setLocation] = useLocation();
+
+  useEffect(() => {
+    const url = new URL(location, window.location.origin);
+    if (url.pathname.length <= 1 || !/\/+$/.test(url.pathname)) return;
+
+    const pathname = url.pathname.replace(/\/+$/, "") || "/";
+    setLocation(`${pathname}${url.search}${url.hash}`, { replace: true });
+  }, [location, setLocation]);
+
+  return null;
+}
+
 function CheckoutRoute() {
   return <CheckoutPageComponent />;
 }
@@ -307,6 +321,7 @@ function ClerkProviderWithRoutes() {
     >
       {!deterministicAuth ? <ClerkQueryClientCacheInvalidator /> : null}
       <ScrollToTop />
+      <CanonicalPathRedirect />
       <SeoHead />
       <Router />
     </ArtcovrAuthProvider>

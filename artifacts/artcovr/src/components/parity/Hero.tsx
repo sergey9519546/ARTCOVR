@@ -1,4 +1,5 @@
 import Link from "@/components/compat/Link";
+import { trackEvent } from "@/lib/artcovr/analytics";
 
 export function Hero() {
   return (
@@ -27,17 +28,21 @@ export function Hero() {
               Select an artwork, describe any change in one freeform prompt, and keep iterating from the visible result. Purchase the direction you want and download your images.
             </p>
           </div>
-          <div className="col-span-3 flex h-full flex-col justify-between md:col-span-3">
-            <div>
+          <div className="col-span-8 flex h-full flex-col justify-between md:col-span-3">
+            <div className="max-w-[22rem]">
               <Link
-                className="link-hover max-w-fit uppercase"
+                className="artcovr-button inline-flex min-h-12 w-full items-center justify-center px-5 py-4 text-center text-[11px] font-bold uppercase tracking-[.08em]"
                 id="hero-link"
                 href="/archive"
+                onClick={() => trackEvent("archive_entry_clicked", { source: "homepage_hero" })}
               >
-                Explore archive
+                Explore the archive <span aria-hidden="true" className="ml-2">↗</span>
               </Link>
+              <p className="mt-3 text-xs leading-5 text-current/70">
+                Browse owner-approved covers by genre, mood, color, and visual direction.
+              </p>
               <Link
-                className="link-hover hidden max-w-fit uppercase md:inline-block"
+                className="link-hover mt-5 inline-block max-w-fit uppercase"
                 id="hero-license-link"
                 href="/license"
               >
