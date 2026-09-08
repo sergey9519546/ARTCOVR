@@ -258,8 +258,36 @@ export interface AccountDownload {
   artworkId: string;
   /** @nullable */
   generationId: string | null;
+  /** Purchase entitlement expiry; not the signed URL lifetime. */
   expiresAt: string;
+  /** Conservative signed URL expiry, capped by the purchase entitlement. */
+  urlExpiresAt?: string;
   url: string;
+}
+
+export type AccountUnavailableDownloadKind = typeof AccountUnavailableDownloadKind[keyof typeof AccountUnavailableDownloadKind];
+
+
+export const AccountUnavailableDownloadKind = {
+  base: 'base',
+  selected_preview: 'selected_preview',
+  purchased_result: 'purchased_result',
+} as const;
+
+export type AccountUnavailableDownloadCode = typeof AccountUnavailableDownloadCode[keyof typeof AccountUnavailableDownloadCode];
+
+
+export const AccountUnavailableDownloadCode = {
+  asset_unavailable: 'asset_unavailable',
+} as const;
+
+export interface AccountUnavailableDownload {
+  kind: AccountUnavailableDownloadKind;
+  purchaseId: string;
+  artworkId: string;
+  /** @nullable */
+  generationId: string | null;
+  code: AccountUnavailableDownloadCode;
 }
 
 export interface AccountData {
@@ -267,6 +295,8 @@ export interface AccountData {
   generations: AccountGeneration[];
   /** Authorized signed download URLs for base artwork and generated results. */
   downloads: AccountDownload[];
+  /** Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned. */
+  unavailableDownloads?: AccountUnavailableDownload[];
 }
 
 export interface InquiryRequest {

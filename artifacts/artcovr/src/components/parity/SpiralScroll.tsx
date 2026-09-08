@@ -13,6 +13,7 @@ import {
   journeyPhases,
   SHARED_HANDOFF_SWITCH,
   smoothstep,
+  spiralLeadEntryX,
   type JourneyStore,
 } from "./journey";
 
@@ -169,7 +170,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       );
       const exitGridStart = Math.max(1, ITEMS.length - EXIT_GRID_COUNT);
       const exitGridCount = ITEMS.length - exitGridStart;
-      const viewportWidth = window.innerWidth;
+      const viewportWidth = sectionRef.current!.clientWidth;
       const gridGutter = viewportWidth >= 1024 ? 24 : 16;
       const gridGap = viewportWidth >= 1024 ? 24 : 16;
       const targetSize = Math.min(
@@ -180,10 +181,6 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       const targetScale = targetSize / cardSize;
       const targetRowWidth =
         targetSize * exitGridCount + gridGap * (exitGridCount - 1);
-      // Cards are center-anchored inside the stage. Moving the spiral origin
-      // left by half the viewport makes the first covers enter from the
-      // actual left edge instead of beginning around the viewport midpoint.
-      const spiralOriginX = -viewportWidth / 2;
 
       itemElements.forEach((element, index) => {
         if (index === 0) {
@@ -195,12 +192,11 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
           );
           const drawn = spiralOwnsLead && leadT < 0.999;
           const arc = Math.sin(leadT * Math.PI);
-          // The lead card is center-anchored, so x=0 places its left edge
-          // halfway across the viewport. Start it flush with the left edge;
-          // otherwise the spiral opens with a large empty band on the right.
-          const leftEdgeStart = spiralOriginX + cardSize / 2;
+          // Match the carousel's left-aligned final card, including its scale.
+          // An unscaled half-card offset clips the enlarged lead off the left.
+          const leftEdgeStart = spiralLeadEntryX(viewportWidth, cardSize * sharedLeadScale);
           const x =
-            leftEdgeStart + leadT * (window.innerWidth * 0.72 + cardSize);
+            leftEdgeStart + leadT * (viewportWidth * 0.72 + cardSize);
           const y = -arc * RADIUS_Y * 0.72;
           const z = leadT * 380;
           const scale = sharedLeadScale * (1 + leadT * 0.08);
@@ -221,7 +217,9 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
         const fadeIn = Math.min(1, (z - DEPTH_FAR) / FADE_IN);
         const fadeOut = Math.min(1, (DEPTH_NEAR - z) / FADE_OUT);
 
-        const normalX = spiralOriginX + position.x + drift;
+        // Only the shared entrance card uses a left-edge offset. Shifting the
+        // whole depth tunnel would push half of its orbit outside the section.
+        const normalX = position.x + drift;
         const normalY = position.y;
         const normalZ = drawn ? z : DEPTH_FAR;
         const normalOpacity = drawn

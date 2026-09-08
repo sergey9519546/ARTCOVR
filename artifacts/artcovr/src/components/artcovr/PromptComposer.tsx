@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import type { Artwork } from "@/lib/artcovr/artworks";
 import { getVisualEntry, getVisualStyleLabel } from "@/lib/artcovr/artworks";
+import { hasPromptClause, togglePromptClause } from "@/lib/artcovr/editor-draft";
 
 /**
  * Structured prompt controls that compile into the same freeform prompt string
@@ -27,19 +28,6 @@ function humanizeLabel(label: string) {
 
 export type PromptChip = { id: string; label: string; clause: string };
 type ChipGroup = { id: string; title: string; hint: string; chips: PromptChip[] };
-
-function collapse(value: string) {
-  return value.replace(/[ \t]+/g, " ").replace(/\s+\./g, ".").trim();
-}
-
-export function hasClause(prompt: string, clause: string) {
-  return prompt.includes(clause);
-}
-
-export function applyClause(prompt: string, clause: string) {
-  if (hasClause(prompt, clause)) return collapse(prompt.split(clause).join(" "));
-  return collapse(`${prompt} ${clause}`);
-}
 
 function buildGroups(artwork: Artwork): ChipGroup[] {
   const entry = getVisualEntry(artwork.slug);
@@ -158,14 +146,15 @@ export function PromptComposer({
       </p>
       <div aria-labelledby="prompt-suggestions-label" className="flex flex-wrap gap-2">
         {groups.flatMap((group) => group.chips).slice(0, 6).map((chip) => {
-          const active = hasClause(value, chip.clause);
+          const active = hasPromptClause(value, chip.clause);
+          const next = togglePromptClause(value, chip.clause);
           return (
             <button
               key={chip.id}
               type="button"
               aria-pressed={active}
-              disabled={disabled}
-              onClick={() => onChange(applyClause(value, chip.clause))}
+              disabled={disabled || (!active && next === value)}
+              onClick={() => onChange(next)}
               className={`rounded-full border px-3 py-1 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                 active
                   ? "artcovr-button border-current"

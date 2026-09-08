@@ -12,7 +12,6 @@ import {
   getArtworkPriceLabel,
   displayGenreLabel,
   getArtworkGenres,
-  getRelatedArtworks,
   isCheckoutReady,
 } from "@/lib/artcovr/artworks";
 import {
@@ -34,7 +33,6 @@ export default function ProductPage() {
   const art = getArtworkBySlug(slug);
   if (!art) return <NotFound />;
 
-  const relatedWorks = getRelatedArtworks(art.slug, displayArtworks.length);
   const genres = getArtworkGenres(art);
   const visualDescriptors = getVisualDescriptorGroups(art.slug);
   const visualKeywords = [...new Set([
@@ -58,8 +56,10 @@ export default function ProductPage() {
         </nav>
 
         <header className="mt-7 border-t-2 border-current pt-5">
-          <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">
-            {genres.slice(0, 2).map(displayGenreLabel).join(" · ")} — cover artwork
+          <p className="text-[11px] font-bold uppercase tracking-[.1em] text-[var(--muted-foreground)]">
+            {genres.slice(0, 2).map((genre, index) => <span key={genre}>
+              {index > 0 ? " · " : ""}<Link href={`/archive?genre=${encodeURIComponent(genre)}`} className="link-hover inline-flex min-h-6 items-center">{displayGenreLabel(genre)}</Link>
+            </span>)} — suggested visual fit
           </p>
           <h1 className="mt-3 max-w-[16ch] break-words text-5xl font-extrabold tracking-tighter md:text-7xl lg:text-8xl">
             {art.title}
@@ -93,9 +93,16 @@ export default function ProductPage() {
               <div className="flex justify-between gap-6 py-3"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending"}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>Pricing</dt><dd className="text-right">{getArtworkPriceLabel(art)}</dd></div>
-              <div className="flex justify-between gap-6 py-3"><dt>Genre</dt><dd className="text-right">{genres.map(displayGenreLabel).join(" · ")}</dd></div>
+              <div className="flex justify-between gap-6 py-3">
+                <dt>Music genre fit</dt>
+                <dd className="flex max-w-[65%] flex-wrap justify-end gap-x-3 gap-y-1 text-right">
+                  {genres.map((genre) => <Link key={genre} href={`/archive?genre=${encodeURIComponent(genre)}`} className="link-hover inline-flex min-h-6 items-center">{displayGenreLabel(genre)}</Link>)}
+                </dd>
+              </div>
               <div className="flex justify-between gap-6 py-3"><dt>Visual category</dt><dd className="text-right">{art.category}</dd></div>
             </dl>
+
+            <p className="mt-3 text-xs leading-5 text-[var(--muted-foreground)]">Genre lanes suggest a visual fit from artwork metadata, not audio classification.</p>
 
             <p className="mt-7 text-sm leading-6 opacity-70">
               {checkoutReady
@@ -155,9 +162,7 @@ export default function ProductPage() {
         </div>
 
         <div className="mt-24"><PromptStudio artwork={art} /></div>
-        {relatedWorks.length > 0 ? (
-          <RelatedWorks works={relatedWorks} />
-        ) : null}
+        <RelatedWorks seed={art} items={displayArtworks} />
       </main>
       <SiteFooter />
     </>

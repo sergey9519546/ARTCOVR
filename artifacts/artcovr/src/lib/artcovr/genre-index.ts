@@ -135,7 +135,8 @@ export function getArtworkGenres(
 }
 
 export function displayGenreLabel(value: string) {
-  return GENRE_DISPLAY_LABELS[value as MusicGenre] ?? value;
+  const label = GENRE_DISPLAY_LABELS[value as MusicGenre];
+  return typeof label === "string" ? label : value;
 }
 
 export function genreSearchTerms(artwork: Pick<Artwork, "slug" | "category" | "moodTags">) {

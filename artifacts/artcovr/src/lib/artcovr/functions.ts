@@ -101,13 +101,20 @@ export type AccountDownload = {
   artworkId: string;
   generationId: string | null;
   expiresAt: string;
+  /** Signed URL lifetime, distinct from the purchase entitlement expiry. */
+  urlExpiresAt?: string;
   url: string;
 };
+
+export type AccountUnavailableDownload = Pick<
+  AccountDownload, "kind" | "purchaseId" | "artworkId" | "generationId"
+> & { code: "asset_unavailable" };
 
 export type AccountData = {
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];
+  unavailableDownloads?: AccountUnavailableDownload[];
 };
 
 export type OwnerCatalogIntelligenceAccess = {

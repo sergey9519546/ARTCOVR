@@ -10,8 +10,10 @@ import {
   claimGuestPurchases,
   getMyImages,
   type AccountData,
+  type AccountDownload,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { resolveCurrentDownload } from "@/lib/artcovr/account-download";
 
 function formatDate(value: string | null) {
   return value
@@ -23,6 +25,9 @@ export default function MyImagesPage() {
   const [state, setState] = useState<"loading" | "signed-out" | "ready" | "error">("loading");
   const [data, setData] = useState<AccountData>({ purchases: [], generations: [], downloads: [] });
   const [message, setMessage] = useState("");
+  const [downloadMessage, setDownloadMessage] = useState<{ purchaseId: string; text: string } | null>(null);
+  const [preparingDownload, setPreparingDownload] = useState<string | null>(null);
+  const downloadPending = useRef(false);
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
   const checkoutReturnTracked = useRef(false);
@@ -78,6 +83,54 @@ export default function MyImagesPage() {
     // Keep the selected canvas and pending edit mounted while refreshing the
     // allowance. A temporary fetch error must not reset an artist's workspace.
     await loadAccount(true);
+  }, [loadAccount]);
+
+  const startDownload = useCallback(async (requested: AccountDownload) => {
+    if (downloadPending.current) return;
+    // Open during the click, before awaiting the network, so browser popup
+    // protection does not block a newly authorized download. The editor stays open.
+    const downloadWindow = window.open("about:blank", "_blank");
+    if (!downloadWindow) {
+      setDownloadMessage({ purchaseId: requested.purchaseId, text: "Allow this site's download tab to open, then retry." });
+      return;
+    }
+    downloadWindow.opener = null;
+    downloadWindow.document.title = "Preparing your ARTCOVR download";
+    downloadWindow.document.body.textContent = "Preparing your download. Your artwork editor remains open in the original tab.";
+    downloadPending.current = true;
+    setPreparingDownload(`${requested.purchaseId}-${requested.kind}-${requested.generationId ?? "base"}`);
+    setDownloadMessage(null);
+    try {
+      const account = await loadAccount(true);
+      if (!account) throw new Error("We could not refresh download access. Retry in a moment.");
+      const download = resolveCurrentDownload(account, requested);
+      if (!mounted.current || downloadWindow.closed) {
+        downloadWindow.close();
+        return;
+      }
+      // Native navigation works with signed object storage even when that
+      // storage does not permit cross-origin fetches. Never use requested.url.
+      const link = downloadWindow.document.createElement("a");
+      link.href = download.url;
+      link.download = "";
+      link.textContent = "Open your prepared download";
+      downloadWindow.document.body.replaceChildren(link);
+      link.click();
+      const artworkSlug = account.purchases.find((purchase) => purchase.id === requested.purchaseId)?.artworkSlug;
+      if (artworkSlug) trackEvent("download_clicked", {
+        artwork_slug: artworkSlug,
+        kind: download.kind,
+      });
+    } catch (error) {
+      downloadWindow.close();
+      if (mounted.current) setDownloadMessage({
+        purchaseId: requested.purchaseId,
+        text: error instanceof Error ? error.message : "The download could not be prepared. Please retry.",
+      });
+    } finally {
+      downloadPending.current = false;
+      if (mounted.current) setPreparingDownload(null);
+    }
   }, [loadAccount]);
 
   useEffect(() => {
@@ -152,6 +205,7 @@ export default function MyImagesPage() {
       {state === "ready" && data.purchases.map((purchase) => {
         const purchaseGenerations = data.generations.filter((generation) => generation.purchaseId === purchase.id);
         const downloads = data.downloads.filter((download) => download.purchaseId === purchase.id);
+        const unavailableDownloads = (data.unavailableDownloads ?? []).filter((download) => download.purchaseId === purchase.id);
         const artwork = getArtworkBySlug(purchase.artworkSlug);
         const baseImageUrl = downloads.find((download) => download.kind === "base")?.url;
         const selectedPreviewImageUrl = downloads.find(
@@ -198,21 +252,27 @@ export default function MyImagesPage() {
             {downloads.length > 0 && (
               <div className="mt-6 flex flex-wrap gap-3">
                 {downloads.map((download) => (
-                    <a
+                    <button
                       key={`${download.kind}-${download.generationId || "base"}`}
-                      href={download.url}
-                      download
-                      onClick={() =>
-                        trackEvent("download_clicked", {
-                          artwork_slug: purchase.artworkSlug,
-                          kind: download.kind,
-                        })
-                      }
-                      className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em]"
+                      type="button"
+                      disabled={preparingDownload !== null}
+                      onClick={() => void startDownload(download)}
+                      className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em] disabled:opacity-50"
                     >
-                    Download {download.kind.replaceAll("_", " ")}
-                  </a>
+                    {preparingDownload === `${purchase.id}-${download.kind}-${download.generationId ?? "base"}`
+                      ? "Preparing download…"
+                      : `Download ${download.kind.replaceAll("_", " ")}`}
+                  </button>
                 ))}
+              </div>
+            )}
+            {(unavailableDownloads.length > 0 || downloadMessage?.purchaseId === purchase.id) && (
+              <div role="alert" className="mt-5 border-l-2 border-current pl-4 text-sm">
+                <p>{downloadMessage?.purchaseId === purchase.id
+                  ? downloadMessage.text
+                  : "Some licensed files could not be prepared. Your purchase is still listed here; retry to refresh the available downloads."}</p>
+                <button type="button" onClick={() => { setDownloadMessage(null); void refreshAccount(); }} className="mt-2 inline-flex min-h-11 items-center underline">Retry downloads</button>
+                {" · "}<Link href="/contact" className="inline-flex min-h-11 items-center underline">Contact support</Link>
               </div>
             )}
             {purchase.accessRevokedAt && (

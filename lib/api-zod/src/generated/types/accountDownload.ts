@@ -13,6 +13,9 @@ export interface AccountDownload {
   artworkId: string;
   /** @nullable */
   generationId: string | null;
+  /** Purchase entitlement expiry; not the signed URL lifetime. */
   expiresAt: Date;
+  /** Conservative signed URL expiry, capped by the purchase entitlement. */
+  urlExpiresAt?: Date;
   url: string;
 }

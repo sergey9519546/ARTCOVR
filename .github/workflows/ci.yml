@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, artcovr-storefront]
+    branches: [main, artcovr-storefront, 'codex/**']
   pull_request:
   workflow_dispatch:
 
@@ -69,6 +69,8 @@ jobs:
   # Replit owns Clerk keys and deployment. This checks the deployed product,
   # not the candidate commit; candidate browser validation needs a Replit preview.
   hosted-smoke:
+    name: Deployed-site smoke (not candidate validation)
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

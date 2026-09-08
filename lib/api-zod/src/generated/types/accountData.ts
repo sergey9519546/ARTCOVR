@@ -8,10 +8,13 @@
 import type { AccountDownload } from './accountDownload';
 import type { AccountGeneration } from './accountGeneration';
 import type { AccountPurchase } from './accountPurchase';
+import type { AccountUnavailableDownload } from './accountUnavailableDownload';
 
 export interface AccountData {
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   /** Authorized signed download URLs for base artwork and generated results. */
   downloads: AccountDownload[];
+  /** Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned. */
+  unavailableDownloads?: AccountUnavailableDownload[];
 }
