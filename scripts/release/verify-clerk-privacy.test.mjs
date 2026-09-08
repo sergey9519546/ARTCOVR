@@ -232,6 +232,77 @@ test("Clerk privacy smoke explains an unreachable configured target without touc
   assert.doesNotMatch(errors.join("\n"), /TEARDOWN FAILED|Disposable API startup/);
 });
 
+for (const outage of [
+  {
+    name: "a DNS failure",
+    error: Object.assign(
+      new Error("getaddrinfo ENOTFOUND this-workspace.replit.dev"),
+      { code: "ENOTFOUND" },
+    ),
+  },
+  {
+    name: "a request timeout",
+    error: Object.assign(
+      new Error("The operation was aborted due to timeout"),
+      { code: "ETIMEDOUT", name: "TimeoutError" },
+    ),
+  },
+]) {
+  test(`Clerk privacy smoke keeps ${outage.name} scoped to the configured target`, async () => {
+    const configuredBaseUrl = "https://this-workspace.replit.dev";
+    const errors = [];
+    let smokeTarget;
+    let startApiCalls = 0;
+    let waitForHealthCalls = 0;
+    let stopApiCalls = 0;
+
+    const result = await runClerkPrivacySmoke(
+      {
+        ...smokeEnv,
+        REPLIT_DEV_DOMAIN: "this-workspace.replit.dev",
+        ARTCOVR_DEV_SMOKE_BASE_URL: configuredBaseUrl,
+      },
+      {
+        startApi: async () => {
+          startApiCalls += 1;
+          assert.fail("configured targets must not start a disposable API");
+        },
+        waitForHealth: async () => {
+          waitForHealthCalls += 1;
+          assert.fail("configured targets must not run disposable API readiness");
+        },
+        runSmoke: async (_env, baseUrl) => {
+          smokeTarget = baseUrl;
+          return { error: outage.error };
+        },
+        stopApi: async () => {
+          stopApiCalls += 1;
+        },
+        log: () => {},
+        error: (message) => errors.push(message),
+        warn: () => {},
+      },
+    );
+
+    const output = errors.join("\n");
+    assert.equal(result, 1);
+    assert.equal(smokeTarget, configuredBaseUrl);
+    assert.equal(startApiCalls, 0);
+    assert.equal(waitForHealthCalls, 0);
+    assert.equal(stopApiCalls, 0);
+    assert.match(
+      output,
+      new RegExp(
+        `CLERK PRIVACY SMOKE FAILED FOR CONFIGURED TARGET ${configuredBaseUrl.replaceAll(".", "\\.")}`,
+      ),
+    );
+    assert.match(output, new RegExp(outage.error.message));
+    assert.match(output, /configured API may be unreachable/);
+    assert.doesNotMatch(output, /Disposable API startup|Disposable API readiness/);
+    assert.doesNotMatch(output, /TEARDOWN FAILED|Disposable API teardown/);
+  });
+}
+
 test("Clerk privacy readiness errors preserve the final health probe failure", async () => {
   const child = new EventEmitter();
   child.exitCode = null;
