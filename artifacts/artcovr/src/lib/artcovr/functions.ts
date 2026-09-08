@@ -88,7 +88,6 @@ export type AccountGeneration = {
   id: string;
   artworkId: string;
   purchaseId: string | null;
-  prompt: string;
   phase: "preview" | "purchased";
   status: GenerationStatus["status"];
   createdAt: string;

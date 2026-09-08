@@ -4,7 +4,7 @@ import Link from "@/components/compat/Link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PurchasedGenerationStudio } from "@/components/artcovr/PurchasedGenerationStudio";
 import { PublicPage } from "@/components/artcovr/PublicPage";
-import { getArtworkBySlug } from "@/lib/artcovr/artworks";
+import { displayArtworks, getArtworkBySlug } from "@/lib/artcovr/artworks";
 import {
   ArtcovrApiError,
   claimGuestPurchases,
@@ -17,6 +17,64 @@ function formatDate(value: string | null) {
   return value
     ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(value))
     : "—";
+}
+
+function generationStatusDescription(status: AccountGeneration["status"]) {
+  switch (status) {
+    case "queued":
+      return "Your edit is queued.";
+    case "running":
+      return "Your edit is being generated.";
+    case "succeeded":
+      return "Your result is ready.";
+    case "blocked":
+      return "This edit could not be generated.";
+    case "timed_out":
+      return "This edit timed out before a result was ready.";
+    case "failed":
+      return "This edit failed before a result was ready.";
+  }
+}
+
+function AccountGenerationSummary({
+  generation,
+  artworkTitle,
+  artworkSlug,
+}: {
+  generation: AccountGeneration;
+  artworkTitle: string;
+  artworkSlug?: string;
+}) {
+  return (
+    <div className="mt-7 border-l border-current/30 pl-5">
+      <p className="text-[11px] font-bold uppercase tracking-[.08em] opacity-60">
+        {generation.phase === "purchased" ? "Purchased edit" : "Preview edit"} ·{" "}
+        {generation.status} · {formatDate(generation.createdAt)}
+      </p>
+      <p className="mt-2 text-sm font-bold">{artworkTitle}</p>
+      <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
+        {generationStatusDescription(generation.status)} Expires{" "}
+        {formatDate(generation.expiresAt)}.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold uppercase tracking-[.08em]">
+        {artworkSlug && (
+          <Link href={`/product/${artworkSlug}`} className="link-hover">
+            View artwork
+          </Link>
+        )}
+        {generation.previewUrl && (
+          <a href={generation.previewUrl} className="link-hover">
+            View preview result
+          </a>
+        )}
+        {generation.cleanUrl && (
+          <a href={generation.cleanUrl} className="link-hover">
+            View final result
+          </a>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function MyImagesPage() {
@@ -332,11 +390,12 @@ export default function MyImagesPage() {
               />
             )}
             {purchaseGenerations.map((generation) => (
-              <div key={generation.id} className="mt-7 border-l border-current/30 pl-5">
-                <p className="text-[11px] font-bold uppercase tracking-[.08em] opacity-60">{generation.status} · expires {formatDate(generation.expiresAt)}</p>
-                <p className="mt-2 text-sm leading-6">{generation.prompt}</p>
-                {generation.previewUrl && <a href={generation.previewUrl} className="link-hover mt-3 inline-block text-xs font-bold uppercase tracking-[.08em]">View result</a>}
-              </div>
+              <AccountGenerationSummary
+                key={generation.id}
+                generation={generation}
+                artworkTitle={purchase.artworkTitle}
+                artworkSlug={purchase.artworkSlug}
+              />
             ))}
           </article>
         );
@@ -345,11 +404,18 @@ export default function MyImagesPage() {
         <section className="border-t-2 border-current pt-5">
           <h2 className="text-3xl font-extrabold tracking-tight">Preview results</h2>
           {data.generations.filter((generation) => !generation.purchaseId).map((generation) => (
-            <div key={generation.id} className="mt-7 border-l border-current/30 pl-5">
-              <p className="text-[11px] font-bold uppercase tracking-[.08em] opacity-60">{generation.status} · expires {formatDate(generation.expiresAt)}</p>
-              <p className="mt-2 text-sm leading-6">{generation.prompt}</p>
-              {generation.previewUrl && <a href={generation.previewUrl} className="link-hover mt-3 inline-block text-xs font-bold uppercase tracking-[.08em]">View result</a>}
-            </div>
+            <AccountGenerationSummary
+              key={generation.id}
+              generation={generation}
+              artworkTitle={
+                displayArtworks.find((artwork) => artwork.id === generation.artworkId)
+                  ?.title ?? "Selected artwork"
+              }
+              artworkSlug={
+                displayArtworks.find((artwork) => artwork.id === generation.artworkId)
+                  ?.slug
+              }
+            />
           ))}
         </section>
       )}
