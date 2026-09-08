@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CustomCursor } from "@/components/parity/CustomCursor";
 import { ErrorBoundary } from "@/components/parity/ErrorBoundary";
 import { Footer } from "@/components/parity/Footer";
-import { FullScreenSnap } from "@/components/parity/FullScreenSnap";
 import { Header } from "@/components/parity/Header";
 import { Hero } from "@/components/parity/Hero";
 import { MobileMenu } from "@/components/parity/MobileMenu";
@@ -15,7 +14,6 @@ import { PageLayer } from "@/components/parity/PageLayer";
 import { PageTransition } from "@/components/parity/PageTransition";
 import { Preloader } from "@/components/parity/Preloader";
 import { ProductGrid } from "@/components/parity/ProductGrid";
-import { ScrollJourney } from "@/components/parity/ScrollJourney";
 import { ScrollProgress } from "@/components/parity/ScrollProgress";
 import { useLenis } from "@/hooks/artcovr/useLenis";
 import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
@@ -24,6 +22,17 @@ import {
   REDUCED_MOTION_QUERY,
   STATIC_MEDIA_QUERY,
 } from "@/lib/artcovr/motion";
+
+const FullScreenSnap = lazy(() =>
+  import("@/components/parity/FullScreenSnap").then(({ FullScreenSnap: Component }) => ({
+    default: Component,
+  })),
+);
+const ScrollJourney = lazy(() =>
+  import("@/components/parity/ScrollJourney").then(({ ScrollJourney: Component }) => ({
+    default: Component,
+  })),
+);
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -228,12 +237,16 @@ export default function Home() {
           <ProductGrid />
         </ErrorBoundary>
         <ErrorBoundary label="journey">
-          <ScrollJourney
-            enabled={preloaderDone && motionAllowed && !transitionActive}
-          />
+          <Suspense fallback={null}>
+            <ScrollJourney
+              enabled={preloaderDone && motionAllowed && !transitionActive}
+            />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary label="editorial">
-          <FullScreenSnap />
+          <Suspense fallback={null}>
+            <FullScreenSnap />
+          </Suspense>
         </ErrorBoundary>
         <ErrorBoundary label="footer">
           <Footer />
