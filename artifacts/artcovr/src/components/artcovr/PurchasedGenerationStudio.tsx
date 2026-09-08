@@ -9,6 +9,7 @@ import {
   type AccountPurchase,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { purchaseCreditBalance } from "@/lib/artcovr/account-credits";
 import { ReferencePhotoInput, useReferencePhoto } from "./ReferencePhotoInput";
 import { useGenerationJob } from "./useGenerationJob";
 
@@ -64,7 +65,8 @@ function PurchaseEditor({
   const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const ready = isPromptReady(prompt) && purchase.remainingGenerations > 0 && !reference.uploading;
+  const remainingCredits = purchaseCreditBalance(purchase);
+  const ready = isPromptReady(prompt) && remainingCredits > 0 && !reference.uploading;
 
   const { phase, setPhase, message, setMessage, hasPending, start, resume } = useGenerationJob({
     onAccepted(request) { if (request.referenceUploadId) reference.clear(); },
@@ -75,7 +77,7 @@ function PurchaseEditor({
       resetRequested.current = false;
       setResult(status.previewUrl);
       setResultIsGenerated(true);
-      setMessage("Generated image ready. Your next prompt will build from this result.");
+       setMessage("Generated image ready. Your next prompt will build from this result.");
       trackEvent("generation_succeeded", {
         artwork_slug: artwork.slug, surface: "purchased",
         duration_ms: Math.max(0, Date.now() - (generationStartedAt.current ?? Date.now())),
@@ -252,7 +254,7 @@ function PurchaseEditor({
               aria-atomic="true"
               className="text-xs opacity-60"
             >
-              {message || `${purchase.remainingGenerations} generations remaining.`}
+               {message || `${remainingCredits} image-edit credits remaining.`}
             </span>
           </div>
         </div>

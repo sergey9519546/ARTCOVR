@@ -9,6 +9,7 @@ import {
 import { commerceConfig, licenseTermsForSaleMode } from "./commerce-config";
 import { logger } from "./lib/logger";
 import { expectedStripeLivemode, refundPaymentIntent } from "./stripeClient";
+import { lockPurchaseCredits, revokePurchaseCreditsInTransaction } from "./creditService";
 
 export const checkoutReservationMs = 31 * 60_000;
 const activeExclusiveStatuses = ["reserved", "paid"] as const;
@@ -39,6 +40,10 @@ export async function fulfillCheckoutSession(
   event: Stripe.Event,
   dependencies: FulfillmentDependencies = fulfillmentDependencies,
 ): Promise<void> {
+  if (event.type === "charge.refunded") {
+    await revokeRefundedCharge(event, dependencies.expectedLivemode ?? expectedStripeLivemode());
+    return;
+  }
   if (
     event.type !== "checkout.session.completed" &&
     event.type !== "checkout.session.async_payment_succeeded"
@@ -62,7 +67,7 @@ export async function fulfillCheckoutSession(
 
     if (!received) return;
 
-    const [order] = await tx
+    let [order] = await tx
       .select()
       .from(artcovrOrders)
       .where(eq(artcovrOrders.stripeCheckoutSessionId, session.id))
@@ -71,6 +76,9 @@ export async function fulfillCheckoutSession(
     if (!order) {
       throw new Error(`No ARTCOVR order found for Stripe session ${session.id}`);
     }
+    await lockPurchaseCredits(tx, order.id);
+    [order] = await tx.select().from(artcovrOrders).where(eq(artcovrOrders.id, order.id)).limit(1);
+    if (!order) throw new Error("Checkout purchase disappeared during fulfillment");
 
     const modeMismatch =
       event.livemode !== expectedLivemode ||
@@ -97,6 +105,11 @@ export async function fulfillCheckoutSession(
       return;
     }
 
+    if (order.status === "refunded" || order.accessRevokedAt) {
+      await tx.update(artcovrWebhookEvents).set({ status: "processed", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      return;
+    }
     const sessionCustomerId = stripeId(session.customer);
     const email = customerEmail(session);
     const accountKey =
@@ -193,6 +206,7 @@ export async function fulfillCheckoutSession(
           .insert(artcovrCreditLedger)
           .values({
             id: `credit_${crypto.randomUUID()}`,
+            clerkUserId: order.clerkUserId ?? `guest:${order.id}`,
             accountKey,
             orderId: order.id,
             entryType: "grant",
@@ -217,6 +231,71 @@ export async function fulfillCheckoutSession(
     await tx
       .update(artcovrWebhookEvents)
       .set({ status: paid ? "processed" : "received", processedAt: new Date() })
+      .where(eq(artcovrWebhookEvents.id, event.id));
+  });
+}
+
+async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boolean) {
+  const charge = event.data.object as Stripe.Charge;
+  const paymentIntentId = stripeId(charge.payment_intent);
+  if (!paymentIntentId) return;
+
+  await db.transaction(async (tx) => {
+    const [received] = await tx
+      .insert(artcovrWebhookEvents)
+      .values({ id: event.id, type: event.type, status: "received" })
+      .onConflictDoNothing()
+      .returning({ id: artcovrWebhookEvents.id });
+    if (!received) return;
+
+    if (event.livemode !== expectedLivemode || charge.livemode !== expectedLivemode) {
+      await tx.update(artcovrWebhookEvents).set({ status: "rejected", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      logger.error({ diagnosis: stripeWebhookModeMismatchDiagnosis, stripeEventId: event.id },
+        "ARTCOVR rejected refund webhook from the wrong account mode");
+      return;
+    }
+    // Partial refunds do not establish a policy to revoke the entire license.
+    // Only Stripe's fully-refunded charge state ends the entitlement.
+    if (!charge.refunded) {
+      await tx.update(artcovrWebhookEvents).set({ status: "processed", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      return;
+    }
+
+    let [order] = await tx
+      .select()
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.stripePaymentIntentId, paymentIntentId))
+      .limit(1);
+    if (!order) throw new Error(`No ARTCOVR order found for payment ${paymentIntentId}`);
+
+    await lockPurchaseCredits(tx, order.id);
+    [order] = await tx.select().from(artcovrOrders).where(eq(artcovrOrders.id, order.id)).limit(1);
+    if (!order) throw new Error("Refund purchase disappeared during fulfillment");
+
+    const refundId = charge.refunds?.data[0]?.id ?? null;
+    await tx
+      .update(artcovrOrders)
+      .set({
+        status: "refunded",
+        stripeRefundId: refundId,
+        refundedAt: new Date(),
+        accessRevokedAt: new Date(),
+        accessRevocationReason: "stripe_refund",
+      })
+      .where(eq(artcovrOrders.id, order.id));
+
+    await revokePurchaseCreditsInTransaction(tx, {
+        userId: order.clerkUserId ?? `guest:${order.id}`,
+        purchaseId: order.id,
+        reason: "Purchase refunded",
+        sourceId: `purchase:${order.id}:refund`,
+    });
+
+    await tx
+      .update(artcovrWebhookEvents)
+      .set({ status: "processed", processedAt: new Date() })
       .where(eq(artcovrWebhookEvents.id, event.id));
   });
 }
@@ -287,7 +366,7 @@ export async function claimGuestPurchases(
     const orderIds = claimed.map((order) => order.id);
     await tx
       .update(artcovrCreditLedger)
-      .set({ accountKey: clerkUserId })
+      .set({ clerkUserId, accountKey: clerkUserId })
       .where(
         and(
           inArray(artcovrCreditLedger.orderId, orderIds),

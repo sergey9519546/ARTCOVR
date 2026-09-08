@@ -117,6 +117,8 @@ test("music genres expose metadata evidence and add only supported visual neighb
   expect(connected.length).toBeGreaterThan(0);
   await page.goto("/archive");
   const select = page.getByRole("combobox", { name: "Music genre", exact: true });
+  await expect(select).toBeVisible();
+  await expect(select.locator('option:not([value=""])')).toHaveCount(MUSIC_GENRES.length);
   const available = await select.locator('option:not([value=""])').evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value));
   expect(new Set(available)).toEqual(new Set(MUSIC_GENRES));
   await select.selectOption(genre!);

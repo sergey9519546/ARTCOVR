@@ -658,6 +658,10 @@ components:
     AccountData:
       type: object
       properties:
+        totalCreditBalance:
+          type: integer
+          minimum: 0
+          description: Current image-edit credit balance. Older responses may omit this field.
         purchases:
           type: array
           items:
@@ -715,6 +719,14 @@ components:
           format: date-time
         accessRevocationReason:
           type: [string, "null"]
+        includedCredits:
+          type: integer
+          minimum: 0
+          description: Image-edit credits included with this purchase, not its current balance.
+        remainingCredits:
+          type: integer
+          minimum: 0
+          description: Current image-edit credits for this purchase. When absent, legacy clients may use remainingGenerations.
         remainingGenerations:
           type: integer
           minimum: 0

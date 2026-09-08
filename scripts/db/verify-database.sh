@@ -109,4 +109,20 @@ if [[ -n "$missing_commerce_tables" ]]; then
   exit 11
 fi
 
+credit_contract_ok="$(
+  psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
+    select (
+      (select count(*) = 2 from information_schema.columns
+       where table_schema = 'public' and table_name = 'artcovr_credit_ledger'
+       and column_name in ('clerk_user_id', 'order_id') and is_nullable = 'NO')
+      and to_regclass('public.artcovr_credit_ledger_clerk_user_id_idx') is not null
+      and to_regclass('public.artcovr_credit_ledger_order_id_idx') is not null
+    )
+  "
+)"
+if [[ "$credit_contract_ok" != "t" ]]; then
+  echo "DB SCHEMA DRIFT: credit ledger owner/purchase constraints or indexes are missing." >&2
+  exit 11
+fi
+
 echo "DB OK: reachable, migration history is current, and required commerce tables are present; no writes performed."

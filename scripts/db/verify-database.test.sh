@@ -123,7 +123,7 @@ create_database() {
 
 apply_application_schema() {
   for migration_file in "${migration_files[@]}"; do
-    psql "$test_database_url" -X -v ON_ERROR_STOP=1 -f "$migration_file" >/dev/null
+    psql "$test_database_url" -X -v ON_ERROR_STOP=1 --single-transaction -f "$migration_file" >/dev/null
   done
 }
 
@@ -258,4 +258,13 @@ assert_output "mismatched hash" "DB SCHEMA DRIFT: applied migration history does
 assert_output "mismatched hash" "Expected $migration_count migration(s); found $migration_count."
 assert_output_absent "mismatched hash" "DB OUTAGE:"
 
-echo "Database verifier contract tests passed: healthy, outage, missing history, missing commerce table(s), and mismatched hash."
+create_database
+apply_application_schema
+seed_current_migration_history
+psql "$test_database_url" -X -v ON_ERROR_STOP=1 -c \
+  "alter table artcovr_credit_ledger alter column clerk_user_id drop not null" >/dev/null
+run_verifier "$test_database_url"
+assert_status "missing credit owner constraint" 11
+assert_output "missing credit owner constraint" "credit ledger owner/purchase constraints or indexes are missing."
+
+echo "Database verifier contract tests passed: healthy, outage, missing history, missing commerce table(s), mismatched hash, and credit owner constraint drift."

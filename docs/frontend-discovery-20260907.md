@@ -36,3 +36,22 @@ The work began from `main` at `39596a23d1a5ff94ee6ab0fc025566e47e3de5dd`. At the
 A later fetch confirmed `origin/main` was unchanged, while another process switched the shared checkout back to `main`. The root task's handoff plan is to snapshot only its owned files through an isolated Git index into the feature branch and push that branch, without switching this shared checkout or disturbing its current index. The root task reports whether that snapshot and push completed.
 
 The unrelated `.migration-backup/scripts/catalog/analyze-archive-expansion.py` appeared during implementation and is excluded from this change. Earlier GitHub Actions evidence reports an account billing lock; that does not establish a Replit deployment failure. Replit deployment remains the release route, and a successful local build does not prove publication or live commerce readiness.
+
+## Main integration follow-up — 2026-09-08
+
+The owner requested branch synchronization and integration into main. The isolated integration combines the customer-experience history with `2129db8` from the credits branch. All seven inspected remote branch tips are covered by these histories; older branch tips already belong to main's history. Uncommitted catalog expansion work in the original checkout is not included.
+
+The integration repairs historical credit consumption, explicit ledger ownership, concurrent spend/refund/release behavior, refund environment validation, and delayed-event handling. Optional credit fields are included in the canonical API contract; older account responses retain their existing remaining-generation allowance, while explicit zero and invalid balances cannot grant credits. Product palette/mood trails now preserve their mode, and loading related artwork moves keyboard focus to the first newly added cover.
+
+The required `pnpm run verify:ci` passed against a disposable native PostgreSQL database under Node 24 and pinned pnpm. The existing Replit preview's public frontend supplied a real Clerk development publishable key, allowing actual frontend browser checks, including sign-in screens, to run. Full local backend-authenticated E2E was attempted but remains blocked by the absent Clerk secret key; fixture-driven UI checks are not real authentication, purchase, or provider validation. The shell database-verifier suite remains unrun locally because `psql` is unavailable. Migration upgrade/lifecycle tests and a read-only production-readiness check against the disposable PostgreSQL database passed.
+
+### Required production maintenance release
+
+Repository synchronization does not apply the database upgrade or republish Replit. The new `0001_stiff_iron_lad.sql` migration must be applied only during an owner-approved maintenance release:
+
+1. Stop and drain the old API and generation workers; old workers cannot safely keep writing the old ledger shape.
+2. Back up the database and reconcile any ownership/orphan failures reported by the migration. Do not bypass its fail-closed checks.
+3. Apply the versioned migration transaction, then run the read-only database verification.
+4. Activate the matching API build and verify the deployed customer journeys.
+
+The API build now embeds the exact migration hashes and timestamps. Production startup checks applied migration history before listening or initializing Stripe; missing, mismatched, or extra migrations prevent startup. It never runs migrations automatically. GitHub candidate verification now runs for `codex/**` pushes, while deployed-site smoke checks are explicitly distinguished from candidate validation.

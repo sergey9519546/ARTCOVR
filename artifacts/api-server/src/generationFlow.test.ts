@@ -3,10 +3,17 @@ import { randomUUID } from "node:crypto";
 import test from "node:test";
 import sharp from "sharp";
 import { eq, inArray } from "drizzle-orm";
-import { artcovrGenerations, artcovrOrders, artcovrReferenceUploads, db } from "@workspace/db";
+import {
+  artcovrCreditLedger,
+  artcovrGenerations,
+  artcovrOrders,
+  artcovrReferenceUploads,
+  db,
+} from "@workspace/db";
 import { ImageProviderError, type ImageEditClient } from "@workspace/integrations-openai-ai-server/image";
 import { getPublicCatalog } from "./catalog";
 import { admitGeneration, runGeneration, generationStatus } from "./generationService";
+import { getPurchaseCreditBalance } from "./creditService";
 import { addWatermark, createImageEditResult } from "./lib/imagePipeline";
 
 async function fixture() {
@@ -42,11 +49,22 @@ async function fixture() {
   async function order(selectedPreviewId?: string) {
     const id = randomUUID();
     await db.insert(artcovrOrders).values({ id, clerkUserId: userId, artworkId: artwork.id, artworkSlug: artwork.slug, idempotencyKey: id, amountCents: 3500, saleMode: "repeatable", licenseTerms: "test", includedCredits: 4, status: "paid", paidAt: new Date(), selectedPreviewId });
+    await db.insert(artcovrCreditLedger).values({
+      id: `credit-${id}`,
+      clerkUserId: userId,
+      accountKey: userId,
+      orderId: id,
+      entryType: "grant",
+      amount: 4,
+      reason: "Test purchase credit grant",
+      sourceId: `checkout:test:${id}`,
+    });
     return id;
   }
   async function cleanup() {
     await db.delete(artcovrGenerations).where(eq(artcovrGenerations.clerkUserId, userId));
     if (photoIds.length) await db.delete(artcovrReferenceUploads).where(inArray(artcovrReferenceUploads.id, photoIds));
+    await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.accountKey, userId));
     await db.delete(artcovrOrders).where(eq(artcovrOrders.clerkUserId, userId));
   }
   return { userId, source, requests, files, io, input, photo, order, cleanup };
@@ -254,6 +272,21 @@ test("failed output storage removes partial results and releases the reserved al
     const next = await admitGeneration(f.input, f.io);
     const retried = (await db.select().from(artcovrGenerations).where(eq(artcovrGenerations.id, next.id)))[0];
     assert.equal(retried.allowanceSlot, 1);
+  } finally { await f.cleanup(); }
+});
+
+test("failed purchased generation restores its ledger credit exactly once", async () => {
+  const f = await fixture();
+  try {
+    const purchaseId = await f.order();
+    const job = await admitGeneration({ ...f.input, purchaseId }, f.io);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 3);
+    await runGeneration(job, f.userId, { ...f.io, createImageEditResult: async () => {
+      throw new ImageProviderError("provider_timeout", "Test provider timeout");
+    } });
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 4);
+    await runGeneration(job, f.userId, f.io);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 4);
   } finally { await f.cleanup(); }
 });
 

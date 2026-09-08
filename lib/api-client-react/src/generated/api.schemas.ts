@@ -205,6 +205,16 @@ export interface AccountPurchase {
   accessRevokedAt: string | null;
   /** @nullable */
   accessRevocationReason: string | null;
+  /**
+     * Image-edit credits included with this purchase, not its current balance.
+     * @minimum 0
+     */
+  includedCredits?: number;
+  /**
+     * Current image-edit credits for this purchase. When absent, legacy clients may use remainingGenerations.
+     * @minimum 0
+     */
+  remainingCredits?: number;
   /** @minimum 0 */
   remainingGenerations: number;
 }
@@ -291,6 +301,11 @@ export interface AccountUnavailableDownload {
 }
 
 export interface AccountData {
+  /**
+     * Current image-edit credit balance. Older responses may omit this field.
+     * @minimum 0
+     */
+  totalCreditBalance?: number;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   /** Authorized signed download URLs for base artwork and generated results. */

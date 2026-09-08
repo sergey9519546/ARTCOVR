@@ -52,11 +52,18 @@ export const CreateCheckoutResponse = zod.object({
  * Returns purchases, generation records, and authorized signed media downloads for the authenticated Clerk user. Download URLs are private and expire with the purchase entitlement.
  * @summary Load the signed-in customer's account data
  */
+export const getMyImagesResponseTotalCreditBalanceMin = 0;
+
+export const getMyImagesResponsePurchasesItemIncludedCreditsMin = 0;
+
+export const getMyImagesResponsePurchasesItemRemainingCreditsMin = 0;
+
 export const getMyImagesResponsePurchasesItemRemainingGenerationsMin = 0;
 
 
 
 export const GetMyImagesResponse = zod.object({
+  "totalCreditBalance": zod.number().int().min(getMyImagesResponseTotalCreditBalanceMin).optional().describe('Current image-edit credit balance. Older responses may omit this field.'),
   "purchases": zod.array(zod.object({
   "id": zod.string(),
   "artworkId": zod.string(),
@@ -72,6 +79,8 @@ export const GetMyImagesResponse = zod.object({
   "resetSource": zod.enum(['original']),
   "accessRevokedAt": zod.coerce.date().nullable(),
   "accessRevocationReason": zod.string().nullable(),
+  "includedCredits": zod.number().int().min(getMyImagesResponsePurchasesItemIncludedCreditsMin).optional().describe('Image-edit credits included with this purchase, not its current balance.'),
+  "remainingCredits": zod.number().int().min(getMyImagesResponsePurchasesItemRemainingCreditsMin).optional().describe('Current image-edit credits for this purchase. When absent, legacy clients may use remainingGenerations.'),
   "remainingGenerations": zod.number().int().min(getMyImagesResponsePurchasesItemRemainingGenerationsMin)
 })),
   "generations": zod.array(zod.object({

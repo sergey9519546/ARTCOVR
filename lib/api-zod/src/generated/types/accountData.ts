@@ -11,6 +11,11 @@ import type { AccountPurchase } from './accountPurchase';
 import type { AccountUnavailableDownload } from './accountUnavailableDownload';
 
 export interface AccountData {
+  /**
+     * Current image-edit credit balance. Older responses may omit this field.
+     * @minimum 0
+     */
+  totalCreditBalance?: number;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   /** Authorized signed download URLs for base artwork and generated results. */

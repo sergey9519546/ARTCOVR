@@ -21,9 +21,9 @@ test("product discovery shows actual image, palette and mood connections with re
     await expect(region.locator("[data-discovery-reason]")).toHaveCount(Math.min(expected.length, 24));
     await expect(region.getByRole("button", { name: new RegExp(`^${label}`) })).toHaveAttribute("aria-pressed", "true");
     await expect(region.getByRole("status")).toContainText(`Showing ${Math.min(expected.length, 24)} of ${expected.length}`);
+    await expect(region.getByRole("link", { name: /Explore this visual trail/ })).toHaveAttribute("href", `/archive?similar=${seed.slug}${mode === "visual" ? "" : `&mode=${mode}`}`);
   }
 
-  await expect(region.getByRole("link", { name: /Explore this visual trail/ })).toHaveAttribute("href", `/archive?similar=${seed.slug}`);
   const genre = getArtworkGenres(seed)[0];
   const genreLink = page.locator(`main > header a[href="/archive?genre=${genre}"]`);
   await expect(genreLink).toBeVisible();
@@ -40,9 +40,11 @@ test("related discovery loads the true remainder and resets after SPA product na
   await region.getByRole("button", { name: /^Shared palette/ }).click();
   const load = region.getByRole("button", { name: /^Load / });
   await expect(load).toHaveText(`Load ${remaining} more · ${remaining} remaining`);
-  await load.click();
+  await load.focus();
+  await load.press("Enter");
   await expect(region.locator('a[href^="/product/"]')).toHaveCount(palette.length);
   await expect(load).toHaveCount(0);
+  await expect(region.getByRole("link", { name: `Open ${palette[24].artwork.title}`, exact: true })).toBeFocused();
 
   const next = palette[0].artwork;
   await region.getByRole("link", { name: `Open ${next.title}`, exact: true }).click();
@@ -53,6 +55,35 @@ test("related discovery loads the true remainder and resets after SPA product na
   await region.getByRole("button", { name: /^Shared palette/ }).click();
   await expect(region.locator('a[href^="/product/"]')).toHaveCount(Math.min(rankSimilarArtwork(next, displayArtworks, "palette").length, 24));
 });
+
+test("loading another related batch continues keyboard focus at its first new work", async ({ page }) => {
+  const longSeed = displayArtworks.find((artwork) => rankSimilarArtwork(artwork, displayArtworks, "palette").length > 48);
+  expect(longSeed, "catalog should exercise more than two related batches").toBeTruthy();
+  const palette = rankSimilarArtwork(longSeed!, displayArtworks, "palette");
+  await page.goto(`/product/${longSeed!.slug}`);
+  const region = page.getByRole("region", { name: "Find similar", exact: true });
+  await region.getByRole("button", { name: /^Shared palette/ }).click();
+  const load = region.getByRole("button", { name: /^Load / });
+  await load.focus();
+  await load.press("Enter");
+  await expect(region.locator("a[data-related-artwork]")).toHaveCount(48);
+  await expect(load).toBeVisible();
+  await expect(region.getByRole("link", { name: `Open ${palette[24].artwork.title}`, exact: true })).toBeFocused();
+});
+
+for (const [mode, label] of [["palette", "Shared palette"], ["mood", "Shared mood"]] as const) {
+  test(`opening a ${mode} trail preserves its selected mode in the archive`, async ({ page }) => {
+    await page.goto(`/product/${seed.slug}`);
+    const region = page.getByRole("region", { name: "Find similar", exact: true });
+    await region.getByRole("button", { name: new RegExp(`^${label}`) }).click();
+    await region.getByRole("link", { name: /Explore this visual trail/ }).click();
+    await expect.poll(() => new URL(page.url()).searchParams.get("similar")).toBe(seed.slug);
+    await expect.poll(() => new URL(page.url()).searchParams.get("mode")).toBe(mode);
+    await expect(page.getByRole("button", { name: label, exact: true })).toHaveAttribute("aria-pressed", "true");
+    const archivePaths = () => page.locator('section[aria-label="Artwork archive"] article a').evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+    await expect.poll(archivePaths).toEqual(rankSimilarArtwork(seed, displayArtworks, mode).map(({ artwork }) => `/product/${artwork.slug}`));
+  });
+}
 
 test.describe("mobile reduced-motion discovery", () => {
   test.use({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });

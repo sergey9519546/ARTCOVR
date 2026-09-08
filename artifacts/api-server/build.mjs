@@ -3,7 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { readFile, readdir, rm } from "node:fs/promises";
+import { createHash } from "node:crypto";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -12,6 +13,23 @@ const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
+  const migrationDir = path.resolve(artifactDir, "../../lib/db/drizzle");
+  const journal = JSON.parse(await readFile(path.join(migrationDir, "meta/_journal.json"), "utf8"));
+  const sqlFiles = (await readdir(migrationDir)).filter((name) => name.endsWith(".sql")).sort();
+  if (!Array.isArray(journal.entries) || !journal.entries.length || journal.entries.length !== sqlFiles.length) {
+    throw new Error("Cannot build API: migration journal and SQL inventory do not match.");
+  }
+  const requiredMigrations = [];
+  for (const [index, entry] of journal.entries.entries()) {
+    if (entry.idx !== index || !/^\d{4}_[a-z0-9_]+$/.test(entry.tag ?? "") ||
+        `${entry.tag}.sql` !== sqlFiles[index] || !Number.isSafeInteger(entry.when) || entry.when <= 0 ||
+        (index > 0 && entry.when <= requiredMigrations[index - 1].createdAt)) {
+      throw new Error("Cannot build API: migration journal contains an invalid or unordered entry.");
+    }
+    const migration = await readFile(path.join(migrationDir, `${entry.tag}.sql`), "utf8");
+    if (!migration.trim()) throw new Error("Cannot build API: a migration is empty.");
+    requiredMigrations.push({ hash: createHash("sha256").update(migration).digest("hex"), createdAt: entry.when });
+  }
   await rm(distDir, { recursive: true, force: true });
 
   await esbuild({
@@ -22,6 +40,9 @@ async function buildAll() {
     outdir: distDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
+    // Ship exact migration hashes with the executable; startup never depends
+    // on a mutable checkout or performs a migration itself.
+    define: { __ARTCOVR_REQUIRED_MIGRATIONS__: JSON.stringify(requiredMigrations) },
     // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
     // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
     // Examples of unbundleable packages:
