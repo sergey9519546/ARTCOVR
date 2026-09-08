@@ -3,32 +3,38 @@ import test from "node:test";
 import { listUserCreditActivity } from "./creditService";
 
 test("credit activity is purchase-scoped and omits internal ledger fields", async () => {
+  const rows = [
+    {
+      id: "ledger-1",
+      purchaseId: "purchase-1",
+      entryType: "grant",
+      amount: 4,
+      reason: "Cover purchase credit grant",
+      occurredAt: new Date("2026-09-05T12:00:00.000Z"),
+    },
+    {
+      id: "ledger-2",
+      purchaseId: "purchase-1",
+      entryType: "spend",
+      amount: -1,
+      reason: "Image generation credit spend",
+      occurredAt: new Date("2026-09-05T12:01:00.000Z"),
+    },
+    {
+      id: "ledger-3",
+      purchaseId: "purchase-1",
+      entryType: "revoke",
+      amount: -3,
+      reason: "Purchase refunded",
+      occurredAt: new Date("2026-09-05T12:02:00.000Z"),
+    },
+  ];
   const select = () => ({
     from: () => ({
       where: () => ({
-        orderBy: async () => [
-          {
-            purchaseId: "purchase-1",
-            entryType: "grant",
-            amount: 4,
-            reason: "Cover purchase credit grant",
-            occurredAt: new Date("2026-09-05T12:00:00.000Z"),
-          },
-          {
-            purchaseId: "purchase-1",
-            entryType: "spend",
-            amount: -1,
-            reason: "Image generation credit spend",
-            occurredAt: new Date("2026-09-05T12:01:00.000Z"),
-          },
-          {
-            purchaseId: "purchase-1",
-            entryType: "revoke",
-            amount: -3,
-            reason: "Purchase refunded",
-            occurredAt: new Date("2026-09-05T12:02:00.000Z"),
-          },
-        ],
+        orderBy: () => ({
+          limit: async () => rows,
+        }),
       }),
     }),
   });
@@ -38,7 +44,8 @@ test("credit activity is purchase-scoped and omits internal ledger fields", asyn
     "user-1",
   );
 
-  assert.deepEqual(activity, [
+  assert.deepEqual(activity, {
+    activities: [
     {
       purchaseId: "purchase-1",
       event: "grant",
@@ -60,7 +67,42 @@ test("credit activity is purchase-scoped and omits internal ledger fields", asyn
       amount: -3,
       occurredAt: new Date("2026-09-05T12:02:00.000Z"),
     },
-  ]);
-  assert.equal("reason" in activity[0], false);
-  assert.equal("sourceId" in activity[0], false);
+    ],
+    nextCursor: null,
+  });
+  assert.equal("reason" in activity.activities[0], false);
+  assert.equal("sourceId" in activity.activities[0], false);
+});
+
+test("credit activity returns a bounded page and an opaque cursor", async () => {
+  const rows = Array.from({ length: 26 }, (_, index) => ({
+    id: `ledger-${index}`,
+    purchaseId: "purchase-1",
+    entryType: "spend",
+    amount: -1,
+    reason: "Image generation credit spend",
+    occurredAt: new Date(
+      Date.parse("2026-09-05T12:00:00.000Z") + index * 1_000,
+    ),
+  }));
+  const select = () => ({
+    from: () => ({
+      where: () => ({
+        orderBy: () => ({
+          limit: async () => rows,
+        }),
+      }),
+    }),
+  });
+
+  const page = await listUserCreditActivity(
+    { select } as never,
+    "user-1",
+  );
+
+  assert.equal(page.activities.length, 25);
+  assert.equal(page.activities[0].event, "generation");
+  assert.equal(typeof page.nextCursor, "string");
+  assert.ok(page.nextCursor);
+  assert.equal("id" in page.activities[0], false);
 });

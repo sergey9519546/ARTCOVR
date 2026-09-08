@@ -749,7 +749,10 @@ export async function generationStatus(id: string, userId: string) {
   return result;
 }
 
-export async function serializeAccount(userId: string) {
+export async function serializeAccount(
+  userId: string,
+  creditActivityCursor?: string,
+) {
   const [orders, generations] = await Promise.all([
     db
       .select()
@@ -780,9 +783,9 @@ export async function serializeAccount(userId: string) {
         ),
       ),
   );
-  const [creditActivity, purchaseBalances, totalCreditBalance] =
+  const [creditActivityPage, purchaseBalances, totalCreditBalance] =
     await Promise.all([
-      listUserCreditActivity(db, userId),
+      listUserCreditActivity(db, userId, creditActivityCursor),
       listPurchaseCreditBalances(db, userId),
       getUserCreditBalance(db, userId),
     ]);
@@ -790,7 +793,7 @@ export async function serializeAccount(userId: string) {
     purchaseBalances.map((balance) => [balance.purchaseId, balance.balance]),
   );
   const ordersById = new Map(orders.map((order) => [order.id, order]));
-  const serializedCreditActivity = creditActivity.flatMap((activity) => {
+  const serializedCreditActivity = creditActivityPage.activities.flatMap((activity) => {
     const order = ordersById.get(activity.purchaseId);
     if (!order) return [];
     const artwork = getPublicArtworkById(order.artworkId);
@@ -940,6 +943,7 @@ export async function serializeAccount(userId: string) {
   return {
     totalCreditBalance: Math.max(0, totalCreditBalance),
     creditActivity: serializedCreditActivity,
+    creditActivityNextCursor: creditActivityPage.nextCursor,
     purchases,
     generations: serializedGenerations,
     downloads,
