@@ -281,6 +281,40 @@ export function clerkPrivacySmokePreflight(env) {
   };
 }
 
+export function classifyConfiguredTargetFailure({ error, status } = {}) {
+  if (!error) {
+    return {
+      category: "smoke",
+      detail: `the smoke command exited with status ${status}`,
+    };
+  }
+
+  const detail = error instanceof Error ? error.message : String(error);
+  const code = typeof error === "object" && error ? error.code : undefined;
+  const name = typeof error === "object" && error ? error.name : undefined;
+
+  if (
+    ["ENOTFOUND", "EAI_AGAIN", "EAI_FAIL", "EAI_NONAME"].includes(code) ||
+    /getaddrinfo .*(?:ENOTFOUND|EAI_)/i.test(detail)
+  ) {
+    return { category: "dns", detail };
+  }
+  if (
+    ["ETIMEDOUT", "ESOCKETTIMEDOUT"].includes(code) ||
+    name === "TimeoutError" ||
+    /(?:timed? ?out|timeout)/i.test(detail)
+  ) {
+    return { category: "timeout", detail };
+  }
+  if (
+    code === "ECONNREFUSED" ||
+    /ECONNREFUSED|connection refused/i.test(detail)
+  ) {
+    return { category: "connection-refused", detail };
+  }
+  return { category: "smoke", detail };
+}
+
 export async function runClerkPrivacySmoke(
   env = process.env,
   {
@@ -309,8 +343,14 @@ export async function runClerkPrivacySmoke(
   let smokeStatus = 1;
   const usesConfiguredTarget = Boolean(env.ARTCOVR_DEV_SMOKE_BASE_URL);
   const reportConfiguredTargetFailure = (detail) => {
+    const failure = classifyConfiguredTargetFailure(detail);
     error(
-      `CLERK PRIVACY SMOKE FAILED FOR CONFIGURED TARGET ${decision.baseUrl}: ${detail}. The configured API may be unreachable; no disposable API startup or teardown was attempted.`,
+      `CLERK PRIVACY SMOKE FAILED FOR CONFIGURED TARGET ${decision.baseUrl}: ${failure.detail}. The configured API may be unreachable; no disposable API startup or teardown was attempted.`,
+    );
+    error(
+      `CLERK PRIVACY SMOKE CONFIGURED TARGET FAILURE: ${JSON.stringify(
+        failure,
+      )}`,
     );
   };
   try {
@@ -328,7 +368,7 @@ export async function runClerkPrivacySmoke(
     const result = await runSmoke(env, decision.baseUrl, disposableApi);
     if (result.error) {
       if (usesConfiguredTarget) {
-        reportConfiguredTargetFailure(result.error.message);
+        reportConfiguredTargetFailure({ error: result.error });
       } else {
         error(
           `CLERK PRIVACY SMOKE FAILED TO START: ${result.error.message}`,
@@ -338,16 +378,14 @@ export async function runClerkPrivacySmoke(
     } else {
       smokeStatus = result.status ?? 1;
       if (usesConfiguredTarget && smokeStatus !== 0) {
-        reportConfiguredTargetFailure(
-          `the smoke command exited with status ${smokeStatus}`,
-        );
+        reportConfiguredTargetFailure({ status: smokeStatus });
       }
     }
   } catch (smokeError) {
     const message =
       smokeError instanceof Error ? smokeError.message : String(smokeError);
     if (usesConfiguredTarget) {
-      reportConfiguredTargetFailure(message);
+      reportConfiguredTargetFailure({ error: smokeError });
     } else {
       error(`CLERK PRIVACY SMOKE FAILED: ${message}`);
     }

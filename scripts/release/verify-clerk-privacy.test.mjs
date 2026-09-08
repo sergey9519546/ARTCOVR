@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { EventEmitter } from "node:events";
 import test from "node:test";
 import {
+  classifyConfiguredTargetFailure,
   clerkPrivacySmokePreflight,
   runClerkPrivacySmoke,
   stopDisposableApi,
@@ -136,12 +137,48 @@ test("Clerk privacy release check allows this workspace's development target", (
   );
 });
 
+test("Clerk privacy configured-target failures map stable categories", () => {
+  const dnsError = Object.assign(
+    new Error("getaddrinfo ENOTFOUND this-workspace.replit.dev"),
+    { code: "ENOTFOUND" },
+  );
+  const timeoutError = Object.assign(
+    new Error("The operation was aborted due to timeout"),
+    { code: "ETIMEDOUT", name: "TimeoutError" },
+  );
+  const refusedError = Object.assign(
+    new Error("connect ECONNREFUSED 127.0.0.1:4321"),
+    { code: "ECONNREFUSED" },
+  );
+
+  assert.deepEqual(classifyConfiguredTargetFailure({ error: dnsError }), {
+    category: "dns",
+    detail: dnsError.message,
+  });
+  assert.deepEqual(classifyConfiguredTargetFailure({ error: timeoutError }), {
+    category: "timeout",
+    detail: timeoutError.message,
+  });
+  assert.deepEqual(classifyConfiguredTargetFailure({ error: refusedError }), {
+    category: "connection-refused",
+    detail: refusedError.message,
+  });
+  assert.deepEqual(
+    classifyConfiguredTargetFailure({ status: 7 }),
+    {
+      category: "smoke",
+      detail: "the smoke command exited with status 7",
+    },
+  );
+});
+
 test("Clerk privacy lifecycle leaves a configured shared API running", async () => {
   const configuredBaseUrl = "http://127.0.0.1:4321";
   const expectedStatus = 7;
   let receivedSmokeTarget;
   let receivedDisposableApi = "not-called";
   let stopApiCalls = 0;
+  const errors = [];
 
   const result = await runClerkPrivacySmoke(
     {
@@ -164,7 +201,7 @@ test("Clerk privacy lifecycle leaves a configured shared API running", async () 
         stopApiCalls += 1;
       },
       log: () => {},
-      error: () => {},
+      error: (message) => errors.push(message),
       warn: () => {},
     },
   );
@@ -173,6 +210,21 @@ test("Clerk privacy lifecycle leaves a configured shared API running", async () 
   assert.equal(receivedDisposableApi, undefined);
   assert.equal(stopApiCalls, 0);
   assert.equal(result, expectedStatus);
+  assert.deepEqual(
+    JSON.parse(
+      errors
+        .find((message) =>
+          message.startsWith(
+            "CLERK PRIVACY SMOKE CONFIGURED TARGET FAILURE: ",
+          ),
+        )
+        .slice("CLERK PRIVACY SMOKE CONFIGURED TARGET FAILURE: ".length),
+    ),
+    {
+      category: "smoke",
+      detail: `the smoke command exited with status ${expectedStatus}`,
+    },
+  );
 });
 
 test("Clerk privacy smoke explains an unreachable configured target without touching its lifecycle", async () => {
@@ -298,6 +350,22 @@ for (const outage of [
     );
     assert.match(output, new RegExp(outage.error.message));
     assert.match(output, /configured API may be unreachable/);
+    assert.deepEqual(
+      JSON.parse(
+        errors
+          .find((message) =>
+            message.startsWith(
+              "CLERK PRIVACY SMOKE CONFIGURED TARGET FAILURE: ",
+            ),
+          )
+          .slice("CLERK PRIVACY SMOKE CONFIGURED TARGET FAILURE: ".length),
+      ),
+      {
+        category:
+          outage.error.code === "ENOTFOUND" ? "dns" : "timeout",
+        detail: outage.error.message,
+      },
+    );
     assert.doesNotMatch(output, /Disposable API startup|Disposable API readiness/);
     assert.doesNotMatch(output, /TEARDOWN FAILED|Disposable API teardown/);
   });
