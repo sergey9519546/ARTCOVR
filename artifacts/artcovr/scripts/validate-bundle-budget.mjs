@@ -1,7 +1,6 @@
 import { gzipSync } from "node:zlib";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
 
 const storefrontRoot = path.resolve(import.meta.dirname, "..");
 const outputDirectory = path.join(storefrontRoot, "dist", "public");
@@ -14,30 +13,6 @@ const maxEntryGzipBytes = 130_000;
 
 function formatBytes(bytes) {
   return `${(bytes / 1000).toFixed(2)} kB`;
-}
-
-function runBuild() {
-  const result = spawnSync(
-    process.execPath,
-    [path.join(storefrontRoot, "node_modules/vite/bin/vite.js"), "build", "--config", "vite.config.ts"],
-    {
-      cwd: storefrontRoot,
-      env: {
-        ...process.env,
-        PORT: process.env.PORT || "5000",
-        BASE_PATH: process.env.BASE_PATH || "/",
-        VITE_SITE_URL: process.env.VITE_SITE_URL || "https://artcovr.local",
-      },
-      stdio: "inherit",
-    },
-  );
-
-  if (result.error) {
-    throw result.error;
-  }
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
 }
 
 function entryAssetFromHtml(html) {
@@ -80,8 +55,6 @@ async function readChunk(filePath) {
 }
 
 async function main() {
-  runBuild();
-
   const indexHtml = await readFile(
     path.join(outputDirectory, "index.html"),
     "utf8",

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "pnpm run bundle:check && pnpm run seo:validate",
+    "build": "node scripts/build-storefront.mjs && pnpm run bundle:check && pnpm run seo:validate",
     "bundle:check": "node scripts/validate-bundle-budget.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
