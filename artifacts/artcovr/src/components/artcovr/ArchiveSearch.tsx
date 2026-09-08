@@ -58,6 +58,10 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
   const cycleOrder = (direction: -1 | 1) => {
     const nextIndex = (orderIndex + direction + orderOptions.length) % orderOptions.length;
     const nextOrder = orderOptions[nextIndex].value;
+    trackEvent("archive_order_changed", {
+      order: nextOrder,
+      direction: direction === 1 ? "next" : "previous",
+    });
     update({ order: nextOrder === "recommended" ? null : nextOrder });
   };
   const clearAll = () => {
@@ -65,6 +69,10 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     searchInput.current?.focus();
   };
   const follow = (artwork: Artwork) => {
+    trackEvent("visual_direction_followed", {
+      artwork_slug: artwork.slug,
+      source: "archive_card",
+    });
     update({ similar: artwork.slug, mode: null, query: null, genre: null, mood: null, color: null, order: null, crate: null, connections: null }, true);
   };
   const toggleSaved = (artwork: Artwork) => {
@@ -75,6 +83,11 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     try {
       localStorage.setItem(CRATE_STORAGE_KEY, JSON.stringify(next));
       setSaveNotice(`${artwork.title} ${next.includes(artwork.slug) ? "saved to" : "removed from"} your crate on this browser.`);
+      trackEvent("crate_updated", {
+        action: wasSaved ? "removed" : "saved",
+        artwork_slug: artwork.slug,
+        crate_size: next.length,
+      });
     } catch { setSaveNotice("Your crate is available for this visit. This browser could not save it for later."); }
   };
   useEffect(() => {
@@ -128,7 +141,10 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     <div className="discovery-workbench">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label htmlFor="archive-search" className="discovery-label">Find your visual direction</label>
-        <button type="button" className="discovery-pill" aria-pressed={crateOnly} onClick={() => update({ crate: crateOnly ? null : "1" })}>
+         <button type="button" className="discovery-pill" aria-pressed={crateOnly} onClick={() => {
+           trackEvent("crate_view_toggled", { visible: !crateOnly });
+           update({ crate: crateOnly ? null : "1" });
+         }}>
           <Bookmark size={15} aria-hidden="true" /> My crate <span>{saved.length}</span>
         </button>
       </div>
@@ -139,13 +155,19 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
       </div>
       {typedGenre && !view.genre && <button type="button" className="mt-3 min-h-10 text-sm underline underline-offset-4" onClick={() => update({ genre: typedGenre, query: null })}>Explore {displayGenreLabel(typedGenre)} through artwork metadata and visual connections</button>}
       <DiscoveryControls view={view} onChange={(next) => update({ genre: next.genre, mood: next.mood, color: next.color })} index={facetIndex} resultCount={filteredItems.length} totalCount={items.length} />
-      {view.genre && <div className="discovery-genre-context">
+       {view.genre && <div className="discovery-genre-context">
         <div><h3 className="text-lg font-bold">The {displayGenreLabel(view.genre)} direction</h3><p className="mt-1 max-w-[70ch] text-sm leading-6 text-current/70">Style and mood metadata suggest a visual fit. Image-vector connections reveal adjacent directions. These are cover-art suggestions, not audio classification.</p></div>
-        <label className="flex min-h-11 shrink-0 cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={expandGenre} onChange={(event) => update({ connections: event.target.checked ? "1" : null })} className="h-4 w-4 accent-current" /> Include visual connections</label>
+         <label className="flex min-h-11 shrink-0 cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={expandGenre} onChange={(event) => {
+           trackEvent("visual_connections_toggled", { enabled: event.target.checked });
+           update({ connections: event.target.checked ? "1" : null });
+         }} className="h-4 w-4 accent-current" /> Include visual connections</label>
       </div>}
-      {seed && <section ref={seedContext} aria-label="Visual starting point" className="discovery-seed scroll-mt-24">
+       {seed && <section ref={seedContext} aria-label="Visual starting point" className="discovery-seed scroll-mt-24">
         <Image src={seed.image} alt={seed.alt} width={88} height={88} className="h-20 w-20 shrink-0 object-cover" />
-        <div className="min-w-0 flex-1"><p className="discovery-label">Following a visual direction</p><h3 ref={seedHeading} tabIndex={-1} className="mt-1 text-lg font-bold">{seed.title}</h3><div className="mt-3 flex flex-wrap gap-2">{Object.entries(SIMILAR_MODES).map(([value, label]) => <button type="button" key={value} className="discovery-pill" aria-pressed={mode === value} onClick={() => update({ mode: value === "visual" ? null : value })}>{label}</button>)}</div><p className="mt-2 text-xs leading-5 text-current/70">{mode === "visual" ? "Nearest connections in the offline image-descriptor index. No unrelated filler." : "Only works with shared catalog traits are shown."}</p></div>
+         <div className="min-w-0 flex-1"><p className="discovery-label">Following a visual direction</p><h3 ref={seedHeading} tabIndex={-1} className="mt-1 text-lg font-bold">{seed.title}</h3><div className="mt-3 flex flex-wrap gap-2">{Object.entries(SIMILAR_MODES).map(([value, label]) => <button type="button" key={value} className="discovery-pill" aria-pressed={mode === value} onClick={() => {
+           trackEvent("visual_similarity_mode_changed", { mode: value });
+           update({ mode: value === "visual" ? null : value });
+         }}>{label}</button>)}</div><p className="mt-2 text-xs leading-5 text-current/70">{mode === "visual" ? "Nearest connections in the offline image-descriptor index. No unrelated filler." : "Only works with shared catalog traits are shown."}</p></div>
         <button type="button" aria-label="Leave visual direction" className="self-start rounded-full p-2" onClick={() => update({ similar: null, mode: null }, true)}><X size={19} /></button>
       </section>}
       {similarSlug && !seed && <p role="status" className="mt-4 text-sm">That starting artwork is not in the public archive. Clear the direction to explore available works.</p>}

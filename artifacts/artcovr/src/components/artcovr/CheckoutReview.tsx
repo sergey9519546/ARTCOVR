@@ -99,7 +99,13 @@ export function CheckoutReview({ artwork }: { artwork: Artwork }) {
       });
       window.location.assign(checkoutUrl);
     } catch (reason) {
-      if (shouldRotateCheckoutKey(reason)) {
+      const rotatesCheckoutKey = shouldRotateCheckoutKey(reason);
+      trackEvent("checkout_failed", {
+        artwork_slug: artwork.slug,
+        signed_in: isSignedIn,
+        reason_class: rotatesCheckoutKey ? "stale_attempt" : "request_failed",
+      });
+      if (rotatesCheckoutKey) {
         try {
           sessionStorage.removeItem(keyName);
         } catch {
