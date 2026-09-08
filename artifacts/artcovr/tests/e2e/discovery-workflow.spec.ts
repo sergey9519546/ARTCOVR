@@ -99,7 +99,7 @@ test("order and density persist through reload and restore curated order explici
   await expect.poll(() => resultPaths(page)).toEqual(paths(orderDiscoveryArtwork(displayArtworks, "title")));
   await expect.poll(() => new URL(page.url()).searchParams.get("density")).toBe("compact");
   await page.reload();
-  await expect(order).toHaveValue("title");
+  await expect(order.getByRole("button", { name: "Current artwork order", exact: true })).toHaveText("Title A–Z");
   await expect(page.getByRole("group", { name: "Artwork density", exact: true }).getByRole("button", { name: "Compact", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(grid).toHaveAttribute("data-density", "compact");
   await expect.poll(columns).toBe(6);

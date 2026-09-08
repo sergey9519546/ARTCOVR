@@ -150,8 +150,9 @@ export default function MyImagesPage() {
       const account = await getMyImages(data.creditActivityNextCursor);
       if (mounted.current) {
         setData((current) => {
+          const currentActivity = current.creditActivity ?? [];
           const existing = new Set(
-            current.creditActivity.map((activity) =>
+            currentActivity.map((activity) =>
               [
                 activity.purchaseId,
                 activity.occurredAt,
@@ -163,7 +164,7 @@ export default function MyImagesPage() {
           return {
             ...current,
             creditActivity: [
-              ...current.creditActivity,
+              ...currentActivity,
               ...account.creditActivity.filter(
                 (activity) =>
                   !existing.has(
@@ -274,7 +275,7 @@ export default function MyImagesPage() {
           image-edit credit{data.totalCreditBalance === 1 ? "" : "s"} available across your purchases.
         </p>
       )}
-      {state === "ready" && data.creditActivity.length > 0 && (
+      {state === "ready" && (data.creditActivity?.length ?? 0) > 0 && (
         <section className="mb-16 border-t-2 border-current pt-5" aria-labelledby="credit-activity">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -284,7 +285,7 @@ export default function MyImagesPage() {
             <p className="text-sm text-[var(--muted-foreground)]">Changes across your purchases.</p>
           </div>
           <ol className="mt-6 divide-y divide-current/15 border-y border-current/15">
-            {data.creditActivity.map((activity, index) => (
+            {(data.creditActivity ?? []).map((activity, index) => (
               <li key={`${activity.purchaseId}-${activity.occurredAt}-${activity.event}-${index}`} className="flex items-center justify-between gap-5 py-4 text-sm">
                 <div className="min-w-0">
                   <p className="font-bold">{activity.label}</p>
