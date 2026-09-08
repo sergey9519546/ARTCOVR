@@ -12,6 +12,7 @@ import {
   uploadReference,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { EDIT_PROMPT_MAX_LENGTH, readEditorDraft, writeEditorDraft } from "@/lib/artcovr/editor-draft";
 import { PromptComposer } from "./PromptComposer";
 import { useGenerationJob } from "./useGenerationJob";
 
@@ -40,8 +41,15 @@ function terminalMessage(status: "blocked" | "failed" | "timed_out") {
 }
 
 export function PromptStudio({ artwork }: { artwork: Artwork }) {
+  // A product-to-product SPA navigation must never reuse another cover's job,
+  // generated result, or artwork-bound photo upload.
+  return <ArtworkPromptStudio key={artwork.id} artwork={artwork} />;
+}
+
+function ArtworkPromptStudio({ artwork }: { artwork: Artwork }) {
   const { isLoaded, isSignedIn } = useArtcovrAuth();
-  const [prompt, setPrompt] = useState("");
+  const [draft] = useState(() => readEditorDraft(artwork.id));
+  const [prompt, setPrompt] = useState(draft.prompt);
   const [result, setResult] = useState<string>();
   const [restoring, setRestoring] = useState(true);
   const currentResultId = useRef<string | undefined>(undefined);
@@ -54,10 +62,10 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
       : `${window.location.pathname}${window.location.search}${window.location.hash}`;
   const authRedirectQuery = `?redirect_url=${encodeURIComponent(authRedirect)}`;
   const selectedPreviewKey = `artcovr:selected-preview:${artwork.id}`;
-  const [coverTitle, setCoverTitle] = useState("");
-  const [coverArtist, setCoverArtist] = useState("");
-  const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const [coverOpen, setCoverOpen] = useState(false);
+  const [coverTitle, setCoverTitle] = useState(draft.coverTitle);
+  const [coverArtist, setCoverArtist] = useState(draft.coverArtist);
+  const [styleMode, setStyleMode] = useState<"exact" | "expand">(draft.styleMode);
+  const [coverOpen, setCoverOpen] = useState(Boolean(draft.coverTitle || draft.coverArtist));
   const [reference, setReference] = useState<ReferenceState>({ status: "none" });
   const referenceRef = useRef<ReferenceState>({ status: "none" });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -65,6 +73,10 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   const [armedUploadId, setArmedUploadId] = useState<string | undefined>(undefined);
   const armedUploadRef = useRef<string | undefined>(undefined);
   const uploadEpoch = useRef(0);
+
+  useEffect(() => {
+    writeEditorDraft(artwork.id, { prompt, coverTitle, coverArtist, styleMode });
+  }, [artwork.id, prompt, coverTitle, coverArtist, styleMode]);
 
   useEffect(() => () => {
     uploadEpoch.current += 1;
@@ -94,6 +106,14 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
   });
 
   useEffect(() => {
+    // Clerk may still be restoring its cookie on the first render. Do not let
+    // that unauthenticated lookup discard the user's selected image.
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      setRestoring(false);
+      return;
+    }
+    setRestoring(true);
     let active = true;
     let storedGenerationId: string | null = null;
     const clearStoredPreview = () => {
@@ -143,8 +163,12 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
         }
         clearStoredPreview();
       } catch {
-        // Status lookup is authoritative. Leave the identifier in place when a
-        // signed-out session cannot validate it; no image or entitlement leaks.
+        // Keep the identifier for a later retry, but do not silently imply that
+        // the original canvas is the user's previously selected result.
+        if (active) {
+          setMessage("Your saved preview could not be restored. Your draft was kept; the canvas shows the original artwork. Reload to try restoring the preview again.");
+          setPhase("error");
+        }
       } finally {
         if (active) setRestoring(false);
       }
@@ -153,7 +177,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     return () => {
       active = false;
     };
-  }, [selectedPreviewKey, artwork.id]);
+  }, [selectedPreviewKey, artwork.id, isLoaded, isSignedIn]);
 
   /** Chat-style input: grow with content, cap at roughly eight lines. */
   function autosizePromptBox() {
@@ -192,12 +216,16 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
 
   function reset() {
     if (hasPending || restoring) return;
+    clearReference();
     currentResultId.current = undefined;
     resetToBase.current = true;
     try {
       sessionStorage.removeItem(selectedPreviewKey);
     } catch {}
     setPrompt("");
+    setCoverTitle("");
+    setCoverArtist("");
+    setStyleMode("exact");
     setResult(undefined);
     setMessage("Returned to the original artwork.");
     setPhase("idle");
@@ -248,9 +276,11 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
     const rejection = referenceRejection(file);
     if (rejection) {
       setMessage(rejection);
+      setPhase("error");
       return;
     }
     clearReference();
+    setPhase("idle");
     const currentUpload = uploadEpoch.current;
     const url = URL.createObjectURL(file);
     setReferenceEverywhere({ status: "uploading", url, name: file.name });
@@ -272,6 +302,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
       setMessage(
         cause instanceof Error ? cause.message : "The reference could not be uploaded. Try again.",
       );
+      setPhase("error");
     }
   }
 
@@ -349,7 +380,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               <button
                 type="button"
                 onClick={clearReference}
-                disabled={reference.status === "uploading" || busy}
+                disabled={busy}
                 aria-label="Remove the reference photo"
                 className="ml-1 leading-none opacity-60 transition-opacity hover:opacity-100 disabled:opacity-30"
               >
@@ -369,11 +400,11 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
 
           <div role="radiogroup" aria-label="Style handling" className="ml-auto flex gap-1">
             <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "exact" ? "border-current" : "border-current/25 opacity-60"}`}>
-              <input type="radio" name="style-mode" value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} className="sr-only" />
+              <input type="radio" name="style-mode" value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} disabled={busy} className="sr-only" />
               Exact style
             </label>
             <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "expand" ? "border-current" : "border-current/25 opacity-60"}`}>
-              <input type="radio" name="style-mode" value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} className="sr-only" />
+              <input type="radio" name="style-mode" value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} disabled={busy} className="sr-only" />
               Expand
             </label>
           </div>
@@ -438,7 +469,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
               className="sr-only"
               aria-hidden
               tabIndex={-1}
-              onChange={(event) => void pickReference(event.target.files?.[0])}
+              onChange={(event) => { void pickReference(event.target.files?.[0]); event.target.value = ""; }}
             />
             <div className="flex flex-wrap items-end justify-between gap-2">
               <button
@@ -455,7 +486,7 @@ export function PromptStudio({ artwork }: { artwork: Artwork }) {
                 disabled={busy}
                 ref={promptBoxRef}
                 value={prompt}
-                maxLength={2000}
+                maxLength={EDIT_PROMPT_MAX_LENGTH}
                 onChange={(event) => {
                   setPrompt(event.target.value);
                   autosizePromptBox();

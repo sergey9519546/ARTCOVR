@@ -49,7 +49,8 @@ const MOOD_DISPLAY_LABELS: Record<string, string> = {
 };
 
 export function displayMoodLabel(value: string) {
-  return MOOD_DISPLAY_LABELS[value] ?? displayFacetLabel(value);
+  const label = MOOD_DISPLAY_LABELS[value];
+  return typeof label === "string" ? label : displayFacetLabel(value);
 }
 
 function colorSwatch(value: string) {
