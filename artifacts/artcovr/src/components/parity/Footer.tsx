@@ -15,7 +15,7 @@ export function Footer() {
       <div className="border-y border-current/10 py-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-lg font-bold tracking-tight uppercase">Need an original direction?</p>
+            <h2 className="text-lg font-bold tracking-tight uppercase">Need an original direction?</h2>
             <p className="max-w-xl text-sm opacity-60">Send a custom-work inquiry. It stays separate from artwork checkout.</p>
           </div>
           <Link href="/contact" className="artcovr-button w-fit rounded-full px-6 py-3 text-sm font-bold tracking-tight uppercase transition-transform hover:scale-105">
