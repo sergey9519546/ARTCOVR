@@ -13,6 +13,7 @@ import {
   createImageEditResult,
   ensureBaseObject,
 } from "./lib/imagePipeline";
+import { prepareAccountDownload } from "./lib/accountDownload";
 import {
   downloadPrivate,
   removePrivate,
@@ -39,6 +40,16 @@ const generationIO = {
   removePrivate,
   createImageEditResult,
   addWatermark,
+};
+
+type AccountDownloadIO = {
+  ensureBaseObject: typeof ensureBaseObject;
+  signPrivate: (key: string, ttlSeconds: number) => Promise<string>;
+};
+
+const accountDownloadIO: AccountDownloadIO = {
+  ensureBaseObject,
+  signPrivate,
 };
 
 async function expireStalledGenerations(userId: string) {
@@ -751,6 +762,7 @@ export async function generationStatus(id: string, userId: string) {
 
 export async function serializeAccount(
   userId: string,
+  io: AccountDownloadIO = accountDownloadIO,
 ) {
   const [orders, generations] = await Promise.all([
     db
@@ -832,7 +844,7 @@ export async function serializeAccount(
   );
   const optionalSign = async (key: string) => {
     try {
-      return await signPrivate(key);
+      return await io.signPrivate(key, 300);
     } catch {
       return undefined;
     }
@@ -873,60 +885,66 @@ export async function serializeAccount(
       };
     }),
   );
-  const downloads = (
-    await Promise.all(
-      orders.flatMap((order) => {
-        const expiry = effectiveEntitlement(order);
-        if (!expiry || !isActiveEntitlement(order) || order.accessRevokedAt)
-          return [];
-        const artwork = getPublicArtworkById(order.artworkId);
-        if (!artwork) return [];
-        const selected = generations.find((generation) =>
-          isSelectedPreviewForOrder(generation, order),
-        );
-        const successful = generations.filter(
-          (generation) =>
-            generation.purchaseId === order.id &&
-            generation.status === "succeeded",
-        );
-        return [
+  const preparedDownloads = await Promise.all(
+    orders.flatMap((order) => {
+      const expiry = effectiveEntitlement(order);
+      if (!expiry || !isActiveEntitlement(order) || order.accessRevokedAt) {
+        return [];
+      }
+      const artwork = getPublicArtworkById(order.artworkId);
+      if (!artwork) return [];
+      const selected = generations.find((generation) =>
+        isSelectedPreviewForOrder(generation, order),
+      );
+      const successful = generations.filter(
+        (generation) =>
+          generation.purchaseId === order.id &&
+          generation.status === "succeeded",
+      );
+      const assets = [
+        {
+          kind: "base" as const,
+          generationId: null,
+          resolveKey: () => io.ensureBaseObject(artwork.id, artwork.slug),
+        },
+        ...(selected?.cleanObjectKey
+          ? [
+              {
+                kind: "selected_preview" as const,
+                generationId: selected.id,
+                resolveKey: async () => selected.cleanObjectKey!,
+              },
+            ]
+          : []),
+        ...successful
+          .filter((generation) => generation.cleanObjectKey)
+          .map((generation) => ({
+            kind: "purchased_result" as const,
+            generationId: generation.id,
+            resolveKey: async () => generation.cleanObjectKey!,
+          })),
+      ];
+      return assets.map((asset) =>
+        prepareAccountDownload(
           {
-            kind: "base" as const,
-            generationId: null,
-            key: ensureBaseObject(artwork.id, artwork.slug),
+            kind: asset.kind,
+            purchaseId: order.id,
+            artworkId: order.artworkId,
+            generationId: asset.generationId,
           },
-          ...(selected?.cleanObjectKey
-            ? [
-                {
-                  kind: "selected_preview" as const,
-                  generationId: selected.id,
-                  key: Promise.resolve(selected.cleanObjectKey),
-                },
-              ]
-            : []),
-          ...successful
-            .filter((generation) => generation.cleanObjectKey)
-            .map((generation) => ({
-              kind: "purchased_result" as const,
-              generationId: generation.id,
-              key: Promise.resolve(generation.cleanObjectKey!),
-            })),
-        ].map(async (asset) => {
-          const url = await optionalSign(await asset.key);
-          return url
-            ? {
-                kind: asset.kind,
-                purchaseId: order.id,
-                artworkId: order.artworkId,
-                generationId: asset.generationId,
-                expiresAt: expiry.toISOString(),
-                url,
-              }
-            : null;
-        });
-      }),
-    )
-  ).filter(Boolean);
+          asset.resolveKey,
+          expiry,
+          io.signPrivate,
+        ),
+      );
+    }),
+  );
+  const downloads = preparedDownloads.flatMap((result) =>
+    result.download ? [result.download] : [],
+  );
+  const unavailableDownloads = preparedDownloads.flatMap((result) =>
+    result.unavailable ? [result.unavailable] : [],
+  );
   return {
     totalCreditBalance: Math.max(0, totalCreditBalance),
     creditActivity: serializedCreditActivity,
@@ -934,6 +952,7 @@ export async function serializeAccount(
     purchases,
     generations: serializedGenerations,
     downloads,
+    unavailableDownloads,
   };
 }
 
