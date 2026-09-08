@@ -89,8 +89,11 @@ test("order and density persist through reload and restore curated order explici
   const grid = page.locator('section[aria-label="Artwork archive"] [data-density]');
   const columns = () => grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length);
   await expect.poll(columns).toBe(4);
-  const order = page.getByRole("combobox", { name: "Order artwork", exact: true });
-  await order.selectOption("title");
+  const order = page.getByRole("group", { name: "Artwork order", exact: true });
+  const nextOrder = order.getByRole("button", { name: "Next artwork order", exact: true });
+  const previousOrder = order.getByRole("button", { name: "Previous artwork order", exact: true });
+  await nextOrder.click();
+  await nextOrder.click();
   await page.getByRole("group", { name: "Artwork density", exact: true }).getByRole("button", { name: "Compact", exact: true }).click();
   await expect.poll(columns).toBe(6);
   await expect.poll(() => resultPaths(page)).toEqual(paths(orderDiscoveryArtwork(displayArtworks, "title")));
@@ -101,9 +104,10 @@ test("order and density persist through reload and restore curated order explici
   await expect(grid).toHaveAttribute("data-density", "compact");
   await expect.poll(columns).toBe(6);
   await expect.poll(() => resultPaths(page)).toEqual(paths(orderDiscoveryArtwork(displayArtworks, "title")));
-  await order.selectOption("diverse");
+  await expect(order.getByRole("button", { name: "Current artwork order", exact: true })).toHaveText("Title A–Z");
+  await previousOrder.click();
   await expect.poll(() => resultPaths(page)).toEqual(paths(orderDiscoveryArtwork(displayArtworks, "diverse")));
-  await order.selectOption("recommended");
+  await previousOrder.click();
   await expect.poll(() => resultPaths(page)).toEqual(paths(displayArtworks));
 });
 

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
-import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
+import { ArrowLeft, Bookmark, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { ArtworkGrid } from "./ArtworkGrid";
 import { DiscoveryControls } from "./DiscoveryControls";
 import { applyCatalogView, type CatalogView } from "./CatalogControls";
@@ -36,6 +36,13 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
   const similarSlug = params.get("similar");
   const mode: ArtworkSimilarityMode = params.get("mode") === "palette" ? "palette" : params.get("mode") === "mood" ? "mood" : "visual";
   const seed = items.find((item) => item.slug === similarSlug);
+  const orderOptions = [
+    { value: "recommended" as const, label: query.trim() ? "Search relevance" : seed ? "Closest connections" : view.genre ? "Genre fit" : "Curated" },
+    { value: "diverse" as const, label: "Visual variety" },
+    { value: "title" as const, label: "Title A–Z" },
+  ];
+  const orderIndex = orderOptions.findIndex((option) => option.value === order);
+  const activeOrder = orderOptions[orderIndex] ?? orderOptions[0];
   const [saved, setSaved] = useState<string[]>(() => {
     try { return readSavedSlugs(localStorage.getItem(CRATE_STORAGE_KEY), items); } catch { return []; }
   });
@@ -47,6 +54,11 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
       if (value) next.set(key, value); else next.delete(key);
     }
     navigate(`${location}${next.size ? `?${next}` : ""}`, { replace: !push });
+  };
+  const cycleOrder = (direction: -1 | 1) => {
+    const nextIndex = (orderIndex + direction + orderOptions.length) % orderOptions.length;
+    const nextOrder = orderOptions[nextIndex].value;
+    update({ order: nextOrder === "recommended" ? null : nextOrder });
   };
   const clearAll = () => {
     update({ query: null, genre: null, color: null, mood: null, similar: null, mode: null, connections: null, crate: null, order: null });
@@ -142,7 +154,17 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
         <h2 ref={resultsHeading} tabIndex={-1} className="scroll-mt-24 text-lg font-bold">{filteredItems.length} {filteredItems.length === 1 ? "work" : "works"}{seed ? " to follow" : view.genre ? ` for ${displayGenreLabel(view.genre)}` : " to explore"}</h2>
         <div className="flex flex-wrap items-center gap-3">
           {hasActiveSearch && <button type="button" onClick={clearAll} className="min-h-11 text-xs underline underline-offset-4">Clear all</button>}
-          <label className="flex items-center gap-2 text-xs"><span>Order</span><select aria-label="Order artwork" value={order} className="discovery-order" onChange={(event) => update({ order: event.target.value === "recommended" ? null : event.target.value })}><option value="recommended">{query.trim() ? "Search relevance" : seed ? "Closest connections" : view.genre ? "Genre fit" : "Curated"}</option><option value="diverse">Visual variety</option><option value="title">Title A–Z</option></select></label>
+          <div role="group" aria-label="Artwork order" className="discovery-order-slider">
+            <button type="button" className="discovery-order-arrow" aria-label="Previous artwork order" onClick={() => cycleOrder(-1)}>
+              <ChevronLeft size={17} aria-hidden="true" />
+            </button>
+            <button type="button" className="discovery-order-current" aria-label="Current artwork order" onClick={() => cycleOrder(1)} aria-live="polite">
+              {activeOrder.label}
+            </button>
+            <button type="button" className="discovery-order-arrow" aria-label="Next artwork order" onClick={() => cycleOrder(1)}>
+              <ChevronRight size={17} aria-hidden="true" />
+            </button>
+          </div>
           <div role="group" aria-label="Artwork density" className="flex gap-1">{[false, true].map((value) => <button key={String(value)} type="button" className="discovery-pill" aria-pressed={compact === value} onClick={() => update({ density: value ? "compact" : null })}>{value ? "Compact" : "Gallery"}</button>)}</div>
         </div>
       </div>

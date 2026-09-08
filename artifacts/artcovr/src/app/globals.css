@@ -120,7 +120,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .discovery-filters fieldset { grid-column: 1 / -1; }
 .discovery-select-label { display: flex; min-width: 0; flex-direction: column; gap: 8px; }
 .discovery-select-label select,
-.discovery-order { min-height: 44px; max-width: 100%; border: 1px solid var(--input); border-radius: 999px; background: var(--background); color: var(--foreground); padding: 8px 14px; font: inherit; font-size: 14px; }
+.discovery-order-slider { display: inline-flex; min-height: 44px; max-width: 100%; align-items: stretch; overflow: hidden; border: 1px solid var(--input); border-radius: 999px; background: var(--background); color: var(--foreground); }
+.discovery-order-arrow, .discovery-order-current { min-height: 42px; border: 0; background: transparent; color: inherit; font: inherit; }
+.discovery-order-arrow { display: inline-flex; width: 40px; align-items: center; justify-content: center; transition: background .2s ease; }
+.discovery-order-arrow:hover, .discovery-order-arrow:focus-visible { background: color-mix(in srgb, currentColor 10%, transparent); }
+.discovery-order-current { min-width: 9.5rem; border-inline: 1px solid var(--input); padding: 8px 16px; font-size: 14px; font-weight: 700; text-align: center; white-space: nowrap; }
+.discovery-order-current:hover, .discovery-order-current:focus-visible { background: color-mix(in srgb, currentColor 7%, transparent); }
 .discovery-pill,
 .discovery-color { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--input); border-radius: 999px; padding: 8px 14px; font-size: 12px; line-height: 1.3; transition: background-color .18s, color .18s; }
 .discovery-color { min-width: 44px; padding: 8px 10px; }
