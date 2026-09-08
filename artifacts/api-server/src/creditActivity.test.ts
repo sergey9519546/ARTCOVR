@@ -177,6 +177,10 @@ test("account endpoint isolates two users and omits ledger and generation intern
   };
   const orderIds = [purchaseA, purchaseB];
   const generationIds = [generationA, generationB];
+  const historyLedgerIds = Array.from(
+    { length: 25 },
+    (_, index) => `ledger-a-history-${runId}-${index}`,
+  );
   const { server, url } = await listen(accountTestApp());
 
   try {
@@ -239,6 +243,17 @@ test("account endpoint isolates two users and omits ledger and generation intern
         stripeEventId: sensitive.stripeB,
         createdAt: new Date(now.getTime() - 1_000),
       },
+      ...historyLedgerIds.map((id, index) => ({
+        id,
+        clerkUserId: userA,
+        accountKey: userA,
+        orderId: purchaseA,
+        entryType: "spend" as const,
+        amount: -1,
+        reason: `History generation ${index}`,
+        sourceId: `${id}-source`,
+        createdAt: new Date(now.getTime() - (index + 2) * 1_000),
+      })),
     ]);
     await db.insert(artcovrGenerations).values([
       {
@@ -282,6 +297,7 @@ test("account endpoint isolates two users and omits ledger and generation intern
       assert.equal(response.status, 200);
       return (await response.json()) as {
         creditActivity: Array<Record<string, unknown>>;
+        creditActivityNextCursor: string | null;
         generations: Array<Record<string, unknown>>;
         purchases: Array<Record<string, unknown>>;
       };
@@ -319,6 +335,31 @@ test("account endpoint isolates two users and omits ledger and generation intern
       [purchaseB],
     );
 
+    assert.ok(accountA.creditActivityNextCursor);
+    const olderActivityResponse = await fetch(
+      `${url}/api/functions/v1/my-images?creditActivityCursor=${encodeURIComponent(accountA.creditActivityNextCursor)}`,
+      { headers: { "x-test-user-id": userA } },
+    );
+    assert.equal(olderActivityResponse.status, 200);
+    const olderActivityPayload = (await olderActivityResponse.json()) as {
+      creditActivity: Array<Record<string, unknown>>;
+      creditActivityNextCursor: string | null;
+      [key: string]: unknown;
+    };
+    assert.deepEqual(Object.keys(olderActivityPayload).sort(), [
+      "creditActivity",
+      "creditActivityNextCursor",
+    ]);
+    assert.equal(olderActivityPayload.creditActivity.length, 1);
+    assert.deepEqual(Object.keys(olderActivityPayload.creditActivity[0]).sort(), [
+      "amount",
+      "artworkTitle",
+      "event",
+      "label",
+      "occurredAt",
+      "purchaseId",
+    ]);
+
     for (const payload of [accountA, accountB]) {
       assert.deepEqual(Object.keys(payload.creditActivity[0]).sort(), [
         "amount",
@@ -350,7 +391,13 @@ test("account endpoint isolates two users and omits ledger and generation intern
       .where(inArray(artcovrGenerations.id, generationIds));
     await db
       .delete(artcovrCreditLedger)
-      .where(inArray(artcovrCreditLedger.accountKey, [userA, userB]));
+      .where(
+        inArray(artcovrCreditLedger.accountKey, [
+          userA,
+          userB,
+          ...historyLedgerIds,
+        ]),
+      );
     await db.delete(artcovrOrders).where(inArray(artcovrOrders.id, orderIds));
     await new Promise<void>((resolve, reject) =>
       server.close((error) => (error ? reject(error) : resolve())),

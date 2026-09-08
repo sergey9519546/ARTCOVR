@@ -130,6 +130,11 @@ export type AccountData = {
   downloads: AccountDownload[];
 };
 
+export type AccountCreditActivityPage = {
+  creditActivity: AccountCreditActivity[];
+  creditActivityNextCursor: string | null;
+};
+
 export type OwnerCatalogIntelligenceAccess = {
   authorized: true;
   role: "curator";
@@ -276,13 +281,20 @@ export function createCheckout(
   });
 }
 
+export function getMyImages(): Promise<AccountData>;
+export function getMyImages(
+  creditActivityCursor: string,
+): Promise<AccountCreditActivityPage>;
 export function getMyImages(creditActivityCursor?: string) {
   const query = creditActivityCursor
     ? `?creditActivityCursor=${encodeURIComponent(creditActivityCursor)}`
     : "";
-  return request<AccountData>(`/functions/v1/my-images${query}`, {
-    method: "GET",
-  });
+  return request<AccountData | AccountCreditActivityPage>(
+    `/functions/v1/my-images${query}`,
+    {
+      method: "GET",
+    },
+  );
 }
 
 export function claimGuestPurchases() {

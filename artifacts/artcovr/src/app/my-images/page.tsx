@@ -100,7 +100,7 @@ export default function MyImagesPage() {
             ),
           );
           return {
-            ...account,
+            ...current,
             creditActivity: [
               ...current.creditActivity,
               ...account.creditActivity.filter(
@@ -115,6 +115,7 @@ export default function MyImagesPage() {
                   ),
               ),
             ],
+            creditActivityNextCursor: account.creditActivityNextCursor,
           };
         });
       }

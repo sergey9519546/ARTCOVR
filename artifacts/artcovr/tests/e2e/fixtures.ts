@@ -23,6 +23,9 @@ export async function fulfillJson(
 
 export function accountFixture() {
   return {
+    totalCreditBalance: 2,
+    creditActivity: [],
+    creditActivityNextCursor: null,
     purchases: [
       {
         id: "purchase-e2e",
@@ -39,6 +42,8 @@ export function accountFixture() {
         resetSource: "original",
         accessRevokedAt: null,
         accessRevocationReason: null,
+        includedCredits: 3,
+        remainingCredits: 2,
         remainingGenerations: 2,
       },
     ],

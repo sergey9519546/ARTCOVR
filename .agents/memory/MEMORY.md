@@ -25,3 +25,4 @@
 - [Artwork edit provider contract](artwork-edit-provider-contract.md) — always send the current artwork first; uploaded identity photos supplement it and never replace it.
 - [Real Clerk E2E prerequisites](real-clerk-e2e-prerequisites.md) — live account journeys stay skipped until disposable test-account inputs are configured.
 - [Credit ledger lifecycle](credit-ledger-lifecycle.md) — paid edits debit per purchase atomically; failures release, refunds revoke, and guest grants use a temporary scoped principal.
+- [Playwright query interception](playwright-query-routes.md) — route globs for API calls with query parameters need a trailing wildcard or the request bypasses the mock.

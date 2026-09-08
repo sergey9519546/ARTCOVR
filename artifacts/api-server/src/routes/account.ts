@@ -8,7 +8,10 @@ import {
   requireAuth,
 } from "../middlewares/auth";
 import { claimGuestPurchases } from "../commerceService";
-import { serializeAccount } from "../generationService";
+import {
+  serializeAccount,
+  serializeCreditActivityPage,
+} from "../generationService";
 import { InvalidCreditActivityCursorError } from "../creditService";
 
 const router: IRouter = Router();
@@ -60,7 +63,14 @@ router.get("/functions/v1/my-images", requireAuth, async (req, res): Promise<voi
   try {
     res
       .set("Cache-Control", "private, no-store")
-      .json(await serializeAccount(clerkUserId, creditActivityCursor));
+      .json(
+        creditActivityCursor
+          ? await serializeCreditActivityPage(
+              clerkUserId,
+              creditActivityCursor,
+            )
+          : await serializeAccount(clerkUserId),
+      );
   } catch (error) {
     if (error instanceof InvalidCreditActivityCursorError) {
       res.status(400).json({

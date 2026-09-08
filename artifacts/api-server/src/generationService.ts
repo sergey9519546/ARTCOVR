@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import {
   artcovrGenerations,
   artcovrOrders,
@@ -751,7 +751,6 @@ export async function generationStatus(id: string, userId: string) {
 
 export async function serializeAccount(
   userId: string,
-  creditActivityCursor?: string,
 ) {
   const [orders, generations] = await Promise.all([
     db
@@ -785,7 +784,7 @@ export async function serializeAccount(
   );
   const [creditActivityPage, purchaseBalances, totalCreditBalance] =
     await Promise.all([
-      listUserCreditActivity(db, userId, creditActivityCursor),
+      listUserCreditActivity(db, userId),
       listPurchaseCreditBalances(db, userId),
       getUserCreditBalance(db, userId),
     ]);
@@ -793,21 +792,10 @@ export async function serializeAccount(
     purchaseBalances.map((balance) => [balance.purchaseId, balance.balance]),
   );
   const ordersById = new Map(orders.map((order) => [order.id, order]));
-  const serializedCreditActivity = creditActivityPage.activities.flatMap((activity) => {
-    const order = ordersById.get(activity.purchaseId);
-    if (!order) return [];
-    const artwork = getPublicArtworkById(order.artworkId);
-    return [
-      {
-        purchaseId: activity.purchaseId,
-        artworkTitle: artwork?.title ?? order.artworkSlug,
-        event: activity.event,
-        label: activity.label,
-        amount: activity.amount,
-        occurredAt: activity.occurredAt.toISOString(),
-      },
-    ];
-  });
+  const serializedCreditActivity = serializeCreditActivities(
+    creditActivityPage.activities,
+    ordersById,
+  );
   const purchases = orders.map((order) => {
     const artwork = getPublicArtworkById(order.artworkId);
     const entitlementExpiresAt = effectiveEntitlement(order);
@@ -946,5 +934,62 @@ export async function serializeAccount(
     purchases,
     generations: serializedGenerations,
     downloads,
+  };
+}
+
+function serializeCreditActivities(
+  activities: Awaited<ReturnType<typeof listUserCreditActivity>>["activities"],
+  ordersById: Map<string, typeof artcovrOrders.$inferSelect>,
+) {
+  return activities.flatMap((activity) => {
+    const order = ordersById.get(activity.purchaseId);
+    if (!order) return [];
+    const artwork = getPublicArtworkById(order.artworkId);
+    return [
+      {
+        purchaseId: activity.purchaseId,
+        artworkTitle: artwork?.title ?? order.artworkSlug,
+        event: activity.event,
+        label: activity.label,
+        amount: activity.amount,
+        occurredAt: activity.occurredAt.toISOString(),
+      },
+    ];
+  });
+}
+
+export async function serializeCreditActivityPage(
+  userId: string,
+  creditActivityCursor: string,
+) {
+  const creditActivityPage = await listUserCreditActivity(
+    db,
+    userId,
+    creditActivityCursor,
+  );
+  const purchaseIds = [
+    ...new Set(
+      creditActivityPage.activities.map((activity) => activity.purchaseId),
+    ),
+  ];
+  const orders =
+    purchaseIds.length === 0
+      ? []
+      : await db
+          .select()
+          .from(artcovrOrders)
+          .where(
+            and(
+              eq(artcovrOrders.clerkUserId, userId),
+              inArray(artcovrOrders.id, purchaseIds),
+            ),
+          );
+
+  return {
+    creditActivity: serializeCreditActivities(
+      creditActivityPage.activities,
+      new Map(orders.map((order) => [order.id, order])),
+    ),
+    creditActivityNextCursor: creditActivityPage.nextCursor,
   };
 }

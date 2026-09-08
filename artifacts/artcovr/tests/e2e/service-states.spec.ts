@@ -221,7 +221,14 @@ test("My Images account failures announce a retry and empty accounts can browse"
       await fulfillJson(route, { code: "temporarily_unavailable", message: "Account data is temporarily unavailable." }, 503);
       return;
     }
-    await fulfillJson(route, { purchases: [], generations: [], downloads: [] });
+     await fulfillJson(route, {
+       totalCreditBalance: 0,
+       creditActivity: [],
+       creditActivityNextCursor: null,
+       purchases: [],
+       generations: [],
+       downloads: [],
+     });
   });
   await page.goto("/my-images", { waitUntil: "domcontentloaded" });
 
@@ -257,4 +264,56 @@ test("My Images renders owned purchases, generations, and downloads only", async
     page.getByRole("link", { name: "Download purchased result" }),
   ).toBeVisible();
   await expect(page.getByText("OTHER ACCOUNT PRIVATE PROMPT")).toHaveCount(0);
+});
+
+test("My Images appends older activity without replacing account data", async ({
+  page,
+}) => {
+  await useDeterministicSignIn(page);
+  await page.route("**/api/functions/v1/claim-guest-purchases", (route) =>
+    fulfillJson(route, { claimedOrderIds: [], claimedCredits: 0 }),
+  );
+  await page.route("**/api/functions/v1/my-images**", async (route) => {
+    const requestUrl = new URL(route.request().url());
+    if (requestUrl.searchParams.has("creditActivityCursor")) {
+      await fulfillJson(route, {
+        creditActivity: [
+          {
+            purchaseId: "purchase-e2e",
+            artworkTitle: "Buried Clocks",
+            event: "generation",
+            label: "Generation used",
+            amount: -1,
+            occurredAt: "2026-08-19T12:00:00.000Z",
+          },
+        ],
+        creditActivityNextCursor: null,
+      });
+      return;
+    }
+    await fulfillJson(route, {
+      ...accountFixture(),
+      totalCreditBalance: 2,
+      creditActivity: [
+        {
+          purchaseId: "purchase-e2e",
+          artworkTitle: "Buried Clocks",
+          event: "grant",
+          label: "Credits added",
+          amount: 3,
+          occurredAt: "2026-08-20T12:00:00.000Z",
+        },
+      ],
+      creditActivityNextCursor: "older-activity-cursor",
+    });
+  });
+
+  await page.goto("/my-images", { waitUntil: "domcontentloaded" });
+  await expect(page.getByText("2 image-edit credits available across your purchases.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Download base" })).toBeVisible();
+  await page.getByRole("button", { name: "Load older activity" }).click();
+  await expect(page.getByText("Generation used")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Download base" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Buried Clocks" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Load older activity" })).toHaveCount(0);
 });
