@@ -11,12 +11,8 @@ import {
   getMyImages,
   type AccountData,
   type AccountGeneration,
-  type AccountDownload,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
-import { resolveCurrentDownload } from "@/lib/artcovr/account-download";
-import { accountCreditBalance, purchaseCreditBalance } from "@/lib/artcovr/account-credits";
-import { appendOlderCreditActivity } from "@/lib/artcovr/account-activity";
 
 function formatDate(value: string | null) {
   return value
@@ -95,14 +91,10 @@ export default function MyImagesPage() {
     downloads: [],
   });
   const [message, setMessage] = useState("");
-  const [downloadMessage, setDownloadMessage] = useState<{ purchaseId: string; text: string } | null>(null);
-  const [preparingDownload, setPreparingDownload] = useState<string | null>(null);
-  const downloadPending = useRef(false);
   const [loadingOlderActivity, setLoadingOlderActivity] = useState(false);
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
   const checkoutReturnTracked = useRef(false);
-  const totalCreditBalance = accountCreditBalance(data);
 
   useEffect(() => {
     mounted.current = true;
@@ -152,13 +144,41 @@ export default function MyImagesPage() {
   }, []);
 
   const loadOlderActivity = useCallback(async () => {
-    const requestedCursor = data.creditActivityNextCursor;
-    if (!requestedCursor || loadingOlderActivity) return;
+    if (!data.creditActivityNextCursor || loadingOlderActivity) return;
     setLoadingOlderActivity(true);
     try {
-      const account = await getMyImages(requestedCursor);
+      const account = await getMyImages(data.creditActivityNextCursor);
       if (mounted.current) {
-        setData((current) => appendOlderCreditActivity(current, account, requestedCursor));
+        setData((current) => {
+          const existing = new Set(
+            current.creditActivity.map((activity) =>
+              [
+                activity.purchaseId,
+                activity.occurredAt,
+                activity.event,
+                activity.amount,
+              ].join(":"),
+            ),
+          );
+          return {
+            ...current,
+            creditActivity: [
+              ...current.creditActivity,
+              ...account.creditActivity.filter(
+                (activity) =>
+                  !existing.has(
+                    [
+                      activity.purchaseId,
+                      activity.occurredAt,
+                      activity.event,
+                      activity.amount,
+                    ].join(":"),
+                  ),
+              ),
+            ],
+            creditActivityNextCursor: account.creditActivityNextCursor,
+          };
+        });
       }
     } catch (error) {
       if (mounted.current) {
@@ -177,54 +197,6 @@ export default function MyImagesPage() {
     // Keep the selected canvas and pending edit mounted while refreshing the
     // allowance. A temporary fetch error must not reset an artist's workspace.
     await loadAccount(true);
-  }, [loadAccount]);
-
-  const startDownload = useCallback(async (requested: AccountDownload) => {
-    if (downloadPending.current) return;
-    // Open during the click, before awaiting the network, so browser popup
-    // protection does not block a newly authorized download. The editor stays open.
-    const downloadWindow = window.open("about:blank", "_blank");
-    if (!downloadWindow) {
-      setDownloadMessage({ purchaseId: requested.purchaseId, text: "Allow this site's download tab to open, then retry." });
-      return;
-    }
-    downloadWindow.opener = null;
-    downloadWindow.document.title = "Preparing your ARTCOVR download";
-    downloadWindow.document.body.textContent = "Preparing your download. Your artwork editor remains open in the original tab.";
-    downloadPending.current = true;
-    setPreparingDownload(`${requested.purchaseId}-${requested.kind}-${requested.generationId ?? "base"}`);
-    setDownloadMessage(null);
-    try {
-      const account = await loadAccount(true);
-      if (!account) throw new Error("We could not refresh download access. Retry in a moment.");
-      const download = resolveCurrentDownload(account, requested);
-      if (!mounted.current || downloadWindow.closed) {
-        downloadWindow.close();
-        return;
-      }
-      // Native navigation works with signed object storage even when that
-      // storage does not permit cross-origin fetches. Never use requested.url.
-      const link = downloadWindow.document.createElement("a");
-      link.href = download.url;
-      link.download = "";
-      link.textContent = "Open your prepared download";
-      downloadWindow.document.body.replaceChildren(link);
-      link.click();
-      const artworkSlug = account.purchases.find((purchase) => purchase.id === requested.purchaseId)?.artworkSlug;
-      if (artworkSlug) trackEvent("download_clicked", {
-        artwork_slug: artworkSlug,
-        kind: download.kind,
-      });
-    } catch (error) {
-      downloadWindow.close();
-      if (mounted.current) setDownloadMessage({
-        purchaseId: requested.purchaseId,
-        text: error instanceof Error ? error.message : "The download could not be prepared. Please retry.",
-      });
-    } finally {
-      downloadPending.current = false;
-      if (mounted.current) setPreparingDownload(null);
-    }
   }, [loadAccount]);
 
   useEffect(() => {
@@ -298,11 +270,11 @@ export default function MyImagesPage() {
       )}
       {state === "ready" && data.purchases.length > 0 && (
         <p className="mb-10 border-y border-current/20 py-4 text-sm">
-          <span className="font-bold">{totalCreditBalance}</span>{" "}
-          image-edit credit{totalCreditBalance === 1 ? "" : "s"} available across your purchases.
+          <span className="font-bold">{data.totalCreditBalance}</span>{" "}
+          image-edit credit{data.totalCreditBalance === 1 ? "" : "s"} available across your purchases.
         </p>
       )}
-      {state === "ready" && (data.creditActivity ?? []).length > 0 && (
+      {state === "ready" && data.creditActivity.length > 0 && (
         <section className="mb-16 border-t-2 border-current pt-5" aria-labelledby="credit-activity">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -312,7 +284,7 @@ export default function MyImagesPage() {
             <p className="text-sm text-[var(--muted-foreground)]">Changes across your purchases.</p>
           </div>
           <ol className="mt-6 divide-y divide-current/15 border-y border-current/15">
-            {(data.creditActivity ?? []).map((activity, index) => (
+            {data.creditActivity.map((activity, index) => (
               <li key={`${activity.purchaseId}-${activity.occurredAt}-${activity.event}-${index}`} className="flex items-center justify-between gap-5 py-4 text-sm">
                 <div className="min-w-0">
                   <p className="font-bold">{activity.label}</p>
@@ -342,7 +314,6 @@ export default function MyImagesPage() {
       {state === "ready" && data.purchases.map((purchase) => {
         const purchaseGenerations = data.generations.filter((generation) => generation.purchaseId === purchase.id);
         const downloads = data.downloads.filter((download) => download.purchaseId === purchase.id);
-        const unavailableDownloads = (data.unavailableDownloads ?? []).filter((download) => download.purchaseId === purchase.id);
         const artwork = getArtworkBySlug(purchase.artworkSlug);
         const baseImageUrl = downloads.find((download) => download.kind === "base")?.url;
         const selectedPreviewImageUrl = downloads.find(
@@ -382,34 +353,28 @@ export default function MyImagesPage() {
               {artwork && <Link href={`/product/${purchase.artworkSlug}`} className="link-hover text-xs font-bold uppercase tracking-[.08em]">View artwork</Link>}
             </div>
             <dl className="mt-6 grid gap-4 border-y border-current/20 py-5 text-sm sm:grid-cols-3">
-              <div><dt className="opacity-60">Credits remaining</dt><dd className="mt-1 font-bold">{purchaseCreditBalance(purchase)}</dd></div>
+              <div><dt className="opacity-60">Credits remaining</dt><dd className="mt-1 font-bold">{purchase.remainingCredits}</dd></div>
               <div><dt className="opacity-60">Access expires</dt><dd className="mt-1 font-bold">{formatDate(purchase.entitlementExpiresAt)}</dd></div>
               <div><dt className="opacity-60">Paid</dt><dd className="mt-1 font-bold">{purchase.paidAt ? `${(purchase.amountCents / 100).toLocaleString("en-US", { style: "currency", currency: purchase.currency })} · ${formatDate(purchase.paidAt)}` : "—"}</dd></div>
             </dl>
             {downloads.length > 0 && (
               <div className="mt-6 flex flex-wrap gap-3">
                 {downloads.map((download) => (
-                    <button
+                    <a
                       key={`${download.kind}-${download.generationId || "base"}`}
-                      type="button"
-                      disabled={preparingDownload !== null}
-                      onClick={() => void startDownload(download)}
-                      className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em] disabled:opacity-50"
+                      href={download.url}
+                      download
+                      onClick={() =>
+                        trackEvent("download_clicked", {
+                          artwork_slug: purchase.artworkSlug,
+                          kind: download.kind,
+                        })
+                      }
+                      className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em]"
                     >
-                    {preparingDownload === `${purchase.id}-${download.kind}-${download.generationId ?? "base"}`
-                      ? "Preparing download…"
-                      : `Download ${download.kind.replaceAll("_", " ")}`}
-                  </button>
+                    Download {download.kind.replaceAll("_", " ")}
+                  </a>
                 ))}
-              </div>
-            )}
-            {(unavailableDownloads.length > 0 || downloadMessage?.purchaseId === purchase.id) && (
-              <div role="alert" className="mt-5 border-l-2 border-current pl-4 text-sm">
-                <p>{downloadMessage?.purchaseId === purchase.id
-                  ? downloadMessage.text
-                  : "Some licensed files could not be prepared. Your purchase is still listed here; retry to refresh the available downloads."}</p>
-                <button type="button" onClick={() => { setDownloadMessage(null); void refreshAccount(); }} className="mt-2 inline-flex min-h-11 items-center underline">Retry downloads</button>
-                {" · "}<Link href="/contact" className="inline-flex min-h-11 items-center underline">Contact support</Link>
               </div>
             )}
             {purchase.accessRevokedAt && (

@@ -8,7 +8,6 @@ import {
 } from "@workspace/db";
 import { getPublicArtworkById } from "./catalog";
 import { buildGenerationPrompt, PromptLengthError } from "./lib/prompt";
-import { prepareAccountDownload } from "./lib/accountDownload";
 import {
   addWatermark,
   createImageEditResult,
@@ -22,7 +21,7 @@ import {
 } from "./lib/mediaStorage";
 import {
   getPurchaseCreditBalance,
-  lockPurchaseCredits,
+  getUserCreditBalance,
   listUserCreditActivity,
   listPurchaseCreditBalances,
   releasePurchaseCredit,
@@ -296,9 +295,6 @@ export async function admitGeneration(
 
     let order: typeof artcovrOrders.$inferSelect | undefined;
     if (input.purchaseId) {
-      // Refunds and credit mutations use the same lock; re-read entitlement
-      // only after acquiring it so a refunded purchase cannot admit a job.
-      await lockPurchaseCredits(tx, input.purchaseId);
       order = (
         await tx
           .select()
@@ -755,8 +751,6 @@ export async function generationStatus(id: string, userId: string) {
 
 export async function serializeAccount(
   userId: string,
-  io = { signPrivate, ensureBaseObject },
-  creditActivityCursor?: string,
 ) {
   const [orders, generations] = await Promise.all([
     db
@@ -788,13 +782,15 @@ export async function serializeAccount(
         ),
       ),
   );
-  const purchaseBalances = new Map(
-    (await listPurchaseCreditBalances(db, userId)).map((balance) => [
-      balance.purchaseId,
-      balance.balance,
-    ]),
+  const [creditActivityPage, purchaseBalances, totalCreditBalance] =
+    await Promise.all([
+      listUserCreditActivity(db, userId),
+      listPurchaseCreditBalances(db, userId),
+      getUserCreditBalance(db, userId),
+    ]);
+  const purchaseBalancesById = new Map(
+    purchaseBalances.map((balance) => [balance.purchaseId, balance.balance]),
   );
-  const creditActivityPage = await listUserCreditActivity(db, userId, creditActivityCursor);
   const ordersById = new Map(orders.map((order) => [order.id, order]));
   const serializedCreditActivity = serializeCreditActivities(
     creditActivityPage.activities,
@@ -821,11 +817,11 @@ export async function serializeAccount(
       includedCredits: order.includedCredits,
       remainingCredits:
         isActiveEntitlement(order) && !order.accessRevokedAt
-          ? Math.max(0, purchaseBalances.get(order.id) ?? 0)
+          ? Math.max(0, purchaseBalancesById.get(order.id) ?? 0)
           : 0,
       remainingGenerations:
         isActiveEntitlement(order) && !order.accessRevokedAt
-          ? Math.max(0, purchaseBalances.get(order.id) ?? 0)
+          ? Math.max(0, purchaseBalancesById.get(order.id) ?? 0)
           : 0,
     };
   });
@@ -836,7 +832,7 @@ export async function serializeAccount(
   );
   const optionalSign = async (key: string) => {
     try {
-      return await io.signPrivate(key);
+      return await signPrivate(key);
     } catch {
       return undefined;
     }
@@ -877,7 +873,7 @@ export async function serializeAccount(
       };
     }),
   );
-  const preparedDownloads = (
+  const downloads = (
     await Promise.all(
       orders.flatMap((order) => {
         const expiry = effectiveEntitlement(order);
@@ -897,14 +893,14 @@ export async function serializeAccount(
           {
             kind: "base" as const,
             generationId: null,
-            key: () => io.ensureBaseObject(artwork.id, artwork.slug),
+            key: ensureBaseObject(artwork.id, artwork.slug),
           },
           ...(selected?.cleanObjectKey
             ? [
                 {
                   kind: "selected_preview" as const,
                   generationId: selected.id,
-                  key: async () => selected.cleanObjectKey!,
+                  key: Promise.resolve(selected.cleanObjectKey),
                 },
               ]
             : []),
@@ -913,32 +909,31 @@ export async function serializeAccount(
             .map((generation) => ({
               kind: "purchased_result" as const,
               generationId: generation.id,
-              key: async () => generation.cleanObjectKey!,
+              key: Promise.resolve(generation.cleanObjectKey!),
             })),
-        ].map((asset) => prepareAccountDownload(
-          {
-            kind: asset.kind,
-            purchaseId: order.id,
-            artworkId: order.artworkId,
-            generationId: asset.generationId,
-          },
-          asset.key,
-          expiry,
-          io.signPrivate,
-        ));
+        ].map(async (asset) => {
+          const url = await optionalSign(await asset.key);
+          return url
+            ? {
+                kind: asset.kind,
+                purchaseId: order.id,
+                artworkId: order.artworkId,
+                generationId: asset.generationId,
+                expiresAt: expiry.toISOString(),
+                url,
+              }
+            : null;
+        });
       }),
     )
-  );
-  const downloads = preparedDownloads.flatMap((asset) => asset.download ? [asset.download] : []);
-  const unavailableDownloads = preparedDownloads.flatMap((asset) => asset.unavailable ? [asset.unavailable] : []);
+  ).filter(Boolean);
   return {
-    totalCreditBalance: purchases.reduce((total, purchase) => total + purchase.remainingCredits, 0),
+    totalCreditBalance: Math.max(0, totalCreditBalance),
+    creditActivity: serializedCreditActivity,
+    creditActivityNextCursor: creditActivityPage.nextCursor,
     purchases,
     generations: serializedGenerations,
     downloads,
-    unavailableDownloads,
-    creditActivity: serializedCreditActivity,
-    creditActivityNextCursor: creditActivityPage.nextCursor,
   };
 }
 

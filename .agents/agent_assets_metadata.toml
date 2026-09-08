@@ -14,3 +14,17 @@ mtime_ms = 1788543874237
 storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:a8fb1401-f6a6-4b42-80e9-268ff8dc0fb4/2e6e0298-d3a9-4a5e-ad71-4db7c2917543/a459d737-da17-44e8-9763-59ad5e8f4bb3"
 storage_version_token = "1788543874945509"
 content_type = "text/csv"
+
+[[outputs]]
+id = "IXGXV_BDHG2x-Ec17MUQR"
+uri = "file://attached_assets/storage-review-01.jpg"
+type = "image"
+title = "App Storage image 1 of 9"
+description = "Base artwork selected for the first one-by-one visual review."
+logical_id = "6e8dea8b-d2af-4770-b522-ac938b21d705"
+content_hash = "sha256:2823821f64c8dcb1f96f85c2a552bd1cb9047fa08f71fe03017f3541053d00ec"
+size = 845709
+mtime_ms = 1788855368854
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:a8fb1401-f6a6-4b42-80e9-268ff8dc0fb4/6e8dea8b-d2af-4770-b522-ac938b21d705/8a374066-5112-4d9f-970e-732ec3be488d"
+storage_version_token = "1788855382543961"
+content_type = "image/jpeg"
