@@ -248,7 +248,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
           className="absolute top-26 right-4 z-10 text-xs font-bold tracking-tight tabular-nums uppercase lg:right-6"
         >
           <span>{String(activeIndex + 1).padStart(2, "0")}</span>
-          <span className="opacity-40">
+          <span className="artcovr-secondary-text">
             {" "}/ {String(ITEMS.length).padStart(2, "0")}
           </span>
         </div>
@@ -345,7 +345,7 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
         className="absolute top-26 right-4 z-10 text-xs font-bold tracking-tight tabular-nums uppercase lg:right-6"
       >
         <span>{String(activeIndex + 1).padStart(2, "0")}</span>
-        <span className="opacity-40">
+        <span className="artcovr-secondary-text">
           {" "}/ {String(ITEMS.length).padStart(2, "0")}
         </span>
       </div>

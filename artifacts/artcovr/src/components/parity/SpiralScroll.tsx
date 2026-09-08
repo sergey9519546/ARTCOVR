@@ -417,7 +417,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       </div>
       <div
         data-chrome
-        className="absolute bottom-8 left-6 z-10 text-xs font-bold tracking-tight uppercase opacity-40"
+        className="artcovr-secondary-text absolute bottom-8 left-6 z-10 text-xs font-bold tracking-tight uppercase"
       >
         ARTCOVR® • COVER ARCHIVE • 2026
       </div>

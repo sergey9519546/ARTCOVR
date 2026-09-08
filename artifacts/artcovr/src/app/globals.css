@@ -83,6 +83,9 @@ body {
   line-height: 1.5;
   transition: background-color .35s var(--motion-ease), color .35s var(--motion-ease);
 }
+.artcovr-secondary-text {
+  color: var(--muted-foreground);
+}
 button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: var(--signal); color: #f3ecd9; }

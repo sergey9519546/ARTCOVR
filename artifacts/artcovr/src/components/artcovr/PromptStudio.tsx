@@ -459,7 +459,7 @@ function ArtworkPromptStudio({ artwork }: { artwork: Artwork }) {
           >
             <div className="mb-2 flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.12em]">
               <label htmlFor="prompt" className="opacity-60">Describe your edit</label>
-              <span className="opacity-40">Enter to generate</span>
+              <span className="artcovr-secondary-text">Enter to generate</span>
             </div>
             <input
               ref={fileInputRef}
