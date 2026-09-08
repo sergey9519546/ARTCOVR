@@ -136,6 +136,45 @@ test("Clerk privacy release check allows this workspace's development target", (
   );
 });
 
+test("Clerk privacy lifecycle leaves a configured shared API running", async () => {
+  const configuredBaseUrl = "http://127.0.0.1:4321";
+  const expectedStatus = 7;
+  let receivedSmokeTarget;
+  let receivedDisposableApi = "not-called";
+  let stopApiCalls = 0;
+
+  const result = await runClerkPrivacySmoke(
+    {
+      ...smokeEnv,
+      ARTCOVR_DEV_SMOKE_BASE_URL: configuredBaseUrl,
+    },
+    {
+      startApi: async () => {
+        assert.fail("configured targets must not start a disposable API");
+      },
+      waitForHealth: async () => {
+        assert.fail("configured targets must not run disposable API readiness");
+      },
+      runSmoke: async (_env, baseUrl, disposableApi) => {
+        receivedSmokeTarget = baseUrl;
+        receivedDisposableApi = disposableApi;
+        return { error: undefined, status: expectedStatus };
+      },
+      stopApi: async () => {
+        stopApiCalls += 1;
+      },
+      log: () => {},
+      error: () => {},
+      warn: () => {},
+    },
+  );
+
+  assert.equal(receivedSmokeTarget, configuredBaseUrl);
+  assert.equal(receivedDisposableApi, undefined);
+  assert.equal(stopApiCalls, 0);
+  assert.equal(result, expectedStatus);
+});
+
 test("Clerk privacy readiness errors preserve the final health probe failure", async () => {
   const child = new EventEmitter();
   child.exitCode = null;
