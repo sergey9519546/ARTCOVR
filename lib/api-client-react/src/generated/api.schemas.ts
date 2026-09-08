@@ -158,6 +158,31 @@ export interface GenerationStatus {
   finishedAt: string | null;
 }
 
+export type AccountCreditActivityEvent = typeof AccountCreditActivityEvent[keyof typeof AccountCreditActivityEvent];
+
+
+export const AccountCreditActivityEvent = {
+  grant: 'grant',
+  generation: 'generation',
+  release: 'release',
+  refund: 'refund',
+  expiration: 'expiration',
+  revocation: 'revocation',
+} as const;
+
+/**
+ * Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
+ */
+export interface AccountCreditActivity {
+  purchaseId: string;
+  artworkTitle: string;
+  event: AccountCreditActivityEvent;
+  label: string;
+  /** Signed credit adjustment; debits are negative and additions are positive. */
+  amount: number;
+  occurredAt: string;
+}
+
 export type AccountPurchaseSaleMode = typeof AccountPurchaseSaleMode[keyof typeof AccountPurchaseSaleMode];
 
 
@@ -205,6 +230,16 @@ export interface AccountPurchase {
   accessRevokedAt: string | null;
   /** @nullable */
   accessRevocationReason: string | null;
+  /**
+     * Image-edit credits included with this purchase, not its current balance.
+     * @minimum 0
+     */
+  includedCredits?: number;
+  /**
+     * Current image-edit credits for this purchase. When absent, legacy clients may use remainingGenerations.
+     * @minimum 0
+     */
+  remainingCredits?: number;
   /** @minimum 0 */
   remainingGenerations: number;
 }
@@ -234,7 +269,11 @@ export interface AccountGeneration {
   artworkId: string;
   /** @nullable */
   purchaseId: string | null;
-  prompt: string;
+  /**
+     * Legacy response field. Current account snapshots omit prompts to minimize disclosure of customer creative inputs.
+     * @deprecated
+     */
+  prompt?: string;
   phase: AccountGenerationPhase;
   status: AccountGenerationStatus;
   createdAt: string;
@@ -258,15 +297,60 @@ export interface AccountDownload {
   artworkId: string;
   /** @nullable */
   generationId: string | null;
+  /** Purchase entitlement expiry; not the signed URL lifetime. */
   expiresAt: string;
+  /** Conservative signed URL expiry, capped by the purchase entitlement. */
+  urlExpiresAt?: string;
   url: string;
 }
 
+export type AccountUnavailableDownloadKind = typeof AccountUnavailableDownloadKind[keyof typeof AccountUnavailableDownloadKind];
+
+
+export const AccountUnavailableDownloadKind = {
+  base: 'base',
+  selected_preview: 'selected_preview',
+  purchased_result: 'purchased_result',
+} as const;
+
+export type AccountUnavailableDownloadCode = typeof AccountUnavailableDownloadCode[keyof typeof AccountUnavailableDownloadCode];
+
+
+export const AccountUnavailableDownloadCode = {
+  asset_unavailable: 'asset_unavailable',
+} as const;
+
+export interface AccountUnavailableDownload {
+  kind: AccountUnavailableDownloadKind;
+  purchaseId: string;
+  artworkId: string;
+  /** @nullable */
+  generationId: string | null;
+  code: AccountUnavailableDownloadCode;
+}
+
 export interface AccountData {
+  /**
+     * Current image-edit credit balance. Older responses may omit this field.
+     * @minimum 0
+     */
+  totalCreditBalance?: number;
+  /**
+     * Purchase-scoped credit events, newest first. Older responses may omit activity history.
+     * @maxItems 25
+     */
+  creditActivity?: AccountCreditActivity[];
+  /**
+     * Opaque continuation cursor for the next older activity page, or null when no older page is available. Older responses may omit this field.
+     * @nullable
+     */
+  creditActivityNextCursor?: string | null;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   /** Authorized signed download URLs for base artwork and generated results. */
   downloads: AccountDownload[];
+  /** Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned. */
+  unavailableDownloads?: AccountUnavailableDownload[];
 }
 
 export interface InquiryRequest {
@@ -305,6 +389,14 @@ export interface OwnerCatalogIntelligenceAccess {
 export type ArtworkIdParameter = string;
 
 export type GenerationIdParameter = string;
+
+export type GetMyImagesParams = {
+/**
+ * Opaque continuation cursor returned by creditActivityNextCursor. Omit to load the newest activity page.
+ * @minLength 1
+ */
+creditActivityCursor?: string;
+};
 
 export type UploadReferenceParams = {
 /**

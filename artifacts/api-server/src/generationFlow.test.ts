@@ -13,6 +13,7 @@ import {
 import { ImageProviderError, type ImageEditClient } from "@workspace/integrations-openai-ai-server/image";
 import { getPublicCatalog } from "./catalog";
 import { admitGeneration, runGeneration, generationStatus } from "./generationService";
+import { getPurchaseCreditBalance } from "./creditService";
 import { addWatermark, createImageEditResult } from "./lib/imagePipeline";
 
 async function fixture() {
@@ -271,6 +272,21 @@ test("failed output storage removes partial results and releases the reserved al
     const next = await admitGeneration(f.input, f.io);
     const retried = (await db.select().from(artcovrGenerations).where(eq(artcovrGenerations.id, next.id)))[0];
     assert.equal(retried.allowanceSlot, 1);
+  } finally { await f.cleanup(); }
+});
+
+test("failed purchased generation restores its ledger credit exactly once", async () => {
+  const f = await fixture();
+  try {
+    const purchaseId = await f.order();
+    const job = await admitGeneration({ ...f.input, purchaseId }, f.io);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 3);
+    await runGeneration(job, f.userId, { ...f.io, createImageEditResult: async () => {
+      throw new ImageProviderError("provider_timeout", "Test provider timeout");
+    } });
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 4);
+    await runGeneration(job, f.userId, f.io);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 4);
   } finally { await f.cleanup(); }
 });
 

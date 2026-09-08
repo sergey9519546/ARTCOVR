@@ -1,8 +1,13 @@
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { artcovrCreditLedger, artcovrOrders, db } from "@workspace/db";
 import { randomUUID } from "node:crypto";
 
-type CreditExecutor = Pick<typeof db, "select" | "insert">;
+type CreditExecutor = Pick<typeof db, "select" | "insert" | "execute">;
+
+/** Call only inside a transaction; every mutation of this purchase shares it. */
+export async function lockPurchaseCredits(executor: CreditExecutor, purchaseId: string) {
+  await executor.execute(sql`select pg_advisory_xact_lock(hashtext(${`credits:${purchaseId}`}))`);
+}
 
 export type CreditActivityEvent =
   | "grant"
@@ -45,11 +50,13 @@ function encodeCreditActivityCursor(cursor: CreditActivityCursor) {
 
 function decodeCreditActivityCursor(value: string): CreditActivityCursor {
   try {
+    if (value.length > 512 || !/^[A-Za-z0-9_-]+$/.test(value)) throw new Error("invalid cursor encoding");
     const decoded = JSON.parse(
       Buffer.from(value, "base64url").toString("utf8"),
     ) as Partial<CreditActivityCursor>;
     if (
       typeof decoded.occurredAt !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,6}Z$/.test(decoded.occurredAt) ||
       Number.isNaN(Date.parse(decoded.occurredAt)) ||
       typeof decoded.id !== "string" ||
       decoded.id.length === 0 ||
@@ -58,7 +65,7 @@ function decodeCreditActivityCursor(value: string): CreditActivityCursor {
       throw new Error("invalid cursor fields");
     }
     return {
-      occurredAt: new Date(decoded.occurredAt).toISOString(),
+      occurredAt: decoded.occurredAt,
       id: decoded.id,
     };
   } catch {
@@ -92,9 +99,9 @@ export async function listUserCreditActivity(
   cursor?: string,
 ): Promise<CreditActivityPage> {
   const decodedCursor = cursor ? decodeCreditActivityCursor(cursor) : null;
-  const ownerScope = or(
+  const ownerScope = and(
     eq(artcovrCreditLedger.clerkUserId, userId),
-    eq(artcovrCreditLedger.accountKey, userId),
+    eq(artcovrOrders.clerkUserId, userId),
   );
   const rows = await executor
     .select({
@@ -104,8 +111,12 @@ export async function listUserCreditActivity(
       amount: artcovrCreditLedger.amount,
       reason: artcovrCreditLedger.reason,
       occurredAt: artcovrCreditLedger.createdAt,
+      // JavaScript Dates lose PostgreSQL microseconds. Keep the exact sort key
+      // in the cursor so activity within one millisecond is not skipped.
+      cursorOccurredAt: sql<string>`to_char(${artcovrCreditLedger.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
     })
     .from(artcovrCreditLedger)
+    .innerJoin(artcovrOrders, eq(artcovrOrders.id, artcovrCreditLedger.orderId))
     .where(
       decodedCursor
         ? and(
@@ -132,7 +143,7 @@ export async function listUserCreditActivity(
     nextCursor:
       rows.length > CREDIT_ACTIVITY_PAGE_SIZE && lastRow
         ? encodeCreditActivityCursor({
-            occurredAt: lastRow.occurredAt.toISOString(),
+            occurredAt: lastRow.cursorOccurredAt,
             id: lastRow.id,
           })
         : null,
@@ -161,12 +172,7 @@ export async function getPurchaseCreditBalance(
     .where(
       and(
         eq(artcovrCreditLedger.orderId, purchaseId),
-        or(
-          eq(artcovrCreditLedger.clerkUserId, userId),
-          // Keep already-claimed ledger rows from before the explicit
-          // clerk_user_id column usable while they are reconciled.
-          eq(artcovrCreditLedger.accountKey, userId),
-        ),
+        eq(artcovrCreditLedger.clerkUserId, userId),
       ),
     );
   return numericBalance(row?.balance);
@@ -182,10 +188,7 @@ export async function getUserCreditBalance(
     })
     .from(artcovrCreditLedger)
     .where(
-      or(
-        eq(artcovrCreditLedger.clerkUserId, userId),
-        eq(artcovrCreditLedger.accountKey, userId),
-      ),
+      eq(artcovrCreditLedger.clerkUserId, userId),
     );
   return numericBalance(row?.balance);
 }
@@ -201,10 +204,7 @@ export async function listPurchaseCreditBalances(
     })
     .from(artcovrCreditLedger)
     .where(
-      or(
-        eq(artcovrCreditLedger.clerkUserId, userId),
-        eq(artcovrCreditLedger.accountKey, userId),
-      ),
+      eq(artcovrCreditLedger.clerkUserId, userId),
     )
     .groupBy(artcovrCreditLedger.orderId);
   return rows.flatMap((row) =>
@@ -222,6 +222,7 @@ export async function spendPurchaseCredit(
     generationId: string;
   },
 ) {
+  await lockPurchaseCredits(executor, input.purchaseId);
   const balance = await getPurchaseCreditBalance(
     executor,
     input.userId,
@@ -254,6 +255,23 @@ export async function releasePurchaseCredit(
     reason: string;
   },
 ) {
+  await lockPurchaseCredits(executor, input.purchaseId);
+  const [order] = await executor.select().from(artcovrOrders).where(and(
+    eq(artcovrOrders.id, input.purchaseId),
+    eq(artcovrOrders.clerkUserId, input.userId),
+  )).limit(1);
+  const expiry = order?.entitlementExpiresAt ?? (order?.paidAt
+    ? new Date(order.paidAt.getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+  // A refund/expiry may win the race with a provider failure. Do not restore
+  // spendable credits to a revoked purchase, or release a legacy unspent job.
+  if (!order || order.status !== "paid" || !order.paidAt || order.accessRevokedAt ||
+      !expiry || expiry.getTime() <= Date.now()) return;
+  const [spent] = await executor.select({ id: artcovrCreditLedger.id }).from(artcovrCreditLedger)
+    .where(and(eq(artcovrCreditLedger.sourceId, `generation:${input.generationId}:spend`),
+      eq(artcovrCreditLedger.orderId, input.purchaseId),
+      eq(artcovrCreditLedger.clerkUserId, input.userId),
+      eq(artcovrCreditLedger.amount, -1))).limit(1);
+  if (!spent) return;
   await executor
     .insert(artcovrCreditLedger)
     .values({
@@ -308,6 +326,7 @@ export async function revokePurchaseCreditsInTransaction(
     sourceId: string;
   },
 ) {
+  await lockPurchaseCredits(executor, input.purchaseId);
   const balance = await getPurchaseCreditBalance(
     executor,
     input.userId,

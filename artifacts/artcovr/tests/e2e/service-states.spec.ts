@@ -259,9 +259,9 @@ test("My Images renders owned purchases, generations, and downloads only", async
 
   await expect(page.getByRole("heading", { name: "Buried Clocks" })).toBeVisible();
   await expect(page.getByText("Add a quiet amber glow.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Download base" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Download base" })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Download purchased result" }),
+    page.getByRole("button", { name: "Download purchased result" }),
   ).toBeVisible();
   await expect(page.getByText("OTHER ACCOUNT PRIVATE PROMPT")).toHaveCount(0);
 });

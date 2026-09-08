@@ -107,9 +107,20 @@ paths:
       description: >
         Returns purchases, generation records, and authorized signed media
         downloads for the authenticated Clerk user. Download URLs are private
-        and expire with the purchase entitlement.
+        and expire with the purchase entitlement. Credit activity is returned
+        in pages of at most 25 events, newest first. The optional cursor pages
+        only credit activity; purchases, generations, and downloads remain
+        the current account snapshot.
       security:
         - clerkSession: []
+      parameters:
+        - name: creditActivityCursor
+          in: query
+          required: false
+          description: Opaque continuation cursor returned by creditActivityNextCursor. Omit to load the newest activity page.
+          schema:
+            type: string
+            minLength: 1
       responses:
         "200":
           description: Account data scoped to the signed-in Clerk user.
@@ -121,6 +132,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccountData"
+        "400":
+          description: Invalid credit activity cursor (invalid_credit_activity_cursor).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "401":
           description: Authentication required.
           content:
@@ -658,6 +675,19 @@ components:
     AccountData:
       type: object
       properties:
+        totalCreditBalance:
+          type: integer
+          minimum: 0
+          description: Current image-edit credit balance. Older responses may omit this field.
+        creditActivity:
+          type: array
+          maxItems: 25
+          description: Purchase-scoped credit events, newest first. Older responses may omit activity history.
+          items:
+            $ref: "#/components/schemas/AccountCreditActivity"
+        creditActivityNextCursor:
+          type: [string, "null"]
+          description: Opaque continuation cursor for the next older activity page, or null when no older page is available. Older responses may omit this field.
         purchases:
           type: array
           items:
@@ -671,7 +701,33 @@ components:
           description: Authorized signed download URLs for base artwork and generated results.
           items:
             $ref: "#/components/schemas/AccountDownload"
+        unavailableDownloads:
+          type: array
+          description: Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned.
+          items:
+            $ref: "#/components/schemas/AccountUnavailableDownload"
       required: [purchases, generations, downloads]
+
+    AccountCreditActivity:
+      type: object
+      description: Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
+      properties:
+        purchaseId:
+          type: string
+        artworkTitle:
+          type: string
+        event:
+          type: string
+          enum: [grant, generation, release, refund, expiration, revocation]
+        label:
+          type: string
+        amount:
+          type: integer
+          description: Signed credit adjustment; debits are negative and additions are positive.
+        occurredAt:
+          type: string
+          format: date-time
+      required: [purchaseId, artworkTitle, event, label, amount, occurredAt]
 
     AccountPurchase:
       type: object
@@ -710,6 +766,14 @@ components:
           format: date-time
         accessRevocationReason:
           type: [string, "null"]
+        includedCredits:
+          type: integer
+          minimum: 0
+          description: Image-edit credits included with this purchase, not its current balance.
+        remainingCredits:
+          type: integer
+          minimum: 0
+          description: Current image-edit credits for this purchase. When absent, legacy clients may use remainingGenerations.
         remainingGenerations:
           type: integer
           minimum: 0
@@ -741,6 +805,8 @@ components:
           type: [string, "null"]
         prompt:
           type: string
+          deprecated: true
+          description: Legacy response field. Current account snapshots omit prompts to minimize disclosure of customer creative inputs.
         phase:
           type: string
           enum: [preview, purchased]
@@ -759,7 +825,7 @@ components:
         cleanUrl:
           type: string
           format: uri
-      required: [id, artworkId, purchaseId, prompt, phase, status, createdAt, expiresAt]
+      required: [id, artworkId, purchaseId, phase, status, createdAt, expiresAt]
 
     AccountDownload:
       type: object
@@ -776,10 +842,32 @@ components:
         expiresAt:
           type: string
           format: date-time
+          description: Purchase entitlement expiry; not the signed URL lifetime.
+        urlExpiresAt:
+          type: string
+          format: date-time
+          description: Conservative signed URL expiry, capped by the purchase entitlement.
         url:
           type: string
           format: uri
       required: [kind, purchaseId, artworkId, generationId, expiresAt, url]
+
+    AccountUnavailableDownload:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [base, selected_preview, purchased_result]
+        purchaseId:
+          type: string
+        artworkId:
+          type: string
+        generationId:
+          type: [string, "null"]
+        code:
+          type: string
+          enum: [asset_unavailable]
+      required: [kind, purchaseId, artworkId, generationId, code]
 
     InquiryRequest:
       type: object

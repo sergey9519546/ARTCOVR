@@ -450,6 +450,7 @@ test("a Stripe refund revokes the remaining credits exactly once", async () => {
       data: {
         object: {
           id: `ch-refund-${suffix}`,
+          livemode: false,
           payment_intent: paymentIntentId,
           refunded: true,
           refunds: { data: [{ id: refundId }] },

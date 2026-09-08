@@ -3,6 +3,10 @@ import { logger } from "./lib/logger";
 import { ensureStripeWebhook } from "./stripeClient";
 import { seedStripeCatalog } from "./catalogSeeder";
 import { validateProductionEnvironment } from "./runtimeConfig";
+import { pool } from "@workspace/db";
+import { assertProductionSchemaReady } from "./schemaReadiness";
+
+declare const __ARTCOVR_REQUIRED_MIGRATIONS__: unknown;
 
 const rawPort = process.env["PORT"];
 
@@ -38,15 +42,27 @@ async function initStripe() {
   logger.info("Stripe proxy and webhook ready");
 }
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
+async function startServer() {
+  await assertProductionSchemaReady(
+    process.env.NODE_ENV,
+    typeof __ARTCOVR_REQUIRED_MIGRATIONS__ === "undefined" ? undefined : __ARTCOVR_REQUIRED_MIGRATIONS__,
+    (text) => pool.query(text),
+  );
+  app.listen(port, (err) => {
+    if (err) {
+      logger.error({ err }, "Error listening on port");
+      process.exit(1);
+    }
 
-  logger.info({ port }, "Server listening");
-});
+    logger.info({ port }, "Server listening");
+  });
 
-void initStripe().catch((error) => {
-  logger.error({ err: error }, "Stripe initialization failed");
+  void initStripe().catch((error) => {
+    logger.error({ err: error }, "Stripe initialization failed");
+  });
+}
+
+void startServer().catch((error) => {
+  logger.error({ err: error }, "API startup refused; database migration readiness is required");
+  process.exit(1);
 });

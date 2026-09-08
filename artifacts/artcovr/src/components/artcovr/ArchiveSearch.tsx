@@ -1,162 +1,155 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useSearch } from "wouter";
+import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
-import { ArtworkGrid } from "@/components/artcovr/ArtworkGrid";
-import {
-  applyCatalogView,
-  CatalogControls,
-  DEFAULT_CATALOG_VIEW,
-  type CatalogView,
-} from "@/components/artcovr/CatalogControls";
-import type { Artwork } from "@/lib/artcovr/artworks";
+import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
+import { ArtworkGrid } from "./ArtworkGrid";
+import { DiscoveryControls } from "./DiscoveryControls";
+import { applyCatalogView, type CatalogView } from "./CatalogControls";
+import { displayGenreLabel, type Artwork } from "@/lib/artcovr/artworks";
 import { hybridSearch } from "@/lib/artcovr/semantic-search";
 import { buildCatalogFacetIndex } from "@/lib/artcovr/catalog-intelligence";
+import { rankSimilarArtwork, rankGenreArtwork, normalizeDiscoveryGenre, type ArtworkSimilarityMode } from "@/lib/artcovr/discovery-index";
+import { CRATE_STORAGE_KEY, readSavedSlugs, orderDiscoveryArtwork, type DiscoveryOrder } from "@/lib/artcovr/discovery-state";
 import { trackEvent } from "@/lib/artcovr/analytics";
 
+const SIMILAR_MODES = { visual: "Image connections", palette: "Shared palette", mood: "Shared mood" } as const;
+
 export function ArchiveSearch({ items }: { items: Artwork[] }) {
-  const [query, setQuery] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return new URLSearchParams(window.location.search).get("query") ?? "";
+  const searchInput = useRef<HTMLInputElement>(null);
+  const resultsHeading = useRef<HTMLHeadingElement>(null);
+  const seedContext = useRef<HTMLElement>(null);
+  const seedHeading = useRef<HTMLHeadingElement>(null);
+  const previousSeedSlug = useRef<string | undefined>(undefined);
+  const [location, navigate] = useLocation();
+  const search = useSearch();
+  const params = useMemo(() => new URLSearchParams(search), [search]);
+  const query = params.get("query") ?? "";
+  const rawGenre = params.get("genre") || null;
+  const view: CatalogView = { genre: rawGenre ? normalizeDiscoveryGenre(rawGenre) ?? rawGenre : null, color: params.get("color") || null, mood: params.get("mood") || null };
+  const order: DiscoveryOrder = params.get("order") === "diverse" ? "diverse" : params.get("order") === "title" ? "title" : "recommended";
+  const compact = params.get("density") === "compact";
+  const crateOnly = params.get("crate") === "1";
+  const expandGenre = params.get("connections") === "1";
+  const similarSlug = params.get("similar");
+  const mode: ArtworkSimilarityMode = params.get("mode") === "palette" ? "palette" : params.get("mode") === "mood" ? "mood" : "visual";
+  const seed = items.find((item) => item.slug === similarSlug);
+  const [saved, setSaved] = useState<string[]>(() => {
+    try { return readSavedSlugs(localStorage.getItem(CRATE_STORAGE_KEY), items); } catch { return []; }
   });
-  const [view, setView] = useState<CatalogView>(() => {
-    if (typeof window === "undefined") return DEFAULT_CATALOG_VIEW;
-    const params = new URLSearchParams(window.location.search);
-    return {
-      genre: params.get("genre") || null,
-      color: params.get("color") || null,
-      mood: null,
+  const [saveNotice, setSaveNotice] = useState("");
+  const savedSet = useMemo(() => new Set(saved), [saved]);
+  const update = (changes: Record<string, string | null>, push = false) => {
+    const next = new URLSearchParams(search);
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value); else next.delete(key);
+    }
+    navigate(`${location}${next.size ? `?${next}` : ""}`, { replace: !push });
+  };
+  const clearAll = () => {
+    update({ query: null, genre: null, color: null, mood: null, similar: null, mode: null, connections: null, crate: null, order: null });
+    searchInput.current?.focus();
+  };
+  const follow = (artwork: Artwork) => {
+    update({ similar: artwork.slug, mode: null, query: null, genre: null, mood: null, color: null, order: null, crate: null, connections: null }, true);
+  };
+  const toggleSaved = (artwork: Artwork) => {
+    const wasSaved = savedSet.has(artwork.slug);
+    const next = wasSaved ? saved.filter((slug) => slug !== artwork.slug) : [...saved, artwork.slug];
+    setSaved(next);
+    if (crateOnly && wasSaved) resultsHeading.current?.focus();
+    try {
+      localStorage.setItem(CRATE_STORAGE_KEY, JSON.stringify(next));
+      setSaveNotice(`${artwork.title} ${next.includes(artwork.slug) ? "saved to" : "removed from"} your crate on this browser.`);
+    } catch { setSaveNotice("Your crate is available for this visit. This browser could not save it for later."); }
+  };
+  useEffect(() => {
+    const sync = (event: StorageEvent) => {
+      if (event.key === CRATE_STORAGE_KEY || event.key === null) setSaved(readSavedSlugs(event.newValue, items));
     };
-  });
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, [items]);
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const nextParams: Array<[string, string | null]> = [
-      ["query", query.trim() || null],
-      ["genre", view.genre],
-      ["color", view.color],
-    ];
-    for (const [key, value] of nextParams) {
-      if (value) url.searchParams.set(key, value);
-      else url.searchParams.delete(key);
+    const previous = previousSeedSlug.current;
+    previousSeedSlug.current = seed?.slug;
+    if (seed) {
+      seedHeading.current?.focus({ preventScroll: true });
+      seedContext.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    } else if (previous && document.activeElement !== searchInput.current) {
+      resultsHeading.current?.focus();
     }
-    url.searchParams.delete("mood");
-    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [query, view]);
+  }, [seed?.slug]);
 
-  // Preserve the curated display order so "Featured" sort restores the
-  // owner-pick + palette-spread arrangement after filtering.
-  const orderIndex = useMemo(
-    () => new Map(items.map((item, index) => [item.slug, index])),
-    [items],
-  );
   const facetIndex = useMemo(() => buildCatalogFacetIndex(items), [items]);
-
+  const genreMatches = useMemo(() => view.genre ? rankGenreArtwork(view.genre, items) : [], [items, view.genre]);
+  const similarMatches = useMemo(() => seed ? rankSimilarArtwork(seed, items, mode) : [], [seed, items, mode]);
+  const evidence = useMemo(() => new Map((seed ? similarMatches : genreMatches).map((match) => [match.artwork.slug, match.reasons])), [seed, similarMatches, genreMatches]);
   const filteredItems = useMemo(() => {
-    const textMatched = hybridSearch(query, items);
-    return applyCatalogView(textMatched, view, orderIndex, facetIndex);
-  }, [items, query, view, orderIndex, facetIndex]);
-  const hasActiveSearch = query.length > 0 || Object.values(view).some(Boolean);
+    let candidates = seed ? similarMatches.map((match) => match.artwork) : similarSlug ? [] : items;
+    if (view.genre) {
+      const matching = new Set(genreMatches.filter((match) => expandGenre || match.basis === "metadata").map((match) => match.artwork.slug));
+      candidates = candidates.filter((item) => matching.has(item.slug));
+      if (!seed && !query.trim()) {
+        const ranks = new Map(genreMatches.map((match, i) => [match.artwork.slug, i]));
+        candidates = [...candidates].sort((a, b) => ranks.get(a.slug)! - ranks.get(b.slug)!);
+      }
+    }
+    if (query.trim()) candidates = hybridSearch(query, candidates);
+    candidates = applyCatalogView(candidates, { genre: null, color: view.color, mood: view.mood }, undefined, facetIndex);
+    if (crateOnly) candidates = candidates.filter((item) => savedSet.has(item.slug));
+    return orderDiscoveryArtwork(candidates, order);
+  }, [items, seed, similarSlug, similarMatches, genreMatches, expandGenre, query, view.genre, view.color, view.mood, facetIndex, crateOnly, savedSet, order]);
+  const hasActiveSearch = Boolean(query.trim() || view.genre || view.color || view.mood || similarSlug || crateOnly);
+  const typedGenre = normalizeDiscoveryGenre(query);
 
   useEffect(() => {
     if (!hasActiveSearch) return;
-    const timer = window.setTimeout(() => {
-      trackEvent("archive_filtered", {
-        query_length: query.trim().length,
-        genre: view.genre ?? "all",
-        color: view.color ?? "all",
-        result_count: filteredItems.length,
-      });
-    }, 500);
+    const timer = window.setTimeout(() => trackEvent("archive_filtered", { query_length: query.trim().length, genre: view.genre ?? "all", color: view.color ?? "all", result_count: filteredItems.length }), 500);
     return () => window.clearTimeout(timer);
   }, [filteredItems.length, hasActiveSearch, query, view.color, view.genre]);
 
-  return (
-    <>
-      <div className="mt-12 border-t border-current/15 pt-6 md:mt-16">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <label htmlFor="archive-search" className="text-[11px] font-bold uppercase tracking-[.12em] text-current/70">
-            Search archive
-          </label>
-          <div className="flex items-center gap-5">
-            <p className="text-[11px] font-bold uppercase tracking-[.1em] text-[var(--muted-foreground)]" role="status" aria-live="polite">
-              {filteredItems.length} / {items.length} works
-            </p>
-            {hasActiveSearch ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("");
-                  setView(DEFAULT_CATALOG_VIEW);
-                }}
-                className="text-[11px] font-bold uppercase tracking-[.1em] underline underline-offset-4 text-current/70 hover:text-current"
-              >
-                Clear all
-              </button>
-            ) : null}
-          </div>
-        </div>
-        <div className="mt-4 flex items-center gap-3 rounded-full border border-current/20 bg-transparent px-4 py-3 text-base md:max-w-xl">
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0 opacity-70">
-            <path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.8l4.4 4.4 1.4-1.4-4.4-4.4A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z" fill="currentColor"/>
-          </svg>
-          <input
-            id="archive-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search genre, mood, color, topic..."
-            className="w-full border-0 bg-transparent text-sm text-current placeholder:text-current/45 focus:outline-none"
-          />
-          {query ? (
-            <button type="button" onClick={() => setQuery("")} className="text-xs uppercase tracking-[.12em] text-current/70 hover:text-current">
-              Clear
-            </button>
-          ) : null}
-        </div>
-
-        <CatalogControls
-          items={items}
-          view={view}
-          onChange={setView}
-          onClear={() => {
-            setQuery("");
-            setView(DEFAULT_CATALOG_VIEW);
-          }}
-          resultCount={filteredItems.length}
-          totalCount={items.length}
-          showMoodFacet={false}
-          facetIndex={facetIndex}
-        />
+  return <>
+    <div className="discovery-workbench">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label htmlFor="archive-search" className="discovery-label">Find your visual direction</label>
+        <button type="button" className="discovery-pill" aria-pressed={crateOnly} onClick={() => update({ crate: crateOnly ? null : "1" })}>
+          <Bookmark size={15} aria-hidden="true" /> My crate <span>{saved.length}</span>
+        </button>
       </div>
-
-      {items.length === 0 ? (
-        <section className="border-y border-current/20 py-10" aria-label="Archive is empty">
-          <p className="text-xl font-bold">The first approved collection is being prepared.</p>
-          <Link href="/" className="link-hover mt-5 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.08em]">
-            Return home
-          </Link>
-        </section>
-      ) : filteredItems.length === 0 ? (
-        <section className="mt-12 border border-current/20 px-6 py-12 text-center" aria-label="No matching artwork">
-          <p className="text-xl font-bold">No works match those filters.</p>
-            <p className="mx-auto mt-2 max-w-[48ch] text-sm leading-6 text-current/60">Try a different genre, color, mood, or visual topic, or clear the current search to browse the full archive.</p>
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                setView(DEFAULT_CATALOG_VIEW);
-              }}
-              className="artcovr-button mt-6 min-h-11 px-5 py-3 text-xs font-bold uppercase tracking-[.08em]"
-            >
-              Clear filters
-            </button>
-         </section>
-      ) : (
-        <div className="mt-12">
-          <ArtworkGrid items={filteredItems} />
+      <div className="mt-3 flex items-center gap-3 rounded-full border border-current/25 px-5 py-3 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-current">
+        <Search size={19} className="shrink-0" aria-hidden="true" />
+        <input ref={searchInput} id="archive-search" type="search" value={query} onChange={(event) => update({ query: event.target.value || null })} placeholder="A genre, a feeling, a color, a world..." className="min-w-0 w-full bg-transparent text-base placeholder:text-current/55 focus:outline-none" />
+        {query && <button type="button" aria-label="Clear archive search" className="min-h-8 px-1 text-xs" onClick={() => { update({ query: null }); searchInput.current?.focus(); }}>Clear</button>}
+      </div>
+      {typedGenre && !view.genre && <button type="button" className="mt-3 min-h-10 text-sm underline underline-offset-4" onClick={() => update({ genre: typedGenre, query: null })}>Explore {displayGenreLabel(typedGenre)} through artwork metadata and visual connections</button>}
+      <DiscoveryControls view={view} onChange={(next) => update({ genre: next.genre, mood: next.mood, color: next.color })} index={facetIndex} resultCount={filteredItems.length} totalCount={items.length} />
+      {view.genre && <div className="discovery-genre-context">
+        <div><h3 className="text-lg font-bold">The {displayGenreLabel(view.genre)} direction</h3><p className="mt-1 max-w-[70ch] text-sm leading-6 text-current/70">Style and mood metadata suggest a visual fit. Image-vector connections reveal adjacent directions. These are cover-art suggestions, not audio classification.</p></div>
+        <label className="flex min-h-11 shrink-0 cursor-pointer items-center gap-2 text-sm"><input type="checkbox" checked={expandGenre} onChange={(event) => update({ connections: event.target.checked ? "1" : null })} className="h-4 w-4 accent-current" /> Include visual connections</label>
+      </div>}
+      {seed && <section ref={seedContext} aria-label="Visual starting point" className="discovery-seed scroll-mt-24">
+        <Image src={seed.image} alt={seed.alt} width={88} height={88} className="h-20 w-20 shrink-0 object-cover" />
+        <div className="min-w-0 flex-1"><p className="discovery-label">Following a visual direction</p><h3 ref={seedHeading} tabIndex={-1} className="mt-1 text-lg font-bold">{seed.title}</h3><div className="mt-3 flex flex-wrap gap-2">{Object.entries(SIMILAR_MODES).map(([value, label]) => <button type="button" key={value} className="discovery-pill" aria-pressed={mode === value} onClick={() => update({ mode: value === "visual" ? null : value })}>{label}</button>)}</div><p className="mt-2 text-xs leading-5 text-current/70">{mode === "visual" ? "Nearest connections in the offline image-descriptor index. No unrelated filler." : "Only works with shared catalog traits are shown."}</p></div>
+        <button type="button" aria-label="Leave visual direction" className="self-start rounded-full p-2" onClick={() => update({ similar: null, mode: null }, true)}><X size={19} /></button>
+      </section>}
+      {similarSlug && !seed && <p role="status" className="mt-4 text-sm">That starting artwork is not in the public archive. Clear the direction to explore available works.</p>}
+      {crateOnly && <p className="mt-4 text-sm text-current/70">Your shortlist on this browser—not a reservation or a purchase. Other active filters still apply.</p>}
+      <div className="discovery-results-bar">
+        <h2 ref={resultsHeading} tabIndex={-1} className="scroll-mt-24 text-lg font-bold">{filteredItems.length} {filteredItems.length === 1 ? "work" : "works"}{seed ? " to follow" : view.genre ? ` for ${displayGenreLabel(view.genre)}` : " to explore"}</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          {hasActiveSearch && <button type="button" onClick={clearAll} className="min-h-11 text-xs underline underline-offset-4">Clear all</button>}
+          <label className="flex items-center gap-2 text-xs"><span>Order</span><select aria-label="Order artwork" value={order} className="discovery-order" onChange={(event) => update({ order: event.target.value === "recommended" ? null : event.target.value })}><option value="recommended">{query.trim() ? "Search relevance" : seed ? "Closest connections" : view.genre ? "Genre fit" : "Curated"}</option><option value="diverse">Visual variety</option><option value="title">Title A–Z</option></select></label>
+          <div role="group" aria-label="Artwork density" className="flex gap-1">{[false, true].map((value) => <button key={String(value)} type="button" className="discovery-pill" aria-pressed={compact === value} onClick={() => update({ density: value ? "compact" : null })}>{value ? "Compact" : "Gallery"}</button>)}</div>
         </div>
-      )}
-    </>
-  );
+      </div>
+    </div>
+    <p className="sr-only" role="status" aria-live="polite">{saveNotice}</p>
+    {items.length === 0 ? <section className="border-y border-current/20 py-10" aria-label="Archive is empty"><p className="text-xl font-bold">The first approved collection is being prepared.</p><Link href="/" className="mt-5 inline-flex min-h-11 items-center text-sm underline">Return home</Link></section>
+      : filteredItems.length === 0 ? <section className="py-16 text-center" aria-label="No matching artwork"><p className="text-2xl font-bold">{crateOnly && !saved.length ? "Your next cover starts with a good shortlist." : "No works match those filters."}</p><p className="mx-auto mt-3 max-w-[52ch] text-sm leading-6 text-current/70">{crateOnly && !saved.length ? "Save a cover to your crate as you explore. Your choices stay on this browser." : "Try another music lane, loosen a color or mood, or return to the full archive."}</p><button type="button" onClick={clearAll} className="artcovr-button mt-6 inline-flex min-h-11 items-center gap-2 rounded-full px-6 py-3 text-sm"><ArrowLeft size={16} aria-hidden="true" /> Clear filters</button></section>
+      : <ArtworkGrid items={filteredItems} compact={compact} savedSlugs={savedSet} onSave={toggleSaved} onSimilar={follow} reasons={evidence} />}
+  </>;
 }

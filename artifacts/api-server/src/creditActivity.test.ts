@@ -9,9 +9,9 @@ import {
   artcovrOrders,
   db,
 } from "@workspace/db";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { getPublicCatalog } from "./catalog";
-import { listUserCreditActivity } from "./creditService";
+import { InvalidCreditActivityCursorError, listUserCreditActivity } from "./creditService";
 import accountRouter from "./routes/account";
 
 function accountTestApp() {
@@ -72,10 +72,12 @@ test("credit activity is purchase-scoped and omits internal ledger fields", asyn
   ];
   const select = () => ({
     from: () => ({
+      innerJoin: () => ({
       where: () => ({
         orderBy: () => ({
           limit: async () => rows,
         }),
+      }),
       }),
     }),
   });
@@ -122,16 +124,19 @@ test("credit activity returns a bounded page and an opaque cursor", async () => 
     entryType: "spend",
     amount: -1,
     reason: "Image generation credit spend",
+    cursorOccurredAt: new Date(Date.parse("2026-09-05T12:00:00.000Z") + index * 1_000).toISOString(),
     occurredAt: new Date(
       Date.parse("2026-09-05T12:00:00.000Z") + index * 1_000,
     ),
   }));
   const select = () => ({
     from: () => ({
+      innerJoin: () => ({
       where: () => ({
         orderBy: () => ({
           limit: async () => rows,
         }),
+      }),
       }),
     }),
   });
@@ -402,5 +407,50 @@ test("account endpoint isolates two users and omits ledger and generation intern
     await new Promise<void>((resolve, reject) =>
       server.close((error) => (error ? reject(error) : resolve())),
     );
+  }
+});
+
+test("activity pagination preserves sub-millisecond rows and scopes ledger plus purchase ownership", async () => {
+  const suffix = randomUUID();
+  const user = `history-user-${suffix}`;
+  const other = `history-other-${suffix}`;
+  const purchase = `history-order-${suffix}`;
+  const foreignPurchase = `history-foreign-${suffix}`;
+  const orderIds = [purchase, foreignPurchase];
+  const ids = Array.from({ length: 29 }, (_, index) => `history-${suffix}-${index}`);
+  try {
+    await db.insert(artcovrOrders).values(orderIds.map((id, index) => ({
+      id, clerkUserId: index ? other : user, artworkId: "history-art", artworkSlug: "history-art",
+      idempotencyKey: id, amountCents: 3500, saleMode: "repeatable", licenseTerms: "test",
+      includedCredits: 4, status: "paid", paidAt: new Date(),
+    })));
+    await db.insert(artcovrCreditLedger).values(ids.map((id, index) => ({
+      id, clerkUserId: index === 27 ? other : user,
+      accountKey: user, orderId: index === 28 ? foreignPurchase : purchase,
+      entryType: "grant", amount: index + 1, reason: "private-history-reason", sourceId: id,
+    })));
+    for (let index = 0; index < ids.length; index += 1) {
+      await db.update(artcovrCreditLedger).set({
+        createdAt: sql`'2026-09-08T12:00:00Z'::timestamptz + ${index} * interval '1 microsecond'`,
+      }).where(eq(artcovrCreditLedger.id, ids[index]));
+    }
+    const first = await listUserCreditActivity(db, user);
+    assert.equal(first.activities.length, 25);
+    assert.ok(first.nextCursor);
+    const second = await listUserCreditActivity(db, user, first.nextCursor);
+    assert.equal(second.activities.length, 2);
+    assert.equal(second.nextCursor, null);
+    assert.deepEqual([...first.activities, ...second.activities].map((activity) => activity.amount),
+      Array.from({ length: 27 }, (_, index) => 27 - index));
+  } finally {
+    await db.delete(artcovrCreditLedger).where(inArray(artcovrCreditLedger.id, ids));
+    await db.delete(artcovrOrders).where(inArray(artcovrOrders.id, orderIds));
+  }
+});
+
+test("activity cursor rejects malformed and oversized values before querying", async () => {
+  for (const cursor of ["not-json", "x".repeat(2000), Buffer.from(JSON.stringify({ occurredAt: "yesterday", id: "row" })).toString("base64url")]) {
+    await assert.rejects(listUserCreditActivity({ select() { throw new Error("must not query"); } } as never, "user", cursor),
+      InvalidCreditActivityCursorError);
   }
 });

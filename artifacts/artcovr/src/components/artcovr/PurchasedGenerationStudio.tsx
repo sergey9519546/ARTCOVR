@@ -9,6 +9,7 @@ import {
   type AccountPurchase,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { purchaseCreditBalance } from "@/lib/artcovr/account-credits";
 import { ReferencePhotoInput, useReferencePhoto } from "./ReferencePhotoInput";
 import { useGenerationJob } from "./useGenerationJob";
 
@@ -29,7 +30,11 @@ function terminalMessage(status: "blocked" | "failed" | "timed_out") {
   return "Generation failed. Your allowance was not used. Choose Generate image to try again.";
 }
 
-export function PurchasedGenerationStudio({
+export function PurchasedGenerationStudio(props: Props) {
+  return <PurchaseEditor key={`${props.purchase.id}:${props.artwork.id}`} {...props} />;
+}
+
+function PurchaseEditor({
   artwork,
   purchase,
   generations,
@@ -60,7 +65,8 @@ export function PurchasedGenerationStudio({
   const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const ready = isPromptReady(prompt) && purchase.remainingCredits > 0 && !reference.uploading;
+  const remainingCredits = purchaseCreditBalance(purchase);
+  const ready = isPromptReady(prompt) && remainingCredits > 0 && !reference.uploading;
 
   const { phase, setPhase, message, setMessage, hasPending, start, resume } = useGenerationJob({
     onAccepted(request) { if (request.referenceUploadId) reference.clear(); },
@@ -115,19 +121,28 @@ export function PurchasedGenerationStudio({
 
   function reset() {
     if (hasPending) return;
+    reference.clear();
+    selectOriginal();
+    setPrompt("");
+    setCoverTitle("");
+    setCoverArtist("");
+    setStyleMode("exact");
+    setMessage("Returned to the original artwork.");
+  }
+
+  function selectOriginal() {
     currentResultId.current = undefined;
     setSelectedVersion("original");
     resetRequested.current = true;
-    setPrompt("");
     setResult(undefined);
     setResultIsGenerated(false);
-    setMessage("Returned to the original artwork.");
+    setMessage("Your next edit will use the original artwork. Your prompt was kept.");
     setPhase("idle");
   }
 
   function selectVersion(id: string) {
     if (hasPending) return;
-    if (id === "original") { reset(); return; }
+    if (id === "original") { selectOriginal(); return; }
     const version = versions.find((generation) => generation.id === id);
     const url = version?.previewUrl ?? (id === purchase.selectedPreviewGenerationId ? selectedPreviewImageUrl : undefined);
     if (!url) return;
@@ -239,7 +254,7 @@ export function PurchasedGenerationStudio({
               aria-atomic="true"
               className="text-xs opacity-60"
             >
-               {message || `${purchase.remainingCredits} image-edit credits remaining.`}
+               {message || `${remainingCredits} image-edit credits remaining.`}
             </span>
           </div>
         </div>

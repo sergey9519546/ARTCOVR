@@ -49,14 +49,39 @@ export const CreateCheckoutResponse = zod.object({
 
 
 /**
- * Returns purchases, generation records, and authorized signed media downloads for the authenticated Clerk user. Download URLs are private and expire with the purchase entitlement.
+ * Returns purchases, generation records, and authorized signed media downloads for the authenticated Clerk user. Download URLs are private and expire with the purchase entitlement. Credit activity is returned in pages of at most 25 events, newest first. The optional cursor pages only credit activity; purchases, generations, and downloads remain the current account snapshot.
  * @summary Load the signed-in customer's account data
  */
+
+
+
+export const GetMyImagesQueryParams = zod.object({
+  "creditActivityCursor": zod.coerce.string().min(1).optional().describe('Opaque continuation cursor returned by creditActivityNextCursor. Omit to load the newest activity page.')
+})
+
+export const getMyImagesResponseTotalCreditBalanceMin = 0;
+
+export const getMyImagesResponseCreditActivityMax = 25;
+
+export const getMyImagesResponsePurchasesItemIncludedCreditsMin = 0;
+
+export const getMyImagesResponsePurchasesItemRemainingCreditsMin = 0;
+
 export const getMyImagesResponsePurchasesItemRemainingGenerationsMin = 0;
 
 
 
 export const GetMyImagesResponse = zod.object({
+  "totalCreditBalance": zod.number().int().min(getMyImagesResponseTotalCreditBalanceMin).optional().describe('Current image-edit credit balance. Older responses may omit this field.'),
+  "creditActivity": zod.array(zod.object({
+  "purchaseId": zod.string(),
+  "artworkTitle": zod.string(),
+  "event": zod.enum(['grant', 'generation', 'release', 'refund', 'expiration', 'revocation']),
+  "label": zod.string(),
+  "amount": zod.number().int().describe('Signed credit adjustment; debits are negative and additions are positive.'),
+  "occurredAt": zod.coerce.date()
+}).describe('Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.')).max(getMyImagesResponseCreditActivityMax).optional().describe('Purchase-scoped credit events, newest first. Older responses may omit activity history.'),
+  "creditActivityNextCursor": zod.string().nullish().describe('Opaque continuation cursor for the next older activity page, or null when no older page is available. Older responses may omit this field.'),
   "purchases": zod.array(zod.object({
   "id": zod.string(),
   "artworkId": zod.string(),
@@ -72,13 +97,15 @@ export const GetMyImagesResponse = zod.object({
   "resetSource": zod.enum(['original']),
   "accessRevokedAt": zod.coerce.date().nullable(),
   "accessRevocationReason": zod.string().nullable(),
+  "includedCredits": zod.number().int().min(getMyImagesResponsePurchasesItemIncludedCreditsMin).optional().describe('Image-edit credits included with this purchase, not its current balance.'),
+  "remainingCredits": zod.number().int().min(getMyImagesResponsePurchasesItemRemainingCreditsMin).optional().describe('Current image-edit credits for this purchase. When absent, legacy clients may use remainingGenerations.'),
   "remainingGenerations": zod.number().int().min(getMyImagesResponsePurchasesItemRemainingGenerationsMin)
 })),
   "generations": zod.array(zod.object({
   "id": zod.string(),
   "artworkId": zod.string(),
   "purchaseId": zod.string().nullable(),
-  "prompt": zod.string(),
+  "prompt": zod.string().optional().describe('Legacy response field. Current account snapshots omit prompts to minimize disclosure of customer creative inputs.'),
   "phase": zod.enum(['preview', 'purchased']),
   "status": zod.enum(['queued', 'running', 'succeeded', 'blocked', 'failed', 'timed_out']),
   "createdAt": zod.coerce.date(),
@@ -91,9 +118,17 @@ export const GetMyImagesResponse = zod.object({
   "purchaseId": zod.string(),
   "artworkId": zod.string(),
   "generationId": zod.string().nullable(),
-  "expiresAt": zod.coerce.date(),
+  "expiresAt": zod.coerce.date().describe('Purchase entitlement expiry; not the signed URL lifetime.'),
+  "urlExpiresAt": zod.coerce.date().optional().describe('Conservative signed URL expiry, capped by the purchase entitlement.'),
   "url": zod.string().url()
-})).describe('Authorized signed download URLs for base artwork and generated results.')
+})).describe('Authorized signed download URLs for base artwork and generated results.'),
+  "unavailableDownloads": zod.array(zod.object({
+  "kind": zod.enum(['base', 'selected_preview', 'purchased_result']),
+  "purchaseId": zod.string(),
+  "artworkId": zod.string(),
+  "generationId": zod.string().nullable(),
+  "code": zod.enum(['asset_unavailable'])
+})).optional().describe('Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned.')
 })
 
 

@@ -5,13 +5,32 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AccountCreditActivity } from './accountCreditActivity';
 import type { AccountDownload } from './accountDownload';
 import type { AccountGeneration } from './accountGeneration';
 import type { AccountPurchase } from './accountPurchase';
+import type { AccountUnavailableDownload } from './accountUnavailableDownload';
 
 export interface AccountData {
+  /**
+     * Current image-edit credit balance. Older responses may omit this field.
+     * @minimum 0
+     */
+  totalCreditBalance?: number;
+  /**
+     * Purchase-scoped credit events, newest first. Older responses may omit activity history.
+     * @maxItems 25
+     */
+  creditActivity?: AccountCreditActivity[];
+  /**
+     * Opaque continuation cursor for the next older activity page, or null when no older page is available. Older responses may omit this field.
+     * @nullable
+     */
+  creditActivityNextCursor?: string | null;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   /** Authorized signed download URLs for base artwork and generated results. */
   downloads: AccountDownload[];
+  /** Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned. */
+  unavailableDownloads?: AccountUnavailableDownload[];
 }

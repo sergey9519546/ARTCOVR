@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './accountCreditActivity';
+export * from './accountCreditActivityEvent';
 export * from './accountData';
 export * from './accountDownload';
 export * from './accountDownloadKind';
@@ -16,6 +18,9 @@ export * from './accountPurchase';
 export * from './accountPurchaseResetSource';
 export * from './accountPurchaseSaleMode';
 export * from './accountPurchaseStatus';
+export * from './accountUnavailableDownload';
+export * from './accountUnavailableDownloadCode';
+export * from './accountUnavailableDownloadKind';
 export * from './apiError';
 export * from './artworkIdParameter';
 export * from './checkoutRequest';
@@ -31,6 +36,7 @@ export * from './generationStatus';
 export * from './generationStatusRequest';
 export * from './generationStatusStatus';
 export * from './getGenerationStatusParams';
+export * from './getMyImagesParams';
 export * from './healthStatus';
 export * from './inquiryRequest';
 export * from './inquiryResponse';

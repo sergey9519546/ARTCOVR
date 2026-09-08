@@ -1,7 +1,4 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
-import { artcovrOrders, db } from "@workspace/db";
-import { getPublicArtworkById } from "../catalog";
 import {
   getAuthenticatedUserId,
   getVerifiedClerkEmails,

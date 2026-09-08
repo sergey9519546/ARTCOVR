@@ -79,8 +79,8 @@ export type AccountPurchase = {
   resetSource: "original";
   accessRevokedAt: string | null;
   accessRevocationReason: string | null;
-  includedCredits: number;
-  remainingCredits: number;
+  includedCredits?: number;
+  remainingCredits?: number;
   remainingGenerations: number;
 };
 
@@ -102,8 +102,14 @@ export type AccountDownload = {
   artworkId: string;
   generationId: string | null;
   expiresAt: string;
+  /** Signed URL lifetime, distinct from the purchase entitlement expiry. */
+  urlExpiresAt?: string;
   url: string;
 };
+
+export type AccountUnavailableDownload = Pick<
+  AccountDownload, "kind" | "purchaseId" | "artworkId" | "generationId"
+> & { code: "asset_unavailable" };
 
 export type AccountCreditActivity = {
   purchaseId: string;
@@ -121,12 +127,13 @@ export type AccountCreditActivity = {
 };
 
 export type AccountData = {
-  totalCreditBalance: number;
-  creditActivity: AccountCreditActivity[];
-  creditActivityNextCursor: string | null;
+  totalCreditBalance?: number;
+  creditActivity?: AccountCreditActivity[];
+  creditActivityNextCursor?: string | null;
   purchases: AccountPurchase[];
   generations: AccountGeneration[];
   downloads: AccountDownload[];
+  unavailableDownloads?: AccountUnavailableDownload[];
 };
 
 export type AccountCreditActivityPage = {

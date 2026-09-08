@@ -29,6 +29,16 @@ export interface AccountPurchase {
   accessRevokedAt: Date | null;
   /** @nullable */
   accessRevocationReason: string | null;
+  /**
+     * Image-edit credits included with this purchase, not its current balance.
+     * @minimum 0
+     */
+  includedCredits?: number;
+  /**
+     * Current image-edit credits for this purchase. When absent, legacy clients may use remainingGenerations.
+     * @minimum 0
+     */
+  remainingCredits?: number;
   /** @minimum 0 */
   remainingGenerations: number;
 }
