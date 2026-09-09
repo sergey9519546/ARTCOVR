@@ -30,3 +30,4 @@
 - [Release process lifecycle tests](release-process-lifecycle-tests.md) — synchronize child-process signal assertions with an explicit harness readiness marker.
 - [Release smoke outage reasons](release-smoke-error-reasons.md) — capture sanitized smoke stderr so configured-target DNS and timeout failures do not collapse into exit codes.
 - [Analytics route normalization](analytics-route-normalization.md) — production paths may mix trailing-slash variants; canonicalize them before funnel aggregation.
+- [Replit production migration metadata](replit-production-migration-metadata.md) — production schema history lives in Replit’s managed audit table, not Drizzle’s development history table.

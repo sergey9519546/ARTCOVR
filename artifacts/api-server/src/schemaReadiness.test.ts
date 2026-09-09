@@ -6,12 +6,15 @@ const manifest = [
   { hash: "a".repeat(64), createdAt: 1000 },
   { hash: "b".repeat(64), createdAt: 2000 },
 ];
-const applied = manifest.map(({ hash }, index) => ({
-  hash,
-  created_at: String(9000 + index),
+const applied = manifest.map((_migration, index) => ({
+  id: String(index + 1),
+  build_id: `build-${index + 1}`,
+  deployment_id: "deployment-1",
+  statement_count: String(index + 4),
+  applied_at: new Date(9000 + index),
 }));
 
-test("production accepts the exact applied migration history using only a read query", async () => {
+test("production accepts Replit managed migration history using only a read query", async () => {
   const queries: string[] = [];
   await assertProductionSchemaReady("production", manifest, async (query) => {
     queries.push(query);
@@ -21,15 +24,21 @@ test("production accepts the exact applied migration history using only a read q
   assert.match(migrationHistoryQuery, /^select /);
 });
 
-test("production ignores application timestamps because journal times describe generation", async () => {
+test("production accepts managed records regardless of their application timestamps", async () => {
   await assertProductionSchemaReady("production", manifest, async () => ({
-    rows: manifest.map(({ hash }, index) => ({ hash, created_at: 7000 + index })),
+    rows: applied.map((record, index) => ({
+      ...record,
+      applied_at: `2026-09-08T10:0${index}:00.000Z`,
+    })),
   }));
 });
 
-test("old and fresh databases cannot start the production API", async () => {
-  for (const rows of [[], applied.slice(0, 1)]) {
-    await assert.rejects(assertProductionSchemaReady("production", manifest, async () => ({ rows })), /applied migrations do not match/);
+test("databases without managed migration history cannot start the production API", async () => {
+  for (const rows of [[], [{ ...applied[0], build_id: "" }]]) {
+    await assert.rejects(
+      assertProductionSchemaReady("production", manifest, async () => ({ rows })),
+      /managed migration history is missing or invalid/,
+    );
   }
 });
 
@@ -43,13 +52,16 @@ test("missing or unreadable history fails closed without exposing database error
   });
 });
 
-test("wrong hashes, order, extra and malformed rows fail closed", async () => {
+test("malformed managed records fail closed", async () => {
   for (const rows of [
-    [...applied].reverse(), [...applied, applied[1]],
-    [applied[0], { ...applied[1], hash: "c".repeat(64) }],
-    [applied[0], null], [applied[0], {}],
+    [applied[0], { ...applied[1], statement_count: "-1" }],
+    [applied[0], null],
+    [applied[0], {}],
   ]) {
-    await assert.rejects(assertProductionSchemaReady("production", manifest, async () => ({ rows })), /applied migrations do not match/);
+    await assert.rejects(
+      assertProductionSchemaReady("production", manifest, async () => ({ rows })),
+      /managed migration history is missing or invalid/,
+    );
   }
 });
 
