@@ -95,6 +95,7 @@ export default function MyImagesPage() {
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
   const checkoutReturnTracked = useRef(false);
+  const checkoutCompletedTracked = useRef(new Set<string>());
 
   useEffect(() => {
     mounted.current = true;
@@ -217,6 +218,32 @@ export default function MyImagesPage() {
         ),
       });
     }
+
+    for (const purchase of data.purchases) {
+      if (purchase.status !== "paid") continue;
+      if (checkoutCompletedTracked.current.has(purchase.id)) continue;
+
+      let alreadyTracked = false;
+      try {
+        const storageKey = `artcovr:analytics:purchase-completed:${purchase.id}`;
+        alreadyTracked = sessionStorage.getItem(storageKey) === "1";
+        if (!alreadyTracked) sessionStorage.setItem(storageKey, "1");
+      } catch {
+        // The in-memory set still prevents duplicate events in this session.
+      }
+
+      checkoutCompletedTracked.current.add(purchase.id);
+      if (!alreadyTracked) {
+        trackEvent("purchase_completed", {
+          artwork_slug: purchase.artworkSlug,
+          sale_mode: purchase.saleMode,
+          price_cents: purchase.amountCents,
+          currency: purchase.currency,
+          included_credits: purchase.includedCredits ?? 0,
+        });
+      }
+    }
+
     const waitingForWebhook = data.purchases.some(
       (purchase) => purchase.status === "pending" || purchase.status === "reserved",
     );
