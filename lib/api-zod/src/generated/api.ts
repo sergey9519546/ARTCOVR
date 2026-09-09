@@ -279,3 +279,110 @@ export const GetOwnerCatalogIntelligenceAccessResponse = zod.object({
   "duplicateReview": zod.boolean()
 })
 })
+
+
+/**
+ * Records an allowlisted product-interest event without customer, session, payment, or personal fields. Duplicate event IDs are ignored.
+ * @summary Record a privacy-safe storefront funnel event
+ */
+export const recordFunnelEventBodyArtworkIdMax = 200;
+
+
+
+export const RecordFunnelEventBody = zod.object({
+  "eventId": zod.string().uuid(),
+  "eventType": zod.enum(['product_viewed']),
+  "artworkId": zod.string().min(1).max(recordFunnelEventBodyArtworkIdMax)
+})
+
+export const RecordFunnelEventResponse = zod.object({
+  "recorded": zod.boolean()
+})
+
+
+/**
+ * Returns aggregate verified commerce, credit-ledger, artwork-ranking, and privacy-safe storefront funnel data for an explicit reporting window. Payment totals use paid time, refunds use refund time, and credit totals use ledger-entry time. No customer or payment-provider identifiers are returned.
+ * @summary Load aggregate owner sales reporting
+ */
+export const getOwnerSalesReportQueryFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getOwnerSalesReportQueryToRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetOwnerSalesReportQueryParams = zod.object({
+  "from": zod.coerce.string().regex(getOwnerSalesReportQueryFromRegExp).optional(),
+  "to": zod.coerce.string().regex(getOwnerSalesReportQueryToRegExp).optional()
+})
+
+export const getOwnerSalesReportResponseSummaryPaidOrdersMin = 0;
+
+export const getOwnerSalesReportResponseSummaryGrossRevenueCentsMin = 0;
+
+export const getOwnerSalesReportResponseSummaryRefundsMin = 0;
+
+export const getOwnerSalesReportResponseSummaryRefundedCentsMin = 0;
+
+export const getOwnerSalesReportResponseCreditsGrantedMin = 0;
+
+export const getOwnerSalesReportResponseCreditsSpentMin = 0;
+
+export const getOwnerSalesReportResponseCreditsReleasedMin = 0;
+
+export const getOwnerSalesReportResponseCreditsRevokedMin = 0;
+
+export const getOwnerSalesReportResponseFunnelProductViewsMin = 0;
+
+export const getOwnerSalesReportResponseFunnelCheckoutStartsMin = 0;
+
+export const getOwnerSalesReportResponseFunnelPaidOrdersMin = 0;
+
+export const getOwnerSalesReportResponseFunnelCheckoutRateMin = 0;
+
+export const getOwnerSalesReportResponseFunnelPaidRateMin = 0;
+
+export const getOwnerSalesReportResponseTopArtworksItemPurchasesMin = 0;
+
+export const getOwnerSalesReportResponseTopArtworksItemGrossRevenueCentsMin = 0;
+
+export const getOwnerSalesReportResponseTopArtworksItemRefundedCentsMin = 0;
+
+export const getOwnerSalesReportResponseTopArtworksItemCreditsUsedMin = 0;
+
+
+
+export const GetOwnerSalesReportResponse = zod.object({
+  "range": zod.object({
+  "from": zod.coerce.date(),
+  "to": zod.coerce.date()
+}),
+  "summary": zod.object({
+  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseSummaryPaidOrdersMin),
+  "grossRevenueCents": zod.number().int().min(getOwnerSalesReportResponseSummaryGrossRevenueCentsMin),
+  "refunds": zod.number().int().min(getOwnerSalesReportResponseSummaryRefundsMin),
+  "refundedCents": zod.number().int().min(getOwnerSalesReportResponseSummaryRefundedCentsMin),
+  "netRevenueCents": zod.number().int()
+}),
+  "credits": zod.object({
+  "granted": zod.number().int().min(getOwnerSalesReportResponseCreditsGrantedMin),
+  "spent": zod.number().int().min(getOwnerSalesReportResponseCreditsSpentMin),
+  "released": zod.number().int().min(getOwnerSalesReportResponseCreditsReleasedMin),
+  "revoked": zod.number().int().min(getOwnerSalesReportResponseCreditsRevokedMin)
+}),
+  "funnel": zod.object({
+  "productViews": zod.number().int().min(getOwnerSalesReportResponseFunnelProductViewsMin),
+  "checkoutStarts": zod.number().int().min(getOwnerSalesReportResponseFunnelCheckoutStartsMin),
+  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseFunnelPaidOrdersMin),
+  "checkoutRate": zod.number().min(getOwnerSalesReportResponseFunnelCheckoutRateMin),
+  "paidRate": zod.number().min(getOwnerSalesReportResponseFunnelPaidRateMin)
+}),
+  "topArtworks": zod.array(zod.object({
+  "artworkId": zod.string(),
+  "artworkSlug": zod.string(),
+  "title": zod.string(),
+  "purchases": zod.number().int().min(getOwnerSalesReportResponseTopArtworksItemPurchasesMin),
+  "grossRevenueCents": zod.number().int().min(getOwnerSalesReportResponseTopArtworksItemGrossRevenueCentsMin),
+  "refundedCents": zod.number().int().min(getOwnerSalesReportResponseTopArtworksItemRefundedCentsMin),
+  "creditsUsed": zod.number().int().min(getOwnerSalesReportResponseTopArtworksItemCreditsUsedMin)
+}))
+})
+
+

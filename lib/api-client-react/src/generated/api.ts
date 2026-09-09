@@ -25,16 +25,20 @@ import type {
   CheckoutRequest,
   CheckoutResponse,
   ClaimGuestPurchasesResult,
+  FunnelEventRequest,
+  FunnelEventResponse,
   GenerationRequest,
   GenerationResponse,
   GenerationStatus,
   GenerationStatusRequest,
   GetGenerationStatusParams,
   GetMyImagesParams,
+  GetOwnerSalesReportParams,
   HealthStatus,
   InquiryRequest,
   InquiryResponse,
   OwnerCatalogIntelligenceAccess,
+  OwnerSalesReport,
   ReferenceUploadResponse,
   UploadReferenceParams
 } from './api.schemas';
@@ -823,3 +827,167 @@ export function useGetOwnerCatalogIntelligenceAccess<TData = Awaited<ReturnType<
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+
+export const getRecordFunnelEventUrl = () => {
+
+
+
+
+  return `/api/functions/v1/funnel-events`
+}
+
+/**
+ * Records an allowlisted product-interest event without customer, session, payment, or personal fields. Duplicate event IDs are ignored.
+ * @summary Record a privacy-safe storefront funnel event
+ */
+export const recordFunnelEvent = async (funnelEventRequest: FunnelEventRequest, options?: Parameters<typeof customFetch>[1]): Promise<FunnelEventResponse> => {
+
+  return customFetch<FunnelEventResponse>(getRecordFunnelEventUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(funnelEventRequest)
+  }
+);}
+
+
+
+
+
+export const getRecordFunnelEventMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordFunnelEvent>>, TError,{data: BodyType<FunnelEventRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordFunnelEvent>>, TError,{data: BodyType<FunnelEventRequest>}, TContext> => {
+
+const mutationKey = ['recordFunnelEvent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordFunnelEvent>>, {data: BodyType<FunnelEventRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  recordFunnelEvent(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordFunnelEventMutationResult = NonNullable<Awaited<ReturnType<typeof recordFunnelEvent>>>
+    export type RecordFunnelEventMutationBody = BodyType<FunnelEventRequest>
+    export type RecordFunnelEventMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Record a privacy-safe storefront funnel event
+ */
+export const useRecordFunnelEvent = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordFunnelEvent>>, TError,{data: BodyType<FunnelEventRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof recordFunnelEvent>>,
+        TError,
+        {data: BodyType<FunnelEventRequest>},
+        TContext
+      > => {
+      return useMutation(getRecordFunnelEventMutationOptions(options));
+    }
+
+export const getGetOwnerSalesReportUrl = (params?: GetOwnerSalesReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/owner/sales?${stringifiedParams}` : `/api/owner/sales`
+}
+
+/**
+ * Returns aggregate verified commerce, credit-ledger, artwork-ranking, and privacy-safe storefront funnel data for an explicit reporting window. Payment totals use paid time, refunds use refund time, and credit totals use ledger-entry time. No customer or payment-provider identifiers are returned.
+ * @summary Load aggregate owner sales reporting
+ */
+export const getOwnerSalesReport = async (params?: GetOwnerSalesReportParams, options?: Parameters<typeof customFetch>[1]): Promise<OwnerSalesReport> => {
+
+  return customFetch<OwnerSalesReport>(getGetOwnerSalesReportUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetOwnerSalesReportQueryKey = (params?: GetOwnerSalesReportParams,) => {
+    return [
+    `/api/owner/sales`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetOwnerSalesReportQueryOptions = <TData = Awaited<ReturnType<typeof getOwnerSalesReport>>, TError = ErrorType<ApiError>>(params?: GetOwnerSalesReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOwnerSalesReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOwnerSalesReportQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnerSalesReport>>> = ({ signal }) => getOwnerSalesReport(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOwnerSalesReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOwnerSalesReportQueryResult = NonNullable<Awaited<ReturnType<typeof getOwnerSalesReport>>>
+export type GetOwnerSalesReportQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Load aggregate owner sales reporting
+ */
+
+export function useGetOwnerSalesReport<TData = Awaited<ReturnType<typeof getOwnerSalesReport>>, TError = ErrorType<ApiError>>(
+ params?: GetOwnerSalesReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOwnerSalesReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetOwnerSalesReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+

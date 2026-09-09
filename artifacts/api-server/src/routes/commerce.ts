@@ -22,6 +22,7 @@ import {
   StripeCheckoutModeError,
 } from "../stripeClient";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
+import { recordFunnelEvent } from "../salesReport";
 
 const router: IRouter = Router();
 const checkoutBody = z.object({
@@ -281,6 +282,15 @@ export function createCheckoutHandler(
       .update(artcovrOrders)
       .set({ stripeCheckoutSessionId: session.id })
       .where(eq(artcovrOrders.id, order.id));
+    try {
+      await recordFunnelEvent({
+        id: `checkout:${order.id}`,
+        eventType: "checkout_started",
+        artworkId: order.artworkId,
+      });
+    } catch (error) {
+      logger.warn({ err: error, orderId: order.id }, "Checkout funnel event recording failed");
+    }
 
     res.json({
       purchaseId: order.id,

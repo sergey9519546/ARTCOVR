@@ -151,6 +151,39 @@ export type OwnerCatalogIntelligenceAccess = {
   };
 };
 
+export type OwnerSalesReport = {
+  range: { from: string; to: string };
+  summary: {
+    paidOrders: number;
+    grossRevenueCents: number;
+    refunds: number;
+    refundedCents: number;
+    netRevenueCents: number;
+  };
+  credits: {
+    granted: number;
+    spent: number;
+    released: number;
+    revoked: number;
+  };
+  funnel: {
+    productViews: number;
+    checkoutStarts: number;
+    paidOrders: number;
+    checkoutRate: number;
+    paidRate: number;
+  };
+  topArtworks: Array<{
+    artworkId: string;
+    artworkSlug: string;
+    title: string;
+    purchases: number;
+    grossRevenueCents: number;
+    refundedCents: number;
+    creditsUsed: number;
+  }>;
+};
+
 type ErrorPayload = { message?: string; error?: string; code?: string };
 
 async function readPayload<T>(response: Response) {
@@ -315,6 +348,27 @@ export function getOwnerCatalogIntelligenceAccess() {
     "/owner/catalog-intelligence",
     { method: "GET" },
   );
+}
+
+export function getOwnerSalesReport(from: string, to: string) {
+  const query = new URLSearchParams({ from, to });
+  return request<OwnerSalesReport>(`/owner/sales?${query.toString()}`, {
+    method: "GET",
+  });
+}
+
+export function recordFunnelEvent(
+  artworkId: string,
+  eventType: "product_viewed",
+) {
+  return request<{ recorded: boolean }>("/functions/v1/funnel-events", {
+    method: "POST",
+    body: JSON.stringify({
+      eventId: crypto.randomUUID(),
+      eventType,
+      artworkId,
+    }),
+  });
 }
 
 export function submitInquiry(name: string, message: string) {

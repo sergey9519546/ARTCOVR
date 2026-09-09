@@ -32,3 +32,4 @@
 - [Analytics route normalization](analytics-route-normalization.md) — production paths may mix trailing-slash variants; canonicalize them before funnel aggregation.
 - [Replit production migration metadata](replit-production-migration-metadata.md) — production schema history lives in Replit’s managed audit table, not Drizzle’s development history table.
 - [Catalog facet landing pages](catalog-facet-landing-pages.md) — expand organic search with populated, useful catalog facets; avoid arbitrary keyword or doorway pages.
+- [Sales reporting boundaries](sales-reporting-boundaries.md) — keep funnel events aggregate-only and align payment, refund, and credit metrics to their authoritative timestamps.

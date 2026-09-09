@@ -15,6 +15,13 @@
       "when": 1788841816250,
       "tag": "0001_stiff_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788997202341,
+      "tag": "0002_sharp_pretty_boy",
+      "breakpoints": true
     }
   ]
 }

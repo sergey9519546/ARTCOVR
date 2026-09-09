@@ -191,6 +191,30 @@ export const artcovrWebhookEvents = pgTable("artcovr_webhook_events", {
   processedAt: timestamp("processed_at", { withTimezone: true }),
 });
 
+export const artcovrFunnelEvents = pgTable(
+  "artcovr_funnel_events",
+  {
+    // Client event IDs are opaque UUIDs. They are used only for idempotent
+    // recording and never expose a customer or session identifier.
+    id: text("id").primaryKey(),
+    eventType: text("event_type").notNull(),
+    artworkId: text("artwork_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    eventCreatedIdx: index("artcovr_funnel_events_event_created_idx").on(
+      table.eventType,
+      table.createdAt,
+    ),
+    artworkCreatedIdx: index("artcovr_funnel_events_artwork_created_idx").on(
+      table.artworkId,
+      table.createdAt,
+    ),
+  }),
+);
+
 export const insertArtcovrOrderSchema = createInsertSchema(artcovrOrders).omit({
   createdAt: true,
   paidAt: true,
@@ -198,6 +222,7 @@ export const insertArtcovrOrderSchema = createInsertSchema(artcovrOrders).omit({
 });
 export type InsertArtcovrOrder = z.infer<typeof insertArtcovrOrderSchema>;
 export type ArtcovrOrder = typeof artcovrOrders.$inferSelect;
+export type ArtcovrFunnelEvent = typeof artcovrFunnelEvents.$inferSelect;
 
 export const insertArtcovrCreditLedgerSchema = createInsertSchema(
   artcovrCreditLedger,

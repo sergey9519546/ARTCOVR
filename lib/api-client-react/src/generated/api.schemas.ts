@@ -386,6 +386,90 @@ export interface OwnerCatalogIntelligenceAccess {
   capabilities: OwnerCatalogIntelligenceAccessCapabilities;
 }
 
+export type FunnelEventRequestEventType = typeof FunnelEventRequestEventType[keyof typeof FunnelEventRequestEventType];
+
+
+export const FunnelEventRequestEventType = {
+  product_viewed: 'product_viewed',
+} as const;
+
+export interface FunnelEventRequest {
+  eventId: string;
+  eventType: FunnelEventRequestEventType;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  artworkId: string;
+}
+
+export interface FunnelEventResponse {
+  recorded: boolean;
+}
+
+export type OwnerSalesReportRange = {
+  from: string;
+  to: string;
+};
+
+export type OwnerSalesReportSummary = {
+  /** @minimum 0 */
+  paidOrders: number;
+  /** @minimum 0 */
+  grossRevenueCents: number;
+  /** @minimum 0 */
+  refunds: number;
+  /** @minimum 0 */
+  refundedCents: number;
+  netRevenueCents: number;
+};
+
+export type OwnerSalesReportCredits = {
+  /** @minimum 0 */
+  granted: number;
+  /** @minimum 0 */
+  spent: number;
+  /** @minimum 0 */
+  released: number;
+  /** @minimum 0 */
+  revoked: number;
+};
+
+export type OwnerSalesReportFunnel = {
+  /** @minimum 0 */
+  productViews: number;
+  /** @minimum 0 */
+  checkoutStarts: number;
+  /** @minimum 0 */
+  paidOrders: number;
+  /** @minimum 0 */
+  checkoutRate: number;
+  /** @minimum 0 */
+  paidRate: number;
+};
+
+export interface OwnerSalesArtwork {
+  artworkId: string;
+  artworkSlug: string;
+  title: string;
+  /** @minimum 0 */
+  purchases: number;
+  /** @minimum 0 */
+  grossRevenueCents: number;
+  /** @minimum 0 */
+  refundedCents: number;
+  /** @minimum 0 */
+  creditsUsed: number;
+}
+
+export interface OwnerSalesReport {
+  range: OwnerSalesReportRange;
+  summary: OwnerSalesReportSummary;
+  credits: OwnerSalesReportCredits;
+  funnel: OwnerSalesReportFunnel;
+  topArtworks: OwnerSalesArtwork[];
+}
+
 export type ArtworkIdParameter = string;
 
 export type GenerationIdParameter = string;
@@ -413,3 +497,15 @@ export type GetGenerationStatusParams = {
  */
 generationId: GenerationIdParameter;
 };
+
+export type GetOwnerSalesReportParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+from?: string;
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+to?: string;
+};
+

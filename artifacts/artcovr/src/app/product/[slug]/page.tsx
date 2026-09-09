@@ -28,10 +28,18 @@ import {
 } from "@/lib/artcovr/visual-index";
 import NotFound from "@/pages/not-found";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { recordFunnelEvent } from "@/lib/artcovr/functions";
+import { useEffect } from "react";
 
 export default function ProductPage() {
   const { slug = "" } = useParams<{ slug: string }>();
   const art = getArtworkBySlug(slug);
+  useEffect(() => {
+    if (!art) return;
+    void recordFunnelEvent(art.id, "product_viewed").catch(() => {
+      // Funnel instrumentation must never interrupt product discovery.
+    });
+  }, [art?.id]);
   if (!art) return <NotFound />;
 
   const genres = getArtworkGenres(art);
