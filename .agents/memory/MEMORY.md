@@ -31,3 +31,4 @@
 - [Release smoke outage reasons](release-smoke-error-reasons.md) — capture sanitized smoke stderr so configured-target DNS and timeout failures do not collapse into exit codes.
 - [Analytics route normalization](analytics-route-normalization.md) — production paths may mix trailing-slash variants; canonicalize them before funnel aggregation.
 - [Replit production migration metadata](replit-production-migration-metadata.md) — production schema history lives in Replit’s managed audit table, not Drizzle’s development history table.
+- [Catalog facet landing pages](catalog-facet-landing-pages.md) — expand organic search with populated, useful catalog facets; avoid arbitrary keyword or doorway pages.

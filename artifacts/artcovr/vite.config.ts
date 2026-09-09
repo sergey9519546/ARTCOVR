@@ -10,7 +10,12 @@ import {
   buildLlmsTxt,
   buildSitemapXml,
 } from './src/lib/artcovr/discovery';
-import { displayGenreLabel, getArtworkGenres } from './src/lib/artcovr/genre-index';
+import {
+  displayGenreLabel,
+  getArtworkGenres,
+  getAvailableMusicGenres,
+  genrePath,
+} from './src/lib/artcovr/genre-index';
 import { selectPublicCatalog } from './src/lib/artcovr/catalog-visibility';
 import {
   getPrerenderedRoutePaths,
@@ -81,7 +86,14 @@ function privateCatalogIsolationPlugin() {
 
 function discoveryPlugin(siteUrl: string) {
   const files = {
-    'sitemap.xml': buildSitemapXml(publicCatalog, siteUrl),
+    'sitemap.xml': buildSitemapXml(
+      publicCatalog,
+      siteUrl,
+      getAvailableMusicGenres(
+        publicCatalog,
+        (artwork) => getArtworkGenres(artwork).map(displayGenreLabel),
+      ).map(genrePath),
+    ),
     'llms.txt': buildLlmsTxt(discoveryCatalog, siteUrl),
     'llms-full.txt': buildLlmsFullTxt(discoveryCatalog, siteUrl),
     'catalog-facts.json': buildCatalogFactsJson(discoveryCatalog, siteUrl),
@@ -223,7 +235,10 @@ function routeMetadataPlugin(
   indexingDisabled: boolean,
   outputDirectory: string,
 ) {
-  const paths = getPrerenderedRoutePaths(publicCatalog);
+  const paths = getPrerenderedRoutePaths(
+    publicCatalog,
+    (artwork) => getArtworkGenres(artwork).map(displayGenreLabel),
+  );
   const metadataForPath = (routePath: string) =>
     getRouteMetadata(routePath, publicCatalog, (artwork) =>
       getArtworkGenres(artwork).map(displayGenreLabel),

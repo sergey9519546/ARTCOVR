@@ -142,3 +142,45 @@ export function displayGenreLabel(value: string) {
 export function genreSearchTerms(artwork: Pick<Artwork, "slug" | "category" | "moodTags">) {
   return getArtworkGenres(artwork).flatMap((genre) => [genre, displayGenreLabel(genre)]);
 }
+
+export function genrePath(genre: MusicGenre) {
+  return `/cover-art/${genre}`;
+}
+
+export function genreFromPath(path: string): MusicGenre | null {
+  const match = path.match(/^\/cover-art\/([^/]+)$/);
+  if (!match) return null;
+  let value: string;
+  try {
+    value = decodeURIComponent(match[1]);
+  } catch {
+    return null;
+  }
+  return (MUSIC_GENRES as readonly string[]).includes(value)
+    ? (value as MusicGenre)
+    : null;
+}
+
+export function hasGenreMatch(
+  artwork: Pick<Artwork, "slug" | "category" | "moodTags">,
+  genre: MusicGenre,
+  getGenres: (
+    artwork: Pick<Artwork, "slug" | "category" | "moodTags">,
+  ) => readonly string[] = getArtworkGenres,
+) {
+  const label = displayGenreLabel(genre).toLowerCase();
+  return getGenres(artwork).some(
+    (value) => value === genre || value.toLowerCase() === label,
+  );
+}
+
+export function getAvailableMusicGenres(
+  artworks: readonly Pick<Artwork, "slug" | "category" | "moodTags">[],
+  getGenres: (
+    artwork: Pick<Artwork, "slug" | "category" | "moodTags">,
+  ) => readonly string[] = getArtworkGenres,
+) {
+  return MUSIC_GENRES.filter((genre) =>
+    artworks.some((artwork) => hasGenreMatch(artwork, genre, getGenres)),
+  );
+}

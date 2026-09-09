@@ -11,6 +11,13 @@ import {
   type RouteMetadata,
 } from "./route-metadata";
 import { ANSWER_GUIDE_BY_PATH } from "./answer-guides";
+import {
+  displayGenreLabel,
+  genreFromPath,
+  genrePath,
+  getAvailableMusicGenres,
+  hasGenreMatch,
+} from "./genre-index";
 
 export type StaticArtwork = {
   slug: string;
@@ -111,6 +118,7 @@ function siteHeader() {
       ${link("/", "ARTCOVR", "brand-link")}
       <div>
         ${link("/archive", "Archive")}
+        ${link("/cover-art", "By genre")}
         ${link("/about", "About")}
         ${link("/faq", "FAQ")}
         ${link("/license", "License")}
@@ -125,6 +133,7 @@ function siteFooter() {
     <p>Distinctive cover art, shaped by your prompt.</p>
     <nav aria-label="Footer">
       ${link("/archive", "Browse the archive")}
+      ${link("/cover-art", "Cover art by genre")}
       ${link("/license", "Commercial license")}
       ${link("/guides/cover-art-licensing", "Licensing guide")}
       ${link("/guides/exclusive-cover-art", "Exclusive cover art")}
@@ -196,6 +205,77 @@ function renderArchive({ artworks }: RenderContext) {
     <section aria-label="Artwork archive">
       <ul>${cards}</ul>
     </section>
+  </main>`);
+}
+
+function genreCollection({
+  artworks,
+  metadata,
+  getGenres,
+}: Pick<RenderContext, "artworks" | "metadata" | "getGenres">) {
+  const genre = genreFromPath(metadata.path);
+  if (!genre) return [];
+  return artworks.filter((artwork) => hasGenreMatch(artwork, genre, getGenres));
+}
+
+function renderGenreIndex({ artworks, getGenres }: RenderContext) {
+  const links = getAvailableMusicGenres(artworks, getGenres)
+    .map((genre) => {
+      const matching = artworks.filter((artwork) =>
+        hasGenreMatch(artwork, genre, getGenres),
+      );
+      return `<li><a href="${escapeHtml(genrePath(genre))}"><h2>${escapeHtml(displayGenreLabel(genre))} cover art</h2><p>${matching.length} curated ${matching.length === 1 ? "work" : "works"} for music releases and visual projects.</p></a></li>`;
+    })
+    .join("");
+
+  return pageLayout(`<main id="main">
+    <header>
+      <p>Genre collection</p>
+      <h1>Music cover art by genre.</h1>
+      <p>Explore owner-approved cover artwork through the music lanes that shape the ARTCOVR catalog. Each collection is built from real catalog metadata and links directly to available works.</p>
+    </header>
+    <section aria-labelledby="genre-collections">
+      <h2 id="genre-collections">Browse by genre</h2>
+      <ul>${links}</ul>
+    </section>
+    <p>${link("/archive", "Browse the complete cover art archive")}</p>
+  </main>`);
+}
+
+function renderGenreCollection({ artworks, metadata, getGenres }: RenderContext) {
+  const genre = genreFromPath(metadata.path);
+  if (!genre) return renderNotFound();
+  const label = displayGenreLabel(genre);
+  const matching = genreCollection({ artworks, metadata, getGenres });
+  const categories = [...new Set(matching.map((artwork) => artwork.category))].slice(0, 4);
+  const cards = matching
+    .slice(0, 24)
+    .map(
+      (artwork) => `<li>
+        <article>
+          <a href="/product/${encodeURIComponent(artwork.slug)}">
+            <img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(artwork.alt)}" width="1200" height="1200" loading="lazy" />
+            <h2>${escapeHtml(artwork.title)}</h2>
+          </a>
+          <p>${escapeHtml(artwork.description)}</p>
+        </article>
+      </li>`,
+    )
+    .join("");
+
+  return pageLayout(`<main id="main">
+    <nav aria-label="Breadcrumb">${link("/cover-art", "Music cover art by genre")} <span aria-hidden="true">/</span> <span>${escapeHtml(label)}</span></nav>
+    <header>
+      <p>${escapeHtml(label)} collection</p>
+      <h1>${escapeHtml(label)} cover art.</h1>
+      <p>Browse ${matching.length} curated ${label} cover artworks for album covers, singles, and other music releases. The collection combines visual direction with clear commercial licensing and prompt-based editing options.</p>
+      <p>${categories.length ? `This lane includes ${categories.map(escapeHtml).join(", ")} artwork.` : ""}</p>
+    </header>
+    <section aria-labelledby="genre-works">
+      <h2 id="genre-works">${escapeHtml(label)} album cover art</h2>
+      <ul>${cards}</ul>
+    </section>
+    <p>${link("/archive", "Search every cover artwork")} ${link("/license", "Read the commercial cover art license")}</p>
   </main>`);
 }
 
@@ -463,6 +543,28 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
       }),
     );
   }
+  if (metadata.path === "/cover-art") {
+    return combineStructuredData(
+      buildOrganizationStructuredData(siteUrl),
+      buildArtworkCollectionStructuredData(artworks, siteUrl, {
+        path: "/cover-art",
+        name: "ARTCOVR music cover art by genre",
+        description: metadata.description,
+      }),
+    );
+  }
+  if (genreFromPath(metadata.path)) {
+    const genre = genreFromPath(metadata.path)!;
+    const matching = genreCollection({ artworks, metadata, getGenres });
+    return combineStructuredData(
+      buildOrganizationStructuredData(siteUrl),
+      buildArtworkCollectionStructuredData(matching, siteUrl, {
+        path: metadata.path,
+        name: `${displayGenreLabel(genre)} cover art`,
+        description: metadata.description,
+      }),
+    );
+  }
   if (metadata.path.startsWith("/product/")) {
     const slug = metadata.path.slice("/product/".length);
     let artwork: StaticArtwork | undefined;
@@ -511,6 +613,8 @@ export function renderStaticRoute(context: RenderContext) {
   let body = renderInfo(metadata.path);
   if (metadata.path === "/") body = renderHome(context);
   if (metadata.path === "/archive") body = renderArchive(context);
+  if (metadata.path === "/cover-art") body = renderGenreIndex(context);
+  if (genreFromPath(metadata.path)) body = renderGenreCollection(context);
   if (metadata.path === "/faq") body = renderFaq(context);
   if (ANSWER_GUIDE_BY_PATH.has(metadata.path)) body = renderAnswerGuide(context);
   if (metadata.path.startsWith("/product/")) body = renderProduct(context);

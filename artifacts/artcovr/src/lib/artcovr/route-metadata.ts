@@ -1,4 +1,12 @@
 import { absoluteSiteUrl } from "./seo";
+import {
+  displayGenreLabel,
+  genreFromPath,
+  genrePath,
+  getAvailableMusicGenres,
+  getArtworkGenres,
+  hasGenreMatch,
+} from "./genre-index";
 
 export type RouteArtwork = {
   slug: string;
@@ -70,6 +78,12 @@ export const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
     title: "Curated Cover Art Archive for Music Releases | ARTCOVR",
     description:
       "Browse 187 owner-approved cover artworks for music releases by genre, mood, color, and visual topic. Compare each work's commercial license and editing options.",
+    index: true,
+  },
+  "/cover-art": {
+    title: "Music Cover Art by Genre | ARTCOVR",
+    description:
+      "Explore curated cover art for ambient, electronic, jazz, hip-hop, indie rock, dream pop, experimental, and other music genres.",
     index: true,
   },
   "/about": {
@@ -195,8 +209,25 @@ function decodeSlug(value: string) {
 export function getRouteMetadata(
   path: string,
   artworks: readonly RouteArtwork[],
-  getGenres: (artwork: RouteArtwork) => readonly string[] = (artwork) => [artwork.category],
+  getGenres: (artwork: RouteArtwork) => readonly string[] = (artwork) =>
+    getArtworkGenres(artwork).map(displayGenreLabel),
 ): RouteMetadata {
+  const genre = genreFromPath(path);
+  if (genre) {
+    const label = displayGenreLabel(genre);
+    const matchingCount = artworks.filter((artwork) =>
+      hasGenreMatch(artwork, genre, getGenres),
+    ).length;
+    return {
+      title: trimTitle(`${label} Cover Art for Music Releases | ARTCOVR`),
+      description: trimDescription(
+        `Browse ${matchingCount} curated ${label} cover artworks for album covers, singles, and music releases. Review visual details, commercial licensing, and editing options.`,
+      ),
+      path,
+      index: matchingCount > 0,
+    };
+  }
+
   const checkoutMatch = path.match(/^\/checkout\/([^/]+)$/);
   if (checkoutMatch) {
     const artwork = artworks.find((candidate) => candidate.slug === decodeSlug(checkoutMatch[1]));
@@ -249,15 +280,28 @@ export function getRouteMetadata(
   return { ...metadata, path };
 }
 
-export function getPrerenderedRoutePaths(artworks: readonly RouteArtwork[]) {
+export function getPrerenderedRoutePaths(
+  artworks: readonly RouteArtwork[],
+  getGenres: (artwork: RouteArtwork) => readonly string[] = (artwork) =>
+    getArtworkGenres(artwork).map(displayGenreLabel),
+) {
   const productPaths = artworks
     .filter((artwork) => artwork.published && artwork.rightsApproved)
     .map((artwork) => `/product/${encodeURIComponent(artwork.slug)}`);
   const checkoutPaths = artworks
     .filter((artwork) => artwork.published && artwork.rightsApproved)
     .map((artwork) => `/checkout/${encodeURIComponent(artwork.slug)}`);
+  const genrePaths = getAvailableMusicGenres(artworks, getGenres).map(genrePath);
 
-  return [...new Set(["/", ...Object.keys(STATIC_METADATA), ...productPaths, ...checkoutPaths])];
+  return [
+    ...new Set([
+      "/",
+      ...Object.keys(STATIC_METADATA),
+      ...genrePaths,
+      ...productPaths,
+      ...checkoutPaths,
+    ]),
+  ];
 }
 
 export function getIndexableRoutePaths(artworks: readonly RouteArtwork[]) {

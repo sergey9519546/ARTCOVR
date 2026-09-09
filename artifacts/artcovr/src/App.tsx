@@ -45,6 +45,8 @@ const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 // entry chunk.
 const AboutPage = lazy(() => import("@/app/about/page"));
 const ArchivePage = lazy(() => import("@/app/archive/page"));
+const GenreCoverArtPage = lazy(() => import("@/app/cover-art/[genre]/page"));
+const GenreIndexPage = lazy(() => import("@/app/cover-art/page"));
 const AuthCallbackPage = lazy(() => import("@/app/auth/callback/page"));
 const ContactPage = lazy(() => import("@/app/contact/page"));
 const CheckoutPageComponent = lazy(() => import("@/app/checkout/[slug]/page"));
@@ -154,6 +156,8 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/about" component={AboutPage} />
           <Route path="/archive" component={ArchivePage} />
+          <Route path="/cover-art" component={GenreIndexPage} />
+          <Route path="/cover-art/:genre" component={GenreCoverArtPage} />
           <Route path="/auth/callback" component={AuthCallbackPage} />
           <Route path="/bag">
             <Redirect to="/archive" />

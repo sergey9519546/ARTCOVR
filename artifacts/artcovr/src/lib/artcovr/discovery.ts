@@ -103,6 +103,7 @@ export function buildCatalogFactsJson(
 export function buildSitemapXml(
   items: readonly Pick<Artwork, "slug" | "title" | "image" | "alt">[],
   siteUrl: string,
+  genrePaths: readonly string[] = [],
 ) {
   const base = cleanSiteUrl(siteUrl);
   const routes: Array<{
@@ -113,6 +114,7 @@ export function buildSitemapXml(
   }> = [
     { path: "/", changefreq: "weekly", priority: "1.0" },
     { path: "/archive", changefreq: "weekly", priority: "0.9" },
+    { path: "/cover-art", changefreq: "weekly", priority: "0.8" },
     { path: "/about", changefreq: "monthly", priority: "0.6" },
     { path: "/faq", changefreq: "monthly", priority: "0.7" },
     { path: "/license", changefreq: "monthly", priority: "0.6" },
@@ -128,6 +130,11 @@ export function buildSitemapXml(
       changefreq: "monthly",
       priority: "0.7",
       image: item,
+    })),
+    ...genrePaths.map((path) => ({
+      path,
+      changefreq: "weekly",
+      priority: "0.7",
     })),
   ];
 
