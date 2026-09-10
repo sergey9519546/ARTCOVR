@@ -45,6 +45,15 @@ function session(livemode: boolean): Stripe.Checkout.Session {
 test("production expects live Stripe checkout sessions", () => {
   assert.equal(expectedStripeLivemode({ NODE_ENV: "production" }), true);
   assert.equal(expectedStripeLivemode({ NODE_ENV: "development" }), false);
+  assert.equal(
+    expectedStripeLivemode({
+      NODE_ENV: "development",
+      REPLIT_ENVIRONMENT: "production",
+    }),
+    false,
+  );
+  assert.equal(expectedStripeLivemode({ REPLIT_ENVIRONMENT: "production" }), true);
+  assert.equal(expectedStripeLivemode({ REPLIT_ENVIRONMENT: "development" }), false);
 });
 
 test("checkout mode validation accepts the expected account mode", () => {

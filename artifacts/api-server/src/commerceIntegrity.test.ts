@@ -372,6 +372,7 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
     } as Stripe.Event;
 
     await fulfillCheckoutSession(event, {
+      expectedLivemode: false,
       refundPaymentIntent: async (input, idempotencyKey) => {
         refundCalls += 1;
         assert.equal(input.paymentIntentId, paymentIntentId);
@@ -381,6 +382,7 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
       },
     });
     await fulfillCheckoutSession(event, {
+      expectedLivemode: false,
       refundPaymentIntent: async () => {
         throw new Error("duplicate webhook must not refund twice");
       },
@@ -458,8 +460,18 @@ test("a Stripe refund revokes the remaining credits exactly once", async () => {
       },
     } as Stripe.Event;
 
-    await fulfillCheckoutSession(event);
-    await fulfillCheckoutSession(event);
+    await fulfillCheckoutSession(event, {
+      expectedLivemode: false,
+      refundPaymentIntent: async () => {
+        throw new Error("A refund webhook must not create another refund.");
+      },
+    });
+    await fulfillCheckoutSession(event, {
+      expectedLivemode: false,
+      refundPaymentIntent: async () => {
+        throw new Error("A duplicate refund webhook must not create another refund.");
+      },
+    });
 
     const [order] = await db
       .select({

@@ -22,7 +22,13 @@ export class StripeProxyError extends Error {
 export function expectedStripeLivemode(
   env: Record<string, string | undefined> = process.env,
 ) {
-  return env.NODE_ENV === "production";
+  // Replit artifact workflows may omit NODE_ENV while the connectors proxy
+  // still selects credentials from REPLIT_ENVIRONMENT.
+  if (env.NODE_ENV === "development" || env.NODE_ENV === "test") return false;
+  return (
+    env.NODE_ENV === "production" ||
+    env.REPLIT_ENVIRONMENT === "production"
+  );
 }
 
 export class StripeCheckoutModeError extends Error {
