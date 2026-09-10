@@ -1052,6 +1052,7 @@ components:
             paidOrders:
               type: integer
               minimum: 0
+              description: Paid orders linked to checkout starts in this window and completed by the window end.
             grossRevenueCents:
               type: integer
               minimum: 0
@@ -1092,6 +1093,7 @@ components:
             paidOrders:
               type: integer
               minimum: 0
+              description: Checkout-start cohort orders paid by the reporting window end.
             checkoutRate:
               type: number
               minimum: 0

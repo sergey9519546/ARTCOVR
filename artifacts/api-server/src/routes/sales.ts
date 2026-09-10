@@ -4,6 +4,7 @@ import {
   type Request,
   type Response,
 } from "express";
+import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { getPublicArtworkById } from "../catalog";
 import {
@@ -28,6 +29,22 @@ const funnelEventBody = z.object({
   eventType: z.literal("product_viewed"),
   artworkId: z.string().trim().min(1).max(200),
 });
+
+export function productViewDedupeKey(
+  req: Request,
+  artworkId: string,
+  now = new Date(),
+) {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) return undefined;
+  const day = now.toISOString().slice(0, 10);
+  const clientKey = `${req.ip}|${req.get("user-agent") ?? "unknown"}`;
+  const digest = createHmac("sha256", secret)
+    .update(clientKey)
+    .digest("hex")
+    .slice(0, 32);
+  return `product_viewed:${artworkId}:${day}:${digest}`;
+}
 
 function defaultReportRange(now = new Date()): SalesReportRange {
   const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
@@ -84,6 +101,7 @@ router.post("/functions/v1/funnel-events", async (req, res): Promise<void> => {
       id: parsed.data.eventId,
       eventType: parsed.data.eventType,
       artworkId: parsed.data.artworkId,
+      dedupeKey: productViewDedupeKey(req, parsed.data.artworkId),
     });
     res.json({ recorded: true });
   } catch (error) {

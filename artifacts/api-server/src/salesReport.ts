@@ -3,6 +3,7 @@ import {
   artcovrCreditLedger,
   artcovrFunnelEvents,
   artcovrOrders,
+  artcovrRefundEvents,
   db,
 } from "@workspace/db";
 import { getPublicArtworkById } from "./catalog";
@@ -52,12 +53,22 @@ export type SalesReportRange = {
 };
 
 type ReportOrder = {
+  id: string;
   artworkId: string;
   artworkSlug: string;
   amountCents: number;
+  refundedCents: number;
   status: string;
   paidAt: Date | null;
   refundedAt: Date | null;
+};
+
+type ReportRefund = {
+  orderId: string;
+  artworkId: string;
+  artworkSlug: string;
+  amountCents: number;
+  refundedAt: Date;
 };
 
 type ReportLedgerEntry = {
@@ -69,10 +80,22 @@ type ReportLedgerEntry = {
 };
 
 type ReportFunnelEvent = {
+  id?: string;
   eventType: string;
   artworkId: string;
+  orderId: string | null;
   createdAt: Date;
 };
+
+function checkoutOrderId(event: ReportFunnelEvent) {
+  if (event.eventType !== "checkout_started") return null;
+  return (
+    event.orderId ??
+    (event.id?.startsWith("checkout:")
+      ? event.id.slice("checkout:".length)
+      : null)
+  );
+}
 
 function inRange(value: Date | null, range: SalesReportRange) {
   return Boolean(value && value >= range.from && value < range.to);
@@ -89,18 +112,38 @@ function artworkTitle(artworkId: string, artworkSlug: string) {
 export function buildOwnerSalesReport(input: {
   range: SalesReportRange;
   orders: readonly ReportOrder[];
+  refundEvents: readonly ReportRefund[];
   ledgerEntries: readonly ReportLedgerEntry[];
   funnelEvents: readonly ReportFunnelEvent[];
 }): OwnerSalesReport {
-  const { range, orders, ledgerEntries, funnelEvents } = input;
+  const { range, orders, refundEvents, ledgerEntries, funnelEvents } = input;
   const paidOrders = orders.filter((order) => inRange(order.paidAt, range));
-  const refundedOrders = orders.filter((order) => inRange(order.refundedAt, range));
+  const recordedRefunds = refundEvents.filter((refund) =>
+    inRange(refund.refundedAt, range),
+  );
+  const recordedRefundOrderIds = new Set(
+    recordedRefunds.map((refund) => refund.orderId),
+  );
+  const legacyRefunds = orders
+    .filter(
+      (order) =>
+        inRange(order.refundedAt, range) &&
+        !recordedRefundOrderIds.has(order.id),
+    )
+    .map((order) => ({
+      orderId: order.id,
+      artworkId: order.artworkId,
+      artworkSlug: order.artworkSlug,
+      amountCents: order.refundedCents || order.amountCents,
+      refundedAt: order.refundedAt as Date,
+    }));
+  const refunds = [...recordedRefunds, ...legacyRefunds];
   const grossRevenueCents = paidOrders.reduce(
     (total, order) => total + moneyNumber(order.amountCents),
     0,
   );
-  const refundedCents = refundedOrders.reduce(
-    (total, order) => total + moneyNumber(order.amountCents),
+  const refundedCents = refunds.reduce(
+    (total, refund) => total + moneyNumber(refund.amountCents),
     0,
   );
 
@@ -124,6 +167,21 @@ export function buildOwnerSalesReport(input: {
   const checkoutStarts = funnelEvents.filter(
     (event) => event.eventType === "checkout_started",
   ).length;
+  const checkoutOrderIds = new Set(
+    funnelEvents
+      .map(checkoutOrderId)
+      .filter((id): id is string => Boolean(id)),
+  );
+  const paidCheckoutOrderIds = new Set(
+    orders
+      .filter(
+        (order) =>
+          order.paidAt &&
+          order.paidAt < range.to &&
+          checkoutOrderIds.has(order.id),
+      )
+      .map((order) => order.id),
+  );
 
   const artworkMap = new Map<
     string,
@@ -159,9 +217,11 @@ export function buildOwnerSalesReport(input: {
       row.purchases += 1;
       row.grossRevenueCents += moneyNumber(order.amountCents);
     }
-    if (inRange(order.refundedAt, range)) {
-      row.refundedCents += moneyNumber(order.amountCents);
-    }
+  }
+
+  for (const refund of refunds) {
+    const row = getArtworkRow(refund.artworkId, refund.artworkSlug);
+    row.refundedCents += moneyNumber(refund.amountCents);
   }
 
   for (const entry of ledgerEntries) {
@@ -192,7 +252,7 @@ export function buildOwnerSalesReport(input: {
     summary: {
       paidOrders: paidOrders.length,
       grossRevenueCents,
-      refunds: refundedOrders.length,
+      refunds: refunds.length,
       refundedCents,
       netRevenueCents: grossRevenueCents - refundedCents,
     },
@@ -200,9 +260,9 @@ export function buildOwnerSalesReport(input: {
     funnel: {
       productViews,
       checkoutStarts,
-      paidOrders: paidOrders.length,
+      paidOrders: paidCheckoutOrderIds.size,
       checkoutRate: productViews ? checkoutStarts / productViews : 0,
-      paidRate: checkoutStarts ? paidOrders.length / checkoutStarts : 0,
+      paidRate: checkoutStarts ? paidCheckoutOrderIds.size / checkoutStarts : 0,
     },
     topArtworks,
   };
@@ -211,11 +271,72 @@ export function buildOwnerSalesReport(input: {
 export async function getOwnerSalesReport(
   range: SalesReportRange,
 ): Promise<OwnerSalesReport> {
+  const refundEvents = await db
+    .select({
+      orderId: artcovrRefundEvents.orderId,
+      artworkId: artcovrOrders.artworkId,
+      artworkSlug: artcovrOrders.artworkSlug,
+      amountCents: artcovrRefundEvents.amountCents,
+      refundedAt: artcovrRefundEvents.refundedAt,
+    })
+    .from(artcovrRefundEvents)
+    .innerJoin(
+      artcovrOrders,
+      eq(artcovrOrders.id, artcovrRefundEvents.orderId),
+    )
+    .where(
+      and(
+        inArray(artcovrOrders.status, [...reportableOrderStatuses]),
+        gte(artcovrRefundEvents.refundedAt, range.from),
+        lt(artcovrRefundEvents.refundedAt, range.to),
+      ),
+    );
+
+  const funnelEvents = await db
+    .select({
+      eventType: artcovrFunnelEvents.eventType,
+      id: artcovrFunnelEvents.id,
+      artworkId: artcovrFunnelEvents.artworkId,
+      orderId: artcovrFunnelEvents.orderId,
+      createdAt: artcovrFunnelEvents.createdAt,
+    })
+    .from(artcovrFunnelEvents)
+    .where(
+      and(
+        gte(artcovrFunnelEvents.createdAt, range.from),
+        lt(artcovrFunnelEvents.createdAt, range.to),
+      ),
+    );
+
+  const cohortOrderIds = [
+    ...new Set([
+      ...refundEvents.map((refund) => refund.orderId),
+      ...funnelEvents
+        .map(checkoutOrderId)
+        .filter((id): id is string => Boolean(id)),
+    ]),
+  ];
+  const paidOrRefundedInRange = or(
+    and(
+      gte(artcovrOrders.paidAt, range.from),
+      lt(artcovrOrders.paidAt, range.to),
+    ),
+    and(
+      gte(artcovrOrders.refundedAt, range.from),
+      lt(artcovrOrders.refundedAt, range.to),
+    ),
+  );
+  const orderWindow = cohortOrderIds.length
+    ? or(paidOrRefundedInRange, inArray(artcovrOrders.id, cohortOrderIds))
+    : paidOrRefundedInRange;
+
   const orders = await db
     .select({
+      id: artcovrOrders.id,
       artworkId: artcovrOrders.artworkId,
       artworkSlug: artcovrOrders.artworkSlug,
       amountCents: artcovrOrders.amountCents,
+      refundedCents: artcovrOrders.refundedCents,
       status: artcovrOrders.status,
       paidAt: artcovrOrders.paidAt,
       refundedAt: artcovrOrders.refundedAt,
@@ -224,16 +345,7 @@ export async function getOwnerSalesReport(
     .where(
       and(
         inArray(artcovrOrders.status, [...reportableOrderStatuses]),
-        or(
-          and(
-            gte(artcovrOrders.paidAt, range.from),
-            lt(artcovrOrders.paidAt, range.to),
-          ),
-          and(
-            gte(artcovrOrders.refundedAt, range.from),
-            lt(artcovrOrders.refundedAt, range.to),
-          ),
-        ),
+        orderWindow,
       ),
     );
 
@@ -258,23 +370,10 @@ export async function getOwnerSalesReport(
       ),
     );
 
-  const funnelEvents = await db
-    .select({
-      eventType: artcovrFunnelEvents.eventType,
-      artworkId: artcovrFunnelEvents.artworkId,
-      createdAt: artcovrFunnelEvents.createdAt,
-    })
-    .from(artcovrFunnelEvents)
-    .where(
-      and(
-        gte(artcovrFunnelEvents.createdAt, range.from),
-        lt(artcovrFunnelEvents.createdAt, range.to),
-      ),
-    );
-
   return buildOwnerSalesReport({
     range,
     orders,
+    refundEvents,
     ledgerEntries,
     funnelEvents,
   });
@@ -284,6 +383,8 @@ export async function recordFunnelEvent(input: {
   id: string;
   eventType: "product_viewed" | "checkout_started";
   artworkId: string;
+  orderId?: string;
+  dedupeKey?: string;
 }) {
   await db
     .insert(artcovrFunnelEvents)

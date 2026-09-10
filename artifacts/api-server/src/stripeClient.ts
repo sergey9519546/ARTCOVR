@@ -363,6 +363,7 @@ export async function ensureStripeWebhook(url: string) {
     "checkout.session.completed",
     "checkout.session.async_payment_succeeded",
     "checkout.session.expired",
+    "charge.refunded",
   ] as const;
   const existing = page.data.find(
     (endpoint) => endpoint.url === url && endpoint.status === "enabled",

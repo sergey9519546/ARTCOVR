@@ -10,6 +10,15 @@ import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
 
 const ARTWORK_IMAGE_FALLBACK = "/assets/artwork-placeholder.svg";
 
+function shuffleArtworks<T>(items: readonly T[]) {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
 function hasRange(min: number, max: number) {
   return displayArtworks.length >= min && displayArtworks.length <= max;
 }
@@ -24,6 +33,13 @@ const CLAMPED_TRAILING_CARDS = 16;
 
 export function ProductGrid() {
   const [revealed, setRevealed] = useState(false);
+  const [shuffledRemainingArtworks, setShuffledRemainingArtworks] = useState(
+    () => displayArtworks.slice(GRID_RUNWAY_END),
+  );
+
+  useEffect(() => {
+    setShuffledRemainingArtworks((items) => shuffleArtworks(items));
+  }, []);
 
   useEffect(() => {
     const applyFallback = (image: HTMLImageElement) => {
@@ -58,7 +74,7 @@ export function ProductGrid() {
 
   if (displayArtworks.length === 0) return null;
   const isPartialCatalog = hasRange(4, 7);
-  const remainingArtworks = displayArtworks.slice(GRID_RUNWAY_END);
+  const remainingArtworks = shuffledRemainingArtworks;
   const firstRow = displayArtworks.slice(0, 12);
   const uniformRowClass = "grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-y-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16";
   const firstRowSpacing = isPartialCatalog ? "mb-6 md:mb-8" : "mb-10 md:mb-12";

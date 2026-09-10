@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createOwnerSalesHandler, parseSalesReportRange } from "./sales";
+import {
+  createOwnerSalesHandler,
+  parseSalesReportRange,
+  productViewDedupeKey,
+} from "./sales";
 
 function responseRecorder() {
   let statusCode = 200;
@@ -140,4 +144,38 @@ test("sales range rejects invalid and overly broad windows", () => {
     ),
     null,
   );
+});
+
+test("product-view dedupe keys are stable per anonymous client and never store the raw client key", (context) => {
+  const previous = process.env.SESSION_SECRET;
+  process.env.SESSION_SECRET = "test-session-secret";
+  context.after(() => {
+    if (previous === undefined) delete process.env.SESSION_SECRET;
+    else process.env.SESSION_SECRET = previous;
+  });
+
+  const request = {
+    ip: "203.0.113.12",
+    get: () => "test-browser",
+  };
+  const first = productViewDedupeKey(
+    request as never,
+    "art-1",
+    new Date("2026-09-09T10:00:00.000Z"),
+  );
+  const replay = productViewDedupeKey(
+    request as never,
+    "art-1",
+    new Date("2026-09-09T18:00:00.000Z"),
+  );
+  const nextDay = productViewDedupeKey(
+    request as never,
+    "art-1",
+    new Date("2026-09-10T10:00:00.000Z"),
+  );
+
+  assert.equal(first, replay);
+  assert.notEqual(first, nextDay);
+  assert.equal(first?.includes("203.0.113.12"), false);
+  assert.equal(first?.includes("test-browser"), false);
 });

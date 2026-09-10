@@ -41,6 +41,7 @@ export const artcovrOrders = pgTable(
       .defaultNow(),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     refundedAt: timestamp("refunded_at", { withTimezone: true }),
+    refundedCents: integer("refunded_cents").notNull().default(0),
     entitlementExpiresAt: timestamp("entitlement_expires_at", { withTimezone: true }),
     accessRevokedAt: timestamp("access_revoked_at", { withTimezone: true }),
     accessRevocationReason: text("access_revocation_reason"),
@@ -199,6 +200,8 @@ export const artcovrFunnelEvents = pgTable(
     id: text("id").primaryKey(),
     eventType: text("event_type").notNull(),
     artworkId: text("artwork_id").notNull(),
+    orderId: text("order_id"),
+    dedupeKey: text("dedupe_key"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -212,6 +215,9 @@ export const artcovrFunnelEvents = pgTable(
       table.artworkId,
       table.createdAt,
     ),
+    dedupeKeyIdx: uniqueIndex("artcovr_funnel_events_dedupe_key_idx")
+      .on(table.dedupeKey)
+      .where(sql`${table.dedupeKey} is not null`),
   }),
 );
 
@@ -223,6 +229,31 @@ export const insertArtcovrOrderSchema = createInsertSchema(artcovrOrders).omit({
 export type InsertArtcovrOrder = z.infer<typeof insertArtcovrOrderSchema>;
 export type ArtcovrOrder = typeof artcovrOrders.$inferSelect;
 export type ArtcovrFunnelEvent = typeof artcovrFunnelEvents.$inferSelect;
+
+export const artcovrRefundEvents = pgTable(
+  "artcovr_refund_events",
+  {
+    id: text("id").primaryKey(),
+    orderId: text("order_id").notNull(),
+    stripeRefundId: text("stripe_refund_id"),
+    stripeEventId: text("stripe_event_id").notNull(),
+    amountCents: integer("amount_cents").notNull(),
+    refundedAt: timestamp("refunded_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    orderRefundedIdx: index("artcovr_refund_events_order_refunded_idx").on(
+      table.orderId,
+      table.refundedAt,
+    ),
+    stripeRefundIdx: uniqueIndex("artcovr_refund_events_stripe_refund_idx")
+      .on(table.stripeRefundId)
+      .where(sql`${table.stripeRefundId} is not null`),
+  }),
+);
+
+export type ArtcovrRefundEvent = typeof artcovrRefundEvents.$inferSelect;
 
 export const insertArtcovrCreditLedgerSchema = createInsertSchema(
   artcovrCreditLedger,

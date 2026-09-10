@@ -3,6 +3,7 @@ import { and, eq, inArray, isNull, lte, ne, or } from "drizzle-orm";
 import {
   artcovrCreditLedger,
   artcovrOrders,
+  artcovrRefundEvents,
   artcovrWebhookEvents,
   db,
 } from "@workspace/db";
@@ -26,6 +27,13 @@ const fulfillmentDependencies: FulfillmentDependencies = {
 
 function stripeId(value: string | { id: string } | null | undefined) {
   return typeof value === "string" ? value : value?.id;
+}
+
+function stripeDate(value: unknown, fallback = new Date()) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return fallback;
+  }
+  return new Date(value * 1000);
 }
 
 function customerEmail(session: Stripe.Checkout.Session) {
@@ -255,14 +263,6 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
         "ARTCOVR rejected refund webhook from the wrong account mode");
       return;
     }
-    // Partial refunds do not establish a policy to revoke the entire license.
-    // Only Stripe's fully-refunded charge state ends the entitlement.
-    if (!charge.refunded) {
-      await tx.update(artcovrWebhookEvents).set({ status: "processed", processedAt: new Date() })
-        .where(eq(artcovrWebhookEvents.id, event.id));
-      return;
-    }
-
     let [order] = await tx
       .select()
       .from(artcovrOrders)
@@ -274,13 +274,93 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
     [order] = await tx.select().from(artcovrOrders).where(eq(artcovrOrders.id, order.id)).limit(1);
     if (!order) throw new Error("Refund purchase disappeared during fulfillment");
 
-    const refundId = charge.refunds?.data[0]?.id ?? null;
+    const existingRefunds = await tx
+      .select({
+        id: artcovrRefundEvents.id,
+        stripeRefundId: artcovrRefundEvents.stripeRefundId,
+        amountCents: artcovrRefundEvents.amountCents,
+      })
+      .from(artcovrRefundEvents)
+      .where(eq(artcovrRefundEvents.orderId, order.id));
+    const knownRefundIds = new Set(
+      existingRefunds
+        .map((refund) => refund.stripeRefundId)
+        .filter((id): id is string => Boolean(id)),
+    );
+    let recordedRefundCents = existingRefunds.reduce(
+      (total, refund) => total + refund.amountCents,
+      0,
+    );
+    let latestRefundId: string | null = null;
+    const refundObjects = charge.refunds?.data ?? [];
+
+    for (const refund of refundObjects) {
+      const refundId = refund.id;
+      const amountCents = Number(refund.amount ?? 0);
+      if (knownRefundIds.has(refundId) || amountCents <= 0) continue;
+      const [inserted] = await tx
+        .insert(artcovrRefundEvents)
+        .values({
+          id: `refund:${refundId}`,
+          orderId: order.id,
+          stripeRefundId: refundId,
+          stripeEventId: event.id,
+          amountCents,
+          refundedAt: stripeDate(refund.created),
+        })
+        .onConflictDoNothing()
+        .returning({ id: artcovrRefundEvents.id });
+      if (inserted) {
+        recordedRefundCents += amountCents;
+        latestRefundId = refundId;
+      }
+    }
+
+    const providerRefundedCents = Math.max(
+      Number(charge.amount_refunded ?? 0),
+      recordedRefundCents,
+    );
+    const missingRefundCents = providerRefundedCents - recordedRefundCents;
+    if (missingRefundCents > 0) {
+      await tx
+        .insert(artcovrRefundEvents)
+        .values({
+          id: `refund-event:${event.id}`,
+          orderId: order.id,
+          stripeEventId: event.id,
+          amountCents: missingRefundCents,
+          refundedAt: stripeDate(event.created),
+        })
+        .onConflictDoNothing();
+      recordedRefundCents += missingRefundCents;
+    }
+
+    const refundId =
+      latestRefundId ?? charge.refunds?.data[0]?.id ?? order.stripeRefundId;
+    const refundAt = new Date();
+    const refundTotals = {
+      refundedCents: recordedRefundCents,
+      ...(refundId ? { stripeRefundId: refundId } : {}),
+    };
+
+    if (!charge.refunded) {
+      await tx
+        .update(artcovrOrders)
+        .set(refundTotals)
+        .where(eq(artcovrOrders.id, order.id));
+      await tx
+        .update(artcovrWebhookEvents)
+        .set({ status: "processed", processedAt: refundAt })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      return;
+    }
+
     await tx
       .update(artcovrOrders)
       .set({
         status: "refunded",
-        stripeRefundId: refundId,
-        refundedAt: new Date(),
+        ...refundTotals,
+        refundedAt: refundAt,
         accessRevokedAt: new Date(),
         accessRevocationReason: "stripe_refund",
       })

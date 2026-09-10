@@ -162,7 +162,9 @@ function Funnel({
             From shelf to sale
           </h2>
         </div>
-        <p className="text-xs opacity-60">Aggregate storefront funnel</p>
+        <p className="text-xs opacity-60">
+          Paid conversion uses linked checkout starts completed by period end
+        </p>
       </div>
       <div className="mt-8 space-y-6">
         {stages.map((stage) => (
@@ -195,7 +197,9 @@ function Funnel({
           </p>
         </div>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[.1em] opacity-60">Checkout → paid</p>
+          <p className="text-[10px] font-bold uppercase tracking-[.1em] opacity-60">
+            Checkout → paid by period end
+          </p>
           <p className="mt-2 text-2xl font-extrabold tracking-tight" data-testid="text-paid-rate">
             {formatPercent(funnel.paidRate)}
           </p>

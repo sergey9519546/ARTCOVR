@@ -184,6 +184,8 @@ export function createCheckoutHandler(
             id: `checkout:${existingOrder.id}`,
             eventType: "checkout_started",
             artworkId: existingOrder.artworkId,
+            orderId: existingOrder.id,
+            dedupeKey: `checkout:${existingOrder.id}`,
           });
         } catch (error) {
           logger.warn(
@@ -299,6 +301,8 @@ export function createCheckoutHandler(
         id: `checkout:${order.id}`,
         eventType: "checkout_started",
         artworkId: order.artworkId,
+        orderId: order.id,
+        dedupeKey: `checkout:${order.id}`,
       });
     } catch (error) {
       logger.warn({ err: error, orderId: order.id }, "Checkout funnel event recording failed");
