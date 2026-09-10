@@ -75,7 +75,9 @@ test("homepage skip link targets the primary main landmark", async ({ page }) =>
   await expect(skipLink).toHaveAttribute("href", "#main");
   await expect(page.locator("main#main")).toHaveCount(1);
 
-  await skipLink.click();
+  await skipLink.focus();
+  await expect(skipLink).toBeVisible();
+  await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/#main$/);
 });
 
