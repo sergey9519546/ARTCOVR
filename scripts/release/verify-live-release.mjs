@@ -21,9 +21,15 @@ try {
 const apiBase = new URL(process.env.ARTCOVR_RELEASE_API_URL || base);
 const diagnostics = [];
 const check = async (name, url, options = {}) => {
-  const response = await fetch(url, { redirect: "manual", ...options });
+  const response = await fetch(url, { redirect: "follow", ...options });
   const body = await response.text();
-  diagnostics.push({ name, url: String(url), status: response.status, body: body.slice(0, 500) });
+  diagnostics.push({
+    name,
+    url: String(url),
+    finalUrl: response.url,
+    status: response.status,
+    body: body.slice(0, 500),
+  });
   if (response.status >= 400) throw new Error(`${name} returned HTTP ${response.status}`);
   return { response, body };
 };
@@ -41,11 +47,26 @@ try {
 
   const sitemap = await check("sitemap.xml", new URL("/sitemap.xml", base));
   if (!sitemap.body.includes(`<loc>${base.origin}/</loc>`)) throw new Error("sitemap does not use the release origin");
-  const firstProduct = sitemap.body.match(new RegExp(`<loc>(${base.origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/product/[^<]+)</loc>`))?.[1];
-  if (firstProduct) {
-    const product = await check("representative product route", firstProduct);
+  const escapedOrigin = base.origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const productUrls = [
+    ...new Set(
+      [...sitemap.body.matchAll(new RegExp(`<loc>(${escapedOrigin}/product/[^<]+)</loc>`, "g"))]
+        .map((match) => match[1]),
+    ),
+  ].slice(0, 2);
+  if (productUrls.length < 2) {
+    throw new Error("sitemap does not contain at least two product routes");
+  }
+  for (const [index, productUrl] of productUrls.entries()) {
+    const product = await check(`representative product route ${index + 1}`, productUrl);
+    if (!/<title>[^<]+<\/title>/i.test(product.body)) {
+      throw new Error(`representative product route ${index + 1} is missing a title`);
+    }
+    if (!/<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(product.body)) {
+      throw new Error(`representative product route ${index + 1} is missing an h1`);
+    }
     if (!product.body.includes("application/ld+json") && !product.body.includes("ARTCOVR_ROUTE_STRUCTURED_DATA")) {
-      throw new Error("representative product route is missing structured metadata");
+      throw new Error(`representative product route ${index + 1} is missing structured metadata`);
     }
   }
 
