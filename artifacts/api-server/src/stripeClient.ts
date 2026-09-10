@@ -333,7 +333,21 @@ export async function createCheckoutSession(
       idempotencyKey,
     },
   );
-  return validateCheckoutSessionMode(session);
+  try {
+    return validateCheckoutSessionMode(session);
+  } catch (error) {
+    if (error instanceof StripeCheckoutModeError && session.status === "open") {
+      try {
+        await expireCheckoutSession(session.id);
+      } catch (expirationError) {
+        throw new Error(
+          `${error.message} The mismatched open session could not be expired; resolve it in Stripe before rerunning.`,
+          { cause: expirationError },
+        );
+      }
+    }
+    throw error;
+  }
 }
 
 export async function refundPaymentIntent(
@@ -358,6 +372,45 @@ export async function refundPaymentIntent(
 export async function retrieveStripeEvent(eventId: string) {
   return stripeRequest<Stripe.Event>(
     `/v1/events/${encodeURIComponent(eventId)}`,
+  );
+}
+
+export async function listStripeEvents(
+  options: {
+    type?: Stripe.Event.Type;
+    createdAfter?: Date;
+  } = {},
+) {
+  const events: Stripe.Event[] = [];
+  let startingAfter: string | undefined;
+
+  do {
+    const search = new URLSearchParams({ limit: "100" });
+    if (options.type) search.set("type", options.type);
+    if (options.createdAfter) {
+      search.set(
+        "created[gte]",
+        String(Math.floor(options.createdAfter.getTime() / 1000)),
+      );
+    }
+    if (startingAfter) search.set("starting_after", startingAfter);
+    const page = await stripeRequest<Stripe.ApiList<Stripe.Event>>(
+      `/v1/events?${search.toString()}`,
+    );
+    events.push(...page.data);
+    startingAfter =
+      page.has_more && page.data.length
+        ? page.data[page.data.length - 1]?.id
+        : undefined;
+  } while (startingAfter);
+
+  return events;
+}
+
+export async function expireCheckoutSession(sessionId: string) {
+  return stripeRequest<Stripe.Checkout.Session>(
+    `/v1/checkout/sessions/${encodeURIComponent(sessionId)}/expire`,
+    { method: "POST" },
   );
 }
 
