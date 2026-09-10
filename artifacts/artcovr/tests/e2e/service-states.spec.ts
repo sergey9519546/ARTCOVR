@@ -258,7 +258,7 @@ test("My Images renders owned purchases, generations, and downloads only", async
   await page.goto("/my-images", { waitUntil: "domcontentloaded" });
 
   await expect(page.getByRole("heading", { name: "Buried Clocks" })).toBeVisible();
-  await expect(page.getByText("Add a quiet amber glow.")).toBeVisible();
+  await expect(page.getByText("Your result is ready.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Download base" })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Download purchased result" }),
@@ -310,10 +310,10 @@ test("My Images appends older activity without replacing account data", async ({
 
   await page.goto("/my-images", { waitUntil: "domcontentloaded" });
   await expect(page.getByText("2 image-edit credits available across your purchases.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Download base" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Download base" })).toBeVisible();
   await page.getByRole("button", { name: "Load older activity" }).click();
   await expect(page.getByText("Generation used")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Download base" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Download base" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Buried Clocks" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Load older activity" })).toHaveCount(0);
 });

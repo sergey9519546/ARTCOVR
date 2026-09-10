@@ -44,7 +44,20 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
       consts,
       register: (updater) => {
         updatersRef.current.add(updater);
-        updater(currentPRef.current);
+        const trigger = triggerRef.current;
+        const scrollTop =
+          typeof window === "undefined"
+            ? 0
+            : window.scrollY || document.documentElement.scrollTop;
+        const progress =
+          trigger && trigger.end > trigger.start
+            ? Math.min(
+                1,
+                Math.max(0, (scrollTop - trigger.start) / (trigger.end - trigger.start)),
+              )
+            : currentPRef.current;
+        currentPRef.current = progress;
+        updater(progress);
         return () => {
           updatersRef.current.delete(updater);
         };
@@ -66,7 +79,7 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
       start: "top top",
       end: `+=${consts.total}`,
       pin: true,
-      scrub: 1,
+      scrub: true,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
         if (disposed) return;
@@ -98,6 +111,27 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
         }
       },
     });
+    const syncFromNativeScroll = () => {
+      const trigger = triggerRef.current;
+      if (!trigger || trigger.end <= trigger.start) return;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const progress = Math.min(
+        1,
+        Math.max(0, (scrollTop - trigger.start) / (trigger.end - trigger.start)),
+      );
+      currentPRef.current = progress;
+      for (const updater of updatersRef.current) {
+        if (disposed) return;
+        try {
+          updater(progress);
+        } catch (error) {
+          console.error("ARTCOVR archive journey entered its static fallback", error);
+          setMotionFailed(true);
+          return;
+        }
+      }
+    };
+    window.addEventListener("scroll", syncFromNativeScroll, { passive: true });
 
     return () => {
       // ScrollTrigger's pin wraps and moves the section in the DOM. A layout
@@ -107,6 +141,7 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
       const trigger = triggerRef.current;
       triggerRef.current = null;
       trigger?.kill(true);
+      window.removeEventListener("scroll", syncFromNativeScroll);
     };
   }, [enabled, layered, consts.total]);
 

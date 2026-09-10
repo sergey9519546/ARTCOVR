@@ -10,9 +10,12 @@ import {
   claimGuestPurchases,
   getMyImages,
   type AccountData,
+  type AccountDownload,
   type AccountGeneration,
 } from "@/lib/artcovr/functions";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { appendOlderCreditActivity } from "@/lib/artcovr/account-activity";
+import { resolveCurrentDownload } from "@/lib/artcovr/account-download";
 
 function formatDate(value: string | null) {
   return value
@@ -91,6 +94,7 @@ export default function MyImagesPage() {
     downloads: [],
   });
   const [message, setMessage] = useState("");
+  const [downloadMessage, setDownloadMessage] = useState("");
   const [loadingOlderActivity, setLoadingOlderActivity] = useState(false);
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
@@ -128,6 +132,11 @@ export default function MyImagesPage() {
       if (mounted.current) {
         setData(account);
         setMessage("");
+        setDownloadMessage(
+          account.unavailableDownloads?.length
+            ? "Some licensed files could not be prepared. Retry downloads."
+            : "",
+        );
         setState("ready");
       }
       return account;
@@ -145,42 +154,15 @@ export default function MyImagesPage() {
   }, []);
 
   const loadOlderActivity = useCallback(async () => {
-    if (!data.creditActivityNextCursor || loadingOlderActivity) return;
+    const requestedCursor = data.creditActivityNextCursor;
+    if (!requestedCursor || loadingOlderActivity) return;
     setLoadingOlderActivity(true);
     try {
-      const account = await getMyImages(data.creditActivityNextCursor);
+      const account = await getMyImages(requestedCursor);
       if (mounted.current) {
-        setData((current) => {
-          const currentActivity = current.creditActivity ?? [];
-          const existing = new Set(
-            currentActivity.map((activity) =>
-              [
-                activity.purchaseId,
-                activity.occurredAt,
-                activity.event,
-                activity.amount,
-              ].join(":"),
-            ),
-          );
-          return {
-            ...current,
-            creditActivity: [
-              ...currentActivity,
-              ...account.creditActivity.filter(
-                (activity) =>
-                  !existing.has(
-                    [
-                      activity.purchaseId,
-                      activity.occurredAt,
-                      activity.event,
-                      activity.amount,
-                    ].join(":"),
-                  ),
-              ),
-            ],
-            creditActivityNextCursor: account.creditActivityNextCursor,
-          };
-        });
+        setData((current) =>
+          appendOlderCreditActivity(current, account, requestedCursor),
+        );
       }
     } catch (error) {
       if (mounted.current) {
@@ -200,6 +182,39 @@ export default function MyImagesPage() {
     // allowance. A temporary fetch error must not reset an artist's workspace.
     await loadAccount(true);
   }, [loadAccount]);
+
+  const handleDownload = useCallback(
+    async (
+      requested: Pick<
+        AccountDownload,
+        "kind" | "purchaseId" | "artworkId" | "generationId"
+      >,
+    ) => {
+      setDownloadMessage("");
+      // Open the tab during the click gesture, then navigate it only after the
+      // server has revalidated ownership and returned a fresh signed URL.
+      const popup = window.open("about:blank", "_blank");
+      try {
+        if (!popup) {
+          throw new Error("Allow pop-ups to download this file.");
+        }
+        const account = await loadAccount(true);
+        if (!account) {
+          throw new Error("Download access could not be verified. Try again.");
+        }
+        const download = resolveCurrentDownload(account, requested);
+        popup.location.href = download.url;
+      } catch (error) {
+        popup?.close();
+        setDownloadMessage(
+          error instanceof Error
+            ? error.message
+            : "This file could not be prepared. Retry the download in a moment or contact support.",
+        );
+      }
+    },
+    [loadAccount],
+  );
 
   useEffect(() => {
     void loadAccount(false, true);
@@ -261,6 +276,18 @@ export default function MyImagesPage() {
       {state === "loading" && <p role="status">Loading your images…</p>}
       {state === "ready" && message && (
         <p role="status" className="mb-4 text-sm">{message} Your current edit is preserved. <button type="button" className="underline" onClick={() => void loadAccount(true)}>Refresh account</button></p>
+      )}
+      {state === "ready" && downloadMessage && (
+        <div role="alert" className="mb-6 border-l-2 border-[#a11212] pl-4 dark:border-[#ff6b6b]">
+          <p>{downloadMessage}</p>
+          <button
+            type="button"
+            className="link-hover mt-3 inline-flex min-h-11 items-center text-xs font-bold uppercase tracking-[.08em]"
+            onClick={() => void loadAccount(true)}
+          >
+            Retry downloads
+          </button>
+        </div>
       )}
       {state === "signed-out" && (
         <section className="border-y border-current/20 py-10">
@@ -388,20 +415,20 @@ export default function MyImagesPage() {
             {downloads.length > 0 && (
               <div className="mt-6 flex flex-wrap gap-3">
                 {downloads.map((download) => (
-                    <a
-                      key={`${download.kind}-${download.generationId || "base"}`}
-                      href={download.url}
-                      download
-                      onClick={() =>
-                        trackEvent("download_clicked", {
-                          artwork_slug: purchase.artworkSlug,
-                          kind: download.kind,
-                        })
-                      }
-                      className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em]"
-                    >
+                  <button
+                    key={`${download.kind}-${download.generationId || "base"}`}
+                    type="button"
+                    onClick={() => {
+                      trackEvent("download_clicked", {
+                        artwork_slug: purchase.artworkSlug,
+                        kind: download.kind,
+                      });
+                      void handleDownload(download);
+                    }}
+                    className="border border-current px-4 py-3 text-xs font-bold uppercase tracking-[.08em]"
+                  >
                     Download {download.kind.replaceAll("_", " ")}
-                  </a>
+                  </button>
                 ))}
               </div>
             )}

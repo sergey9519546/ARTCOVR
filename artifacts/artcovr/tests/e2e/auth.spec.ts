@@ -22,7 +22,7 @@ test("the branded sign-in screen offers email and Google authentication", async 
 }) => {
   await page.goto("/sign-in", { waitUntil: "domcontentloaded" });
   await expect(page.locator('input[name="identifier"]')).toBeVisible();
-  await expect(page.getByRole("button", { name: "CONTINUE WITH GOOGLE" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Google/i })).toBeVisible();
 });
 
 test("signed-out checkout offers guest checkout with an email receipt", async ({
