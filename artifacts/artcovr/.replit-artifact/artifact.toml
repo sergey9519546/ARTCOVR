@@ -92,6 +92,10 @@ from = "/shipping-and-return"
 to = "/shipping-and-return/index.html"
 
 [[services.production.rewrites]]
+from = "/product/*/"
+to = "/product/*/index.html"
+
+[[services.production.rewrites]]
 from = "/product/*"
 to = "/product/*/index.html"
 
