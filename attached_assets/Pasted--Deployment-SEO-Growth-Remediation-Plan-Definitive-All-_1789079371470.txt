@@ -1,0 +1,317 @@
+# Deployment & SEO/Growth Remediation Plan — Definitive, All-Angles Rewrite
+
+Complete the work in the order below. Each phase has explicit pass/fail criteria, known failure modes, and rollback procedures. Do not advance to the next phase until all checks in the current phase pass.
+
+---
+
+## Phase 1 — Growth & SEO Fixes
+
+### 1A. 🔴 High-Severity: Crawlability & Indexation — Static Host Routing for Prerendered HTML
+
+**Objective:** Configure the production static host so that `/cover-art` (the genre index) and every `/cover-art/[genre-slug]/[collection-slug]` URL is served from its corresponding prerendered `index.html` file — not the SPA shell.
+
+**Why this is critical:** A pure client-side SPA ships a single HTML shell and renders all content in the browser. Googlebot can render JavaScript but with a delay and resource budget; AI crawlers (GPTBot, ClaudeBot, PerplexityBot) fetch raw HTML and never execute JavaScript at all. Content that only exists after hydration is invisible to them. The `/cover-art/*` routes are the highest-traffic organic entry points and must return fully formed HTML on the first response.
+
+**Steps:**
+
+1. **Diagnose before changing anything.**
+   - Run `curl -A "Googlebot/2.1 (+http://www.google.com/bot.html)" https://yourdomain.com/cover-art/[genre-slug]` and inspect the raw response body.
+   - Compare raw HTML against the browser-rendered DOM. If the raw response contains only an empty root div and script tags, the routing is broken.
+   - Use Google Search Console URL Inspection to see both raw and rendered HTML — this is the authoritative view of what Google sees.
+   - Confirm the prerendered files actually exist in the build output at the expected filesystem paths.
+
+2. **Configure explicit path routing — not a blanket SPA catch-all.**
+   - Map each prerendered path explicitly to its static HTML file. On Netlify, use `_redirects`; on Vercel, use `vercel.json` rewrites; on Nginx, use `try_files`; on Cloudflare Pages, use `_routes.json`; on S3/CloudFront, use custom error responses with explicit path mappings.
+   - **Do not** rely on a single `/* → /index.html 200` catch-all for the `/cover-art/*` paths. That rule will serve the empty SPA shell and re-create the exact problem you are fixing.
+   - Order matters: place the specific `/cover-art/*` rules **above** the general SPA fallback rule.
+
+3. **Fix the 404 trap.**
+   - The standard SPA fallback returns HTTP 200 for every path, including nonexistent URLs. This causes Google to index empty shell pages for invalid slugs.
+   - Ensure valid genre and collection URLs return `200`. Ensure nonexistent slugs return a genuine `404` status code with a proper 404 page — not a 200 with client-side "not found" content.
+   - On Netlify, a `404.html` in the build output is picked up automatically, but verify it returns HTTP 404, not 200.
+
+4. **Verify metadata is in the raw HTML — not injected by JS.**
+   - Confirm `<title>`, `<meta name="description">`, `<link rel="canonical">`, Open Graph tags, and JSON-LD structured data are all present in the initial HTML response, not injected after hydration.
+   - Canonical URLs must point to the page's own URL, not the SPA shell root.
+   - Confirm each page has a unique, crawlable URL with no hash-based routing (`#`).
+
+5. **Confirm crawlable links and assets.**
+   - All internal links must use real `<a href>` elements, not click handlers on divs.
+   - Ensure `robots.txt` does not block `.js` or `.css` files — Googlebot needs them to render and verify the page.
+   - Do not lazy-load above-the-fold content; it will be missing from the initial render snapshot.
+
+6. **Re-run the diagnostic after deployment.**
+   - Re-run the `curl` test with Googlebot UA.
+   - Re-run Google Search Console URL Inspection on 3+ representative genre and collection pages.
+   - Run a Screaming Frog crawl with JavaScript rendering enabled across `/cover-art/*` and compare raw vs. rendered HTML.
+
+**Pass criteria:**
+- `curl` with Googlebot UA returns fully populated HTML with correct `<title>`, `<h1>`, canonical, and body content for the genre index and 3+ collection URLs.
+- Valid URLs → `200`; invalid/nonexistent slugs → `404`.
+- Google Search Console URL Inspection shows no content gaps between raw and rendered HTML.
+- Screaming Frog crawl of `/cover-art/*` shows zero URLs with empty `<title>` tags in the raw response.
+
+**Known failure modes to watch for:**
+- The catch-all rewrite rule runs before the specific prerender rules, serving the shell anyway.
+- Prerender output paths don't match the URL paths (trailing slash mismatch, case mismatch).
+- The CDN caches the old shell response and ignores the new routing config — purge the cache.
+- Canonical tags injected client-side are invisible in the raw HTML.
+- Base path or asset path misconfiguration causes broken CSS/JS on prerendered pages.
+
+---
+
+### 1B. 🟡 Medium-Severity: Accessibility — Homepage Skip Link Target
+
+**Objective:** Fix the homepage skip link so it correctly moves keyboard focus to a valid, focusable target, meeting WCAG 2.4.1 Bypass Blocks (Level A).
+
+**Why this matters:** Keyboard and screen-reader users must tab through every navigation item on every page load without a skip link. A skip link that exists but does not actually move focus is the most common silent failure — it passes visual review but fails for real users.
+
+**Steps:**
+
+1. **Place the skip link as the first focusable element in `<body>`.**
+   - It must appear before the header, logo, navigation, search, or any other interactive element. If any focusable element precedes it, the skip link is functionally useless.
+   - Use a real `<a href="#main-content">Skip to main content</a>` — not a `<button>` or div with a click handler.
+
+2. **Ensure the target exists and can receive focus.**
+   - The target element (e.g., `<main id="main-content">`) must have a matching `id`.
+   - Add `tabindex="-1"` to the target. Some browsers refuse to move keyboard focus to a non-interactive element on hash navigation; `tabindex="-1"` makes it programmatically focusable without adding it to the natural tab order.
+   - For maximum reliability across browsers, add a click handler that explicitly calls `.focus()` on the target element.
+
+3. **Hide visually but never with `display: none`.**
+   - Use off-screen positioning (e.g., `position: absolute; left: -9999px;`) that is overridden on `:focus`.
+   - **Never** use `display: none` or `visibility: hidden` — these remove the element from the accessibility tree, and screen readers will not announce it.
+   - The link must become fully visible when focused, with a strong focus indicator meeting at least 3:1 contrast per WCAG 2.2 Focus Appearance.
+
+4. **Verify focus continues correctly after the jump.**
+   - After activating the skip link, pressing Tab again should move focus to the first interactive element inside the main content — not jump back to the navigation.
+   - Ensure the target is not obscured by a fixed header when scrolled into view.
+
+5. **Run automated and manual tests.**
+   - Run axe-core or WAVE and confirm zero "skip link target" violations.
+   - Manual test: load the page, press Tab once — the skip link must be visible. Press Enter — focus must move to main content. Press Tab again — focus must continue inside main content.
+
+**Pass criteria:**
+- axe-core / WAVE reports zero WCAG 2.4.1 violations.
+- Manual keyboard test passes: Tab → visible skip link → Enter → focus lands in main content → next Tab continues inside main.
+- The link is reachable and visible on mobile with a hardware keyboard.
+- The target element is not hidden or dynamically loaded after the skip link fires.
+
+**Known failure modes to watch for:**
+- The target `id` is misspelled or the element is conditionally rendered.
+- `tabindex="-1"` is missing, so focus doesn't actually move in some browsers.
+- CSS uses `display: none`, making the link invisible to assistive tech.
+- A fixed-position header covers the target when the page scrolls to it.
+- The skip link is not the first focusable element — a logo link or search input comes before it.
+
+---
+
+### 1C. 🟡 Medium-Severity: Internal Linking / Site Architecture — Programmatic Genre Pages
+
+**Objective:** Eliminate orphan genre and collection pages and establish a deliberate internal-linking structure that distributes authority and ensures every programmatic page is discoverable by crawlers.
+
+**Why this matters:** Orphan pages — pages with zero internal links pointing to them — are effectively invisible to crawlers during normal site navigation. They may appear in the sitemap but receive no PageRank and rank poorly or not at all. Programmatic SEO pages are especially prone to this because template logic often generates pages without automatically weaving them into the link graph.
+
+**Steps:**
+
+1. **Identify orphan pages by diffing sitemap vs. crawl.**
+   - Run a full site crawl with JavaScript rendering enabled (Screaming Frog, Sitebulb, or Ahrefs Site Audit).
+   - Export the list of discovered URLs and compare against your XML sitemap.
+   - Any URL present in the sitemap but not discovered via internal links is an orphan.
+   - Also check for pages that exist only in mobile or only in desktop DOM — Google uses mobile-first indexing, so a link present only in a desktop sidebar creates a structural orphan.
+
+2. **Build a hub-and-spoke architecture.**
+   - The `/cover-art` genre index is the top-level hub. It must link to every genre page.
+   - Each genre page is a sub-hub. It must link to every collection page within that genre.
+   - Each collection page must link back to its parent genre page and to the main genre index (via breadcrumbs or contextual navigation).
+   - Implement breadcrumb navigation with `BreadcrumbList` schema.org markup on every page to establish hierarchical relationships.
+
+3. **Add contextual in-body links.**
+   - Within the body content of each genre and collection page, add 2–5 contextual internal links to topically related pages using descriptive anchor text.
+   - Use keyword-relevant, natural anchor text — not "click here" or "read more." Exact-match anchors can be used sparingly (10–15% of internal links), with the majority being descriptive/partial match and branded/navigational.
+   - Contextual in-body links pass more authority than footer or sidebar links.
+
+4. **Control click depth.**
+   - Every genre and collection page must be reachable within 3 clicks from the homepage.
+   - Link to the `/cover-art` hub from the main navigation or footer so it carries authority and is easily discoverable.
+
+5. **Protect crawl budget.**
+   - Ensure faceted navigation, sort parameters, session IDs, and internal search result pages do not generate crawlable URLs that waste budget.
+   - Use `robots.txt`, canonical tags, and `nofollow` strategically to focus crawl attention on your high-value programmatic pages.
+
+6. **Bake linking into the template.**
+   - The root-cause fix for programmatic orphans is to make internal linking part of the page template, not an afterthought. Hub pages should dynamically generate links to all child pages from the data source.
+   - Implement content governance: new programmatic pages must have a defined parent hub and internal link path before they are published.
+
+**Pass criteria:**
+- Zero sitemap URLs are unreachable via crawler from the homepage.
+- Every genre and collection page is reachable within 3 clicks.
+- Desktop and mobile DOM both contain the same link graph (no mobile-only orphans).
+- Breadcrumbs with schema markup are present on all genre and collection pages.
+- All anchor text is descriptive and topically relevant.
+
+**Known failure modes to watch for:**
+- Template logic generates pages but omits them from the hub listing (the most common programmatic SEO bug).
+- Links exist only in the desktop DOM and are missing from the mobile DOM, causing mobile-first indexing to treat them as orphans.
+- Links are rendered via JavaScript click handlers on divs instead of `<a href>` elements, making them uncrawlable.
+- Faceted navigation generates thousands of low-value URLs that consume crawl budget.
+- Pages are noindexed by accident or have canonical tags pointing elsewhere.
+
+---
+
+## Phase 2 — Migrations & Checkout
+
+### 2A. Controlled Test-Mode Checkout Validation
+
+**Objective:** Validate the full checkout flow — session creation, payment, webhook delivery, fulfillment, and refund — in Stripe test mode before touching production.
+
+**Why test mode is non-negotiable:** Test mode is an isolated sandbox where payments are not processed by card networks. It exists specifically to validate integration logic without creating live charges or chargebacks. A checkout that works in the browser but fails on webhook fulfillment is the classic production failure.
+
+**Steps:**
+
+1. **Confirm environment isolation.**
+   - Verify test API keys (`pk_test_`, `sk_test_`) are in use and test webhook endpoints point only to test/staging environments.
+   - Confirm no test-mode webhook is pointed at a production endpoint.
+   - Confirm the test webhook signing secret (`whsec_...`) matches the one configured in the test environment.
+
+2. **Run the full happy-path checkout.**
+   - Use Stripe test card `4242 4242 4242 4242` with any future expiry date and any 3-digit CVC.
+   - Drive the full user flow: product selection → checkout session creation → payment submission → success redirect.
+   - Assert that `checkout.session.completed` is received by your webhook endpoint.
+   - Assert that your fulfillment logic runs and the database state is updated correctly (order created, status set, customer record updated).
+
+3. **Test failure and edge cases.**
+   - Card decline: use a test card that triggers a decline (e.g., `4000 0000 0000 0002`). Verify the error is handled gracefully and no order is fulfilled.
+   - Insufficient funds, expired card, and authentication-required scenarios.
+   - Refund trigger: create a test charge, then trigger a refund via the API or dashboard. Verify the `charge.refunded` event is received and refund columns are populated correctly.
+   - Abandoned checkout: start but do not complete a session. Verify no order is created and no fulfillment runs.
+
+4. **Harden the webhook handler.**
+   - **Verify the Stripe-Signature header against the raw request body.** The #1 integration bug is parsing the body as JSON before verification, which breaks the signature. Use raw-body middleware on the webhook route only.
+   - **Make fulfillment idempotent by `event.id`.** Stripe delivers the same event multiple times — on retries, on manual replay, and sometimes unpredictably. Store processed event IDs and skip if already seen. Never process the same event twice.
+   - **Return 2xx quickly.** Persist the event or enqueue the work, then return 200. Do not do heavy processing in the webhook handler — Stripe will retry on timeouts.
+   - **Handle out-of-order delivery.** Webhook events may arrive in any order. Your handler must not assume a specific sequence.
+
+5. **Write and test the recovery/replay script.**
+   - Build a script that can replay a specific webhook event by ID and re-run fulfillment.
+   - Test it against a duplicate event to confirm idempotency holds.
+   - This is your recovery tool for launch-day webhook failures — have it ready before you need it.
+
+**Pass criteria:**
+- Happy-path checkout completes; webhook verifies and fires fulfillment; database state is correct.
+- All failure scenarios are handled gracefully with no double-fulfillment.
+- Duplicate event delivery produces no side effects (idempotency confirmed).
+- Refund flow completes end-to-end with correct database state.
+- Webhook handler returns 2xx within Stripe's timeout window.
+- Recovery/replay script exists and has been tested.
+
+**Known failure modes to watch for:**
+- Signature verification fails because the body was parsed before verification.
+- Test-mode product/price IDs are hardcoded and won't exist in live mode — every `prod_` and `price_` object must be recreated in live mode.
+- Fulfillment runs on the client-side success page instead of on the webhook — browser redirects can be abandoned, replayed, or spoofed.
+- The webhook endpoint is not registered in live mode, or the signing secret is still the test one.
+- No idempotency → duplicate events cause double-charging or double-fulfillment.
+
+---
+
+### 2B. Production Migration Application
+
+**Objective:** Apply the pending production database migration only after test-mode checkout is fully validated.
+
+**Prerequisite:** Phase 2A must pass all criteria. Do not proceed if any test-mode scenario fails.
+
+**Steps:**
+
+1. **Pre-migration preparation.**
+   - Take a full, verified database backup/snapshot immediately before running the migration. Verify the backup is restorable — a backup you haven't tested is not a backup.
+   - Schedule the migration during a low-traffic window.
+   - Confirm the migration is reversible. If it includes destructive operations (DROP COLUMN, TRUNCATE, data transformation), the only rollback path is restoring from backup.
+   - Define explicit rollback triggers: migration error, application health check failure, error rate > 5% in the first 10 minutes, or data integrity check failure.
+   - For reversible migrations (ADD COLUMN, CREATE TABLE, CREATE INDEX), confirm the down migration runs cleanly against a copy of the production schema.
+
+2. **Apply the migration.**
+   - Run the migration against production.
+   - If any step fails, halt immediately and initiate rollback.
+   - For large tables or indexes, use concurrent index creation (`CREATE INDEX CONCURRENTLY`) to avoid locking writes.
+
+3. **Switch to live mode (if the migration enables the checkout).**
+   - Update production environment variables to live API keys (`pk_live_`, `sk_live_`).
+   - Register the live webhook endpoint in the Stripe dashboard and load the live signing secret (`whsec_...`) into production. The test signing secret will not verify live events — this is the single most skipped launch-day check.
+   - Recreate all required Stripe objects in live mode: products, prices, coupons, promotion codes, tax rates. Test objects do not carry over to live mode.
+   - Confirm no test-mode object IDs remain in production configuration.
+
+4. **Post-migration schema verification.**
+   - Confirm all target tables and columns exist with correct types:
+     - `refund_event` table with expected columns and indexes
+     - Funnel tracking columns (`funnel_step`, `funnel_id`, `entered_at`, `converted_at`, etc.)
+     - Order refund columns (`refund_id`, `refund_amount`, `refund_status`, `refunded_at`, etc.)
+   - Run `SELECT COUNT(*)` on each new table and compare against pre-migration expectations to confirm no data loss.
+   - Run a quick data integrity check (foreign keys, constraints, indexes).
+
+5. **Rollback procedure (if triggered).**
+   - If the migration is reversible: run the down migration and verify schema integrity.
+   - If the migration is irreversible or the down migration fails: restore from the pre-migration backup.
+   - After rollback, re-run the full schema verification and smoke test to confirm the system is back to its pre-migration state.
+   - Document the failure, root cause, and corrective actions before re-attempting.
+
+**Pass criteria:**
+- Migration completes without errors.
+- All expected tables and columns exist with correct types and constraints.
+- Data integrity checks pass (no data loss, no constraint violations).
+- Application health checks pass post-migration.
+- Live-mode Stripe configuration is in place with correct keys, webhook endpoint, and signing secret.
+
+**Known failure modes to watch for:**
+- The migration runs but the application code hasn't been deployed yet, causing immediate errors.
+- Long-running ALTER TABLE locks the table and causes an outage.
+- Test-mode Stripe object IDs are still referenced in production code.
+- The live webhook endpoint is registered but the signing secret wasn't updated — every webhook fails verification.
+- The backup is corrupt or untested, leaving no rollback path.
+
+---
+
+## Phase 3 — Verification (Zero-Regression Sign-Off)
+
+Run all verification steps against production. Each step has a measurable pass/fail criterion. The deployment is not complete until all checks pass.
+
+| # | Task | Pass Criteria |
+|---|------|---------------|
+| **3A** | **Read-only commerce smoke test** | All commerce GET endpoints return `200` with expected schema. No live charges are submitted. Checkout page loads, payment form initializes, order summary renders. Do **not** submit a live payment card — live test charges can trigger fraud flags and chargebacks. |
+| **3B** | **Schema verification** | `refund_event` table, funnel columns, and order refund columns all exist with correct types and indexes. `SELECT COUNT(*)` on each new table matches expectations. No constraint violations. |
+| **3C** | **API & storefront probe** | `GET /api/storefront/products` → `200` with correct product schema. `GET /api/storefront/orders/:id` → `200` with refund fields present. All `/cover-art/*` paths return `200` with populated raw HTML. Previously broken routes return `200`; nonexistent slugs return genuine `404`. |
+| **3D** | **Webhook delivery health check** | Check Stripe dashboard webhook logs for the live endpoint within the first hour of go-live. Zero failed deliveries. All expected event types are arriving. Signature verification is succeeding (no 400s from your endpoint). |
+| **3E** | **Final SEO scan** | Re-crawl `/cover-art/*` with JS rendering enabled: zero URLs with empty `<title>` or missing `<h1>` in raw HTML. Zero sitemap URLs unreachable via internal links. Skip-link violation cleared in axe-core/WAVE. Re-inspect 3+ genre/collection pages in Google Search Console URL Inspection and confirm full rendering. |
+| **3F** | **Application health & error monitoring** | Error rate below baseline threshold for 30+ minutes. No 5xx spikes. No new error types in production logs. Database connection pool healthy. CDN cache hit rate normal. |
+| **3G** | **Prerendered content parity** | Spot-check 5 genre/collection pages: raw HTML content matches rendered DOM content. No content is exclusively in the JavaScript-rendered DOM. Meta tags, canonicals, and structured data are all present in the raw response. |
+
+**Final sign-off:** Archive all scan reports, crawl exports, webhook logs, and schema verification outputs as the regression baseline. Document any known issues or follow-up items.
+
+---
+
+## Sequencing, Dependencies & Parallelization
+
+- **Phase 1 (SEO fixes) and Phase 2A (test-mode checkout) are independent** and can run in parallel to save time.
+- **Phase 2B (production migration) depends on Phase 2A passing.** Do not run the production migration until test-mode checkout is fully validated.
+- **Phase 3 depends on both Phase 1 and Phase 2B completing.**
+- **Hidden dependency check:** If the pending migration adds data that the `/cover-art/*` pages render (e.g., new genre or collection records), then Phase 1A's prerender build must run *after* the migration and data is in place. Confirm this dependency explicitly before parallelizing.
+- **Environment mapping:**
+  - SEO validation: run first on a preview/staging environment that matches production, then on production.
+  - Test-mode checkout: staging/test environment only.
+  - Migration and smoke test: production only.
+  - Final SEO scan: production only.
+
+---
+
+## Post-Deployment Monitoring Window
+
+Continue monitoring for at least 24 hours after sign-off:
+
+- **0–1 hour:** Watch webhook delivery logs, error rates, and checkout conversion.
+- **1–6 hours:** Monitor SEO crawl activity in Google Search Console. Check for any new indexing errors.
+- **6–24 hours:** Watch for user-reported issues, payment failures, or unexpected behavior.
+- **Day 2:** Re-run the SEO scan and schema verification to confirm no drift.
+
+If any critical regression is detected during the monitoring window, follow the rollback procedure defined in Phase 2B.
+
+---
+
+Would you like me to convert this into a **checklist-style runbook** with checkboxes and owner fields, or break it into separate engineering tickets with estimated effort?
