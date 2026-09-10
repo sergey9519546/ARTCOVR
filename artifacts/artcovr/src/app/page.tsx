@@ -174,7 +174,7 @@ export default function Home() {
 
   return (
     <>
-      <a href="#page" className="skip-link">
+      <a href="#main" className="skip-link">
         Skip to content
       </a>
       <a href="#editorial" className="skip-link">
@@ -209,7 +209,7 @@ export default function Home() {
           onComplete={finishTransition}
         />
       </ErrorBoundary>
-      <main id="page" aria-hidden={pageBlocked} inert={pageBlocked ? true : undefined}>
+      <main id="main" aria-hidden={pageBlocked} inert={pageBlocked ? true : undefined}>
         <ErrorBoundary label="hero">
           <Hero />
         </ErrorBoundary>

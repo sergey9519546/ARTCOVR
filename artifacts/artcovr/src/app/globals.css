@@ -547,7 +547,7 @@ html.lenis, html.lenis body { height: auto; }
 
 @media (scripting: none) {
   #artcovr-preloader, #layer { display: none !important; }
-  #page, #page-shell, #header { visibility: visible !important; opacity: 1 !important; transform: none !important; }
+  #main, #page-shell, #header { visibility: visible !important; opacity: 1 !important; transform: none !important; }
   /* Without scripting the reveal button cannot run, so the full grid ships. */
   .artwork-grid-clamp > * { display: block !important; }
   .artwork-grid-reveal { display: none !important; }

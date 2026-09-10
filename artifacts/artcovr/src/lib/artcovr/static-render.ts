@@ -163,7 +163,7 @@ function renderHome({ artworks }: RenderContext) {
     )
     .join("");
 
-  return pageLayout(`<main id="page">
+  return pageLayout(`<main id="main">
     <section aria-labelledby="home-title">
       <p>ARTCOVR</p>
       <h1 id="home-title">Cover art that becomes yours.</h1>

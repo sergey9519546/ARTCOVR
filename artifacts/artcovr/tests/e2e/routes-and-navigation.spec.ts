@@ -68,6 +68,17 @@ test.describe("direct route loads and refreshes", () => {
   }
 });
 
+test("homepage skip link targets the primary main landmark", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const skipLink = page.getByRole("link", { name: "Skip to content" });
+  await expect(skipLink).toHaveAttribute("href", "#main");
+  await expect(page.locator("main#main")).toHaveCount(1);
+
+  await skipLink.click();
+  await expect(page).toHaveURL(/\/#main$/);
+});
+
 test("protected account routes preserve the requested destination", async ({
   page,
 }) => {
@@ -148,12 +159,12 @@ test("mobile intro stays visible until it completes and then restores keyboard f
     const preloader = page.locator("#artcovr-preloader");
     await expect(preloader).toBeVisible();
     await expect(preloader).toHaveAttribute("aria-label", /Loading \d+ percent/);
-    await expect(page.locator("#page")).toHaveAttribute("aria-hidden", "true");
-    await expect(page.locator("#page")).toHaveAttribute("inert", "");
+    await expect(page.locator("#main")).toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator("#main")).toHaveAttribute("inert", "");
 
     await expect(preloader).toHaveCount(0, { timeout: 8_000 });
-    await expect(page.locator("#page")).not.toHaveAttribute("aria-hidden", "true");
-    await expect(page.locator("#page")).not.toHaveAttribute("inert", "");
+    await expect(page.locator("#main")).not.toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator("#main")).not.toHaveAttribute("inert", "");
 
     const opener = page.getByRole("button", { name: "Menu" });
     await opener.focus();
@@ -190,8 +201,8 @@ test("reduced motion bypasses the mobile intro", async ({ browser }) => {
     await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
       timeout: 1_000,
     });
-    await expect(page.locator("#page")).not.toHaveAttribute("aria-hidden", "true");
-    await expect(page.locator("#page")).not.toHaveAttribute("inert", "");
+    await expect(page.locator("#main")).not.toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator("#main")).not.toHaveAttribute("inert", "");
   } finally {
     await context.close();
   }
