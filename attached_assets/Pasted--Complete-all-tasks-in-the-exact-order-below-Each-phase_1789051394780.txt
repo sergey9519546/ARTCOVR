@@ -1,0 +1,136 @@
+
+Complete all tasks **in the exact order below**. Each phase must be validated before proceeding to the next. Explicit pass/fail criteria, edge cases, and rollback steps are defined per task.
+
+---
+
+### Phase 1 — Growth & SEO Fixes
+
+#### 1A. 🔴 HIGH: Crawlability & Indexation — Static Host Routing for Prerendered HTML
+
+**Objective:** Configure the production static host to route the public `/cover-art` genre index and every `/cover-art/[genre]/[collection]` URL to its prerendered HTML file — not the client-side SPA shell.
+
+**Why this matters:** A single page application ships one HTML shell and builds every page in the browser with JavaScript. Users get instant navigation, but crawlers get an empty `<div id="app"></div>`, because the initial HTML response — the only thing most bots read — contains none of your content. This is compounded by the fact that Google renders JavaScript, but AI crawlers (GPTBot, ClaudeBot, PerplexityBot) fetch your HTML and never execute JS — so content that only exists after hydration is invisible to them entirely.
+
+**Steps:**
+
+1. **Diagnose first — inspect the raw server response.** The most reliable method is inspecting the raw source code your server delivers to the crawler. If the initial HTML payload contains only empty container divs and a few script tags, bots can't index your actual content. Run `curl -A "Googlebot/2.1" https://yourdomain.com/cover-art/[genre-slug]` and compare that raw output directly against your fully rendered browser view to spot missing elements. Also use Google Search Console's URL Inspection tool to see raw vs. rendered HTML.
+
+2. **Understand the routing model before editing config.** On modern static hosts, a request is not served from a live filesystem — for example, on Vercel, Vercel does not serve from a live filesystem. It routes from metadata generated at build time and uploaded to static storage, and the routing layer can reject a request before it ever looks for a file. Note the critical distinction: Single-page applications need an explicit catch-all rewrite, because Vercel resolves every URL as a filesystem path unless you tell it otherwise.
+
+3. **Configure per-path routing to prerendered files — NOT a blanket SPA fallback.** A naive `/* → /index.html 200` catch-all will re-break this by serving the empty shell for genre pages. Instead, map each prerendered path explicitly to its own generated HTML file (`/cover-art/index.html`, `/cover-art/[genre]/index.html`, etc.), and only fall back to the SPA shell for genuinely dynamic routes. Prerendering works because instead of generating the page on the fly for every request, it generates static HTML snapshots of your pages ahead of time and stores them in a cache. When a server detects a request from a search engine bot, it serves the cached, prerendered HTML version of the page. This method is highly effective and can be simpler to implement than a full SSR setup.
+
+4. **⚠️ Critical edge case — the "200 for everything" trap breaks 404s.** The common SPA fix of returning HTTP 200 for all paths silently destroys proper 404 handling. On Netlify specifically, you can set up a custom 404 page for all paths that don't resolve to a static file. This doesn't require any redirect rules. If you add a 404.html page to your site, it will be picked up and displayed automatically for any failed paths — but note the long-standing caveat that a 404.html can still return HTTP 200 unless configured correctly, and it should return a 404 status so Google knows this is a non existing page. Ensure valid genre/collection URLs return `200`, and nonexistent slugs return a genuine `404` status code (not 200-with-empty-shell).
+
+5. **Verify head tags and canonicals are in the raw HTML.** Even server-rendered routes lose indexation for subtle reasons: teams ship server-rendered routes every day and still lose indexation because titles don't update, canonicals point to the shell URL, links aren't crawlable, or the server returns the wrong status code for route states. Confirm `<title>`, `<meta name="description">`, and `<link rel="canonical">` are present in each prerendered file's `<head>` — pointing at the page's own URL, not the shell.
+
+6. **Ensure crawlable URLs and links.** Every page needs a unique URL (no # routing), real `<a href>` links, and metadata in the initial HTML response. Also confirm you never block .js or .css from Googlebot, since Google needs them to hydrate and verify the page.
+
+**Pass criteria:** `curl` with a Googlebot UA on the genre index and 3+ collection URLs returns fully populated HTML with correct `<title>`, `<h1>`, canonical, and body content. Valid URLs → `200`; invalid slugs → `404`. Google Search Console URL Inspection confirms rendered HTML matches raw HTML.
+
+---
+
+#### 1B. 🟡 MEDIUM: Accessibility — Homepage Skip Link Target
+
+**Objective:** Fix the homepage skip link so it points to a valid, focusable target and correctly moves keyboard focus.
+
+**Why this matters:** WCAG Success Criterion 2.4.1 (Bypass Blocks) requires that users have a mechanism to skip content that repeats across multiple pages. Navigation menus, site headers, and sidebar content appear on every page — without a bypass mechanism, keyboard users must wade through all of it repeatedly. The most common silent failure: if your skip link only scrolls visually but doesn't transfer keyboard focus, it does not meet these criteria — because the keyboard user's focus never actually moves.
+
+**Steps:**
+
+1. **Ensure the target element is focusable.** The most frequent bug is a target that exists but cannot receive focus. Focus doesn't move to the content, so screen readers don't announce it. The Fix: Add tabindex="-1" to the target element. The reason: some browsers refuse to move keyboard focus to a non-interactive element (like `<main>`) when a hash link is activated.
+
+2. **Make the skip link the first focusable element.** It must be the first focusable element inside `<body>`. Anything focusable that precedes it — a logo link, a search input, a language picker — defeats the purpose, because the user has to Tab past those before reaching the skip link.
+
+3. **Point it at the right target.** Place a 'Skip to main content' link as the first focusable element on the page. The link should move keyboard focus directly to the landmark or a defined content container (e.g., `id='main'`). Ensure the skip link becomes visible when focused. The link should target an ID located at or just before the main content of the page, such as the `<h1>` or a `<main>` containing the main content.
+
+4. **Make it visible on focus (never `display:none`).** This link can be visually hidden until it receives keyboard focus. Ensure the target element (`<main>` or a `<div>` with id="main-content") exists and is focusable or contains focusable elements. Use off-screen positioning overridden on `:focus`, because sighted keyboard users should be able to see the link when they navigate to it. If the link remains hidden, users may not even realize it exists or that they have focused on it.
+
+5. **Provide a strong focus indicator.** Provide a strong focus style with at least 3:1 contrast for the focus indicator against adjacent colors (WCAG 2.2 Focus Appearance). Ensure the link is reachable with a hardware keyboard on mobile and not obscured by fixed headers.
+
+6. **If needed, use a JS focus fallback.** For browsers that won't move focus to non-interactive targets, add a click handler that sets `tabindex="-1"` and calls `.focus()` on the target, which ensures that keyboard users land inside the main content region, ready to continue navigating logically.
+
+**Pass criteria (manual test):** Load the page and press Tab once: the skip link should receive focus and be visible. Press Enter/Return on the skip link: keyboard focus should move to the main content container. Press Tab again: focus should continue within main content (not jump back to navigation). axe-core / WAVE report zero 2.4.1 violations.
+
+---
+
+#### 1C. 🟡 MEDIUM: Internal Linking / Site Architecture — Programmatic Genre Pages
+
+**Objective:** Eliminate orphan genre/collection pages and weave every programmatic page into a deliberate internal-linking structure.
+
+**Why this matters:** Orphan Pages are web pages on a site that have no internal links from any other sections. Technically, an orphan page is a URL either outside the site's structure or not connected to other parts through internal links or navigation. This is an inherent risk of programmatic pages: faceted navigation is one way to manufacture millions of low-value URLs; programmatic page generation is another. Both amplify crawl-budget waste and orphan-page risk unless every generated page is woven into a deliberate internal-linking structure. The consequence: if an orphan page has no internal links, it becomes nearly inaccessible to crawlers during standard scans.
+
+**Steps:**
+
+1. **Detect orphans by diffing sitemap vs. crawl.** Pages found by crawler and sitemap, but missing from the index and lacking internal links, are likely Orphan Pages. Use a crawler with JS rendering enabled and combine sitemap extraction with crawling to programmatically identify discrepancies between your XML sitemaps and internally linked pages. Use crawlers like Screaming Frog, Sitebulb, or Ahrefs every 3–6 months to check for orphan pages.
+
+2. **Bake linking into the template, not as an afterthought.** If you are scaling page production, treat linking as part of the template, not an afterthought — this is the root-cause fix for programmatic orphans.
+
+3. **Use genre hubs as link distributors.** Category, hub, or collection pages should serve as central nodes that link out to all pages in that group. Not only do hubs prevent orphan pages, they also concentrate and distribute link equity. When a hub links to all its child pages, it passes that authority down. Make sure these hub pages are easily accessible (linked in your top or footer navigation) so they themselves carry strong authority.
+
+4. **Keep everything within three clicks and route to canonicals.** For catalog-style architectures, the practical sequence is: identify the parameter patterns generating near-duplicates, block the crawl-wasteful ones at robots.txt, ensure every canonical category and product page sits within three clicks of the homepage, and route internal links to those canonicals.
+
+5. **Use descriptive, in-body anchor text.** When creating connections, focus on contextual relevance and natural anchor text. Instead of forcing generic "read more" links, use descriptive anchor text that clearly indicates the destination page's topic and value. Place these links within the body content where they add genuine value to readers, not in sidebar widgets or footers where they carry less SEO weight.
+
+6. **⚠️ Edge case — check mobile DOM parity.** A page linked only in a desktop sidebar can be orphaned on mobile-first crawling: if a crucial supporting article is linked via a desktop sidebar but omitted from the mobile drop-down menu, that page effectively becomes a structural orphan in the eyes of Google's primary crawler. Resolving these discrepancies requires meticulous attention to parity between desktop and mobile DOM trees.
+
+7. **Add governance to prevent recurrence.** Implement content governance policies that require proper categorization and internal linking before publication. Create documented workflows that mandate navigation integration for new pages, ensuring someone responsible verifies connectivity.
+
+**Pass criteria:** Zero sitemap URLs are unreachable via crawler from the homepage. Every genre and collection page is reachable within 3 clicks, in both desktop and mobile DOM, with descriptive anchor text.
+
+---
+
+### Phase 2 — Migrations & Checkout
+
+#### 2A. Run the Controlled Test-Mode Checkout
+
+**Objective:** Validate the full checkout + webhook + fulfillment path in Stripe test mode before touching production.
+
+**Why test mode specifically:** It's a security model that keeps play data and production data separate, and it catches sellers who assume the two are interchangeable. A sandbox is safe because a sandbox is an isolated test environment, and the payments you create in one are not processed by card networks or payment providers.
+
+**Steps:**
+
+1. **Test the full path, not just the success page.** Tests that only inspect the success page can miss fulfillment defects. The correct assertion boundary: test mode proves your code can create the object, receive the provider event, and persist the right result. For Checkout specifically, the test should assert your server creates the right session and then rely on webhook handling for final fulfillment.
+
+2. **Use test cards and cover failure branches.** Use Stripe's test cards (`4242…` for success) with any future expiry, any CVC, any ZIP. Verify not only success but declines and required-authentication flows, since a declined payment or required authentication can be a valid live payment outcome.
+
+3. **Harden the webhook — verify signature against the raw body.** The single most common integration bug: signature verification fails locally but passes in production → you're parsing the body before verifying. Use raw body middleware on the webhook route only. Reliable webhooks require four things: verify the stripe-signature header against the raw request body, make fulfillment idempotent by event.id, return 2xx quickly after persisting/enqueueing, and replay real events.
+
+4. **Enforce idempotency.** Stripe retries failed webhooks (non-200 responses) for up to 3 days using exponential backoff. Since Stripe will deliver the same event multiple times — on retries, on accidental redelivery from the dashboard, sometimes for no obvious reason at all. Your handler must produce the same result every time. The simplest idempotency pattern: store event.id after processing and skip if already seen.
+
+5. **Write the recovery/replay script now.** What most teams miss: they don't have a recovery script ready until they need it at 2am during an outage. Write it on day one and put it next to the webhook handler.
+
+**Pass criteria:** Test-mode checkout completes end-to-end; webhook signature verifies against raw body; fulfillment logic runs and persists correct DB state; duplicate event delivery produces no double-fulfillment; decline and auth-required paths handled gracefully.
+
+---
+
+#### 2B. Apply the Pending Production Migration *(only after 2A passes)*
+
+**Steps:**
+
+1. **Take a full DB snapshot immediately before running.** This is your rollback point.
+2. **Apply the migration in a low-traffic window.**
+3. **⚠️ Guard the trust boundaries during go-live.** Going live is not one toggle: your application must switch to live API keys, live products and prices, a live webhook destination and signing secret, and production configuration that contains no test-only object IDs. A checkout can pass every non-live test and still fail at launch because one price_... value or whsec_... secret stayed behind.
+4. **Register the live webhook with the correct signing secret.** The classic launch-day failure: they added the live endpoint URL but forgot to update the signing secret. Every incoming event fails signature verification, the app silently ignores them, and orders stop getting fulfilled. Remember Stripe signs test and live events with different secrets, and if you mismatch them, signature verification will always fail — even if your code is perfect. When registering, register the production HTTPS destination in Stripe, select only the events the application handles, and load that destination's live signing secret into the production server.
+5. **Roll back to snapshot immediately if any migration step fails or produces schema errors.**
+
+---
+
+### Phase 3 — Verification (Zero-Regression Sign-Off)
+
+| # | Task | Pass Criteria |
+|---|------|---------------|
+| **3A** | **Read-only commerce smoke test** | All commerce GET endpoints return `200` with expected schema. No live charge submitted (read-only). Recognize that production monitoring catches provider incidents and configuration drift that no test environment can fully reproduce. |
+| **3B** | **Schema verification** | Confirm `refund_event` table/columns, funnel table/columns, and order refund columns all exist with expected types. Run `SELECT COUNT(*)` on each new table to confirm no data loss vs. pre-migration snapshot. |
+| **3C** | **API / storefront probe** | `GET /api/storefront/products`, `GET /api/storefront/orders/:id` (including refund fields), and all `/cover-art/*` paths return `200` with correct content in **raw** HTML. Previously-broken routes now return `200`; nonexistent slugs return genuine `404`. |
+| **3D** | **Webhook delivery check (first hour)** | Check your webhook logs in the dashboard within the first hour of going live, every time. The dashboard shows delivery attempt history for each endpoint. Events with failed deliveries appear in red with the HTTP status code your endpoint returned. Zero failed deliveries. |
+| **3E** | **Final SEO scan** | Re-crawl `/cover-art/*` with JS rendering: zero URLs with empty `<title>` or missing `<h1>` in raw HTML. Zero sitemap URLs unreachable via internal links. Skip-link violation cleared. Best practice: test direct route fetches, rendered HTML, and status codes on a preview environment that matches production. Re-inspect 3+ genre/collection pages in Google Search Console URL Inspection. |
+
+**Archive all passing scan and webhook reports as the regression baseline before closing this work.**
+
+---
+
+### Notes on Sequencing & Environments
+
+- **Phase 1 (SEO) is independent of Phase 2 (migration/checkout)** and can run in parallel to save time — *unless* the pending migration adds data that the genre pages render (e.g., new genre/collection records). If such a dependency exists, complete the migration first and re-prerender before validating 1A/1C. Confirm this dependency explicitly before parallelizing.
+- **Environments:** Run the SEO validation against a preview environment that matches production first, then production. Run test-mode checkout against staging/test only; apply the migration and read-only smoke test against production.
+- **One caution on prerendering as a strategy:** Google now describes bot-only dynamic rendering as "a workaround and not a long-term solution", with SSR or static rendering recommended instead. Static prerendering (serving the *same* prerendered HTML to bots and users) is fine and not cloaking, but if genre/collection content becomes highly dynamic or per-user in the future, plan a migration to SSR.
