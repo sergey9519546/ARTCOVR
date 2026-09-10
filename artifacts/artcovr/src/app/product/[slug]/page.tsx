@@ -20,12 +20,6 @@ import {
   combineStructuredData,
   serializeJsonLd,
 } from "@/lib/artcovr/seo";
-import {
-  displayVisualLabel,
-  getVisualDescriptorGroups,
-  getVisualKeywords,
-  visualIndex,
-} from "@/lib/artcovr/visual-index";
 import NotFound from "@/pages/not-found";
 import { trackEvent } from "@/lib/artcovr/analytics";
 import { recordFunnelEvent } from "@/lib/artcovr/functions";
@@ -43,11 +37,6 @@ export default function ProductPage() {
   if (!art) return <NotFound />;
 
   const genres = getArtworkGenres(art);
-  const visualDescriptors = getVisualDescriptorGroups(art.slug);
-  const visualKeywords = [...new Set([
-    ...art.moodTags,
-    ...getVisualKeywords(art.slug).map(displayVisualLabel),
-  ])];
   const jsonLd = combineStructuredData(
     buildOrganizationStructuredData(),
     buildArtworkStructuredData({ ...art, genres }),
@@ -142,39 +131,6 @@ export default function ProductPage() {
                   </li>
                 ))}
               </ul>
-            ) : null}
-
-            {visualDescriptors.length > 0 ? (
-              <section aria-labelledby="visual-metadata" className="mt-8 border-t border-current/20 pt-5">
-                <div className="flex items-baseline justify-between gap-4">
-                  <h2 id="visual-metadata" className="text-[11px] font-bold uppercase tracking-[.1em] text-[var(--muted-foreground)]">
-                    Visual metadata
-                  </h2>
-                  <span className="text-[10px] font-bold uppercase tracking-[.08em] text-[var(--muted-foreground)]">
-                    {visualIndex.dimensions}-dimensional signature
-                  </span>
-                </div>
-                <dl className="mt-3 divide-y divide-current/15 border-y border-current/15 text-sm">
-                  {visualDescriptors.map((descriptor) => (
-                    <div key={descriptor.task} className="flex justify-between gap-6 py-2.5">
-                      <dt className="text-[var(--muted-foreground)]">{descriptor.taskLabel}</dt>
-                      <dd className="text-right">{descriptor.displayLabel}</dd>
-                    </div>
-                  ))}
-                </dl>
-                {visualKeywords.length > 0 ? (
-                  <div className="mt-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[.08em] text-[var(--muted-foreground)]">Search keywords</p>
-                    <ul className="mt-2 flex flex-wrap gap-2">
-                      {visualKeywords.map((keyword) => (
-                        <li key={keyword} className="border border-current/20 px-2 py-1 text-[10px] uppercase tracking-[.06em] opacity-70">
-                          {keyword}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </section>
             ) : null}
 
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-bold uppercase tracking-[.08em] opacity-60">
