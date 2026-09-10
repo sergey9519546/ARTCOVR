@@ -24,6 +24,14 @@ from = "/archive"
 to = "/archive/index.html"
 
 [[services.production.rewrites]]
+from = "/cover-art"
+to = "/cover-art/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/*"
+to = "/cover-art/*/index.html"
+
+[[services.production.rewrites]]
 from = "/about"
 to = "/about/index.html"
 

@@ -17,7 +17,11 @@ import {
   renderStaticRoute,
   renderStaticRouteMetadata,
 } from "../src/lib/artcovr/static-render";
-import { validateRoute } from "./validate-seo-build";
+import {
+  parseProductionRewrites,
+  validateRoute,
+  validateSitemapRouteMappings,
+} from "./validate-seo-build";
 
 const publicCatalog = selectPublicCatalog(curatedPublic);
 const siteUrl = "https://artcovr.com";
@@ -383,5 +387,41 @@ test("reports the exact route and social signal when an escaped value decodes in
   assert.throws(
     () => validateProductDocument(wrongTwitterDocument, specialCharacterFixture),
     /\[SEO\] \/product\/special-character-fixture: Twitter description/,
+  );
+});
+
+test("accepts static production mappings for genre sitemap routes", () => {
+  const rewrites = parseProductionRewrites(`
+[[services.production.rewrites]]
+from = "/cover-art"
+to = "/cover-art/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/*"
+to = "/cover-art/*/index.html"
+`);
+
+  assert.doesNotThrow(() =>
+    validateSitemapRouteMappings(
+      [
+        `${siteUrl}/`,
+        `${siteUrl}/cover-art`,
+        `${siteUrl}/cover-art/ambient`,
+      ],
+      siteUrl,
+      rewrites,
+    ),
+  );
+});
+
+test("reports sitemap routes missing a production static mapping", () => {
+  assert.throws(
+    () =>
+      validateSitemapRouteMappings(
+        [`${siteUrl}/`, `${siteUrl}/cover-art/ambient`],
+        siteUrl,
+        [],
+      ),
+    /artifact\.toml: production route mappings .*\/cover-art\/ambient/,
   );
 });

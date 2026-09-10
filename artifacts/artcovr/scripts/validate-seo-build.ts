@@ -18,6 +18,10 @@ import {
 } from "../src/lib/artcovr/discovery";
 
 const outputDirectory = path.resolve(import.meta.dirname, "../dist/public");
+const artifactTomlPath = path.resolve(
+  import.meta.dirname,
+  "../.replit-artifact/artifact.toml",
+);
 const publicCatalog = selectPublicCatalog(curatedPublic);
 const titleRange = { min: 20, max: 60 };
 const descriptionRange = { min: 70, max: 160 };
@@ -491,6 +495,64 @@ function expectedSitemapUrls(siteUrl: string) {
   ]);
 }
 
+type StaticRewrite = {
+  from: string;
+  to: string;
+};
+
+export function parseProductionRewrites(source: string): StaticRewrite[] {
+  return source
+    .split("[[services.production.rewrites]]")
+    .slice(1)
+    .flatMap((block) => {
+      const from = /^\s*from\s*=\s*"([^"]+)"\s*$/m.exec(block)?.[1];
+      const to = /^\s*to\s*=\s*"([^"]+)"\s*$/m.exec(block)?.[1];
+      return from && to ? [{ from, to }] : [];
+    });
+}
+
+function rewriteMatchesRoute(pattern: string, route: string) {
+  const expression = pattern
+    .split("*")
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("[^/]+");
+  return new RegExp(`^${expression}$`).test(route);
+}
+
+export function validateSitemapRouteMappings(
+  sitemapLocations: readonly string[],
+  siteUrl: string,
+  rewrites: readonly StaticRewrite[],
+) {
+  const unmapped = sitemapLocations
+    .map((location) => new URL(location).pathname)
+    .filter(
+      (route) =>
+        route !== "/" &&
+        !rewrites.some(
+          (rewrite) =>
+            rewriteMatchesRoute(rewrite.from, route) &&
+            rewrite.to.endsWith("/index.html"),
+        ),
+    );
+  check(
+    unmapped.length === 0,
+    "artifact.toml",
+    "production route mappings",
+    `sitemap routes without a static rewrite: ${unmapped.slice(0, 5).join(", ")}`,
+  );
+
+  const wrongOrigin = sitemapLocations.filter(
+    (location) => new URL(location).origin !== siteUrl,
+  );
+  check(
+    wrongOrigin.length === 0,
+    "artifact.toml",
+    "production route mapping origin",
+    wrongOrigin.slice(0, 3).join(", "),
+  );
+}
+
 async function validateDiscoveryFiles(siteUrl: string) {
   const robotsRoute = "robots.txt";
   let robots: string;
@@ -571,6 +633,22 @@ async function validateDiscoveryFiles(siteUrl: string) {
     new Set(locations).size === locations.length,
     sitemapRoute,
     "duplicate catalog URLs",
+  );
+
+  let artifactToml: string;
+  try {
+    artifactToml = await readFile(artifactTomlPath, "utf8");
+  } catch {
+    seoFailure(
+      "artifact.toml",
+      "production route mappings",
+      "artifact manifest is missing",
+    );
+  }
+  validateSitemapRouteMappings(
+    locations,
+    siteUrl,
+    parseProductionRewrites(artifactToml),
   );
 
   const imageLocations = [
