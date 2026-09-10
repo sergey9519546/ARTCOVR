@@ -133,4 +133,11 @@ test("sales range rejects invalid and overly broad windows", () => {
     ),
     null,
   );
+  assert.equal(
+    parseSalesReportRange(
+      { from: "2026-09-01", to: "2026-02-31" },
+      new Date("2026-09-15T12:00:00.000Z"),
+    ),
+    null,
+  );
 });

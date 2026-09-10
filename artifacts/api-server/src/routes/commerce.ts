@@ -179,6 +179,18 @@ export function createCheckoutHandler(
         existingOrder.stripeCheckoutSessionId,
       );
       if (session.url) {
+        try {
+          await recordFunnelEvent({
+            id: `checkout:${existingOrder.id}`,
+            eventType: "checkout_started",
+            artworkId: existingOrder.artworkId,
+          });
+        } catch (error) {
+          logger.warn(
+            { err: error, orderId: existingOrder.id },
+            "Checkout funnel event recording failed",
+          );
+        }
         res.json({
           purchaseId: existingOrder.id,
           checkoutUrl: session.url,

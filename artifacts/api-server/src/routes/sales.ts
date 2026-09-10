@@ -55,6 +55,7 @@ export function parseSalesReportRange(
     ? parseUtcDate(parsed.data.from)
     : defaults.from;
   const parsedTo = parsed.data.to ? parseUtcDate(parsed.data.to) : null;
+  if (parsed.data.to && !parsedTo) return null;
   const toDate = parsedTo ?? new Date(defaults.to);
   if (!from) return null;
   if (parsed.data.to) toDate.setUTCDate(toDate.getUTCDate() + 1);
