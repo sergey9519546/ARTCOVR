@@ -38,7 +38,7 @@ export default function GenreCoverArtPage() {
         editing options.
       </p>
       <ul className="mt-10 grid gap-x-5 gap-y-10 sm:grid-cols-2">
-        {matching.slice(0, 24).map((artwork) => (
+        {matching.map((artwork) => (
           <li key={artwork.slug}>
             <Link href={`/product/${encodeURIComponent(artwork.slug)}`} className="group block">
               <img

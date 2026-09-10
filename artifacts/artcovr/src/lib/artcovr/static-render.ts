@@ -249,7 +249,6 @@ function renderGenreCollection({ artworks, metadata, getGenres }: RenderContext)
   const matching = genreCollection({ artworks, metadata, getGenres });
   const categories = [...new Set(matching.map((artwork) => artwork.category))].slice(0, 4);
   const cards = matching
-    .slice(0, 24)
     .map(
       (artwork) => `<li>
         <article>

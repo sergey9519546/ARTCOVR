@@ -6,7 +6,11 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with {
 };
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { ANSWER_GUIDE_BY_PATH } from "../src/lib/artcovr/answer-guides";
-import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
+import {
+  displayGenreLabel,
+  getArtworkGenres,
+  hasGenreMatch,
+} from "../src/lib/artcovr/genre-index";
 import {
   STATIC_METADATA,
   getIndexableRoutePaths,
@@ -320,6 +324,32 @@ test("gives the commercial license route a descriptive primary heading", () => {
 
   assert.match(generatedDocument, /<h1>Commercial cover art license\.<\/h1>/);
   assert.doesNotMatch(generatedDocument, /<h1>Clear before checkout\.<\/h1>/);
+});
+
+test("links every matching artwork from prerendered genre collections", () => {
+  const genre = "art-pop";
+  const genreRoute = `/cover-art/${genre}`;
+  const matching = publicCatalog.filter((candidate) =>
+    hasGenreMatch(candidate, genre, (artwork) => getArtworkGenres(artwork)),
+  );
+  assert.ok(matching.length > 24, "fixture should exercise a large genre collection");
+
+  const generatedDocument = renderGeneratedPublicDocument({
+    route: genreRoute,
+    metadata: getRouteMetadata(
+      genreRoute,
+      publicCatalog,
+      (candidate) => getArtworkGenres(candidate).map(displayGenreLabel),
+    ),
+  });
+
+  for (const candidate of matching) {
+    assert.match(
+      generatedDocument,
+      new RegExp(`/product/${encodeURIComponent(candidate.slug)}`),
+      `${genreRoute} should link ${candidate.slug}`,
+    );
+  }
 });
 
 test("decodes escaped informational metadata equivalently across preview paths", () => {
