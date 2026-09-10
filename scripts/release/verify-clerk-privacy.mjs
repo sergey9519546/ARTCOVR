@@ -179,6 +179,7 @@ export async function startDisposableApi(
   const childEnv = {
     ...env,
     NODE_ENV: "development",
+    REPLIT_ENVIRONMENT: "development",
     PORT: String(port),
     ARTCOVR_SKIP_STRIPE_INIT: "1",
     ARTCOVR_PUBLIC_ORIGIN: baseUrl,
@@ -221,13 +222,16 @@ function runDevelopmentSmoke(
   ];
   if (disposableApi) smokeArgs.push("--origin", disposableApi.baseUrl);
   return spawnProcess(pnpm, smokeArgs, {
-    env: disposableApi
-      ? {
-          ...env,
-          ARTCOVR_PUBLIC_ORIGIN: disposableApi.baseUrl,
-          ARTCOVR_STOREFRONT_ORIGINS: disposableApi.baseUrl,
-        }
-      : env,
+    env: {
+      ...env,
+      REPLIT_ENVIRONMENT: "development",
+      ...(disposableApi
+        ? {
+            ARTCOVR_PUBLIC_ORIGIN: disposableApi.baseUrl,
+            ARTCOVR_STOREFRONT_ORIGINS: disposableApi.baseUrl,
+          }
+        : {}),
+    },
     stdio: ["ignore", "inherit", "pipe"],
     encoding: "utf8",
   });

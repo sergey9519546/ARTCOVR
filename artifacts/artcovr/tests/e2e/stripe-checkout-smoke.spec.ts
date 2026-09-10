@@ -71,6 +71,12 @@ function assertSmokeEnvironment() {
       "The smoke check refuses production deployments and production runtime mode.",
     );
   }
+  if (process.env.REPLIT_ENVIRONMENT !== "development") {
+    throw new StripeCheckoutSmokeError(
+      "environment",
+      "The smoke check requires the development Stripe connection; set REPLIT_ENVIRONMENT=development.",
+    );
+  }
 }
 
 async function fillStripeField(

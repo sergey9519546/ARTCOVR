@@ -1,6 +1,9 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { ensureStripeWebhook } from "./stripeClient";
+import {
+  assertStripeConnectionEnvironment,
+  ensureStripeWebhook,
+} from "./stripeClient";
 import { seedStripeCatalog } from "./catalogSeeder";
 import { validateProductionEnvironment } from "./runtimeConfig";
 import { pool } from "@workspace/db";
@@ -23,6 +26,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 validateProductionEnvironment();
+assertStripeConnectionEnvironment();
 
 async function initStripe() {
   if (process.env.ARTCOVR_SKIP_STRIPE_INIT === "1") {

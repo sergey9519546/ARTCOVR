@@ -10,7 +10,7 @@ name = "API Server"
 paths = ["/api"]
 
 [services.development]
-run = "pnpm --filter @workspace/api-server run dev"
+run = "NODE_ENV=development REPLIT_ENVIRONMENT=development pnpm --filter @workspace/api-server run dev"
 
 [services.production]
 
@@ -19,6 +19,7 @@ args = ["pnpm", "--filter", "@workspace/api-server", "run", "build"]
 
 [services.production.build.env]
 NODE_ENV = "production"
+REPLIT_ENVIRONMENT = "production"
 
 [services.production.run]
 # we don't run through pnpm to make startup faster in production
@@ -27,6 +28,7 @@ args = ["node", "--enable-source-maps", "artifacts/api-server/dist/index.mjs"]
 [services.production.run.env]
 PORT = "8080"
 NODE_ENV = "production"
+REPLIT_ENVIRONMENT = "production"
 ARTCOVR_PUBLIC_ORIGIN = "https://artcovr.com"
 ARTCOVR_STOREFRONT_ORIGINS = "https://artcovr.com"
 

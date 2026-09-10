@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type Stripe from "stripe";
 import {
+  assertStripeConnectionEnvironment,
   expectedStripeLivemode,
   listStripeCheckoutSessions,
   StripeCheckoutModeError,
@@ -54,6 +55,37 @@ test("production expects live Stripe checkout sessions", () => {
   );
   assert.equal(expectedStripeLivemode({ REPLIT_ENVIRONMENT: "production" }), true);
   assert.equal(expectedStripeLivemode({ REPLIT_ENVIRONMENT: "development" }), false);
+});
+
+test("Stripe connection binding must match the requested runtime environment", () => {
+  assert.doesNotThrow(() =>
+    assertStripeConnectionEnvironment({
+      NODE_ENV: "development",
+      REPLIT_ENVIRONMENT: "development",
+    }),
+  );
+  assert.doesNotThrow(() =>
+    assertStripeConnectionEnvironment({
+      NODE_ENV: "production",
+      REPLIT_ENVIRONMENT: "production",
+    }),
+  );
+  assert.throws(
+    () =>
+      assertStripeConnectionEnvironment({
+        NODE_ENV: "development",
+        REPLIT_ENVIRONMENT: "production",
+      }),
+    /does not match requested runtime environment "development"/,
+  );
+  assert.throws(
+    () =>
+      assertStripeConnectionEnvironment({
+        NODE_ENV: "production",
+        REPLIT_ENVIRONMENT: "development",
+      }),
+    /does not match requested runtime environment "production"/,
+  );
 });
 
 test("checkout mode validation accepts the expected account mode", () => {

@@ -12,7 +12,7 @@
     "test": "tsx --test src/lib/artcovr/*.test.ts scripts/catalog-intelligence-import.test.ts scripts/validate-guide-sources.test.ts scripts/validate-prospect-reports.test.ts scripts/validate-seo-build.test.ts && pnpm run prospects:validate",
     "optimize:artworks": "node scripts/optimize-artworks.mjs",
     "test:e2e": "playwright test",
-    "test:e2e:stripe-smoke": "ARTCOVR_STRIPE_CHECKOUT_SMOKE=1 NODE_ENV=development playwright test tests/e2e/stripe-checkout-smoke.spec.ts",
+    "test:e2e:stripe-smoke": "ARTCOVR_STRIPE_CHECKOUT_SMOKE=1 NODE_ENV=development REPLIT_ENVIRONMENT=development playwright test tests/e2e/stripe-checkout-smoke.spec.ts",
     "seo:validate": "tsx scripts/validate-seo-build.ts",
     "guides:sources:check": "tsx scripts/validate-guide-sources.ts",
     "catalog-intelligence:manifest": "tsx scripts/catalog-intelligence-manifest.ts",

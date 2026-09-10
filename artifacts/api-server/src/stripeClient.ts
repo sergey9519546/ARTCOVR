@@ -22,13 +22,36 @@ export class StripeProxyError extends Error {
 export function expectedStripeLivemode(
   env: Record<string, string | undefined> = process.env,
 ) {
-  // Replit artifact workflows may omit NODE_ENV while the connectors proxy
-  // still selects credentials from REPLIT_ENVIRONMENT.
+  // NODE_ENV describes the requested application mode. REPLIT_ENVIRONMENT is
+  // the connector binding used when NODE_ENV is omitted by an artifact
+  // workflow.
   if (env.NODE_ENV === "development" || env.NODE_ENV === "test") return false;
   return (
     env.NODE_ENV === "production" ||
     env.REPLIT_ENVIRONMENT === "production"
   );
+}
+
+export function assertStripeConnectionEnvironment(
+  env: Record<string, string | undefined> = process.env,
+) {
+  const configuredEnvironment = env.REPLIT_ENVIRONMENT;
+  const requestedEnvironment =
+    env.NODE_ENV === "production"
+      ? "production"
+      : env.NODE_ENV === "development" || env.NODE_ENV === "test"
+        ? "development"
+        : undefined;
+
+  if (
+    requestedEnvironment &&
+    configuredEnvironment &&
+    configuredEnvironment !== requestedEnvironment
+  ) {
+    throw new Error(
+      `Stripe connection environment "${configuredEnvironment}" does not match requested runtime environment "${requestedEnvironment}".`,
+    );
+  }
 }
 
 export class StripeCheckoutModeError extends Error {
