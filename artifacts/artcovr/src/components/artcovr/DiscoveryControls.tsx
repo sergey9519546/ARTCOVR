@@ -12,30 +12,42 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
   resultCount: number;
   totalCount: number;
 }) {
-  return <div data-catalog-controls className="discovery-filters">
+  const activeFilterCount = [view.genre, view.mood, view.color].filter(Boolean).length;
+
+  return <div data-catalog-controls className="discovery-editorial-filters">
     <p className="sr-only" role="status" aria-live="polite">{resultCount} / {totalCount} works</p>
-    {(["genre", "mood"] as const).map((key) => {
-      const label = key === "genre" ? "Music genre" : "Mood";
-      const display = key === "genre" ? displayGenreLabel : displayMoodLabel;
-      const options = [...index.counts[key]].sort(([a], [b]) => display(a).localeCompare(display(b)));
-      return <label key={key} data-facet={key} className="discovery-select-label">
-        <span>{label}</span>
-        <select value={view[key] ?? ""} onChange={(event) => onChange({ ...view, [key]: event.target.value || null })}>
-          <option value="">{key === "genre" ? "All music genres" : "All moods"}</option>
-          {view[key] && !index.counts[key].has(view[key]!) ? <option value={view[key]!}>{display(view[key]!)} · 0</option> : null}
-          {options.map(([value, count]) => <option key={value} value={value}>{display(value)} · {count}</option>)}
-        </select>
-      </label>;
-    })}
-    <fieldset data-facet="color" className="min-w-0">
-      <legend className="discovery-label">Color</legend>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        <button type="button" className="discovery-color" aria-pressed={!view.color} onClick={() => onChange({ ...view, color: null })}>All</button>
-        {[...index.counts.color.keys()].sort().map((color) => <button key={color} type="button" className="discovery-color" aria-label={`Color: ${color}`} title={color} aria-pressed={view.color === color} onClick={() => onChange({ ...view, color })}>
-          <span aria-hidden="true" className="h-4 w-4 rounded-full border border-current/20" style={{ background: SWATCHES[color] ?? (color.startsWith("#") ? color : undefined) }} />
-          <span className={view.color === color ? "text-xs capitalize" : "sr-only"}>{displayFacetLabel(color)}</span>
-        </button>)}
+    <div className="discovery-editorial-filter-panel" aria-label="Artwork archive filters">
+      {(["genre", "mood"] as const).map((key) => {
+        const label = key === "genre" ? "Music genre" : "Mood";
+        const display = key === "genre" ? displayGenreLabel : displayMoodLabel;
+        const allLabel = key === "genre" ? "All music genres" : "All moods";
+        const options = [...index.counts[key]].sort(([a], [b]) => display(a).localeCompare(display(b)));
+        return <div key={key} data-facet={key} className="discovery-editorial-filter-row">
+          <h2 className="discovery-editorial-facet-label">{label}</h2>
+          <label className="discovery-editorial-select-wrap">
+            <span className="sr-only">{label}</span>
+            <select aria-label={label} value={view[key] ?? ""} onChange={(event) => onChange({ ...view, [key]: event.target.value || null })}>
+              <option value="">{allLabel} · {totalCount} works</option>
+              {view[key] && !index.counts[key].has(view[key]!) ? <option value={view[key]!}>{display(view[key]!)} · 0 works</option> : null}
+              {options.map(([value, count]) => <option key={value} value={value}>{display(value)} · {count} works</option>)}
+            </select>
+          </label>
+        </div>;
+      })}
+      <div data-facet="color" className="discovery-editorial-filter-row">
+        <h2 className="discovery-editorial-facet-label">Color</h2>
+        <div className="discovery-editorial-color-options" role="group" aria-label="Color">
+          <button type="button" className="discovery-editorial-color" aria-pressed={!view.color} onClick={() => onChange({ ...view, color: null })}>
+            <span className="discovery-editorial-color-all">All</span>
+          </button>
+          {[...index.counts.color.keys()].sort().map((color) => <button key={color} type="button" className="discovery-editorial-color" aria-label={`Color: ${displayFacetLabel(color)}`} title={displayFacetLabel(color)} aria-pressed={view.color === color} onClick={() => onChange({ ...view, color })}>
+            <span aria-hidden="true" className="discovery-editorial-swatch" style={{ background: SWATCHES[color] ?? (color.startsWith("#") ? color : undefined) }} />
+          </button>)}
+        </div>
       </div>
-    </fieldset>
+    </div>
+    <div className="discovery-editorial-filter-status">
+      <span>{activeFilterCount ? `${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active · ${resultCount} ${resultCount === 1 ? "work" : "works"} shown` : "Showing the full archive"}</span>
+    </div>
   </div>;
 }
