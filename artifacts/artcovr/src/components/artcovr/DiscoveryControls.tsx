@@ -13,41 +13,88 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
   totalCount: number;
 }) {
   const activeFilterCount = [view.genre, view.mood, view.color].filter(Boolean).length;
+  const colors = [...index.counts.color.keys()].sort();
+  const genreOptions = [...index.counts.genre].sort(([a], [b]) => displayGenreLabel(a).localeCompare(displayGenreLabel(b)));
+  const moodOptions = [...index.counts.mood].sort(([a], [b]) => displayMoodLabel(a).localeCompare(displayMoodLabel(b)));
+  const update = (key: keyof CatalogView, value: string | null) => onChange({ ...view, [key]: value });
+  const clearAll = () => onChange({ genre: null, mood: null, color: null });
 
-  return <div data-catalog-controls className="discovery-editorial-filters">
+  return <section data-catalog-controls className="discovery-palette-filters" aria-labelledby="discovery-palette-heading">
     <p className="sr-only" role="status" aria-live="polite">{resultCount} / {totalCount} works</p>
-    <div className="discovery-editorial-filter-panel" aria-label="Artwork archive filters">
-      {(["genre", "mood"] as const).map((key) => {
-        const label = key === "genre" ? "Music genre" : "Mood";
-        const display = key === "genre" ? displayGenreLabel : displayMoodLabel;
-        const allLabel = key === "genre" ? "All music genres" : "All moods";
-        const options = [...index.counts[key]].sort(([a], [b]) => display(a).localeCompare(display(b)));
-        return <div key={key} data-facet={key} className="discovery-editorial-filter-row">
-          <h2 className="discovery-editorial-facet-label">{label}</h2>
-          <label className="discovery-editorial-select-wrap">
-            <span className="sr-only">{label}</span>
-            <select aria-label={label} value={view[key] ?? ""} onChange={(event) => onChange({ ...view, [key]: event.target.value || null })}>
-              <option value="">{allLabel} · {totalCount} works</option>
-              {view[key] && !index.counts[key].has(view[key]!) ? <option value={view[key]!}>{display(view[key]!)} · 0 works</option> : null}
-              {options.map(([value, count]) => <option key={value} value={value}>{display(value)} · {count} works</option>)}
-            </select>
-          </label>
-        </div>;
-      })}
-      <div data-facet="color" className="discovery-editorial-filter-row">
-        <h2 className="discovery-editorial-facet-label">Color</h2>
-        <div className="discovery-editorial-color-options" role="group" aria-label="Color">
-          <button type="button" className="discovery-editorial-color" aria-pressed={!view.color} onClick={() => onChange({ ...view, color: null })}>
-            <span className="discovery-editorial-color-all">All</span>
-          </button>
-          {[...index.counts.color.keys()].sort().map((color) => <button key={color} type="button" className="discovery-editorial-color" aria-label={`Color: ${displayFacetLabel(color)}`} title={displayFacetLabel(color)} aria-pressed={view.color === color} onClick={() => onChange({ ...view, color })}>
-            <span aria-hidden="true" className="discovery-editorial-swatch" style={{ background: SWATCHES[color] ?? (color.startsWith("#") ? color : undefined) }} />
-          </button>)}
+    <header className="discovery-palette-header">
+      <div>
+        <p className="discovery-palette-kicker">Browse by palette</p>
+        <div className="discovery-palette-count-line">
+          <span className="discovery-palette-count" aria-hidden="true">{resultCount}</span>
+          <span id="discovery-palette-heading" className="discovery-palette-count-caption">
+            {resultCount === totalCount ? "covers in the full archive" : "covers in the current view"}
+          </span>
         </div>
       </div>
+      <p className="discovery-palette-intro">
+        Start with a color, then sharpen the signal with sound and atmosphere.
+      </p>
+    </header>
+
+    <div className="discovery-palette-primary">
+      <div className="discovery-palette-section-head">
+        <div>
+          <p className="discovery-palette-index-label">01 / primary index</p>
+          <h2>Choose a palette</h2>
+        </div>
+        {view.color ? <button type="button" className="discovery-palette-clear-inline" onClick={() => update("color", null)}>Clear color</button> : null}
+      </div>
+      <div className="discovery-palette-swatches" role="group" aria-label="Color palette">
+        <button type="button" className="discovery-palette-swatch discovery-palette-all" aria-label={`All colors, ${totalCount} works`} aria-pressed={!view.color} onClick={() => update("color", null)}>
+          <span>All</span>
+        </button>
+        {colors.map((color) => (
+          <button key={color} type="button" className="discovery-palette-swatch" aria-label={`${displayFacetLabel(color)}, ${index.counts.color.get(color)} works`} title={`${displayFacetLabel(color)} · ${index.counts.color.get(color)} works`} aria-pressed={view.color === color} onClick={() => update("color", color)} style={{ backgroundColor: SWATCHES[color] ?? (color.startsWith("#") ? color : undefined) }}>
+            {view.color === color ? <span className="discovery-palette-selected">selected</span> : null}
+          </button>
+        ))}
+      </div>
+      <p className="discovery-palette-meta">
+        {view.color ? `${displayFacetLabel(view.color)} / ${index.counts.color.get(view.color) ?? 0} works indexed` : `${colors.length} indexed colors / select one to begin`}
+      </p>
     </div>
-    <div className="discovery-editorial-filter-status">
-      <span>{activeFilterCount ? `${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active · ${resultCount} ${resultCount === 1 ? "work" : "works"} shown` : "Showing the full archive"}</span>
+
+    <div className="discovery-palette-secondary">
+      <div className="discovery-palette-section-head">
+        <div>
+          <p className="discovery-palette-index-label">02 / secondary index</p>
+          <h2>Refine the atmosphere</h2>
+        </div>
+        <span className="discovery-palette-one-per-lane">one selection per lane</span>
+      </div>
+      <div className="discovery-palette-select-grid">
+        {[
+          { key: "genre" as const, label: "Music genre", options: genreOptions, display: displayGenreLabel, all: "All music genres" },
+          { key: "mood" as const, label: "Mood", options: moodOptions, display: displayMoodLabel, all: "All moods" },
+        ].map(({ key, label, options, display, all }) => (
+          <label key={key} className="discovery-palette-select-card">
+            <span className="discovery-palette-select-label">
+              {label}
+              <span aria-hidden="true">A—Z</span>
+            </span>
+            <span className="discovery-palette-select-wrap">
+              <select aria-label={label} value={view[key] ?? ""} onChange={(event) => update(key, event.target.value || null)}>
+                <option value="">{all} · {totalCount} works</option>
+                {view[key] && !index.counts[key].has(view[key]!) ? <option value={view[key]!}>{display(view[key]!)} · 0 works</option> : null}
+                {options.map(([value, count]) => <option key={value} value={value}>{display(value)} · {count} works</option>)}
+              </select>
+            </span>
+          </label>
+        ))}
+      </div>
     </div>
-  </div>;
+
+    <footer className="discovery-palette-footer">
+      <p>
+        <span aria-hidden="true" />
+        {activeFilterCount ? `${activeFilterCount} ${activeFilterCount === 1 ? "filter" : "filters"} active · ${resultCount} ${resultCount === 1 ? "work" : "works"} shown` : `Showing the full archive · ${totalCount} works`}
+      </p>
+      {activeFilterCount ? <button type="button" onClick={clearAll}>Clear all filters</button> : null}
+    </footer>
+  </section>;
 }
