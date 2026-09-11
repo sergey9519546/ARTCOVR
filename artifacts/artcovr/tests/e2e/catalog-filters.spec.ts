@@ -262,7 +262,7 @@ async function preparePaletteScreenshot(
 
 async function snapshotPaletteStates(
   page: Page,
-  viewport: "desktop" | "mobile",
+  viewport: "desktop" | "tablet" | "mobile",
   theme: PaletteTheme = "light",
 ) {
   const controls = page.locator("[data-catalog-controls]");
@@ -273,6 +273,44 @@ async function snapshotPaletteStates(
     caret: "hide" as const,
     scale: "css" as const,
   };
+
+  if (viewport === "tablet") {
+    const tabletLayout = await controls.evaluate((root) => {
+      const palette = root.querySelector<HTMLElement>(".discovery-palette-swatches");
+      const secondary = root.querySelector<HTMLElement>(".discovery-palette-select-grid");
+      const cards = [...root.querySelectorAll<HTMLElement>(".discovery-palette-select-card")];
+      if (!palette || !secondary || cards.length !== 2) {
+        throw new Error("Archive palette tablet layout is missing expected regions");
+      }
+
+      const controlsRect = root.getBoundingClientRect();
+      const paletteRect = palette.getBoundingClientRect();
+      const secondaryRect = secondary.getBoundingClientRect();
+      const cardRects = cards.map((card) => card.getBoundingClientRect());
+      const withinControls = [paletteRect, secondaryRect, ...cardRects].every(
+        (rect) =>
+          rect.left >= controlsRect.left - 1 &&
+          rect.right <= controlsRect.right + 1,
+      );
+
+      return {
+        paletteColumns: getComputedStyle(palette).gridTemplateColumns.trim().split(/\s+/).length,
+        secondaryColumns: getComputedStyle(secondary).gridTemplateColumns.trim().split(/\s+/).length,
+        paletteFits: palette.scrollWidth <= palette.clientWidth + 1,
+        secondaryFits: secondary.scrollWidth <= secondary.clientWidth + 1,
+        cardsShareRow: Math.abs(cardRects[0].top - cardRects[1].top) < 1,
+        withinControls,
+      };
+    });
+    expect(tabletLayout).toEqual({
+      paletteColumns: 13,
+      secondaryColumns: 2,
+      paletteFits: true,
+      secondaryFits: true,
+      cardsShareRow: true,
+      withinControls: true,
+    });
+  }
 
   await expect(controls).toHaveScreenshot(
     `${screenshotPrefix}-default.png`,
@@ -286,6 +324,10 @@ async function snapshotPaletteStates(
   await expect(
     facet(page, "color").getByRole("button", { name: "Color: Blue", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+  if (viewport === "tablet") {
+    await expect(controls.getByRole("button", { name: "Clear all filters", exact: true })).toBeVisible();
+    await expect(controls.getByRole("button", { name: "Clear color", exact: true })).toBeVisible();
+  }
   await expect(controls).toHaveScreenshot(
     `${screenshotPrefix}-one-color-active.png`,
     screenshotOptions,
@@ -298,6 +340,10 @@ async function snapshotPaletteStates(
   await expect(
     facet(page, "color").getByRole("button", { name: "All", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+  if (viewport === "tablet") {
+    await expect(controls.getByRole("button", { name: "Clear all filters", exact: true })).toHaveCount(0);
+    await expect(controls.getByRole("button", { name: "Clear color", exact: true })).toHaveCount(0);
+  }
   await expect(controls).toHaveScreenshot(
     `${screenshotPrefix}-cleared.png`,
     screenshotOptions,
@@ -323,6 +369,15 @@ test.describe("archive palette visual states", () => {
     });
   });
 
+  test.describe("tablet", () => {
+    test.use({ viewport: { width: 768, height: 1000 } });
+
+    test("keeps default, active, and cleared controls stable", async ({ page }) => {
+      await preparePaletteScreenshot(page);
+      await snapshotPaletteStates(page, "tablet");
+    });
+  });
+
   test.describe("dark theme", () => {
     test.use({ colorScheme: "dark" });
 
@@ -341,6 +396,15 @@ test.describe("archive palette visual states", () => {
       test("keeps default, active, and cleared controls stable", async ({ page }) => {
         await preparePaletteScreenshot(page, "dark");
         await snapshotPaletteStates(page, "mobile", "dark");
+      });
+    });
+
+    test.describe("tablet", () => {
+      test.use({ viewport: { width: 768, height: 1000 } });
+
+      test("keeps default, active, and cleared controls stable", async ({ page }) => {
+        await preparePaletteScreenshot(page, "dark");
+        await snapshotPaletteStates(page, "tablet", "dark");
       });
     });
   });
