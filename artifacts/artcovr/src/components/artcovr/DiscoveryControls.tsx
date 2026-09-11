@@ -56,12 +56,6 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
     </div>
 
     <div className="discovery-palette-secondary">
-      <div className="discovery-palette-section-head">
-        <div>
-          <p className="discovery-palette-index-label">02 / secondary index</p>
-        </div>
-        <span className="discovery-palette-one-per-lane">one selection per lane</span>
-      </div>
       <div className="discovery-palette-select-grid">
         {[
           { key: "genre" as const, label: "Music genre", options: genreOptions, display: displayGenreLabel, all: "All music genres" },
