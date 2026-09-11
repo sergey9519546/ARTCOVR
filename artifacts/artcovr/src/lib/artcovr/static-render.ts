@@ -71,6 +71,31 @@ function absoluteUrl(value: string, siteUrl: string) {
   return new URL(value, `${siteUrl}/`).toString();
 }
 
+function optimizedArtworkSources(image: string) {
+  if (!image.startsWith("/assets/artworks/") || !image.endsWith(".jpg")) {
+    return null;
+  }
+  const filename = image.slice("/assets/artworks/".length, -".jpg".length);
+  return {
+    full: `/assets/artworks/optimized/${filename}.webp`,
+    compact: `/assets/artworks/optimized/${filename}-640.webp`,
+  };
+}
+
+function responsiveArtworkImage(artwork: StaticArtwork, sizes: string) {
+  const image = escapeHtml(artwork.image);
+  const alt = escapeHtml(artwork.alt);
+  const optimized = optimizedArtworkSources(artwork.image);
+  const img = `<img src="${image}" alt="${alt}" width="1200" height="1200" sizes="${escapeHtml(sizes)}" loading="lazy" decoding="async" />`;
+
+  if (!optimized) return img;
+
+  return `<picture>
+    <source srcset="${escapeHtml(optimized.compact)} 640w, ${escapeHtml(optimized.full)} 1280w" sizes="${escapeHtml(sizes)}" type="image/webp" />
+    ${img}
+  </picture>`;
+}
+
 export function renderStaticRouteMetadata(
   metadata: RouteMetadata,
   siteUrl: string,
@@ -156,7 +181,7 @@ function renderHome({ artworks }: RenderContext) {
     .map(
       (artwork) => `<li>
         <a href="/product/${encodeURIComponent(artwork.slug)}">
-          <img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(artwork.alt)}" width="1200" height="1200" loading="lazy" />
+          ${responsiveArtworkImage(artwork, "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw")}
           <span>${escapeHtml(artwork.title)}</span>
         </a>
       </li>`,
@@ -186,7 +211,7 @@ function renderArchive({ artworks }: RenderContext) {
       (artwork) => `<li>
         <article>
           <a href="/product/${encodeURIComponent(artwork.slug)}">
-            <img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(artwork.alt)}" width="1200" height="1200" loading="lazy" />
+            ${responsiveArtworkImage(artwork, "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw")}
             <h2>${escapeHtml(artwork.title)}</h2>
           </a>
           <p>${escapeHtml(artwork.description)}</p>
@@ -253,7 +278,7 @@ function renderGenreCollection({ artworks, metadata, getGenres }: RenderContext)
       (artwork) => `<li>
         <article>
           <a href="/product/${encodeURIComponent(artwork.slug)}">
-            <img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(artwork.alt)}" width="1200" height="1200" loading="lazy" />
+            ${responsiveArtworkImage(artwork, "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw")}
             <h2>${escapeHtml(artwork.title)}</h2>
           </a>
           <p>${escapeHtml(artwork.description)}</p>

@@ -112,4 +112,35 @@ describe("route metadata", () => {
       ],
     });
   });
+
+  test("serves responsive WebP artwork in static collection routes", () => {
+    const artwork = displayArtworks[0];
+    assert.ok(artwork);
+    const optimizedName = artwork.image
+      .slice("/assets/artworks/".length, -".jpg".length);
+    const routes = ["/", "/archive", "/cover-art/ambient"];
+
+    for (const path of routes) {
+      const rendered = renderStaticRoute({
+        artworks: [artwork],
+        siteUrl: "https://artcovr.com",
+        metadata: getRouteMetadata(path, [artwork]),
+        getGenres: () => ["ambient"],
+      });
+
+      assert.match(
+        rendered.bodyHtml,
+        new RegExp(
+          `<picture>\\s*<source srcset="/assets/artworks/optimized/${optimizedName}-640\\.webp 640w, /assets/artworks/optimized/${optimizedName}\\.webp 1280w"[^>]*type="image/webp"`,
+        ),
+      );
+      assert.match(
+        rendered.bodyHtml,
+        new RegExp(
+          `<img src="${artwork.image}" alt="${artwork.alt.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}" width="1200" height="1200" sizes="[^"]+" loading="lazy" decoding="async"`,
+        ),
+      );
+      assert.doesNotMatch(rendered.bodyHtml, /fetchpriority="high"/i);
+    }
+  });
 });
