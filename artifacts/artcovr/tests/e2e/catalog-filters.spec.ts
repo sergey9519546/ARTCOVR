@@ -242,8 +242,17 @@ test("every catalog color remains visible and keyboard focusable", async ({ page
   }
 });
 
-async function preparePaletteScreenshot(page: Page) {
+type PaletteTheme = "light" | "dark";
+
+async function preparePaletteScreenshot(
+  page: Page,
+  theme: PaletteTheme = "light",
+) {
+  await page.addInitScript((selectedTheme) => {
+    window.localStorage.setItem("theme", selectedTheme);
+  }, theme);
   await page.goto("/archive", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
   await expect(catalogStatus(page)).toHaveText(
     `${ARCHIVE_TOTAL} / ${ARCHIVE_TOTAL} works`,
   );
@@ -251,8 +260,14 @@ async function preparePaletteScreenshot(page: Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-async function snapshotPaletteStates(page: Page, viewport: "desktop" | "mobile") {
+async function snapshotPaletteStates(
+  page: Page,
+  viewport: "desktop" | "mobile",
+  theme: PaletteTheme = "light",
+) {
   const controls = page.locator("[data-catalog-controls]");
+  const screenshotPrefix =
+    theme === "dark" ? `archive-palette-dark-${viewport}` : `archive-palette-${viewport}`;
   const screenshotOptions = {
     animations: "disabled" as const,
     caret: "hide" as const,
@@ -260,7 +275,7 @@ async function snapshotPaletteStates(page: Page, viewport: "desktop" | "mobile")
   };
 
   await expect(controls).toHaveScreenshot(
-    `archive-palette-${viewport}-default.png`,
+    `${screenshotPrefix}-default.png`,
     screenshotOptions,
   );
 
@@ -272,7 +287,7 @@ async function snapshotPaletteStates(page: Page, viewport: "desktop" | "mobile")
     facet(page, "color").getByRole("button", { name: "Color: Blue", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(controls).toHaveScreenshot(
-    `archive-palette-${viewport}-one-color-active.png`,
+    `${screenshotPrefix}-one-color-active.png`,
     screenshotOptions,
   );
 
@@ -284,7 +299,7 @@ async function snapshotPaletteStates(page: Page, viewport: "desktop" | "mobile")
     facet(page, "color").getByRole("button", { name: "All", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(controls).toHaveScreenshot(
-    `archive-palette-${viewport}-cleared.png`,
+    `${screenshotPrefix}-cleared.png`,
     screenshotOptions,
   );
 }
@@ -305,6 +320,28 @@ test.describe("archive palette visual states", () => {
     test("keeps default, active, and cleared controls stable", async ({ page }) => {
       await preparePaletteScreenshot(page);
       await snapshotPaletteStates(page, "mobile");
+    });
+  });
+
+  test.describe("dark theme", () => {
+    test.use({ colorScheme: "dark" });
+
+    test.describe("desktop", () => {
+      test.use({ viewport: { width: 1440, height: 1000 } });
+
+      test("keeps default, active, and cleared controls stable", async ({ page }) => {
+        await preparePaletteScreenshot(page, "dark");
+        await snapshotPaletteStates(page, "desktop", "dark");
+      });
+    });
+
+    test.describe("mobile", () => {
+      test.use({ viewport: { width: 390, height: 844 } });
+
+      test("keeps default, active, and cleared controls stable", async ({ page }) => {
+        await preparePaletteScreenshot(page, "dark");
+        await snapshotPaletteStates(page, "mobile", "dark");
+      });
     });
   });
 });
