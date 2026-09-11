@@ -428,6 +428,128 @@ test.describe("archive palette visual states", () => {
   });
 });
 
+test.describe("archive palette tablet text zoom", () => {
+  test.use({ viewport: { width: 768, height: 1000 } });
+
+  test("keeps labels, selectors, active state, and clear actions keyboard reachable", async ({
+    page,
+  }) => {
+    await preparePaletteScreenshot(page);
+    await page.addStyleTag({
+      content: `
+        [data-catalog-controls] .discovery-palette-index-label,
+        [data-catalog-controls] .discovery-palette-select-label,
+        [data-catalog-controls] .discovery-palette-meta { font-size: 12.5px !important; }
+        [data-catalog-controls] .discovery-palette-clear-inline,
+        [data-catalog-controls] .discovery-palette-footer button,
+        [data-catalog-controls] .discovery-palette-all { font-size: 13.75px !important; }
+        [data-catalog-controls] .discovery-palette-selected { font-size: 11.25px !important; }
+        [data-catalog-controls] .discovery-palette-select-trigger { font-size: 17.5px !important; }
+        [data-catalog-controls] .discovery-palette-select-content [role="option"] { font-size: 16.25px !important; }
+        [data-catalog-controls] .discovery-palette-footer p { font-size: 16.25px !important; }
+      `,
+    });
+
+    const controls = page.locator("[data-catalog-controls]");
+    const assertContained = async () => {
+      const layout = await controls.evaluate((root) => {
+        const rootRect = root.getBoundingClientRect();
+        const required = [
+          ...root.querySelectorAll<HTMLElement>(
+            ".discovery-palette-index-label, .discovery-palette-swatch, " +
+              ".discovery-palette-select-label, .discovery-palette-select-card, " +
+              ".discovery-palette-select-trigger, .discovery-palette-meta, " +
+              ".discovery-palette-footer",
+          ),
+        ];
+        return {
+          overflowX: root.scrollWidth - root.clientWidth,
+          required: required.map((element) => {
+            const rect = element.getBoundingClientRect();
+            return {
+              visible: rect.width > 0 && rect.height > 0,
+              contained:
+                rect.left >= rootRect.left - 1 &&
+                rect.right <= rootRect.right + 1,
+            };
+          }),
+        };
+      });
+
+      expect(layout.overflowX).toBeLessThanOrEqual(1);
+      expect(layout.required.every(({ visible, contained }) => visible && contained)).toBe(
+        true,
+      );
+    };
+
+    await expect(controls.locator(".discovery-palette-index-label")).toHaveText(
+      "01 / primary index",
+    );
+    await expect(controls.locator(".discovery-palette-select-label")).toHaveCount(2);
+    await expect(controls.locator(".discovery-palette-select-trigger")).toHaveCount(2);
+    await expect(controls.locator(".discovery-palette-swatch")).toHaveCount(13);
+    await assertContained();
+
+    const allColors = controls.getByRole("button", { name: "All", exact: true });
+    const colorChoices = choices(facet(page, "color"));
+    for (const button of [allColors, ...(await colorChoices.all())]) {
+      await button.focus();
+      await expect(button).toBeFocused();
+    }
+
+    for (const label of ["Music genre", "Mood"]) {
+      const trigger = controls.getByRole("combobox", { name: label, exact: true });
+      await trigger.focus();
+      await expect(trigger).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("option").first()).toBeVisible();
+      await page.keyboard.press("Escape");
+    }
+
+    const blue = facet(page, "color").getByRole("button", {
+      name: "Color: Blue",
+      exact: true,
+    });
+    await blue.focus();
+    await page.keyboard.press("Enter");
+    await expect(blue).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      controls.getByRole("button", { name: "Clear color", exact: true }),
+    ).toBeVisible();
+    await expect(
+      controls.getByRole("button", { name: "Clear all filters", exact: true }),
+    ).toBeVisible();
+    await assertContained();
+
+    const clearColor = controls.getByRole("button", {
+      name: "Clear color",
+      exact: true,
+    });
+    await clearColor.focus();
+    await expect(clearColor).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(allColors).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      controls.getByRole("button", { name: "Clear color", exact: true }),
+    ).toHaveCount(0);
+
+    await blue.focus();
+    await page.keyboard.press("Enter");
+    const clearAll = controls.getByRole("button", {
+      name: "Clear all filters",
+      exact: true,
+    });
+    await clearAll.focus();
+    await expect(clearAll).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(allColors).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      controls.getByRole("button", { name: "Clear all filters", exact: true }),
+    ).toHaveCount(0);
+    await assertContained();
+  });
+});
+
 test("homepage journey survives repeated reloads and route transitions", async ({
   page,
 }) => {
