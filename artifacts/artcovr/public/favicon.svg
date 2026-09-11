@@ -1,3 +1,6 @@
-<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-labelledby="favicon-title">
+  <title id="favicon-title">ARTCOVR</title>
+  <rect width="180" height="180" rx="36" fill="#ff3c00"/>
+  <path d="M42 138 78 42h36l36 96h-31l-7-21H79l-7 21H42Zm45-47h17L95.5 65 87 91Z" fill="#0b0b0b"/>
+  <path d="M80 117h32l7 21H72l8-21Z" fill="#f3ecd9"/>
 </svg>
