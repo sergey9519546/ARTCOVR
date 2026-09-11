@@ -1,8 +1,16 @@
 import { displayGenreLabel } from "@/lib/artcovr/artworks";
 import type { CatalogFacetIndex } from "@/lib/artcovr/catalog-intelligence";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { displayFacetLabel, displayMoodLabel, type CatalogView } from "./CatalogControls";
 
 const SWATCHES: Record<string, string> = { Black: "#171717", Blue: "#2f63c7", Brown: "#8a5a3b", Gray: "#8a8a86", Green: "#3f754f", Orange: "#df7a2e", Pink: "#d88b9c", Purple: "#7953a8", Red: "#c84a3f", Teal: "#319b95", White: "#f5f1e7", Yellow: "#dfb82e" };
+const ALL_FACET_VALUE = "__all__";
 
 function displayColorLabel(value: string) {
   return displayFacetLabel(value).replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
@@ -23,23 +31,8 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
   const update = (key: keyof CatalogView, value: string | null) => onChange({ ...view, [key]: value });
   const clearAll = () => onChange({ genre: null, mood: null, color: null });
 
-  return <section data-catalog-controls className="discovery-palette-filters" aria-labelledby="discovery-palette-heading">
+  return <section data-catalog-controls className="discovery-palette-filters" aria-label="Archive filters">
     <p className="sr-only" role="status" aria-live="polite">{resultCount} / {totalCount} works</p>
-    <header className="discovery-palette-header">
-      <div>
-        <p className="discovery-palette-kicker">Browse by palette</p>
-        <div className="discovery-palette-count-line">
-          <span className="discovery-palette-count" aria-hidden="true">{resultCount}</span>
-          <span id="discovery-palette-heading" className="discovery-palette-count-caption">
-            {resultCount === totalCount ? "covers in the full archive" : "covers in the current view"}
-          </span>
-        </div>
-      </div>
-      <p className="discovery-palette-intro">
-        Start with a color, then sharpen the signal with sound and atmosphere.
-      </p>
-    </header>
-
     <div className="discovery-palette-primary">
       <div className="discovery-palette-section-head">
         <div>
@@ -73,21 +66,46 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
         {[
           { key: "genre" as const, label: "Music genre", options: genreOptions, display: displayGenreLabel, all: "All music genres" },
           { key: "mood" as const, label: "Mood", options: moodOptions, display: displayMoodLabel, all: "All moods" },
-        ].map(({ key, label, options, display, all }) => (
-          <label key={key} data-facet={key} className="discovery-palette-select-card">
-            <span className="discovery-palette-select-label">
+        ].map(({ key, label, options, display, all }) => {
+          const labelId = `discovery-palette-${key}-label`;
+          const unknownValue = view[key] && !index.counts[key].has(view[key]!) ? view[key]! : null;
+          return (
+          <div key={key} data-facet={key} className="discovery-palette-select-card">
+            <span id={labelId} className="discovery-palette-select-label">
               {label}
               <span aria-hidden="true">A—Z</span>
             </span>
             <span className="discovery-palette-select-wrap">
-              <select aria-label={label} value={view[key] ?? ""} onChange={(event) => update(key, event.target.value || null)}>
-                <option value="">{all} · {totalCount} works</option>
-                {view[key] && !index.counts[key].has(view[key]!) ? <option value={view[key]!}>{display(view[key]!)} · 0 works</option> : null}
-                {options.map(([value, count]) => <option key={value} value={value}>{display(value)} · {count} works</option>)}
-              </select>
+              <Select
+                value={view[key] ?? ALL_FACET_VALUE}
+                onValueChange={(value) => update(key, value === ALL_FACET_VALUE ? null : value)}
+              >
+                <SelectTrigger
+                  aria-label={label}
+                  aria-labelledby={labelId}
+                  className="discovery-palette-select-trigger"
+                >
+                  <SelectValue placeholder={all} />
+                </SelectTrigger>
+                <SelectContent className="discovery-palette-select-content">
+                  <SelectItem value={ALL_FACET_VALUE}>
+                    {all} <span className="discovery-palette-option-count">· {totalCount} works</span>
+                  </SelectItem>
+                  {unknownValue ? (
+                    <SelectItem value={unknownValue}>
+                      {display(unknownValue)} <span className="discovery-palette-option-count">· 0 works</span>
+                    </SelectItem>
+                  ) : null}
+                  {options.map(([value, count]) => (
+                    <SelectItem key={value} value={value}>
+                      {display(value)} <span className="discovery-palette-option-count">· {count} works</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </span>
-          </label>
-        ))}
+          </div>
+        );})}
       </div>
     </div>
 

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { displayArtworks } from "../../src/lib/artcovr/artworks";
+import { displayArtworks, displayGenreLabel } from "../../src/lib/artcovr/artworks";
 import { MUSIC_GENRES } from "../../src/lib/artcovr/genre-index";
 import { rankGenreArtwork, rankSimilarArtwork } from "../../src/lib/artcovr/discovery-index";
 import { orderDiscoveryArtwork } from "../../src/lib/artcovr/discovery-state";
@@ -122,10 +122,16 @@ test("music genres expose metadata evidence and add only supported visual neighb
   await page.goto("/archive");
   const select = page.getByRole("combobox", { name: "Music genre", exact: true });
   await expect(select).toBeVisible();
-  await expect(select.locator('option:not([value=""])')).toHaveCount(MUSIC_GENRES.length);
-  const available = await select.locator('option:not([value=""])').evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value));
-  expect(new Set(available)).toEqual(new Set(MUSIC_GENRES));
-  await select.selectOption(genre!);
+  await select.click();
+  const options = page.getByRole("option");
+  await expect(options).toHaveCount(MUSIC_GENRES.length + 1);
+  const available = (await options.allTextContents())
+    .slice(1)
+    .map((option) => option.trim().replace(/\s+·\s+\d+\s+works$/, ""));
+  expect(new Set(available)).toEqual(new Set(MUSIC_GENRES.map(displayGenreLabel)));
+  const genreOptionIndex = available.findIndex((option) => option === displayGenreLabel(genre!));
+  expect(genreOptionIndex).toBeGreaterThanOrEqual(0);
+  await options.nth(genreOptionIndex + 1).click();
   await expect.poll(() => resultPaths(page)).toEqual(paths(direct.map(({ artwork }) => artwork)));
   const firstDirect = cards(page).filter({ has: page.getByRole("link", { name: `View ${direct[0].artwork.title}`, exact: true }) });
   await expect(firstDirect).toContainText(direct[0].reasons[0]);
@@ -137,7 +143,7 @@ test("music genres expose metadata evidence and add only supported visual neighb
   await expect(firstConnected).toContainText(connected[0].reasons[0]);
   await page.reload();
   await expect(connections).toBeChecked();
-  await expect(select).toHaveValue(genre!);
+  await expect(select).toContainText(displayGenreLabel(genre!));
   await expect.poll(() => resultPaths(page)).toEqual(paths(ranked.map(({ artwork }) => artwork)));
   await connections.uncheck();
   await expect.poll(() => resultPaths(page)).toEqual(paths(direct.map(({ artwork }) => artwork)));

@@ -23,21 +23,20 @@ function facet(page: Page, key: FacetKey) {
 }
 
 function choices(facetLocator: Locator) {
-  return facetLocator.getByRole("button").filter({ hasNotText: "All" });
+  return facetLocator.locator('button[aria-label^="Color:"]');
 }
 
 async function chooseFirstFacetOption(page: Page, key: FacetKey) {
   if (key !== "color") {
     const select = facet(page, key).getByRole("combobox");
     await expect(select).toBeVisible();
-    const option = select.locator('option:not([value=""])').first();
-    const value = await option.getAttribute("value");
+    await select.click();
+    const option = page.getByRole("option").nth(1);
     const label = (await option.innerText()).trim().replace(/\s+·\s+\d+$/, "");
-    expect(value).toBeTruthy();
-    await select.selectOption(value!);
+    await option.click();
     const count = resultCount(await catalogStatus(page).innerText());
     expect(count, `${key} filter should match at least one work`).toBeGreaterThan(0);
-    return { choice: select, label, value: value! };
+    return { choice: select, label, value: label };
   }
   const choice = choices(facet(page, key)).first();
   await expect(choice).toBeVisible();
@@ -53,7 +52,9 @@ async function chooseFirstFacetOption(page: Page, key: FacetKey) {
 
 async function clearFacet(page: Page, key: FacetKey) {
   if (key !== "color") {
-    await facet(page, key).getByRole("combobox").selectOption("");
+    const select = facet(page, key).getByRole("combobox");
+    await select.click();
+    await page.getByRole("option").first().click();
     return;
   }
   await facet(page, key)
@@ -64,9 +65,12 @@ async function clearFacet(page: Page, key: FacetKey) {
 async function findCompatibleOption(page: Page, key: FacetKey) {
   if (key !== "color") {
     const select = facet(page, key).getByRole("combobox");
-    const options = await select.locator('option:not([value=""])').evaluateAll((entries) => entries.map((entry) => (entry as HTMLOptionElement).value));
-    for (const value of options) {
-      await select.selectOption(value);
+    await select.click();
+    const optionCount = await page.getByRole("option").count();
+    await page.keyboard.press("Escape");
+    for (let index = 1; index < optionCount; index += 1) {
+      await select.click();
+      await page.getByRole("option").nth(index).click();
       const count = resultCount(await catalogStatus(page).innerText());
       if (count > 0) return { choice: select, count };
       await clearFacet(page, key);
@@ -213,14 +217,14 @@ test("archive keeps search relevance through color filtering and restores curati
 
 test("archive search and facets restore from the URL", async ({ page }) => {
   await page.goto("/archive");
-  const { value: selectedGenre } = await chooseFirstFacetOption(page, "genre");
+  const { label: selectedGenre } = await chooseFirstFacetOption(page, "genre");
   await expect.poll(() => new URL(page.url()).searchParams.get("genre")).toBeTruthy();
   const filteredCount = resultCount(await catalogStatus(page).innerText());
 
   await page.reload();
   await expect(page.locator("#archive-search")).toHaveValue("");
   await expect(catalogStatus(page)).toHaveText(`${filteredCount} / ${ARCHIVE_TOTAL} works`);
-  await expect(facet(page, "genre").getByRole("combobox")).toHaveValue(selectedGenre);
+  await expect(facet(page, "genre").getByRole("combobox")).toContainText(selectedGenre);
   await expect(page.url()).toContain("genre=");
 });
 
