@@ -242,6 +242,73 @@ test("every catalog color remains visible and keyboard focusable", async ({ page
   }
 });
 
+async function preparePaletteScreenshot(page: Page) {
+  await page.goto("/archive", { waitUntil: "domcontentloaded" });
+  await expect(catalogStatus(page)).toHaveText(
+    `${ARCHIVE_TOTAL} / ${ARCHIVE_TOTAL} works`,
+  );
+  await expect(page.locator("[data-catalog-controls]")).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+}
+
+async function snapshotPaletteStates(page: Page, viewport: "desktop" | "mobile") {
+  const controls = page.locator("[data-catalog-controls]");
+  const screenshotOptions = {
+    animations: "disabled" as const,
+    caret: "hide" as const,
+    scale: "css" as const,
+  };
+
+  await expect(controls).toHaveScreenshot(
+    `archive-palette-${viewport}-default.png`,
+    screenshotOptions,
+  );
+
+  await facet(page, "color")
+    .getByRole("button", { name: "Color: Blue", exact: true })
+    .click();
+  await expect(catalogStatus(page)).toHaveText(/\d+ \/ 187 works/);
+  await expect(
+    facet(page, "color").getByRole("button", { name: "Color: Blue", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(controls).toHaveScreenshot(
+    `archive-palette-${viewport}-one-color-active.png`,
+    screenshotOptions,
+  );
+
+  await page.getByRole("button", { name: "Clear all filters", exact: true }).click();
+  await expect(catalogStatus(page)).toHaveText(
+    `${ARCHIVE_TOTAL} / ${ARCHIVE_TOTAL} works`,
+  );
+  await expect(
+    facet(page, "color").getByRole("button", { name: "All", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(controls).toHaveScreenshot(
+    `archive-palette-${viewport}-cleared.png`,
+    screenshotOptions,
+  );
+}
+
+test.describe("archive palette visual states", () => {
+  test.describe("desktop", () => {
+    test.use({ viewport: { width: 1440, height: 1000 } });
+
+    test("keeps default, active, and cleared controls stable", async ({ page }) => {
+      await preparePaletteScreenshot(page);
+      await snapshotPaletteStates(page, "desktop");
+    });
+  });
+
+  test.describe("mobile", () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test("keeps default, active, and cleared controls stable", async ({ page }) => {
+      await preparePaletteScreenshot(page);
+      await snapshotPaletteStates(page, "mobile");
+    });
+  });
+});
+
 test("homepage journey survives repeated reloads and route transitions", async ({
   page,
 }) => {

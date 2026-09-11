@@ -30,7 +30,7 @@ export default defineConfig({
     ? undefined
     : [
         {
-          command: 'pnpm --filter @workspace/api-server run dev',
+          command: 'REPLIT_ENVIRONMENT=development NODE_ENV=development pnpm --filter @workspace/api-server run dev',
           env: {
             NODE_ENV: 'development',
             ARTCOVR_STOREFRONT_ORIGINS: `http://127.0.0.1:${port}`,
