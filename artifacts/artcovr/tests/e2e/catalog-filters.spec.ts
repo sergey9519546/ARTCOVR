@@ -262,7 +262,7 @@ async function preparePaletteScreenshot(
 
 async function snapshotPaletteStates(
   page: Page,
-  viewport: "desktop" | "tablet" | "mobile",
+  viewport: "desktop" | "tablet" | "tablet-wide" | "mobile",
   theme: PaletteTheme = "light",
 ) {
   const controls = page.locator("[data-catalog-controls]");
@@ -274,7 +274,7 @@ async function snapshotPaletteStates(
     scale: "css" as const,
   };
 
-  if (viewport === "tablet") {
+  if (viewport === "tablet" || viewport === "tablet-wide") {
     const tabletLayout = await controls.evaluate((root) => {
       const palette = root.querySelector<HTMLElement>(".discovery-palette-swatches");
       const secondary = root.querySelector<HTMLElement>(".discovery-palette-select-grid");
@@ -324,7 +324,7 @@ async function snapshotPaletteStates(
   await expect(
     facet(page, "color").getByRole("button", { name: "Color: Blue", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  if (viewport === "tablet") {
+  if (viewport === "tablet" || viewport === "tablet-wide") {
     await expect(controls.getByRole("button", { name: "Clear all filters", exact: true })).toBeVisible();
     await expect(controls.getByRole("button", { name: "Clear color", exact: true })).toBeVisible();
   }
@@ -340,7 +340,7 @@ async function snapshotPaletteStates(
   await expect(
     facet(page, "color").getByRole("button", { name: "All", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  if (viewport === "tablet") {
+  if (viewport === "tablet" || viewport === "tablet-wide") {
     await expect(controls.getByRole("button", { name: "Clear all filters", exact: true })).toHaveCount(0);
     await expect(controls.getByRole("button", { name: "Clear color", exact: true })).toHaveCount(0);
   }
@@ -378,6 +378,15 @@ test.describe("archive palette visual states", () => {
     });
   });
 
+  test.describe("upper tablet", () => {
+    test.use({ viewport: { width: 1024, height: 1000 } });
+
+    test("keeps default, active, and cleared controls stable", async ({ page }) => {
+      await preparePaletteScreenshot(page);
+      await snapshotPaletteStates(page, "tablet-wide");
+    });
+  });
+
   test.describe("dark theme", () => {
     test.use({ colorScheme: "dark" });
 
@@ -405,6 +414,15 @@ test.describe("archive palette visual states", () => {
       test("keeps default, active, and cleared controls stable", async ({ page }) => {
         await preparePaletteScreenshot(page, "dark");
         await snapshotPaletteStates(page, "tablet", "dark");
+      });
+    });
+
+    test.describe("upper tablet", () => {
+      test.use({ viewport: { width: 1024, height: 1000 } });
+
+      test("keeps default, active, and cleared controls stable", async ({ page }) => {
+        await preparePaletteScreenshot(page, "dark");
+        await snapshotPaletteStates(page, "tablet-wide", "dark");
       });
     });
   });
