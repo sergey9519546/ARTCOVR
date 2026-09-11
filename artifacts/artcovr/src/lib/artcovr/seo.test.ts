@@ -58,4 +58,41 @@ describe("artwork image structured data", () => {
     ]);
     assert.equal(collection["@graph"][1]?.["@type"], "ImageObject");
   });
+
+  test("links collection pages to canonical breadcrumb entities", () => {
+    const collection = buildArtworkCollectionStructuredData(
+      [artwork],
+      "https://example.com",
+      {
+        path: "/cover-art/ambient",
+        name: "Ambient cover art",
+        breadcrumbs: [
+          { name: "Music cover art by genre", path: "/cover-art" },
+          { name: "Ambient", path: "/cover-art/ambient" },
+        ],
+      },
+    );
+
+    assert.deepEqual(collection["@graph"][0]?.breadcrumb, {
+      "@id": "https://example.com/cover-art/ambient#breadcrumb",
+    });
+    assert.deepEqual(collection["@graph"][1], {
+      "@type": "BreadcrumbList",
+      "@id": "https://example.com/cover-art/ambient#breadcrumb",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Music cover art by genre",
+          item: "https://example.com/cover-art",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Ambient",
+          item: "https://example.com/cover-art/ambient",
+        },
+      ],
+    });
+  });
 });

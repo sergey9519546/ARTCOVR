@@ -561,6 +561,16 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
         path: metadata.path,
         name: `${displayGenreLabel(genre)} cover art`,
         description: metadata.description,
+        breadcrumbs: [
+          {
+            name: "Music cover art by genre",
+            path: "/cover-art",
+          },
+          {
+            name: displayGenreLabel(genre),
+            path: metadata.path,
+          },
+        ],
       }),
     );
   }

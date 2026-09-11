@@ -71,4 +71,45 @@ describe("route metadata", () => {
       false,
     );
   });
+
+  test("keeps genre breadcrumbs synchronized in HTML and structured data", () => {
+    const path = "/cover-art/ambient";
+    const rendered = renderStaticRoute({
+      artworks: displayArtworks,
+      siteUrl: "https://artcovr.com",
+      metadata: getRouteMetadata(path, displayArtworks),
+      getGenres: (artwork) => [artwork.category, "ambient"],
+    });
+    const jsonLd = JSON.parse(
+      rendered.structuredDataHtml
+        .replace(/^<script[^>]*>/, "")
+        .replace(/<\/script>$/, ""),
+    );
+    const breadcrumb = jsonLd["@graph"].find(
+      (entity: { "@type"?: string }) => entity["@type"] === "BreadcrumbList",
+    );
+
+    assert.match(
+      rendered.bodyHtml,
+      /<nav aria-label="Breadcrumb"><a href="\/cover-art"[^>]*>Music cover art by genre<\/a>.*<span>Ambient<\/span><\/nav>/,
+    );
+    assert.deepEqual(breadcrumb, {
+      "@type": "BreadcrumbList",
+      "@id": "https://artcovr.com/cover-art/ambient#breadcrumb",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Music cover art by genre",
+          item: "https://artcovr.com/cover-art",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Ambient",
+          item: "https://artcovr.com/cover-art/ambient",
+        },
+      ],
+    });
+  });
 });

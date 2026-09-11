@@ -248,13 +248,30 @@ export function buildArtworkCollectionStructuredData(
     path?: string;
     name?: string;
     description?: string;
+    breadcrumbs?: readonly {
+      name: string;
+      path: string;
+    }[];
   } = {},
 ) {
   const path = options.path ?? "/archive";
   const collectionUrl = absoluteSiteUrl(path, siteUrl);
+  const breadcrumbId = `${collectionUrl}#breadcrumb`;
   const imageObjects = artworks.map((artwork) =>
     buildArtworkImageObject(artwork, siteUrl),
   );
+  const breadcrumb = options.breadcrumbs?.length
+    ? {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumbId,
+        itemListElement: options.breadcrumbs.map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.name,
+          item: absoluteSiteUrl(item.path, siteUrl),
+        })),
+      }
+    : null;
 
   return {
     "@context": "https://schema.org",
@@ -268,6 +285,7 @@ export function buildArtworkCollectionStructuredData(
           options.description ??
           "A searchable archive of owner-approved square cover artwork organized by genre, mood, color, and visual topic.",
         isPartOf: { "@id": `${siteUrl}#website` },
+        ...(breadcrumb ? { breadcrumb: { "@id": breadcrumbId } } : {}),
         about: {
           "@type": "Thing",
           name: "Cover artwork for music releases",
@@ -286,6 +304,7 @@ export function buildArtworkCollectionStructuredData(
         },
         associatedMedia: imageObjects.map((image) => ({ "@id": image["@id"] })),
       },
+      ...(breadcrumb ? [breadcrumb] : []),
       ...imageObjects,
     ],
   };
