@@ -4,6 +4,10 @@ import { displayFacetLabel, displayMoodLabel, type CatalogView } from "./Catalog
 
 const SWATCHES: Record<string, string> = { Black: "#171717", Blue: "#2f63c7", Brown: "#8a5a3b", Gray: "#8a8a86", Green: "#3f754f", Orange: "#df7a2e", Pink: "#d88b9c", Purple: "#7953a8", Red: "#c84a3f", Teal: "#319b95", White: "#f5f1e7", Yellow: "#dfb82e" };
 
+function displayColorLabel(value: string) {
+  return displayFacetLabel(value).replace(/\b[a-z]/g, (letter) => letter.toUpperCase());
+}
+
 /** Every available lane stays reachable; options never randomly disappear. */
 export function DiscoveryControls({ view, onChange, index, resultCount, totalCount }: {
   view: CatalogView;
@@ -40,16 +44,15 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
       <div className="discovery-palette-section-head">
         <div>
           <p className="discovery-palette-index-label">01 / primary index</p>
-          <h2>Choose a palette</h2>
         </div>
         {view.color ? <button type="button" className="discovery-palette-clear-inline" onClick={() => update("color", null)}>Clear color</button> : null}
       </div>
-      <div className="discovery-palette-swatches" role="group" aria-label="Color palette">
-        <button type="button" className="discovery-palette-swatch discovery-palette-all" aria-label={`All colors, ${totalCount} works`} aria-pressed={!view.color} onClick={() => update("color", null)}>
+      <div data-facet="color" className="discovery-palette-swatches" role="group" aria-label="Color palette">
+        <button type="button" className="discovery-palette-swatch discovery-palette-all" aria-label="All" title={`All colors · ${totalCount} works`} aria-pressed={!view.color} onClick={() => update("color", null)}>
           <span>All</span>
         </button>
         {colors.map((color) => (
-          <button key={color} type="button" className="discovery-palette-swatch" aria-label={`${displayFacetLabel(color)}, ${index.counts.color.get(color)} works`} title={`${displayFacetLabel(color)} · ${index.counts.color.get(color)} works`} aria-pressed={view.color === color} onClick={() => update("color", color)} style={{ backgroundColor: SWATCHES[color] ?? (color.startsWith("#") ? color : undefined) }}>
+          <button key={color} type="button" className="discovery-palette-swatch" aria-label={`Color: ${displayColorLabel(color)}`} title={`${displayColorLabel(color)} · ${index.counts.color.get(color)} works`} aria-pressed={view.color === color} onClick={() => update("color", color)} style={{ backgroundColor: SWATCHES[color] ?? (color.startsWith("#") ? color : undefined) }}>
             {view.color === color ? <span className="discovery-palette-selected">selected</span> : null}
           </button>
         ))}
@@ -63,7 +66,6 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
       <div className="discovery-palette-section-head">
         <div>
           <p className="discovery-palette-index-label">02 / secondary index</p>
-          <h2>Refine the atmosphere</h2>
         </div>
         <span className="discovery-palette-one-per-lane">one selection per lane</span>
       </div>
@@ -72,7 +74,7 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
           { key: "genre" as const, label: "Music genre", options: genreOptions, display: displayGenreLabel, all: "All music genres" },
           { key: "mood" as const, label: "Mood", options: moodOptions, display: displayMoodLabel, all: "All moods" },
         ].map(({ key, label, options, display, all }) => (
-          <label key={key} className="discovery-palette-select-card">
+          <label key={key} data-facet={key} className="discovery-palette-select-card">
             <span className="discovery-palette-select-label">
               {label}
               <span aria-hidden="true">A—Z</span>
