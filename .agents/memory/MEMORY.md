@@ -35,3 +35,4 @@
 - [Catalog facet landing pages](catalog-facet-landing-pages.md) — expand organic search with populated, useful catalog facets; avoid arbitrary keyword or doorway pages.
 - [Sales reporting boundaries](sales-reporting-boundaries.md) — keep funnel events aggregate-only and align payment, refund, and credit metrics to their authoritative timestamps.
 - [Mockup graduation contracts](mockup-graduation-contracts.md) — preserve existing facet hooks and accessible names when replacing a live control with a visual prototype.
+- [MPP optional peer bundling](mpp-optional-peer-bundling.md) — HTTP-only mppx builds must externalize its optional MCP SDK peer.

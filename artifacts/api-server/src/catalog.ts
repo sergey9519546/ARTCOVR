@@ -30,6 +30,10 @@ export function getPublicArtworkById(artworkId: string) {
   return publicCatalog.find((artwork) => artwork.id === artworkId);
 }
 
+export function getPublicArtworkBySlug(slug: string) {
+  return publicCatalog.find((artwork) => artwork.slug === slug);
+}
+
 export function getPublicArtworkCount() {
   return publicCatalog.length;
 }

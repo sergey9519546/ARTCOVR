@@ -5,6 +5,7 @@ import accountRouter from "./account";
 import intelligenceRouter from "./intelligence";
 import customerServiceRouter from "./customerService";
 import salesRouter from "./sales";
+import agentCommerceRouter from "./agentCommerce";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(accountRouter);
 router.use(intelligenceRouter);
 router.use(customerServiceRouter);
 router.use(salesRouter);
+router.use(agentCommerceRouter);
 
 export default router;

@@ -28,6 +28,12 @@ ARTCOVR is a curated cover-art catalog and storefront with commercial licensing 
   allowlist. State-changing `/api` requests require a matching trusted
   `Origin` or `Referer`; Stripe webhooks are verified separately from their
   raw body and signature.
+- Optional agent commerce uses Stripe MPP at
+  `/api/agent/artworks/{slug}/image`. Set the Stripe Business Profile ID in
+  `STRIPE_PROFILE_ID`; the route uses the connected Stripe secret and charges
+  each artwork's catalog license price. `ARTCOVR_AGENT_IMAGE_PRICE_USD` is
+  available only as an explicit per-environment override and must be at least
+  `$0.50`.
 
 ## Stack
 

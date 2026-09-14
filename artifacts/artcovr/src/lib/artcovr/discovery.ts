@@ -184,6 +184,12 @@ ARTCOVR's public catalog contains ${items.length} owner-approved works. Public a
 - [Exclusive cover art explained](${base}/guides/exclusive-cover-art)
 - [AI-generated cover art rights](${base}/guides/ai-generated-cover-art)
 
+## Agent access
+
+- Paid image access API: ${base}/api/agent/artworks/{slug}/image
+- Send a GET request for a published artwork slug. The endpoint returns an MPP HTTP 402 payment challenge when no valid payment credential is present, then returns the licensed original image after a successful one-time payment.
+- The machine payment uses the artwork's listed license price, with a minimum of $0.50 USD. Public preview URLs are not licensed-original delivery URLs.
+
 ## Catalog
 
 ${catalog}

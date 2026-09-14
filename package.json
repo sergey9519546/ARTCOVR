@@ -24,10 +24,8 @@
   "private": true,
   "dependencies": {
     "@replit/connectors-sdk": "^0.4.1",
-    "mppx": "^0.9.3",
     "stripe": "^22.6.0",
-    "stripe-replit-sync": "^1.0.0",
-    "viem": "^2.56.5"
+    "stripe-replit-sync": "^1.0.0"
   },
   "devDependencies": {
     "prettier": "^3.9.6",
