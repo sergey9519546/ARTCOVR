@@ -5,12 +5,10 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { OwnerSalesChannelCredits } from './ownerSalesChannelCredits';
 
-export type OwnerSalesReportSummary = {
-  /**
-     * Paid orders linked to checkout starts in this window and completed by the window end.
-     * @minimum 0
-     */
+export interface OwnerSalesChannel {
+  /** @minimum 0 */
   paidOrders: number;
   /** @minimum 0 */
   grossRevenueCents: number;
@@ -19,4 +17,5 @@ export type OwnerSalesReportSummary = {
   /** @minimum 0 */
   refundedCents: number;
   netRevenueCents: number;
-};
+  credits: OwnerSalesChannelCredits;
+}

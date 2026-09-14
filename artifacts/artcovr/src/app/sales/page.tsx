@@ -304,6 +304,63 @@ function TopArtworks({
   );
 }
 
+function ChannelBreakdown({
+  channels,
+}: {
+  channels: OwnerSalesReport["channels"];
+}) {
+  const rows = [
+    ["storefront", "Storefront", channels.storefront],
+    ["agent_mpp", "Agent purchases", channels.agent_mpp],
+  ] as const;
+
+  return (
+    <section
+      className="border-t-2 border-current pt-4"
+      aria-labelledby="channel-heading"
+      data-testid="sales-channel-breakdown"
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[.12em] opacity-60">Sales channels</p>
+          <h2 id="channel-heading" className="mt-2 text-2xl font-extrabold tracking-tight">
+            Who is buying
+          </h2>
+        </div>
+        <span className="text-xs opacity-60">Aggregate only</span>
+      </div>
+      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+        {rows.map(([key, label, channel]) => (
+          <article key={key} className="border border-current/15 p-5" data-testid={`sales-channel-${key}`}>
+            <div className="flex items-baseline justify-between gap-4">
+              <h3 className="text-sm font-bold">{label}</h3>
+              <span className="text-xs opacity-55">{formatCount(channel.paidOrders)} paid</span>
+            </div>
+            <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 text-sm">
+              <div>
+                <dt className="text-xs opacity-55">Gross</dt>
+                <dd className="mt-1 font-bold tabular-nums">{formatMoney(channel.grossRevenueCents)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs opacity-55">Net</dt>
+                <dd className="mt-1 font-bold tabular-nums">{formatMoney(channel.netRevenueCents)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs opacity-55">Refunded</dt>
+                <dd className="mt-1 font-bold tabular-nums">{formatMoney(channel.refundedCents)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs opacity-55">Credits granted</dt>
+                <dd className="mt-1 font-bold tabular-nums">{formatCount(channel.credits.granted)}</dd>
+              </div>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function SalesReport({
   report,
   refreshing,
@@ -328,6 +385,7 @@ function SalesReport({
         <Metric label="Refunds" value={formatMoney(report.summary.refundedCents)} detail={`${formatCount(report.summary.refunds)} returned`} />
         <Metric label="Net revenue" value={formatMoney(report.summary.netRevenueCents)} detail={netDetail} />
       </section>
+      <ChannelBreakdown channels={report.channels} />
       <div className="grid gap-12 md:grid-cols-[1.15fr_.85fr]">
         <Funnel funnel={report.funnel} />
         <CreditsLedger credits={report.credits} />

@@ -413,7 +413,10 @@ export type OwnerSalesReportRange = {
 };
 
 export type OwnerSalesReportSummary = {
-  /** @minimum 0 */
+  /**
+     * Paid orders linked to checkout starts in this window and completed by the window end.
+     * @minimum 0
+     */
   paidOrders: number;
   /** @minimum 0 */
   grossRevenueCents: number;
@@ -435,12 +438,44 @@ export type OwnerSalesReportCredits = {
   revoked: number;
 };
 
+export type OwnerSalesChannelCredits = {
+  /** @minimum 0 */
+  granted: number;
+  /** @minimum 0 */
+  spent: number;
+  /** @minimum 0 */
+  released: number;
+  /** @minimum 0 */
+  revoked: number;
+};
+
+export interface OwnerSalesChannel {
+  /** @minimum 0 */
+  paidOrders: number;
+  /** @minimum 0 */
+  grossRevenueCents: number;
+  /** @minimum 0 */
+  refunds: number;
+  /** @minimum 0 */
+  refundedCents: number;
+  netRevenueCents: number;
+  credits: OwnerSalesChannelCredits;
+}
+
+export type OwnerSalesReportChannels = {
+  storefront: OwnerSalesChannel;
+  agent_mpp: OwnerSalesChannel;
+};
+
 export type OwnerSalesReportFunnel = {
   /** @minimum 0 */
   productViews: number;
   /** @minimum 0 */
   checkoutStarts: number;
-  /** @minimum 0 */
+  /**
+     * Checkout-start cohort orders paid by the reporting window end.
+     * @minimum 0
+     */
   paidOrders: number;
   /** @minimum 0 */
   checkoutRate: number;
@@ -466,6 +501,7 @@ export interface OwnerSalesReport {
   range: OwnerSalesReportRange;
   summary: OwnerSalesReportSummary;
   credits: OwnerSalesReportCredits;
+  channels: OwnerSalesReportChannels;
   funnel: OwnerSalesReportFunnel;
   topArtworks: OwnerSalesArtwork[];
 }
@@ -508,4 +544,6 @@ from?: string;
  */
 to?: string;
 };
+
+export type GetAgentArtworkImage402 = { [key: string]: unknown };
 

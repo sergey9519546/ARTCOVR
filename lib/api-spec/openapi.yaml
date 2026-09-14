@@ -24,6 +24,8 @@ tags:
     description: Protected owner curation operations
   - name: sales
     description: Protected owner sales reporting operations
+  - name: agent-commerce
+    description: Paid machine-facing licensed artwork delivery
 paths:
   /healthz:
     get:
@@ -590,6 +592,70 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
 
+  /agent/artworks/{slug}/image:
+    get:
+      operationId: getAgentArtworkImage
+      tags: [agent-commerce]
+      summary: Purchase and download a licensed artwork image
+      description: >
+        Returns the licensed original image after an MPP payment is verified.
+        Requests without a valid payment receive the MPP payment challenge.
+        This endpoint is separate from human Stripe Checkout and does not
+        expose customer or payment-provider identifiers.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+      responses:
+        "200":
+          description: Licensed original artwork image.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: private, no-store
+            Content-Disposition:
+              schema:
+                type: string
+            X-Content-Type-Options:
+              schema:
+                type: string
+                example: nosniff
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        "402":
+          description: MPP payment challenge; retry with a valid payment credential.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          description: Artwork is unavailable through the agent image endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: An exclusive artwork was sold by another payment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: Agent payment or image delivery is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
 components:
   securitySchemes:
     clerkSession:
@@ -1081,6 +1147,14 @@ components:
               type: integer
               minimum: 0
           required: [granted, spent, released, revoked]
+        channels:
+          type: object
+          properties:
+            storefront:
+              $ref: "#/components/schemas/OwnerSalesChannel"
+            agent_mpp:
+              $ref: "#/components/schemas/OwnerSalesChannel"
+          required: [storefront, agent_mpp]
         funnel:
           type: object
           properties:
@@ -1105,7 +1179,42 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OwnerSalesArtwork"
-      required: [range, summary, credits, funnel, topArtworks]
+      required: [range, summary, credits, channels, funnel, topArtworks]
+
+    OwnerSalesChannel:
+      type: object
+      properties:
+        paidOrders:
+          type: integer
+          minimum: 0
+        grossRevenueCents:
+          type: integer
+          minimum: 0
+        refunds:
+          type: integer
+          minimum: 0
+        refundedCents:
+          type: integer
+          minimum: 0
+        netRevenueCents:
+          type: integer
+        credits:
+          type: object
+          properties:
+            granted:
+              type: integer
+              minimum: 0
+            spent:
+              type: integer
+              minimum: 0
+            released:
+              type: integer
+              minimum: 0
+            revoked:
+              type: integer
+              minimum: 0
+          required: [granted, spent, released, revoked]
+      required: [paidOrders, grossRevenueCents, refunds, refundedCents, netRevenueCents, credits]
 
     OwnerSalesArtwork:
       type: object

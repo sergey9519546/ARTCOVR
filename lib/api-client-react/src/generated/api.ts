@@ -31,6 +31,7 @@ import type {
   GenerationResponse,
   GenerationStatus,
   GenerationStatusRequest,
+  GetAgentArtworkImage402,
   GetGenerationStatusParams,
   GetMyImagesParams,
   GetOwnerSalesReportParams,
@@ -979,6 +980,84 @@ export function useGetOwnerSalesReport<TData = Awaited<ReturnType<typeof getOwne
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetOwnerSalesReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAgentArtworkImageUrl = (slug: string,) => {
+
+
+
+
+  return `/api/agent/artworks/${slug}/image`
+}
+
+/**
+ * Returns the licensed original image after an MPP payment is verified. Requests without a valid payment receive the MPP payment challenge. This endpoint is separate from human Stripe Checkout and does not expose customer or payment-provider identifiers.
+ * @summary Purchase and download a licensed artwork image
+ */
+export const getAgentArtworkImage = async (slug: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetAgentArtworkImageUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAgentArtworkImageQueryKey = (slug: string,) => {
+    return [
+    `/api/agent/artworks/${slug}/image`
+    ] as const;
+    }
+
+
+export const getGetAgentArtworkImageQueryOptions = <TData = Awaited<ReturnType<typeof getAgentArtworkImage>>, TError = ErrorType<GetAgentArtworkImage402 | ApiError>>(slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAgentArtworkImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAgentArtworkImageQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAgentArtworkImage>>> = ({ signal }) => getAgentArtworkImage(slug, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAgentArtworkImage>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAgentArtworkImageQueryResult = NonNullable<Awaited<ReturnType<typeof getAgentArtworkImage>>>
+export type GetAgentArtworkImageQueryError = ErrorType<GetAgentArtworkImage402 | ApiError>
+
+
+/**
+ * @summary Purchase and download a licensed artwork image
+ */
+
+export function useGetAgentArtworkImage<TData = Awaited<ReturnType<typeof getAgentArtworkImage>>, TError = ErrorType<GetAgentArtworkImage402 | ApiError>>(
+ slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAgentArtworkImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAgentArtworkImageQueryOptions(slug,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

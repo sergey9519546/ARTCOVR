@@ -299,3 +299,89 @@ test("funnel paid conversion follows linked checkout cohorts, not all payments i
   assert.equal(report.funnel.paidOrders, 1);
   assert.equal(report.funnel.paidRate, 0.5);
 });
+
+test("owner sales report reconciles storefront and agent channels", () => {
+  const report = buildOwnerSalesReport({
+    range,
+    orders: [
+      {
+        id: "storefront-order",
+        artworkId: "art-storefront",
+        artworkSlug: "storefront",
+        amountCents: 1_000,
+        refundedCents: 0,
+        status: "paid",
+        paidAt: new Date("2026-09-03T12:00:00.000Z"),
+        refundedAt: null,
+      },
+      {
+        id: "agent-order",
+        artworkId: "art-agent",
+        artworkSlug: "agent",
+        amountCents: 2_000,
+        refundedCents: 500,
+        status: "refunded",
+        salesChannel: "agent_mpp",
+        paidAt: new Date("2026-09-04T12:00:00.000Z"),
+        refundedAt: new Date("2026-09-08T12:00:00.000Z"),
+      },
+    ],
+    refundEvents: [
+      {
+        orderId: "agent-order",
+        artworkId: "art-agent",
+        artworkSlug: "agent",
+        amountCents: 500,
+        refundedAt: new Date("2026-09-08T12:00:00.000Z"),
+        salesChannel: "agent_mpp",
+      },
+    ],
+    ledgerEntries: [
+      {
+        artworkId: "art-storefront",
+        artworkSlug: "storefront",
+        entryType: "grant",
+        amount: 3,
+        createdAt: new Date("2026-09-03T12:00:00.000Z"),
+      },
+      {
+        artworkId: "art-agent",
+        artworkSlug: "agent",
+        entryType: "grant",
+        amount: 3,
+        salesChannel: "agent_mpp",
+        createdAt: new Date("2026-09-04T12:00:00.000Z"),
+      },
+      {
+        artworkId: "art-agent",
+        artworkSlug: "agent",
+        entryType: "revoke",
+        amount: -2,
+        salesChannel: "agent_mpp",
+        createdAt: new Date("2026-09-08T12:00:00.000Z"),
+      },
+    ],
+    funnelEvents: [],
+  });
+
+  assert.equal(report.summary.grossRevenueCents, 3_000);
+  assert.equal(report.summary.refundedCents, 500);
+  assert.deepEqual(report.channels, {
+    storefront: {
+      paidOrders: 1,
+      grossRevenueCents: 1_000,
+      refunds: 0,
+      refundedCents: 0,
+      netRevenueCents: 1_000,
+      credits: { granted: 3, spent: 0, released: 0, revoked: 0 },
+    },
+    agent_mpp: {
+      paidOrders: 1,
+      grossRevenueCents: 2_000,
+      refunds: 1,
+      refundedCents: 500,
+      netRevenueCents: 1_500,
+      credits: { granted: 3, spent: 0, released: 0, revoked: 2 },
+    },
+  });
+});

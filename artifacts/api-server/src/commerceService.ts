@@ -619,6 +619,7 @@ export function createOrderValues(input: {
   selectedPreviewId?: string;
   idempotencyKey: string;
   reservationExpiresAt: Date;
+  salesChannel?: "storefront" | "agent_mpp";
 }) {
   return {
     id: input.id,
@@ -630,6 +631,7 @@ export function createOrderValues(input: {
     amountCents: input.amountCents,
     currency: commerceConfig.currency,
     saleMode: input.saleMode,
+    salesChannel: input.salesChannel ?? "storefront",
     licenseTerms: licenseTermsForSaleMode(input.saleMode),
     includedCredits: commerceConfig.includedCreditsPerCover,
     selectedPreviewId: input.selectedPreviewId,
@@ -744,6 +746,7 @@ export async function fulfillAgentPayment(
             saleMode: input.saleMode,
             idempotencyKey,
             reservationExpiresAt: now,
+            salesChannel: "agent_mpp",
           }),
           status: "refunded_conflict",
           stripePaymentIntentId: input.paymentIntentId,
@@ -785,6 +788,7 @@ export async function fulfillAgentPayment(
           saleMode: input.saleMode,
           idempotencyKey,
           reservationExpiresAt: now,
+          salesChannel: "agent_mpp",
         }),
         status: "paid",
         stripePaymentIntentId: input.paymentIntentId,
@@ -836,6 +840,7 @@ export async function fulfillAgentPayment(
               saleMode: input.saleMode,
               idempotencyKey,
               reservationExpiresAt: now,
+              salesChannel: "agent_mpp",
             }),
             status: "refunded_conflict",
             stripePaymentIntentId: input.paymentIntentId,

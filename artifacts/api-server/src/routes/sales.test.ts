@@ -89,6 +89,24 @@ test("sales route returns aggregate data only for an allowlisted owner", async (
         netRevenueCents: 1_000,
       },
       credits: { granted: 4, spent: 0, released: 0, revoked: 0 },
+      channels: {
+        storefront: {
+          paidOrders: 1,
+          grossRevenueCents: 1_000,
+          refunds: 0,
+          refundedCents: 0,
+          netRevenueCents: 1_000,
+          credits: { granted: 4, spent: 0, released: 0, revoked: 0 },
+        },
+        agent_mpp: {
+          paidOrders: 0,
+          grossRevenueCents: 0,
+          refunds: 0,
+          refundedCents: 0,
+          netRevenueCents: 0,
+          credits: { granted: 0, spent: 0, released: 0, revoked: 0 },
+        },
+      },
       funnel: {
         productViews: 2,
         checkoutStarts: 1,

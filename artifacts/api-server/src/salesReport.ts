@@ -4,6 +4,8 @@ import {
   artcovrFunnelEvents,
   artcovrOrders,
   artcovrRefundEvents,
+  artcovrSalesChannels,
+  type ArtcovrSalesChannel,
   db,
 } from "@workspace/db";
 import { getPublicArtworkById } from "./catalog";
@@ -29,6 +31,7 @@ export type OwnerSalesReport = {
     released: number;
     revoked: number;
   };
+  channels: Record<ArtcovrSalesChannel, SalesChannelReport>;
   funnel: {
     productViews: number;
     checkoutStarts: number;
@@ -47,6 +50,20 @@ export type OwnerSalesReport = {
   }>;
 };
 
+export type SalesChannelReport = {
+  paidOrders: number;
+  grossRevenueCents: number;
+  refunds: number;
+  refundedCents: number;
+  netRevenueCents: number;
+  credits: {
+    granted: number;
+    spent: number;
+    released: number;
+    revoked: number;
+  };
+};
+
 export type SalesReportRange = {
   from: Date;
   to: Date;
@@ -59,6 +76,7 @@ type ReportOrder = {
   amountCents: number;
   refundedCents: number;
   status: string;
+  salesChannel?: string | null;
   paidAt: Date | null;
   refundedAt: Date | null;
 };
@@ -69,6 +87,7 @@ type ReportRefund = {
   artworkSlug: string;
   amountCents: number;
   refundedAt: Date;
+  salesChannel?: string | null;
 };
 
 type ReportLedgerEntry = {
@@ -77,6 +96,7 @@ type ReportLedgerEntry = {
   entryType: string;
   amount: number;
   createdAt: Date;
+  salesChannel?: string | null;
 };
 
 type ReportFunnelEvent = {
@@ -109,6 +129,26 @@ function artworkTitle(artworkId: string, artworkSlug: string) {
   return getPublicArtworkById(artworkId)?.title ?? artworkSlug;
 }
 
+function normalizeSalesChannel(value: string | null | undefined): ArtcovrSalesChannel {
+  return value === "agent_mpp" ? "agent_mpp" : "storefront";
+}
+
+function emptyChannelReport(): SalesChannelReport {
+  return {
+    paidOrders: 0,
+    grossRevenueCents: 0,
+    refunds: 0,
+    refundedCents: 0,
+    netRevenueCents: 0,
+    credits: {
+      granted: 0,
+      spent: 0,
+      released: 0,
+      revoked: 0,
+    },
+  };
+}
+
 export function buildOwnerSalesReport(input: {
   range: SalesReportRange;
   orders: readonly ReportOrder[];
@@ -124,6 +164,7 @@ export function buildOwnerSalesReport(input: {
   const recordedRefundOrderIds = new Set(
     recordedRefunds.map((refund) => refund.orderId),
   );
+  const orderById = new Map(orders.map((order) => [order.id, order]));
   const legacyRefunds = orders
     .filter(
       (order) =>
@@ -136,8 +177,16 @@ export function buildOwnerSalesReport(input: {
       artworkSlug: order.artworkSlug,
       amountCents: order.refundedCents || order.amountCents,
       refundedAt: order.refundedAt as Date,
+      salesChannel: order.salesChannel,
     }));
-  const refunds = [...recordedRefunds, ...legacyRefunds];
+  const refunds = [
+    ...recordedRefunds.map((refund) => ({
+      ...refund,
+      salesChannel:
+        refund.salesChannel ?? orderById.get(refund.orderId)?.salesChannel,
+    })),
+    ...legacyRefunds,
+  ];
   const grossRevenueCents = paidOrders.reduce(
     (total, order) => total + moneyNumber(order.amountCents),
     0,
@@ -153,12 +202,40 @@ export function buildOwnerSalesReport(input: {
     released: 0,
     revoked: 0,
   };
+  const channels = Object.fromEntries(
+    artcovrSalesChannels.map((channel) => [channel, emptyChannelReport()]),
+  ) as Record<ArtcovrSalesChannel, SalesChannelReport>;
   for (const entry of ledgerEntries) {
     const amount = Math.abs(moneyNumber(entry.amount));
+    const channel = channels[normalizeSalesChannel(entry.salesChannel)];
     if (entry.entryType === "grant") credits.granted += amount;
-    if (entry.entryType === "spend") credits.spent += amount;
-    if (entry.entryType === "release") credits.released += amount;
-    if (entry.entryType === "revoke") credits.revoked += amount;
+    if (entry.entryType === "grant") channel.credits.granted += amount;
+    if (entry.entryType === "spend") {
+      credits.spent += amount;
+      channel.credits.spent += amount;
+    }
+    if (entry.entryType === "release") {
+      credits.released += amount;
+      channel.credits.released += amount;
+    }
+    if (entry.entryType === "revoke") {
+      credits.revoked += amount;
+      channel.credits.revoked += amount;
+    }
+  }
+  for (const order of paidOrders) {
+    const channel = channels[normalizeSalesChannel(order.salesChannel)];
+    channel.paidOrders += 1;
+    channel.grossRevenueCents += moneyNumber(order.amountCents);
+  }
+  for (const refund of refunds) {
+    const channel = channels[normalizeSalesChannel(refund.salesChannel)];
+    channel.refunds += 1;
+    channel.refundedCents += moneyNumber(refund.amountCents);
+  }
+  for (const channel of artcovrSalesChannels) {
+    channels[channel].netRevenueCents =
+      channels[channel].grossRevenueCents - channels[channel].refundedCents;
   }
 
   const productViews = funnelEvents.filter(
@@ -257,6 +334,7 @@ export function buildOwnerSalesReport(input: {
       netRevenueCents: grossRevenueCents - refundedCents,
     },
     credits,
+    channels,
     funnel: {
       productViews,
       checkoutStarts,
@@ -278,6 +356,7 @@ export async function getOwnerSalesReport(
       artworkSlug: artcovrOrders.artworkSlug,
       amountCents: artcovrRefundEvents.amountCents,
       refundedAt: artcovrRefundEvents.refundedAt,
+      salesChannel: artcovrOrders.salesChannel,
     })
     .from(artcovrRefundEvents)
     .innerJoin(
@@ -338,6 +417,7 @@ export async function getOwnerSalesReport(
       amountCents: artcovrOrders.amountCents,
       refundedCents: artcovrOrders.refundedCents,
       status: artcovrOrders.status,
+      salesChannel: artcovrOrders.salesChannel,
       paidAt: artcovrOrders.paidAt,
       refundedAt: artcovrOrders.refundedAt,
     })
@@ -356,6 +436,7 @@ export async function getOwnerSalesReport(
       entryType: artcovrCreditLedger.entryType,
       amount: artcovrCreditLedger.amount,
       createdAt: artcovrCreditLedger.createdAt,
+      salesChannel: artcovrOrders.salesChannel,
     })
     .from(artcovrCreditLedger)
     .innerJoin(

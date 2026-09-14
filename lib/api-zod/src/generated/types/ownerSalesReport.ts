@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { OwnerSalesArtwork } from './ownerSalesArtwork';
+import type { OwnerSalesReportChannels } from './ownerSalesReportChannels';
 import type { OwnerSalesReportCredits } from './ownerSalesReportCredits';
 import type { OwnerSalesReportFunnel } from './ownerSalesReportFunnel';
 import type { OwnerSalesReportRange } from './ownerSalesReportRange';
@@ -15,6 +16,7 @@ export interface OwnerSalesReport {
   range: OwnerSalesReportRange;
   summary: OwnerSalesReportSummary;
   credits: OwnerSalesReportCredits;
+  channels: OwnerSalesReportChannels;
   funnel: OwnerSalesReportFunnel;
   topArtworks: OwnerSalesArtwork[];
 }

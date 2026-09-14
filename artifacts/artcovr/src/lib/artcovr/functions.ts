@@ -166,6 +166,10 @@ export type OwnerSalesReport = {
     released: number;
     revoked: number;
   };
+  channels: {
+    storefront: SalesChannelReport;
+    agent_mpp: SalesChannelReport;
+  };
   funnel: {
     productViews: number;
     checkoutStarts: number;
@@ -182,6 +186,20 @@ export type OwnerSalesReport = {
     refundedCents: number;
     creditsUsed: number;
   }>;
+};
+
+export type SalesChannelReport = {
+  paidOrders: number;
+  grossRevenueCents: number;
+  refunds: number;
+  refundedCents: number;
+  netRevenueCents: number;
+  credits: {
+    granted: number;
+    spent: number;
+    released: number;
+    revoked: number;
+  };
 };
 
 type ErrorPayload = { message?: string; error?: string; code?: string };

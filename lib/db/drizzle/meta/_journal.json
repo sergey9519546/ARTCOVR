@@ -29,6 +29,13 @@
       "when": 1789000848241,
       "tag": "0003_lyrical_omega_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789403511427,
+      "tag": "0004_same_dark_beast",
+      "breakpoints": true
     }
   ]
 }

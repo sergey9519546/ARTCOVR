@@ -329,6 +329,38 @@ export const getOwnerSalesReportResponseCreditsReleasedMin = 0;
 
 export const getOwnerSalesReportResponseCreditsRevokedMin = 0;
 
+export const getOwnerSalesReportResponseChannelsStorefrontPaidOrdersMin = 0;
+
+export const getOwnerSalesReportResponseChannelsStorefrontGrossRevenueCentsMin = 0;
+
+export const getOwnerSalesReportResponseChannelsStorefrontRefundsMin = 0;
+
+export const getOwnerSalesReportResponseChannelsStorefrontRefundedCentsMin = 0;
+
+export const getOwnerSalesReportResponseChannelsStorefrontCreditsGrantedMin = 0;
+
+export const getOwnerSalesReportResponseChannelsStorefrontCreditsSpentMin = 0;
+
+export const getOwnerSalesReportResponseChannelsStorefrontCreditsReleasedMin = 0;
+
+export const getOwnerSalesReportResponseChannelsStorefrontCreditsRevokedMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppPaidOrdersMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppGrossRevenueCentsMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppRefundsMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppRefundedCentsMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppCreditsGrantedMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppCreditsSpentMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppCreditsReleasedMin = 0;
+
+export const getOwnerSalesReportResponseChannelsAgentMppCreditsRevokedMin = 0;
+
 export const getOwnerSalesReportResponseFunnelProductViewsMin = 0;
 
 export const getOwnerSalesReportResponseFunnelCheckoutStartsMin = 0;
@@ -355,7 +387,7 @@ export const GetOwnerSalesReportResponse = zod.object({
   "to": zod.coerce.date()
 }),
   "summary": zod.object({
-  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseSummaryPaidOrdersMin),
+  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseSummaryPaidOrdersMin).describe('Paid orders linked to checkout starts in this window and completed by the window end.'),
   "grossRevenueCents": zod.number().int().min(getOwnerSalesReportResponseSummaryGrossRevenueCentsMin),
   "refunds": zod.number().int().min(getOwnerSalesReportResponseSummaryRefundsMin),
   "refundedCents": zod.number().int().min(getOwnerSalesReportResponseSummaryRefundedCentsMin),
@@ -367,10 +399,38 @@ export const GetOwnerSalesReportResponse = zod.object({
   "released": zod.number().int().min(getOwnerSalesReportResponseCreditsReleasedMin),
   "revoked": zod.number().int().min(getOwnerSalesReportResponseCreditsRevokedMin)
 }),
+  "channels": zod.object({
+  "storefront": zod.object({
+  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontPaidOrdersMin),
+  "grossRevenueCents": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontGrossRevenueCentsMin),
+  "refunds": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontRefundsMin),
+  "refundedCents": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontRefundedCentsMin),
+  "netRevenueCents": zod.number().int(),
+  "credits": zod.object({
+  "granted": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontCreditsGrantedMin),
+  "spent": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontCreditsSpentMin),
+  "released": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontCreditsReleasedMin),
+  "revoked": zod.number().int().min(getOwnerSalesReportResponseChannelsStorefrontCreditsRevokedMin)
+})
+}),
+  "agent_mpp": zod.object({
+  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppPaidOrdersMin),
+  "grossRevenueCents": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppGrossRevenueCentsMin),
+  "refunds": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppRefundsMin),
+  "refundedCents": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppRefundedCentsMin),
+  "netRevenueCents": zod.number().int(),
+  "credits": zod.object({
+  "granted": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppCreditsGrantedMin),
+  "spent": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppCreditsSpentMin),
+  "released": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppCreditsReleasedMin),
+  "revoked": zod.number().int().min(getOwnerSalesReportResponseChannelsAgentMppCreditsRevokedMin)
+})
+})
+}),
   "funnel": zod.object({
   "productViews": zod.number().int().min(getOwnerSalesReportResponseFunnelProductViewsMin),
   "checkoutStarts": zod.number().int().min(getOwnerSalesReportResponseFunnelCheckoutStartsMin),
-  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseFunnelPaidOrdersMin),
+  "paidOrders": zod.number().int().min(getOwnerSalesReportResponseFunnelPaidOrdersMin).describe('Checkout-start cohort orders paid by the reporting window end.'),
   "checkoutRate": zod.number().min(getOwnerSalesReportResponseFunnelCheckoutRateMin),
   "paidRate": zod.number().min(getOwnerSalesReportResponseFunnelPaidRateMin)
 }),
@@ -384,5 +444,20 @@ export const GetOwnerSalesReportResponse = zod.object({
   "creditsUsed": zod.number().int().min(getOwnerSalesReportResponseTopArtworksItemCreditsUsedMin)
 }))
 })
+
+
+/**
+ * Returns the licensed original image after an MPP payment is verified. Requests without a valid payment receive the MPP payment challenge. This endpoint is separate from human Stripe Checkout and does not expose customer or payment-provider identifiers.
+ * @summary Purchase and download a licensed artwork image
+ */
+export const getAgentArtworkImagePathSlugMax = 200;
+
+
+
+export const GetAgentArtworkImageParams = zod.object({
+  "slug": zod.coerce.string().min(1).max(getAgentArtworkImagePathSlugMax)
+})
+
+export const GetAgentArtworkImageResponse = zod.unknown()
 
 

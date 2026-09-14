@@ -620,11 +620,17 @@ test("an agent payment creates one guest order and one credit grant across retri
         id: artcovrOrders.id,
         status: artcovrOrders.status,
         stripePaymentIntentId: artcovrOrders.stripePaymentIntentId,
+        salesChannel: artcovrOrders.salesChannel,
       })
       .from(artcovrOrders)
       .where(eq(artcovrOrders.id, orderId));
     assert.deepEqual(orders, [
-      { id: orderId, status: "paid", stripePaymentIntentId: paymentIntentId },
+      {
+        id: orderId,
+        status: "paid",
+        stripePaymentIntentId: paymentIntentId,
+        salesChannel: "agent_mpp",
+      },
     ]);
 
     const grants = await db

@@ -4,12 +4,16 @@ import {
   index,
   pgTable,
   jsonb,
+  check,
   text,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { z } from "zod/v4";
+
+export const artcovrSalesChannels = ["storefront", "agent_mpp"] as const;
+export type ArtcovrSalesChannel = (typeof artcovrSalesChannels)[number];
 
 export const artcovrOrders = pgTable(
   "artcovr_orders",
@@ -29,6 +33,7 @@ export const artcovrOrders = pgTable(
     amountCents: integer("amount_cents").notNull(),
     currency: text("currency").notNull().default("usd"),
     saleMode: text("sale_mode").notNull(),
+    salesChannel: text("sales_channel").notNull().default("storefront"),
     licenseTerms: text("license_terms").notNull(),
     includedCredits: integer("included_credits").notNull(),
     selectedPreviewId: text("selected_preview_id"),
@@ -65,6 +70,13 @@ export const artcovrOrders = pgTable(
     ),
     customerEmailIdx: index("artcovr_orders_customer_email_idx").on(
       table.customerEmail,
+    ),
+    salesChannelIdx: index("artcovr_orders_sales_channel_idx").on(
+      table.salesChannel,
+    ),
+    salesChannelCheck: check(
+      "artcovr_orders_sales_channel_check",
+      sql`${table.salesChannel} in ('storefront', 'agent_mpp')`,
     ),
   }),
 );

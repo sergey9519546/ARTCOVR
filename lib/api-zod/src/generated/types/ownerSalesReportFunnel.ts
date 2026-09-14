@@ -11,7 +11,10 @@ export type OwnerSalesReportFunnel = {
   productViews: number;
   /** @minimum 0 */
   checkoutStarts: number;
-  /** @minimum 0 */
+  /**
+     * Checkout-start cohort orders paid by the reporting window end.
+     * @minimum 0
+     */
   paidOrders: number;
   /** @minimum 0 */
   checkoutRate: number;
