@@ -56,6 +56,13 @@ export async function fulfillCheckoutSession(
     await revokeRefundedCharge(event, dependencies.expectedLivemode ?? expectedStripeLivemode());
     return;
   }
+  if (event.type === "payment_intent.payment_failed") {
+    await expireFailedPaymentIntent(
+      event,
+      dependencies.expectedLivemode ?? expectedStripeLivemode(),
+    );
+    return;
+  }
   if (
     event.type !== "checkout.session.completed" &&
     event.type !== "checkout.session.async_payment_succeeded"
@@ -335,7 +342,17 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
       .from(artcovrOrders)
       .where(eq(artcovrOrders.stripePaymentIntentId, paymentIntentId))
       .limit(1);
-    if (!order) throw new Error(`No ARTCOVR order found for payment ${paymentIntentId}`);
+    if (!order) {
+      await tx
+        .update(artcovrWebhookEvents)
+        .set({ status: "processed", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      logger.warn(
+        { paymentIntentId, stripeEventId: event.id },
+        "ARTCOVR ignored a refund for a payment without an order",
+      );
+      return;
+    }
 
     await lockPurchaseCredits(tx, order.id);
     [order] = await tx.select().from(artcovrOrders).where(eq(artcovrOrders.id, order.id)).limit(1);
@@ -439,6 +456,66 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
         reason: "Purchase refunded",
         sourceId: `purchase:${order.id}:refund`,
     });
+
+    await tx
+      .update(artcovrWebhookEvents)
+      .set({ status: "processed", processedAt: new Date() })
+      .where(eq(artcovrWebhookEvents.id, event.id));
+  });
+}
+
+async function expireFailedPaymentIntent(
+  event: Stripe.Event,
+  expectedLivemode: boolean,
+) {
+  const paymentIntent = event.data.object as Stripe.PaymentIntent;
+
+  await db.transaction(async (tx) => {
+    const [received] = await tx
+      .insert(artcovrWebhookEvents)
+      .values({ id: event.id, type: event.type, status: "received" })
+      .onConflictDoNothing()
+      .returning({ id: artcovrWebhookEvents.id });
+    if (!received) return;
+
+    if (event.livemode !== expectedLivemode || paymentIntent.livemode !== expectedLivemode) {
+      await tx
+        .update(artcovrWebhookEvents)
+        .set({ status: "rejected", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      logger.error(
+        { diagnosis: stripeWebhookModeMismatchDiagnosis, stripeEventId: event.id },
+        "ARTCOVR rejected failed Stripe payment from the wrong account mode",
+      );
+      return;
+    }
+
+    const [order] = await tx
+      .select()
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.stripePaymentIntentId, paymentIntent.id))
+      .limit(1);
+
+    if (order && (order.status === "reserved" || order.status === "paid")) {
+      await lockPurchaseCredits(tx, order.id);
+      await tx
+        .update(artcovrOrders)
+        .set({
+          status: "expired",
+          accessRevokedAt: order.status === "paid" ? new Date() : null,
+          accessRevocationReason: order.status === "paid" ? "stripe_payment_failed" : null,
+        })
+        .where(eq(artcovrOrders.id, order.id));
+
+      if (order.status === "paid") {
+        await revokePurchaseCreditsInTransaction(tx, {
+          userId: order.clerkUserId ?? `guest:${order.id}`,
+          purchaseId: order.id,
+          reason: "Payment failed",
+          sourceId: `purchase:${order.id}:payment-failed`,
+        });
+      }
+    }
 
     await tx
       .update(artcovrWebhookEvents)
@@ -559,4 +636,243 @@ export function createOrderValues(input: {
     status: "reserved",
     reservationExpiresAt: input.reservationExpiresAt,
   } as const;
+}
+
+export type AgentPaymentFulfillment = {
+  orderId: string;
+  deliver: boolean;
+  status: "paid" | "refunded_conflict" | "refunded" | "expired";
+};
+
+export async function fulfillAgentPayment(
+  input: {
+    paymentIntentId: string;
+    artworkId: string;
+    artworkSlug: string;
+    amountCents: number;
+    saleMode: "exclusive" | "repeatable";
+    currency: string;
+  },
+  dependencies: FulfillmentDependencies = fulfillmentDependencies,
+): Promise<AgentPaymentFulfillment> {
+  if (!/^pi_[A-Za-z0-9_]+$/.test(input.paymentIntentId)) {
+    throw new Error("Agent payment did not return a valid Stripe PaymentIntent.");
+  }
+  if (
+    input.currency !== commerceConfig.currency ||
+    !Number.isSafeInteger(input.amountCents) ||
+    input.amountCents < 50
+  ) {
+    throw new Error("Agent payment amount or currency is invalid.");
+  }
+
+  const orderId = `order_agent_${input.paymentIntentId}`;
+  const idempotencyKey = `agent_mpp:${input.paymentIntentId}`;
+  const now = new Date();
+  await expireStaleExclusiveReservations(input.artworkId, now);
+
+  return db.transaction(async (tx) => {
+    let [existing] = await tx
+      .select()
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.idempotencyKey, idempotencyKey))
+      .limit(1);
+
+    if (!existing) {
+      [existing] = await tx
+        .select()
+        .from(artcovrOrders)
+        .where(eq(artcovrOrders.stripePaymentIntentId, input.paymentIntentId))
+        .limit(1);
+    }
+
+    if (existing) {
+      return {
+        orderId: existing.id,
+        deliver: existing.status === "paid",
+        status: existing.status as AgentPaymentFulfillment["status"],
+      };
+    }
+
+    const [activeExclusiveOrder] =
+      input.saleMode === "exclusive"
+        ? await tx
+            .select({
+              id: artcovrOrders.id,
+              status: artcovrOrders.status,
+            })
+            .from(artcovrOrders)
+            .where(
+              and(
+                eq(artcovrOrders.artworkId, input.artworkId),
+                eq(artcovrOrders.saleMode, "exclusive"),
+                inArray(artcovrOrders.status, activeExclusiveStatuses),
+              ),
+            )
+            .limit(1)
+        : [];
+
+    if (activeExclusiveOrder?.status === "reserved") {
+      await tx
+        .update(artcovrOrders)
+        .set({ status: "expired" })
+        .where(
+          and(
+            eq(artcovrOrders.id, activeExclusiveOrder.id),
+            eq(artcovrOrders.status, "reserved"),
+          ),
+        );
+    }
+
+    if (activeExclusiveOrder?.status === "paid") {
+      const refund = await dependencies.refundPaymentIntent(
+        {
+          paymentIntentId: input.paymentIntentId,
+          orderId,
+        },
+        `agent-exclusive-conflict:${input.paymentIntentId}`,
+      );
+      const [conflictOrder] = await tx
+        .insert(artcovrOrders)
+        .values({
+          ...createOrderValues({
+            id: orderId,
+            clerkUserId: null,
+            artworkId: input.artworkId,
+            artworkSlug: input.artworkSlug,
+            amountCents: input.amountCents,
+            saleMode: input.saleMode,
+            idempotencyKey,
+            reservationExpiresAt: now,
+          }),
+          status: "refunded_conflict",
+          stripePaymentIntentId: input.paymentIntentId,
+          paidAt: now,
+          refundedAt: now,
+          stripeRefundId: refund.id,
+        })
+        .onConflictDoNothing()
+        .returning({ id: artcovrOrders.id });
+
+      if (conflictOrder) {
+        logger.warn(
+          {
+            orderId,
+            artworkId: input.artworkId,
+            existingOrderId: activeExclusiveOrder.id,
+            refundId: refund.id,
+          },
+          "ARTCOVR automatically refunded conflicting agent payment",
+        );
+      }
+
+      return {
+        orderId,
+        deliver: false,
+        status: "refunded_conflict",
+      };
+    }
+
+    const [order] = await tx
+      .insert(artcovrOrders)
+      .values({
+        ...createOrderValues({
+          id: orderId,
+          clerkUserId: null,
+          artworkId: input.artworkId,
+          artworkSlug: input.artworkSlug,
+          amountCents: input.amountCents,
+          saleMode: input.saleMode,
+          idempotencyKey,
+          reservationExpiresAt: now,
+        }),
+        status: "paid",
+        stripePaymentIntentId: input.paymentIntentId,
+        paidAt: now,
+        entitlementExpiresAt: new Date(now.getTime() + 30 * 24 * 60 * 60_000),
+      })
+      .onConflictDoNothing()
+      .returning();
+
+    if (!order) {
+      const [retryOrder] = await tx
+        .select()
+        .from(artcovrOrders)
+        .where(eq(artcovrOrders.idempotencyKey, idempotencyKey))
+        .limit(1);
+      if (retryOrder) {
+        return {
+          orderId: retryOrder.id,
+          deliver: retryOrder.status === "paid",
+          status: retryOrder.status as AgentPaymentFulfillment["status"],
+        };
+      }
+
+      const [conflict] = await tx
+        .select({ id: artcovrOrders.id, status: artcovrOrders.status })
+        .from(artcovrOrders)
+        .where(
+          and(
+            eq(artcovrOrders.artworkId, input.artworkId),
+            eq(artcovrOrders.saleMode, "exclusive"),
+            eq(artcovrOrders.status, "paid"),
+          ),
+        )
+        .limit(1);
+      if (conflict) {
+        const refund = await dependencies.refundPaymentIntent(
+          { paymentIntentId: input.paymentIntentId, orderId },
+          `agent-exclusive-conflict:${input.paymentIntentId}`,
+        );
+        await tx
+          .insert(artcovrOrders)
+          .values({
+            ...createOrderValues({
+              id: orderId,
+              clerkUserId: null,
+              artworkId: input.artworkId,
+              artworkSlug: input.artworkSlug,
+              amountCents: input.amountCents,
+              saleMode: input.saleMode,
+              idempotencyKey,
+              reservationExpiresAt: now,
+            }),
+            status: "refunded_conflict",
+            stripePaymentIntentId: input.paymentIntentId,
+            paidAt: now,
+            refundedAt: now,
+            stripeRefundId: refund.id,
+          })
+          .onConflictDoNothing();
+        return { orderId, deliver: false, status: "refunded_conflict" };
+      }
+      throw new Error("Agent payment could not create an ARTCOVR order.");
+    }
+
+    await tx
+      .insert(artcovrCreditLedger)
+      .values({
+        id: `credit_${crypto.randomUUID()}`,
+        clerkUserId: `guest:${order.id}`,
+        accountKey: `guest:${order.id}`,
+        orderId: order.id,
+        entryType: "grant",
+        amount: order.includedCredits,
+        reason: "Agent cover purchase credit grant",
+        sourceId: `agent_mpp:${input.paymentIntentId}`,
+      })
+      .onConflictDoNothing();
+
+    logger.info(
+      {
+        orderId: order.id,
+        artworkId: order.artworkId,
+        channel: "agent_mpp",
+        includedCredits: order.includedCredits,
+      },
+      "ARTCOVR agent purchase fulfilled",
+    );
+
+    return { orderId: order.id, deliver: true, status: "paid" };
+  });
 }

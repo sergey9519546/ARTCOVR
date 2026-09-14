@@ -60,6 +60,17 @@ async function stripeSecretFromConnection() {
 }
 
 async function createMpp() {
+  return createAgentMpp();
+}
+
+type AgentMpp = Awaited<ReturnType<typeof createMpp>>;
+let mppPromise: Promise<AgentMpp> | undefined;
+
+export type AgentMppHooks = {
+  onPaymentSuccess?: (context: any) => Promise<void> | void;
+};
+
+export async function createAgentMpp(hooks: AgentMppHooks = {}) {
   const secretKey = await stripeSecretFromConnection();
   const networkId = process.env[stripeProfileEnvironment]?.trim();
   if (!networkId) {
@@ -74,19 +85,24 @@ async function createMpp() {
     networkId,
     livemode: !secretKey.includes("_test_"),
   });
+  const spt = machinePayments.spt.charge();
+  const method =
+    hooks.onPaymentSuccess
+      ? {
+          ...spt,
+          onPaymentSuccess: hooks.onPaymentSuccess,
+        }
+      : spt;
 
   const challengeSecret = createHmac("sha256", secretKey)
     .update("mpp-challenge-signing")
     .digest("base64");
 
   return Mppx.create({
-    methods: machinePayments.defaultMethods(),
+    methods: [method],
     secretKey: challengeSecret,
   });
 }
-
-type AgentMpp = Awaited<ReturnType<typeof createMpp>>;
-let mppPromise: Promise<AgentMpp> | undefined;
 
 export function getAgentMpp() {
   if (!mppPromise) {

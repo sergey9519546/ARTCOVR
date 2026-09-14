@@ -1,9 +1,14 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { getPublicArtworkBySlug } from "../catalog";
-import { getAgentMpp, agentImagePriceUsd } from "../agentMpp";
+import { createAgentMpp, agentImagePriceUsd } from "../agentMpp";
 import { ensureBaseObject } from "../lib/imagePipeline";
 import { downloadPrivate } from "../lib/mediaStorage";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
+import {
+  fulfillAgentPayment,
+  type AgentPaymentFulfillment,
+} from "../commerceService";
+import { refundPaymentIntent } from "../stripeClient";
 
 const router: IRouter = Router();
 
@@ -54,7 +59,54 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
   }
 
   try {
-    const mpp = await getAgentMpp();
+    let fulfillment: AgentPaymentFulfillment | null = null;
+    const mpp = await createAgentMpp({
+      onPaymentSuccess: async (context) => {
+        const requestMetadata = {
+          ...(context.request?.methodDetails?.metadata ?? {}),
+          ...(context.requestInput?.paymentIntentOptions?.metadata ?? {}),
+        } as Record<string, string>;
+        if (
+          requestMetadata.artcovr_channel !== "agent_mpp" ||
+          requestMetadata.artwork_id !== artwork.id ||
+          requestMetadata.artwork_slug !== artwork.slug
+        ) {
+          throw new Error("Agent payment metadata did not match the requested artwork.");
+        }
+
+        try {
+          fulfillment = await fulfillAgentPayment({
+            paymentIntentId: context.receipt.reference,
+            artworkId: artwork.id,
+            artworkSlug: artwork.slug,
+            amountCents: Number(context.request.amount),
+            saleMode: artwork.saleMode!,
+            currency: context.request.currency,
+          });
+        } catch (error) {
+          if (/^pi_[A-Za-z0-9_]+$/.test(context.receipt.reference)) {
+            try {
+              await refundPaymentIntent(
+                {
+                  paymentIntentId: context.receipt.reference,
+                  orderId: `order_agent_${context.receipt.reference}`,
+                },
+                `agent-fulfillment-failure:${context.receipt.reference}`,
+              );
+            } catch (refundError) {
+              req.log.error(
+                {
+                  err: refundError,
+                  paymentIntentId: context.receipt.reference,
+                },
+                "Agent payment fulfillment failed and automatic refund failed",
+              );
+            }
+          }
+          throw error;
+        }
+      },
+    });
     const payment = await mpp.charge({
       amount: price,
       currency: "usd",
@@ -77,6 +129,27 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
 
     if (payment.status === 402) {
       await sendWebResponse(payment.challenge, res);
+      return;
+    }
+
+    const completedFulfillment = fulfillment as AgentPaymentFulfillment | null;
+    if (!completedFulfillment) {
+      req.log.error(
+        { artworkId: artwork.id, artworkSlug: artwork.slug },
+        "Agent payment completed without ARTCOVR fulfillment",
+      );
+      res.status(503).json({
+        code: "agent_payment_unavailable",
+        message: "The paid agent image is temporarily unavailable.",
+      });
+      return;
+    }
+
+    if (!completedFulfillment.deliver) {
+      res.status(409).json({
+        code: "artwork_unavailable",
+        message: "That exclusive cover has already been sold.",
+      });
       return;
     }
 

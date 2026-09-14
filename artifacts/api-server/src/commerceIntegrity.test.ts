@@ -16,6 +16,7 @@ import {
   claimGuestPurchases,
   createOrderValues,
   expireStaleExclusiveReservations,
+  fulfillAgentPayment,
   fulfillCheckoutSession,
 } from "./commerceService";
 import {
@@ -583,6 +584,200 @@ test("a late conflicting exclusive payment is automatically refunded", async () 
   } finally {
     await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
     await db.delete(artcovrOrders).where(inArray(artcovrOrders.id, [soldOrderId, lateOrderId]));
+  }
+});
+
+test("an agent payment creates one guest order and one credit grant across retries", async () => {
+  const suffix = randomUUID();
+  const stripeSuffix = suffix.replaceAll("-", "_");
+  const orderId = `order_agent_pi_agent_${stripeSuffix}`;
+  const paymentIntentId = `pi_agent_${stripeSuffix}`;
+  const artworkId = `agent-repeatable-${suffix}`;
+
+  try {
+    const first = await fulfillAgentPayment({
+      paymentIntentId,
+      artworkId,
+      artworkSlug: `agent-artwork-${suffix}`,
+      amountCents: 500,
+      saleMode: "repeatable",
+      currency: "usd",
+    });
+    const second = await fulfillAgentPayment({
+      paymentIntentId,
+      artworkId,
+      artworkSlug: `agent-artwork-${suffix}`,
+      amountCents: 500,
+      saleMode: "repeatable",
+      currency: "usd",
+    });
+
+    assert.deepEqual(first, { orderId, deliver: true, status: "paid" });
+    assert.deepEqual(second, first);
+
+    const orders = await db
+      .select({
+        id: artcovrOrders.id,
+        status: artcovrOrders.status,
+        stripePaymentIntentId: artcovrOrders.stripePaymentIntentId,
+      })
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.id, orderId));
+    assert.deepEqual(orders, [
+      { id: orderId, status: "paid", stripePaymentIntentId: paymentIntentId },
+    ]);
+
+    const grants = await db
+      .select({
+        entryType: artcovrCreditLedger.entryType,
+        sourceId: artcovrCreditLedger.sourceId,
+      })
+      .from(artcovrCreditLedger)
+      .where(eq(artcovrCreditLedger.orderId, orderId));
+    assert.deepEqual(grants, [
+      { entryType: "grant", sourceId: `agent_mpp:${paymentIntentId}` },
+    ]);
+  } finally {
+    await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, orderId));
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+  }
+});
+
+test("an agent payment refunds and records a conflicting exclusive sale once", async () => {
+  const suffix = randomUUID();
+  const stripeSuffix = suffix.replaceAll("-", "_");
+  const artworkId = `agent-exclusive-${suffix}`;
+  const soldOrderId = `order-sold-agent-${suffix}`;
+  const paymentIntentId = `pi_agent_conflict_${stripeSuffix}`;
+  const conflictOrderId = `order_agent_${paymentIntentId}`;
+  let refundCalls = 0;
+
+  try {
+    await db.insert(artcovrOrders).values(
+      orderValues({
+        id: soldOrderId,
+        artworkId,
+        idempotencyKey: randomUUID(),
+        status: "paid",
+      }),
+    );
+
+    const input = {
+      paymentIntentId,
+      artworkId,
+      artworkSlug: `agent-exclusive-${suffix}`,
+      amountCents: 500,
+      saleMode: "exclusive" as const,
+      currency: "usd",
+    };
+    const first = await fulfillAgentPayment(input, {
+      refundPaymentIntent: async (refundInput, idempotencyKey) => {
+        refundCalls += 1;
+        assert.equal(refundInput.paymentIntentId, paymentIntentId);
+        assert.equal(refundInput.orderId, conflictOrderId);
+        assert.equal(idempotencyKey, `agent-exclusive-conflict:${paymentIntentId}`);
+        return { id: `re-agent-${suffix}` } as Stripe.Refund;
+      },
+    });
+    const second = await fulfillAgentPayment(input, {
+      refundPaymentIntent: async () => {
+        throw new Error("An agent retry must not refund twice.");
+      },
+    });
+
+    assert.deepEqual(first, {
+      orderId: conflictOrderId,
+      deliver: false,
+      status: "refunded_conflict",
+    });
+    assert.deepEqual(second, first);
+    assert.equal(refundCalls, 1);
+  } finally {
+    await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, conflictOrderId));
+    await db.delete(artcovrOrders).where(
+      inArray(artcovrOrders.id, [soldOrderId, conflictOrderId]),
+    );
+  }
+});
+
+test("a failed agent PaymentIntent revokes an existing grant once", async () => {
+  const suffix = randomUUID();
+  const orderId = `order-agent-failed-${suffix}`;
+  const paymentIntentId = `pi-agent-failed-${suffix}`;
+  const eventId = `evt-agent-failed-${suffix}`;
+
+  try {
+    await db.insert(artcovrOrders).values(
+      orderValues({
+        id: orderId,
+        artworkId: `agent-failed-${suffix}`,
+        idempotencyKey: randomUUID(),
+        status: "paid",
+        stripePaymentIntentId: paymentIntentId,
+        saleMode: "repeatable",
+      }),
+    );
+    await db.insert(artcovrCreditLedger).values({
+      id: `credit-agent-failed-${suffix}`,
+      clerkUserId: `user_${orderId}`,
+      accountKey: `user_${orderId}`,
+      orderId,
+      entryType: "grant",
+      amount: 3,
+      reason: "Test agent grant",
+      sourceId: `agent-test:${suffix}`,
+    });
+
+    const event = {
+      id: eventId,
+      livemode: false,
+      type: "payment_intent.payment_failed",
+      data: {
+        object: {
+          id: paymentIntentId,
+          livemode: false,
+        },
+      },
+    } as Stripe.Event;
+
+    await fulfillCheckoutSession(event, {
+      expectedLivemode: false,
+      refundPaymentIntent: async () => {
+        throw new Error("A failed payment must not create a refund.");
+      },
+    });
+    await fulfillCheckoutSession(event, {
+      expectedLivemode: false,
+      refundPaymentIntent: async () => {
+        throw new Error("A duplicate failed-payment webhook must be ignored.");
+      },
+    });
+
+    const [order] = await db
+      .select({
+        status: artcovrOrders.status,
+        accessRevokedAt: artcovrOrders.accessRevokedAt,
+      })
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.id, orderId));
+    assert.equal(order?.status, "expired");
+    assert.ok(order?.accessRevokedAt);
+
+    const ledger = await db
+      .select({
+        entryType: artcovrCreditLedger.entryType,
+        amount: artcovrCreditLedger.amount,
+      })
+      .from(artcovrCreditLedger)
+      .where(eq(artcovrCreditLedger.orderId, orderId));
+    assert.deepEqual(ledger, [
+      { entryType: "grant", amount: 3 },
+      { entryType: "revoke", amount: -3 },
+    ]);
+  } finally {
+    await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, orderId));
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+    await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
   }
 });
 
