@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  buildAgentCatalogJson,
   buildCatalogFactsJson,
   buildLlmsFullTxt,
   buildLlmsTxt,
@@ -9,6 +10,7 @@ import {
 
 const items = [
   {
+    id: "artwork-blue-hour",
     slug: "blue-hour",
     title: "Blue Hour",
     description: "A blue-toned study in quiet geometric light.",
@@ -18,6 +20,8 @@ const items = [
     moodTags: ["quiet", "nocturnal"],
     saleMode: "repeatable" as const,
     priceCents: 2400,
+    rightsApproved: true,
+    published: true,
   },
 ];
 
@@ -39,6 +43,45 @@ test("discovery files expose canonical public routes and catalog facts", () => {
   assert.match(full, /exclusive commercial license|repeatable non-exclusive commercial license/);
   assert.match(full, /\$24\.00 USD/);
   assert.match(full, /Image URL: https:\/\/example\.com\/assets\/artworks\/blue-hour\.jpg/);
+  assert.match(full, /Machine-purchase catalog: https:\/\/example\.com\/agent-catalog\.json/);
+});
+
+test("agent catalog exposes only purchasable works and protected delivery links", () => {
+  const feed = JSON.parse(buildAgentCatalogJson([
+    items[0],
+    { ...items[0], id: "unpublished", slug: "unpublished", published: false },
+    { ...items[0], id: "unpriced", slug: "unpriced", priceCents: null },
+    { ...items[0], id: "unlicensed", slug: "unlicensed", rightsApproved: false },
+    { ...items[0], id: "pending-sale", slug: "pending-sale", saleMode: null },
+  ], "https://example.com/"));
+
+  assert.equal(feed.version, "artcovr-agent-catalog/v1");
+  assert.deepEqual(feed.payment, {
+    protocol: "mpp",
+    supportedRails: ["stripe_shared_payment_tokens"],
+    minimum: { amountCents: 50, amount: 0.5, currency: "USD" },
+    settlement: "stripe",
+    challengeStatus: 402,
+  });
+  assert.equal(feed.items.length, 1);
+  assert.deepEqual(feed.items[0], {
+    id: "artwork-blue-hour",
+    slug: "blue-hour",
+    title: "Blue Hour",
+    description: "A blue-toned study in quiet geometric light.",
+    canonicalUrl: "https://example.com/product/blue-hour",
+    previewUrl: "https://example.com/assets/artworks/blue-hour.jpg",
+    deliveryUrl: "https://example.com/api/agent/artworks/blue-hour/image",
+    price: { amountCents: 2400, amount: 24, currency: "USD" },
+    availability: "available",
+    saleMode: "repeatable",
+    license: {
+      name: "repeatable non-exclusive commercial license",
+      url: "https://example.com/license",
+      scope: "commercial",
+    },
+  });
+  assert.doesNotMatch(JSON.stringify(feed), /storage|objectKey|orderId|paymentId|payer/i);
 });
 
 test("catalog facts distinguish exclusive, repeatable, and unknown sale states", () => {
@@ -100,6 +143,7 @@ test("catalog facts remain valid JSON for public text", () => {
   assert.equal(facts.items[0].moods[1], unsafe.moodTags[1]);
 
   const full = buildLlmsFullTxt([{ ...unsafe, saleMode: null }], "https://example.com/");
-  assert.match(full, /license terms pending; unknown/);
+  assert.match(full, /Sale mode: unknown/);
+  assert.match(full, /License: license terms pending/);
   assert.doesNotMatch(full, /repeatable non-exclusive commercial license/);
 });

@@ -42,6 +42,90 @@ function saleAvailability(saleMode: Artwork["saleMode"]) {
   };
 }
 
+type AgentCatalogArtwork = Pick<
+  Artwork,
+  | "id"
+  | "slug"
+  | "title"
+  | "description"
+  | "image"
+  | "saleMode"
+  | "priceCents"
+  | "rightsApproved"
+  | "published"
+>;
+
+function isAgentPurchasable(item: AgentCatalogArtwork) {
+  return (
+    item.rightsApproved &&
+    item.published &&
+    item.priceCents !== null &&
+    item.saleMode !== null
+  );
+}
+
+/**
+ * The machine-buyer projection is deliberately narrower than the public
+ * discovery catalog: only works that can be purchased now are included.
+ * Preview images remain public, while the delivery URL always points to the
+ * payment-protected endpoint.
+ */
+export function buildAgentCatalogJson(
+  items: readonly AgentCatalogArtwork[],
+  siteUrl: string,
+) {
+  const base = cleanSiteUrl(siteUrl);
+  const licenseUrl = canonicalUrl(base, "/license");
+  const purchasable = items.filter(isAgentPurchasable);
+
+  return JSON.stringify({
+    version: "artcovr-agent-catalog/v1",
+    organization: {
+      name: "ARTCOVR",
+      url: base,
+    },
+    licenseUrl,
+    payment: {
+      protocol: "mpp",
+      supportedRails: ["stripe_shared_payment_tokens"],
+      minimum: {
+        amountCents: 50,
+        amount: 0.5,
+        currency: "USD",
+      },
+      settlement: "stripe",
+      challengeStatus: 402,
+    },
+    items: purchasable.map((item) => {
+      const sale = saleAvailability(item.saleMode);
+      return {
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        description: item.description,
+        canonicalUrl: canonicalUrl(base, `/product/${encodeURIComponent(item.slug)}`),
+        previewUrl: canonicalUrl(base, item.image),
+        deliveryUrl: canonicalUrl(
+          base,
+          `/api/agent/artworks/${encodeURIComponent(item.slug)}/image`,
+        ),
+        price: {
+          amountCents: item.priceCents,
+          amount: item.priceCents! / 100,
+          currency: "USD",
+        },
+        availability: sale.availability,
+        saleMode: sale.saleMode,
+        license: {
+          name: sale.license,
+          url: licenseUrl,
+          scope: "commercial",
+        },
+      };
+    }),
+  });
+}
+
 /**
  * Creates a versioned, machine-readable catalog from the already-public item
  * projection passed by the caller. It deliberately has no catalog imports or
@@ -186,9 +270,12 @@ ARTCOVR's public catalog contains ${items.length} owner-approved works. Public a
 
 ## Agent access
 
+- Machine-purchase catalog: ${base}/agent-catalog.json
 - Paid image access API: ${base}/api/agent/artworks/{slug}/image
-- Send a GET request for a published artwork slug. The endpoint returns an MPP HTTP 402 payment challenge when no valid payment credential is present, then returns the licensed original image after a successful one-time payment.
-- The machine payment uses the artwork's listed license price, with a minimum of $0.50 USD. Public preview URLs are not licensed-original delivery URLs.
+- The machine-purchase catalog lists only published works that are purchasable now, with stable IDs, catalog prices, sale modes, license links, public previews, and protected delivery URLs.
+- Send a GET request for a listed artwork slug. The endpoint returns an MPP HTTP 402 payment challenge when no valid payment credential is present, then returns the licensed original image after a successful one-time payment.
+- Supported payment rail: Stripe Shared Payment Tokens through MPP. The minimum payment is $0.50 USD, and stablecoin or Tempo settlement is not configured.
+- Public preview URLs are not licensed-original delivery URLs. A successful delivery is a private, no-store JPEG response; a missing artwork returns 404 and temporary payment or delivery failures return 503.
 
 ## Catalog
 
@@ -211,6 +298,13 @@ export function buildLlmsFullTxt(
       const price =
         item.priceCents === null ? "pricing pending" : `$${(item.priceCents / 100).toFixed(2)} USD`;
       const sale = saleAvailability(item.saleMode);
+      const machinePurchasable =
+        item.priceCents !== null &&
+        item.saleMode !== null;
+      const machineAvailability = machinePurchasable ? "available" : "unavailable";
+      const machineDelivery = machinePurchasable
+        ? `${base}/api/agent/artworks/${encodeURIComponent(item.slug)}/image`
+        : "not listed until price and sale mode are approved";
       return `## ${item.title}
 
 - URL: ${base}/product/${encodeURIComponent(item.slug)}
@@ -221,13 +315,26 @@ export function buildLlmsFullTxt(
 - Visual category: ${item.category}
 - Music genres: ${item.genres?.join(", ") || "Experimental"}
 - Mood: ${item.moodTags.join(", ")}
-- Availability: ${price}; ${sale.license}; ${sale.availability}
+- Price: ${price}
+- Sale mode: ${sale.saleMode}
+- Availability: ${sale.availability}
+- Agent purchase availability: ${machineAvailability}
+- Agent delivery URL: ${machineDelivery}
+- License: ${sale.license}
 `;
     })
     .join("\n");
   return `# ARTCOVR Public Catalog
 
 This document describes the ${items.length} public, owner-approved ARTCOVR cover artworks. It is generated from the same projection used by the storefront.
+
+## Machine purchasing
+
+- Machine-purchase catalog: ${base}/agent-catalog.json
+- Payment protocol: MPP with Stripe Shared Payment Tokens.
+- Minimum payment: $0.50 USD. Stablecoin and Tempo settlement are not configured.
+- Retry a listed delivery URL after receiving its HTTP 402 payment challenge. A successful HTTP 200 response is the licensed original image; public preview image URLs are not licensed delivery.
+- HTTP 404 means the artwork is not available through agent delivery. HTTP 503 means payment verification or delivery is temporarily unavailable.
 
 ${records}`;
 }

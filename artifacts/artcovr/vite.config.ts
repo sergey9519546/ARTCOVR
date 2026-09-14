@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv } from 'vite';
 import curatedPublic from './src/lib/artcovr/curated-public.json' with { type: 'json' };
 import {
+  buildAgentCatalogJson,
   buildCatalogFactsJson,
   buildLlmsFullTxt,
   buildLlmsTxt,
@@ -97,6 +98,7 @@ function discoveryPlugin(siteUrl: string) {
     'llms.txt': buildLlmsTxt(discoveryCatalog, siteUrl),
     'llms-full.txt': buildLlmsFullTxt(discoveryCatalog, siteUrl),
     'catalog-facts.json': buildCatalogFactsJson(discoveryCatalog, siteUrl),
+    'agent-catalog.json': buildAgentCatalogJson(publicCatalog, siteUrl),
     'robots.txt': `User-agent: *\nAllow: /\n\nUser-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`,
   };
 
@@ -115,7 +117,7 @@ function discoveryPlugin(siteUrl: string) {
           'Content-Type',
           pathname === 'sitemap.xml'
             ? 'application/xml; charset=utf-8'
-            : pathname === 'catalog-facts.json'
+            : pathname === 'catalog-facts.json' || pathname === 'agent-catalog.json'
               ? 'application/json; charset=utf-8'
               : 'text/plain; charset=utf-8',
         );
@@ -134,6 +136,7 @@ function discoveryPlugin(siteUrl: string) {
         'llms.txt',
         'llms-full.txt',
         'catalog-facts.json',
+        'agent-catalog.json',
       ]) {
         try {
           await access(path.join(path.resolve(import.meta.dirname, 'dist/public'), fileName));

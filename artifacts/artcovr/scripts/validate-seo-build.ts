@@ -12,6 +12,7 @@ import {
   getSocialPreviewMetadata,
 } from "../src/lib/artcovr/route-metadata";
 import {
+  buildAgentCatalogJson,
   buildCatalogFactsJson,
   buildLlmsFullTxt,
   buildLlmsTxt,
@@ -731,6 +732,44 @@ async function validateDiscoveryFiles(siteUrl: string) {
     "approved catalog item count",
     `expected ${publicCatalog.length}`,
   );
+
+  const agentCatalogFile = "agent-catalog.json";
+  let agentCatalogSource: string;
+  try {
+    agentCatalogSource = await readFile(path.join(outputDirectory, agentCatalogFile), "utf8");
+  } catch {
+    seoFailure(agentCatalogFile, "discovery file", "file is missing from dist/public");
+  }
+  const expectedAgentCatalog = buildAgentCatalogJson(publicCatalog, siteUrl);
+  check(
+    agentCatalogSource === expectedAgentCatalog,
+    agentCatalogFile,
+    "machine catalog parity",
+    "generated feed does not match the approved purchasable catalog",
+  );
+  let agentCatalog: { version?: unknown; items?: unknown };
+  try {
+    agentCatalog = JSON.parse(agentCatalogSource);
+  } catch {
+    seoFailure(agentCatalogFile, "JSON format", "file is not valid JSON");
+  }
+  check(
+    agentCatalog.version === "artcovr-agent-catalog/v1",
+    agentCatalogFile,
+    "schema version",
+  );
+  check(
+    Array.isArray(agentCatalog.items) &&
+      agentCatalog.items.length ===
+        publicCatalog.filter((item) => item.priceCents !== null && item.saleMode !== null).length,
+    agentCatalogFile,
+    "purchasable catalog item count",
+  );
+  check(
+    !/objectKey|orderId|paymentId|payer/i.test(agentCatalogSource),
+    agentCatalogFile,
+    "private implementation isolation",
+  );
 }
 
 function internalAnchorPaths(html: string, siteUrl: string) {
@@ -917,7 +956,7 @@ async function main() {
   if (reportFailures(failures)) return;
 
   console.log(
-    `[SEO] validated /, /archive, ${informationalRoutesValidated} informational routes, ${productRoutesValidated} product routes, 404 behavior, internal links, robots.txt, sitemap.xml, llms files, and catalog-facts.json (${publicCatalog.length} catalog images)`,
+    `[SEO] validated /, /archive, ${informationalRoutesValidated} informational routes, ${productRoutesValidated} product routes, 404 behavior, internal links, robots.txt, sitemap.xml, llms files, catalog-facts.json, and agent-catalog.json (${publicCatalog.length} catalog images)`,
   );
 }
 

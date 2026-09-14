@@ -10,6 +10,11 @@ export interface ApiError {
   message: string;
 }
 
+/**
+ * Provider-defined MPP challenge details. Treat this as an opaque challenge envelope and use WWW-Authenticate to determine how to retry. It never contains ARTCOVR payer identity, private storage keys, or internal order identifiers.
+ */
+export interface AgentPaymentChallenge { [key: string]: unknown }
+
 export interface HealthStatus {
   status: string;
 }
@@ -598,6 +603,4 @@ from?: string;
  */
 to?: string;
 };
-
-export type GetAgentArtworkImage402 = { [key: string]: unknown };
 

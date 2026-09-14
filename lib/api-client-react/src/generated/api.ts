@@ -21,6 +21,7 @@ import type {
 
 import type {
   AccountData,
+  AgentPaymentChallenge,
   ApiError,
   CheckoutRequest,
   CheckoutResponse,
@@ -31,7 +32,6 @@ import type {
   GenerationResponse,
   GenerationStatus,
   GenerationStatusRequest,
-  GetAgentArtworkImage402,
   GetGenerationStatusParams,
   GetMyImagesParams,
   GetOwnerSalesReportParams,
@@ -1080,7 +1080,7 @@ export const getGetAgentArtworkImageUrl = (slug: string,) => {
 }
 
 /**
- * Returns the licensed original image after an MPP payment is verified. Requests without a valid payment receive the MPP payment challenge. This endpoint is separate from human Stripe Checkout and does not expose customer or payment-provider identifiers.
+ * Returns the licensed original image after an MPP payment is verified. Requests without a valid payment receive the provider's HTTP 402 MPP payment challenge in the WWW-Authenticate header and challenge body. Retry the same request with a valid Stripe Shared Payment Token. Artwork pricing comes from the published catalog and is never below $0.50 USD. This endpoint is separate from human Stripe Checkout, exposes public preview URLs separately from licensed delivery, and does not expose customer or payment-provider identifiers. Stablecoin and Tempo settlement are not configured.
  * @summary Purchase and download a licensed artwork image
  */
 export const getAgentArtworkImage = async (slug: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
@@ -1105,7 +1105,7 @@ export const getGetAgentArtworkImageQueryKey = (slug: string,) => {
     }
 
 
-export const getGetAgentArtworkImageQueryOptions = <TData = Awaited<ReturnType<typeof getAgentArtworkImage>>, TError = ErrorType<GetAgentArtworkImage402 | ApiError>>(slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAgentArtworkImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetAgentArtworkImageQueryOptions = <TData = Awaited<ReturnType<typeof getAgentArtworkImage>>, TError = ErrorType<AgentPaymentChallenge | ApiError>>(slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAgentArtworkImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -1124,14 +1124,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetAgentArtworkImageQueryResult = NonNullable<Awaited<ReturnType<typeof getAgentArtworkImage>>>
-export type GetAgentArtworkImageQueryError = ErrorType<GetAgentArtworkImage402 | ApiError>
+export type GetAgentArtworkImageQueryError = ErrorType<AgentPaymentChallenge | ApiError>
 
 
 /**
  * @summary Purchase and download a licensed artwork image
  */
 
-export function useGetAgentArtworkImage<TData = Awaited<ReturnType<typeof getAgentArtworkImage>>, TError = ErrorType<GetAgentArtworkImage402 | ApiError>>(
+export function useGetAgentArtworkImage<TData = Awaited<ReturnType<typeof getAgentArtworkImage>>, TError = ErrorType<AgentPaymentChallenge | ApiError>>(
  slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAgentArtworkImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {

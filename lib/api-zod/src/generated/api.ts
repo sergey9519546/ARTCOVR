@@ -476,7 +476,7 @@ export const GetOwnerSalesReportResponse = zod.object({
 
 
 /**
- * Returns the licensed original image after an MPP payment is verified. Requests without a valid payment receive the MPP payment challenge. This endpoint is separate from human Stripe Checkout and does not expose customer or payment-provider identifiers.
+ * Returns the licensed original image after an MPP payment is verified. Requests without a valid payment receive the provider's HTTP 402 MPP payment challenge in the WWW-Authenticate header and challenge body. Retry the same request with a valid Stripe Shared Payment Token. Artwork pricing comes from the published catalog and is never below $0.50 USD. This endpoint is separate from human Stripe Checkout, exposes public preview URLs separately from licensed delivery, and does not expose customer or payment-provider identifiers. Stablecoin and Tempo settlement are not configured.
  * @summary Purchase and download a licensed artwork image
  */
 export const getAgentArtworkImagePathSlugMax = 200;
