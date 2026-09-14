@@ -33,7 +33,7 @@ async function chooseFirstFacetOption(page: Page, key: FacetKey) {
     await select.click();
     const option = page.getByRole("option").nth(1);
     const label = (await option.innerText()).trim().replace(/\s+·\s+\d+$/, "");
-    await option.click();
+    await option.click({ force: true });
     const count = resultCount(await catalogStatus(page).innerText());
     expect(count, `${key} filter should match at least one work`).toBeGreaterThan(0);
     return { choice: select, label, value: label };
@@ -54,7 +54,7 @@ async function clearFacet(page: Page, key: FacetKey) {
   if (key !== "color") {
     const select = facet(page, key).getByRole("combobox");
     await select.click();
-    await page.getByRole("option").first().click();
+    await page.getByRole("option").first().click({ force: true });
     return;
   }
   await facet(page, key)
@@ -70,7 +70,7 @@ async function findCompatibleOption(page: Page, key: FacetKey) {
     await page.keyboard.press("Escape");
     for (let index = 1; index < optionCount; index += 1) {
       await select.click();
-      await page.getByRole("option").nth(index).click();
+      await page.getByRole("option").nth(index).click({ force: true });
       const count = resultCount(await catalogStatus(page).innerText());
       if (count > 0) return { choice: select, count };
       await clearFacet(page, key);

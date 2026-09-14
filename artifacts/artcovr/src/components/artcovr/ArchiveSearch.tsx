@@ -65,6 +65,9 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     update({ order: nextOrder === "recommended" ? null : nextOrder });
   };
   const clearAll = () => {
+    trackEvent("archive_filters_cleared", {
+      active_filter_count: [query.trim(), view.genre, view.color, view.mood, similarSlug, crateOnly ? "crate" : null].filter(Boolean).length,
+    });
     update({ query: null, genre: null, color: null, mood: null, similar: null, mode: null, connections: null, crate: null, order: null });
     searchInput.current?.focus();
   };

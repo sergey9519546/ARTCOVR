@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { trackEvent } from "@/lib/artcovr/analytics";
 import { displayFacetLabel, displayMoodLabel, type CatalogView } from "./CatalogControls";
 
 const SWATCHES: Record<string, string> = { Black: "#171717", Blue: "#2f63c7", Brown: "#8a5a3b", Gray: "#8a8a86", Green: "#3f754f", Orange: "#df7a2e", Pink: "#d88b9c", Purple: "#7953a8", Red: "#c84a3f", Teal: "#319b95", White: "#f5f1e7", Yellow: "#dfb82e" };
@@ -28,8 +29,20 @@ export function DiscoveryControls({ view, onChange, index, resultCount, totalCou
   const colors = [...index.counts.color.keys()].sort();
   const genreOptions = [...index.counts.genre].sort(([a], [b]) => displayGenreLabel(a).localeCompare(displayGenreLabel(b)));
   const moodOptions = [...index.counts.mood].sort(([a], [b]) => displayMoodLabel(a).localeCompare(displayMoodLabel(b)));
-  const update = (key: keyof CatalogView, value: string | null) => onChange({ ...view, [key]: value });
-  const clearAll = () => onChange({ genre: null, mood: null, color: null });
+  const update = (key: keyof CatalogView, value: string | null) => {
+    trackEvent("archive_facet_changed", {
+      facet: key,
+      value: value ?? "all",
+      control: key === "color" ? "palette" : "select",
+    });
+    onChange({ ...view, [key]: value });
+  };
+  const clearAll = () => {
+    trackEvent("archive_facets_cleared", {
+      active_filter_count: activeFilterCount,
+    });
+    onChange({ genre: null, mood: null, color: null });
+  };
 
   return (
     <section data-catalog-controls className="discovery-palette-filters" aria-label="Archive filters">
