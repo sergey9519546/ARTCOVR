@@ -18,6 +18,7 @@ import {
   genrePath,
 } from './src/lib/artcovr/genre-index';
 import { selectPublicCatalog } from './src/lib/artcovr/catalog-visibility';
+import { featuredArtworks } from './src/lib/artcovr/artworks';
 import {
   getPrerenderedRoutePaths,
   getRouteMetadata,
@@ -250,6 +251,7 @@ function routeMetadataPlugin(
     const metadata = metadataForPath(routePath);
     const rendered = renderStaticRoute({
       artworks: publicCatalog,
+      homepageArtworks: featuredArtworks.slice(0, 12),
       siteUrl,
       metadata,
       getGenres: (artwork) => getArtworkGenres(artwork).map(displayGenreLabel),

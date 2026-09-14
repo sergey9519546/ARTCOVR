@@ -3,7 +3,13 @@ import { spawnSync } from "node:child_process";
 
 const storefrontRoot = path.resolve(import.meta.dirname, "..");
 const configuredSiteUrl = process.env.VITE_SITE_URL;
-const siteUrl = configuredSiteUrl || "https://artcovr.local";
+
+if (!configuredSiteUrl) {
+  throw new Error(
+    "VITE_SITE_URL is required for production builds. Set it to the canonical HTTPS site origin.",
+  );
+}
+
 const result = spawnSync(
   process.execPath,
   [
@@ -18,10 +24,8 @@ const result = spawnSync(
       ...process.env,
       PORT: process.env.PORT || "5000",
       BASE_PATH: process.env.BASE_PATH || "/",
-      VITE_SITE_URL: siteUrl,
-      VITE_CLERK_PUBLISHABLE_KEY: configuredSiteUrl
-        ? process.env.VITE_CLERK_PUBLISHABLE_KEY
-        : "pk_live_local_build_placeholder",
+      VITE_SITE_URL: configuredSiteUrl,
+      VITE_CLERK_PUBLISHABLE_KEY: process.env.VITE_CLERK_PUBLISHABLE_KEY,
     },
     stdio: "inherit",
   },

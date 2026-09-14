@@ -5,6 +5,7 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with {
   type: "json",
 };
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
+import { featuredArtworks } from "../src/lib/artcovr/artworks";
 import { ANSWER_GUIDE_BY_PATH } from "../src/lib/artcovr/answer-guides";
 import {
   displayGenreLabel,
@@ -107,6 +108,7 @@ function renderGeneratedProductDocument(fixture = catalogFixture) {
 function renderGeneratedPublicDocument(fixture: (typeof publicRouteFixtures)[number]) {
   const rendered = renderStaticRoute({
     artworks: publicCatalog,
+    homepageArtworks: fixture.route === "/" ? featuredArtworks.slice(0, 12) : undefined,
     siteUrl,
     metadata: fixture.metadata,
     getGenres: (candidate) =>
@@ -119,7 +121,7 @@ function renderGeneratedPublicDocument(fixture: (typeof publicRouteFixtures)[num
     ${renderStaticRouteMetadata(fixture.metadata, siteUrl, false)}
   </head>
   <body>
-    ${rendered.bodyHtml}
+    ${fixture.route === "/" ? `<noscript>${rendered.bodyHtml}</noscript>` : rendered.bodyHtml}
     ${rendered.structuredDataHtml}
   </body>
 </html>`;
@@ -150,7 +152,7 @@ function validateProductDocument(html: string, fixture = catalogFixture) {
     "WebSite",
     "ImageObject",
     "BreadcrumbList",
-    "Product",
+    "WebPage",
   ], {
     metadata: fixture.metadata,
     artwork: fixture.artwork,
@@ -417,6 +419,67 @@ test("reports the exact route and social signal when an escaped value decodes in
   assert.throws(
     () => validateProductDocument(wrongTwitterDocument, specialCharacterFixture),
     /\[SEO\] \/product\/special-character-fixture: Twitter description/,
+  );
+});
+
+test("rejects nested or array-typed static commerce availability claims", () => {
+  const generatedDocument = renderGeneratedProductDocument();
+  const arrayTypedProduct = generatedDocument.replace(
+    '"@type":"ImageObject"',
+    '"@type":["ImageObject","Product"]',
+  );
+  const nestedOffer = generatedDocument.replace(
+    '"@type":"ImageObject"',
+    '"@type":"ImageObject","offers":{"@type":"Offer","availability":"https://schema.org/InStock"}',
+  );
+
+  assert.throws(
+    () => validateProductDocument(arrayTypedProduct),
+    /live inventory structured data/,
+  );
+  assert.throws(
+    () => validateProductDocument(nestedOffer),
+    /live inventory structured data/,
+  );
+});
+
+test("rejects visible product availability that claims current stock", () => {
+  const generatedDocument = renderGeneratedProductDocument();
+  const mutatedDocument = generatedDocument.replace(
+    "<dt>Availability</dt><dd>Confirmed at checkout</dd>",
+    "<dt>Availability</dt><dd>Available</dd>",
+  );
+
+  assert.throws(
+    () => validateProductDocument(mutatedDocument),
+    /visible checkout availability/,
+  );
+});
+
+test("rejects homepage ItemList order that differs from static product links", () => {
+  const fixture = publicRouteFixtures.find(({ route }) => route === "/");
+  assert.ok(fixture);
+  const generatedDocument = renderGeneratedPublicDocument(fixture);
+  const first = featuredArtworks[0];
+  const second = featuredArtworks[1];
+  assert.ok(first && second);
+  const mutatedDocument = generatedDocument
+    .replaceAll(
+      `https://artcovr.com/product/${first.slug}`,
+      "https://artcovr.com/product/__first__",
+    )
+    .replaceAll(
+      `https://artcovr.com/product/${second.slug}`,
+      `https://artcovr.com/product/${first.slug}`,
+    )
+    .replaceAll(
+      "https://artcovr.com/product/__first__",
+      `https://artcovr.com/product/${second.slug}`,
+    );
+
+  assert.throws(
+    () => validatePublicDocument(fixture, mutatedDocument),
+    /homepage ItemList parity/,
   );
 });
 

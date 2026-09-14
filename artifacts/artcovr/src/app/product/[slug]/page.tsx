@@ -103,7 +103,7 @@ export default function ProductPage() {
             )}
 
             <dl className="mt-7 divide-y divide-current/20 border-y border-current/20 text-sm">
-              <div className="flex justify-between gap-6 py-3"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Available" : "Pending"}</dd></div>
+              <div className="flex justify-between gap-6 py-3"><dt>Availability</dt><dd className="text-right">{checkoutReady ? "Confirmed at checkout" : "Pending"}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>License</dt><dd className="text-right">{licenseMode}</dd></div>
               <div className="flex justify-between gap-6 py-3"><dt>Pricing</dt><dd className="text-right">{getArtworkPriceLabel(art)}</dd></div>
               <div className="flex justify-between gap-6 py-3">

@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import curatedPublic from "../src/lib/artcovr/curated-public.json" with { type: "json" };
+import { featuredArtworks } from "../src/lib/artcovr/artworks";
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
 import {
@@ -201,6 +202,27 @@ function validateStructuredData(
   );
 }
 
+function nestedStructuredDataRecords(value: unknown): Record<string, unknown>[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(nestedStructuredDataRecords);
+  }
+  if (!value || typeof value !== "object") return [];
+  const record = value as Record<string, unknown>;
+  return [
+    record,
+    ...Object.values(record).flatMap(nestedStructuredDataRecords),
+  ];
+}
+
+function structuredDataTypes(entity: Record<string, unknown>) {
+  const type = entity["@type"];
+  return Array.isArray(type)
+    ? type.filter((value): value is string => typeof value === "string")
+    : typeof type === "string"
+      ? [type]
+      : [];
+}
+
 export function validateRoute(
   route: string,
   html: string,
@@ -332,6 +354,47 @@ export function validateRoute(
   }
 
   const entities = validateStructuredData(route, html, expectedTypes);
+  if (route === "/") {
+    const collection = entities.find((entity) =>
+      structuredDataTypes(entity).includes("CollectionPage"),
+    );
+    check(collection, route, "homepage CollectionPage entity");
+    const mainEntity = collection.mainEntity;
+    check(
+      mainEntity && typeof mainEntity === "object" && !Array.isArray(mainEntity),
+      route,
+      "homepage ItemList entity",
+    );
+    const itemListElement = (mainEntity as Record<string, unknown>).itemListElement;
+    check(
+      Array.isArray(itemListElement),
+      route,
+      "homepage ItemList entries",
+    );
+    const schemaUrls = itemListElement.map((item) =>
+      item && typeof item === "object" && !Array.isArray(item)
+        ? (item as Record<string, unknown>).url
+        : undefined,
+    );
+    const staticProductUrls = [
+      ...html.matchAll(/<a\b[^>]*\bhref=["'](\/product\/[^"']+)["'][^>]*>/gi),
+    ].map((match) => canonicalUrlFor(decodeHtml(match[1]), siteUrl));
+    const expectedUrls = featuredArtworks
+      .slice(0, 12)
+      .map((artwork) => canonicalUrlFor(`/product/${artwork.slug}`, siteUrl));
+    check(
+      JSON.stringify(staticProductUrls) === JSON.stringify(expectedUrls),
+      route,
+      "homepage featured artwork links",
+      "static product links differ from the deterministic featured subset",
+    );
+    check(
+      JSON.stringify(schemaUrls) === JSON.stringify(staticProductUrls),
+      route,
+      "homepage ItemList parity",
+      "ItemList URLs differ from the ordered static product links",
+    );
+  }
   if (routeExpectation) {
     const social = getSocialPreviewMetadata(routeExpectation.metadata, siteUrl);
     validateMetaTag(
@@ -420,22 +483,33 @@ export function validateRoute(
     const metadataImage = routeExpectation.metadata.image;
     check(metadataImage, route, "route metadata image", "image is missing");
     const imageUrl = canonicalUrlFor(metadataImage.url, siteUrl);
-    const product = entities.find((entity) => entity["@type"] === "Product");
-    check(product, route, "Product JSON-LD entity");
-    check(
-      product.name === routeExpectation.artwork.title,
-      route,
-      "Product JSON-LD name",
-      `expected "${routeExpectation.artwork.title}"`,
+    const nestedEntities = entities.flatMap(nestedStructuredDataRecords);
+    const forbiddenCommerceEntity = nestedEntities.find((entity) =>
+      structuredDataTypes(entity).some((type) => type === "Product" || type === "Offer"),
     );
     check(
-      product.description === routeExpectation.artwork.description,
+      !forbiddenCommerceEntity,
       route,
-      "Product JSON-LD description",
-      `expected "${routeExpectation.artwork.description}"`,
+      "live inventory structured data",
+      "static catalog data must not emit Product or Offer entities",
     );
-    check(product.sku === routeExpectation.artwork.slug, route, "Product JSON-LD SKU");
-    check(product.url === canonical, route, "Product JSON-LD URL", `expected ${canonical}`);
+    check(
+      !nestedEntities.some(
+        (entity) =>
+          "offers" in entity ||
+          (typeof entity.availability === "string" &&
+            entity.availability.startsWith("https://schema.org/")),
+      ),
+      route,
+      "live inventory Offer data",
+      "static catalog data must not emit offers or stock availability",
+    );
+    check(
+      /<dt>Availability<\/dt><dd>Confirmed at checkout<\/dd>/.test(html),
+      route,
+      "visible checkout availability",
+      'expected "Confirmed at checkout"',
+    );
 
     const image = entities.find((entity) => entity["@type"] === "ImageObject");
     check(image, route, "ImageObject JSON-LD entity");
@@ -891,7 +965,7 @@ async function main() {
           : publicRoute === "/faq"
             ? ["Organization", "WebSite", "FAQPage"]
             : publicRoute.startsWith("/product/")
-              ? ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "Product"]
+              ? ["Organization", "WebSite", "ImageObject", "BreadcrumbList", "WebPage"]
               : ["Organization", "WebSite", "WebPage"];
       const artwork = publicRoute.startsWith("/product/")
         ? publicCatalog.find(

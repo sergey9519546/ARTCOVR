@@ -36,6 +36,7 @@ export type StaticArtwork = {
 
 type RenderContext = {
   artworks: readonly StaticArtwork[];
+  homepageArtworks?: readonly StaticArtwork[];
   siteUrl: string;
   metadata: RouteMetadata;
   getGenres: (artwork: StaticArtwork) => readonly string[];
@@ -175,8 +176,14 @@ function pageLayout(content: string) {
   return `${siteHeader()}${content}${siteFooter()}`;
 }
 
-function renderHome({ artworks }: RenderContext) {
-  const featured = artworks.slice(0, 12);
+function homepageCollection(context: RenderContext) {
+  return context.homepageArtworks ??
+    context.artworks.filter((artwork) => artwork.tier !== "archive").slice(0, 12);
+}
+
+function renderHome(context: RenderContext) {
+  const { artworks } = context;
+  const featured = homepageCollection(context);
   const cards = featured
     .map(
       (artwork) => `<li>
@@ -349,7 +356,7 @@ function renderProduct({ artworks, metadata, getGenres }: RenderContext) {
       <p>${escapeHtml(license)}</p>
       <p>${escapeHtml(artwork.description)}</p>
       <dl>
-        <div><dt>Availability</dt><dd>${artwork.priceCents !== null ? "Available" : "Pending"}</dd></div>
+        <div><dt>Availability</dt><dd>${artwork.priceCents !== null ? "Confirmed at checkout" : "Pending"}</dd></div>
         <div><dt>License</dt><dd>${escapeHtml(license)}</dd></div>
         <div><dt>Category</dt><dd>${escapeHtml(artwork.category)}</dd></div>
       </dl>
@@ -484,9 +491,10 @@ function renderNotFound() {
   return pageLayout(`<main id="main"><h1>Page not found.</h1><p>The requested ARTCOVR page could not be found.</p><p>${link("/archive", "Browse the cover art archive")}</p></main>`);
 }
 
-function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: RenderContext) {
+function structuredDataForRoute(context: RenderContext) {
+  const { artworks, siteUrl, metadata, getGenres } = context;
   if (metadata.path === "/") {
-    const featured = artworks.filter((artwork) => artwork.tier !== "archive");
+    const featured = homepageCollection(context);
     const organization = buildOrganizationStructuredData(siteUrl);
     const gallery = buildArtworkCollectionStructuredData(featured, siteUrl, {
       path: "/",
@@ -616,14 +624,14 @@ function structuredDataForRoute({ artworks, siteUrl, metadata, getGenres }: Rend
           siteUrl,
         ),
         {
-          "@type": ["ProductPage", "WebPage"],
+          "@type": "WebPage",
           "@id": `${productUrl}#webpage`,
           url: productUrl,
           name: metadata.title,
           description: metadata.description,
           isPartOf: { "@id": `${siteUrl}#website` },
           breadcrumb: { "@id": `${productUrl}#breadcrumb` },
-          mainEntity: { "@id": `${productUrl}#product` },
+          mainEntity: { "@id": `${productUrl}#artwork` },
           primaryImageOfPage: { "@id": `${productUrl}#artwork` },
         },
       );

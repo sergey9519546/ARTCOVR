@@ -199,45 +199,9 @@ export function buildArtworkStructuredData(
       { "@type": "ListItem", position: 2, name: artwork.title, item: productUrl },
     ],
   };
-  const canPurchase =
-    artwork.published && artwork.rightsApproved && artwork.priceCents !== null;
-  const product = canPurchase
-    ? {
-        "@type": "Product",
-        "@id": `${productUrl}#product`,
-        name: artwork.title,
-        description: artwork.description,
-        image: { "@id": `${productUrl}#artwork` },
-        url: productUrl,
-         ...(artwork.genres?.length
-           ? { category: artwork.genres.join(", ") }
-           : artwork.category
-             ? { category: artwork.category }
-             : {}),
-         sku: artwork.slug,
-         brand: { "@id": `${siteUrl}#organization` },
-         ...(artwork.genres?.length || artwork.moodTags?.length
-           ? {
-               keywords: [...(artwork.genres ?? []), ...(artwork.moodTags ?? [])].join(", "),
-             }
-           : {}),
-        offers: {
-          "@type": "Offer",
-          url: productUrl,
-          priceCurrency: "USD",
-          price: (artwork.priceCents! / 100).toFixed(2),
-          availability: "https://schema.org/InStock",
-          seller: { "@id": `${siteUrl}#organization` },
-          ...(artwork.saleMode
-            ? { description: artwork.saleMode === "exclusive" ? "Exclusive commercial license" : "Non-exclusive commercial license" }
-            : {}),
-        },
-      }
-    : null;
-
   return {
     "@context": "https://schema.org",
-    "@graph": [imageObject, breadcrumb, ...(product ? [product] : [])],
+    "@graph": [imageObject, breadcrumb],
   };
 }
 

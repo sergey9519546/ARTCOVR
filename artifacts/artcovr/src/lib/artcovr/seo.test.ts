@@ -43,16 +43,18 @@ describe("artwork image structured data", () => {
     assert.match(image.keywords, /Ambient, Abstract, quiet, nocturnal/);
   });
 
-  test("links product and collection entities to canonical image objects", () => {
-    const product = buildArtworkStructuredData(artwork, "https://example.com");
+  test("links artwork pages and collections to canonical image objects", () => {
+    const artworkPage = buildArtworkStructuredData(artwork, "https://example.com");
     const collection = buildArtworkCollectionStructuredData(
       [artwork],
       "https://example.com",
     );
 
-    assert.deepEqual(product["@graph"][2]?.image, {
-      "@id": "https://example.com/product/blue-hour#artwork",
-    });
+    assert.equal(artworkPage["@graph"][0]?.["@id"], "https://example.com/product/blue-hour#artwork");
+    assert.equal(
+      artworkPage["@graph"].some((entity) => entity["@type"] === "Product" || "offers" in entity),
+      false,
+    );
     assert.deepEqual(collection["@graph"][0]?.associatedMedia, [
       { "@id": "https://example.com/product/blue-hour#artwork" },
     ]);

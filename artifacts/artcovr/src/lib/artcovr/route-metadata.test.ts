@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import { displayArtworks } from "./artworks.ts";
+import { displayArtworks, featuredArtworks } from "./artworks.ts";
 import {
   getIndexableRoutePaths,
   getPrerenderedRoutePaths,
@@ -142,5 +142,51 @@ describe("route metadata", () => {
       );
       assert.doesNotMatch(rendered.bodyHtml, /fetchpriority="high"/i);
     }
+  });
+
+  test("keeps homepage links and ItemList on the same featured subset", () => {
+    const homepageArtworks = featuredArtworks.slice(0, 12);
+    const rendered = renderStaticRoute({
+      artworks: displayArtworks,
+      homepageArtworks,
+      siteUrl: "https://artcovr.com",
+      metadata: getRouteMetadata("/", displayArtworks),
+      getGenres: (artwork) => [artwork.category],
+    });
+    const jsonLd = JSON.parse(
+      rendered.structuredDataHtml
+        .replace(/^<script[^>]*>/, "")
+        .replace(/<\/script>$/, ""),
+    );
+    const collection = jsonLd["@graph"].find(
+      (entity: { "@id"?: string }) => entity["@id"] === "https://artcovr.com/#collection",
+    );
+    const schemaUrls = collection.mainEntity.itemListElement.map(
+      (item: { url: string }) => item.url,
+    );
+    const expectedUrls = homepageArtworks.map(
+      (artwork) => `https://artcovr.com/product/${artwork.slug}`,
+    );
+
+    assert.deepEqual(schemaUrls, expectedUrls);
+    for (const artwork of homepageArtworks) {
+      assert.match(rendered.bodyHtml, new RegExp(`href="/product/${artwork.slug}"`));
+    }
+    assert.equal(homepageArtworks.some((artwork) => artwork.tier === "archive"), false);
+  });
+
+  test("does not claim live product availability from the static catalog", () => {
+    const artwork = displayArtworks.find((candidate) => candidate.priceCents !== null);
+    assert.ok(artwork);
+    const rendered = renderStaticRoute({
+      artworks: displayArtworks,
+      siteUrl: "https://artcovr.com",
+      metadata: getRouteMetadata(`/product/${artwork.slug}`, displayArtworks),
+      getGenres: (candidate) => [candidate.category],
+    });
+
+    assert.match(rendered.bodyHtml, /<dt>Availability<\/dt><dd>Confirmed at checkout<\/dd>/);
+    assert.doesNotMatch(rendered.structuredDataHtml, /"@type":"Product"/);
+    assert.doesNotMatch(rendered.structuredDataHtml, /"offers"|"InStock"/);
   });
 });

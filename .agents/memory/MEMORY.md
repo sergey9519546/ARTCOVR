@@ -37,3 +37,4 @@
 - [Mockup graduation contracts](mockup-graduation-contracts.md) — preserve existing facet hooks and accessible names when replacing a live control with a visual prototype.
 - [MPP optional peer bundling](mpp-optional-peer-bundling.md) — HTTP-only mppx builds must externalize its optional MCP SDK peer.
 - [MPP payment hook placement](mppx-payment-hooks.md) — attach awaited fulfillment to the configured method descriptor; Stripe webhooks own durable release and revocation.
+- [Live inventory structured data](live-inventory-structured-data.md) — omit Product/Offer schema when page generation cannot read current reservation and sold state.
