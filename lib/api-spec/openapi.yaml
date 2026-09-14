@@ -40,6 +40,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /diagnostics:
+    get:
+      operationId: releaseDiagnostics
+      tags: [health]
+      summary: Release diagnostics
+      description: >
+        Returns aggregate, privacy-safe readiness information for optional
+        agent commerce. A disabled or unavailable agent payment configuration
+        does not make the storefront health check fail.
+      responses:
+        "200":
+          description: Aggregate release diagnostics.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseDiagnostics"
         "503":
           description: API is running but its database is not ready.
           content:
@@ -695,6 +712,65 @@ components:
         status:
           type: string
       required: [status]
+
+    ReleaseDiagnostics:
+      type: object
+      properties:
+        status:
+          type: string
+          const: ok
+        agentCommerce:
+          $ref: "#/components/schemas/AgentCommerceDiagnostics"
+      required: [status, agentCommerce]
+
+    AgentCommerceDiagnostics:
+      type: object
+      properties:
+        state:
+          type: string
+          enum: [disabled, misconfigured, unavailable, ready]
+        reason:
+          type: string
+        enabled:
+          type: boolean
+        priceSource:
+          type: string
+          const: catalog
+        priceOverrideConfigured:
+          type: boolean
+        stripeMode:
+          type: string
+          enum: [test, live, unknown]
+        credentialSource:
+          type: string
+          enum: [explicit, connected, unavailable]
+        operational:
+          $ref: "#/components/schemas/AgentMppOperationalSummary"
+      required:
+        - state
+        - reason
+        - enabled
+        - priceSource
+        - priceOverrideConfigured
+        - stripeMode
+        - credentialSource
+        - operational
+
+    AgentMppOperationalSummary:
+      type: object
+      properties:
+        counts:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+        pendingRefunds:
+          type: integer
+          minimum: 0
+        lastEventAt:
+          type: [string, "null"]
+          format: date-time
+      required: [counts, pendingRefunds, lastEventAt]
 
     CheckoutRequest:
       type: object

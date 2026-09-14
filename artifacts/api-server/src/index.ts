@@ -8,6 +8,7 @@ import { seedStripeCatalog } from "./catalogSeeder";
 import { validateProductionEnvironment } from "./runtimeConfig";
 import { pool } from "@workspace/db";
 import { assertProductionSchemaReady } from "./schemaReadiness";
+import { getAgentMppReadiness } from "./agentMpp";
 
 declare const __ARTCOVR_REQUIRED_MIGRATIONS__: unknown;
 
@@ -59,6 +60,25 @@ async function startServer() {
     }
 
     logger.info({ port }, "Server listening");
+
+    void getAgentMppReadiness()
+      .then((readiness) => {
+        const log = readiness.state === "ready" ? logger.info.bind(logger) : logger.warn.bind(logger);
+        log(
+          {
+            agentCommerceState: readiness.state,
+            agentCommerceReason: readiness.reason,
+            stripeMode: readiness.stripeMode,
+          },
+          "Optional agent commerce readiness evaluated",
+        );
+      })
+      .catch(() => {
+        logger.warn(
+          { agentCommerceState: "unavailable", agentCommerceReason: "readiness_check_failed" },
+          "Optional agent commerce readiness could not be evaluated",
+        );
+      });
   });
 
   void initStripe().catch((error) => {

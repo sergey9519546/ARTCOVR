@@ -41,6 +41,7 @@ import type {
   OwnerCatalogIntelligenceAccess,
   OwnerSalesReport,
   ReferenceUploadResponse,
+  ReleaseDiagnostics,
   UploadReferenceParams
 } from './api.schemas';
 
@@ -105,7 +106,7 @@ export const getHealthCheckQueryKey = () => {
     }
 
 
-export const getHealthCheckQueryOptions = <TData = Awaited<ReturnType<typeof healthCheck>>, TError = ErrorType<HealthStatus>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof healthCheck>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getHealthCheckQueryOptions = <TData = Awaited<ReturnType<typeof healthCheck>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof healthCheck>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -124,19 +125,97 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type HealthCheckQueryResult = NonNullable<Awaited<ReturnType<typeof healthCheck>>>
-export type HealthCheckQueryError = ErrorType<HealthStatus>
+export type HealthCheckQueryError = ErrorType<unknown>
 
 
 /**
  * @summary Health check
  */
 
-export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, TError = ErrorType<HealthStatus>>(
+export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, TError = ErrorType<unknown>>(
   options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof healthCheck>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getHealthCheckQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getReleaseDiagnosticsUrl = () => {
+
+
+
+
+  return `/api/diagnostics`
+}
+
+/**
+ * Returns aggregate, privacy-safe readiness information for optional agent commerce. A disabled or unavailable agent payment configuration does not make the storefront health check fail.
+ * @summary Release diagnostics
+ */
+export const releaseDiagnostics = async ( options?: Parameters<typeof customFetch>[1]): Promise<ReleaseDiagnostics> => {
+
+  return customFetch<ReleaseDiagnostics>(getReleaseDiagnosticsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getReleaseDiagnosticsQueryKey = () => {
+    return [
+    `/api/diagnostics`
+    ] as const;
+    }
+
+
+export const getReleaseDiagnosticsQueryOptions = <TData = Awaited<ReturnType<typeof releaseDiagnostics>>, TError = ErrorType<HealthStatus>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof releaseDiagnostics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getReleaseDiagnosticsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof releaseDiagnostics>>> = ({ signal }) => releaseDiagnostics({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof releaseDiagnostics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ReleaseDiagnosticsQueryResult = NonNullable<Awaited<ReturnType<typeof releaseDiagnostics>>>
+export type ReleaseDiagnosticsQueryError = ErrorType<HealthStatus>
+
+
+/**
+ * @summary Release diagnostics
+ */
+
+export function useReleaseDiagnostics<TData = Awaited<ReturnType<typeof releaseDiagnostics>>, TError = ErrorType<HealthStatus>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof releaseDiagnostics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getReleaseDiagnosticsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

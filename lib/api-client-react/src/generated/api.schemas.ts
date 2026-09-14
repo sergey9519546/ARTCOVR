@@ -14,6 +14,60 @@ export interface HealthStatus {
   status: string;
 }
 
+export type AgentCommerceDiagnosticsState = typeof AgentCommerceDiagnosticsState[keyof typeof AgentCommerceDiagnosticsState];
+
+
+export const AgentCommerceDiagnosticsState = {
+  disabled: 'disabled',
+  misconfigured: 'misconfigured',
+  unavailable: 'unavailable',
+  ready: 'ready',
+} as const;
+
+export type AgentCommerceDiagnosticsStripeMode = typeof AgentCommerceDiagnosticsStripeMode[keyof typeof AgentCommerceDiagnosticsStripeMode];
+
+
+export const AgentCommerceDiagnosticsStripeMode = {
+  test: 'test',
+  live: 'live',
+  unknown: 'unknown',
+} as const;
+
+export type AgentCommerceDiagnosticsCredentialSource = typeof AgentCommerceDiagnosticsCredentialSource[keyof typeof AgentCommerceDiagnosticsCredentialSource];
+
+
+export const AgentCommerceDiagnosticsCredentialSource = {
+  explicit: 'explicit',
+  connected: 'connected',
+  unavailable: 'unavailable',
+} as const;
+
+export type AgentMppOperationalSummaryCounts = {[key: string]: number};
+
+export interface AgentMppOperationalSummary {
+  counts: AgentMppOperationalSummaryCounts;
+  /** @minimum 0 */
+  pendingRefunds: number;
+  /** @nullable */
+  lastEventAt: string | null;
+}
+
+export interface AgentCommerceDiagnostics {
+  state: AgentCommerceDiagnosticsState;
+  reason: string;
+  enabled: boolean;
+  priceSource: 'catalog';
+  priceOverrideConfigured: boolean;
+  stripeMode: AgentCommerceDiagnosticsStripeMode;
+  credentialSource: AgentCommerceDiagnosticsCredentialSource;
+  operational: AgentMppOperationalSummary;
+}
+
+export interface ReleaseDiagnostics {
+  status: 'ok';
+  agentCommerce: AgentCommerceDiagnostics;
+}
+
 export interface CheckoutRequest {
   /**
      * @minLength 1

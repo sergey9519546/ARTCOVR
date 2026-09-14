@@ -18,6 +18,35 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * Returns aggregate, privacy-safe readiness information for optional agent commerce. A disabled or unavailable agent payment configuration does not make the storefront health check fail.
+ * @summary Release diagnostics
+ */
+export const releaseDiagnosticsResponseAgentCommerceOperationalCountsMinOne = 0;
+
+export const releaseDiagnosticsResponseAgentCommerceOperationalPendingRefundsMin = 0;
+
+
+
+export const ReleaseDiagnosticsResponse = zod.object({
+  "status": zod.literal("ok"),
+  "agentCommerce": zod.object({
+  "state": zod.enum(['disabled', 'misconfigured', 'unavailable', 'ready']),
+  "reason": zod.string(),
+  "enabled": zod.boolean(),
+  "priceSource": zod.literal("catalog"),
+  "priceOverrideConfigured": zod.boolean(),
+  "stripeMode": zod.enum(['test', 'live', 'unknown']),
+  "credentialSource": zod.enum(['explicit', 'connected', 'unavailable']),
+  "operational": zod.object({
+  "counts": zod.record(zod.string(), zod.number().int().min(releaseDiagnosticsResponseAgentCommerceOperationalCountsMinOne)),
+  "pendingRefunds": zod.number().int().min(releaseDiagnosticsResponseAgentCommerceOperationalPendingRefundsMin),
+  "lastEventAt": zod.coerce.date().nullable()
+})
+})
+})
+
+
+/**
  * Starts or resumes a Stripe checkout for one published artwork. Signed-in customers may omit email; guests must provide an email address for their receipt and for later purchase claiming after they create an account.
  * @summary Start a checkout
  */

@@ -76,6 +76,23 @@ try {
   const health = await check("API health", new URL("/api/healthz", apiBase));
   if (!/"status"\s*:\s*"ok"/.test(health.body)) throw new Error("API health did not report status ok");
 
+  const diagnostics = await check("API release diagnostics", new URL("/api/diagnostics", apiBase));
+  let diagnosticsBody;
+  try {
+    diagnosticsBody = JSON.parse(diagnostics.body);
+  } catch {
+    throw new Error("API release diagnostics did not return JSON");
+  }
+  const agentCommerce = diagnosticsBody?.agentCommerce;
+  if (
+    diagnosticsBody?.status !== "ok" ||
+    !["disabled", "misconfigured", "unavailable", "ready"].includes(agentCommerce?.state) ||
+    typeof agentCommerce?.enabled !== "boolean" ||
+    typeof agentCommerce?.operational?.pendingRefunds !== "number"
+  ) {
+    throw new Error("API release diagnostics returned an invalid aggregate agent-commerce state");
+  }
+
   const missingSignature = await fetch(new URL("/api/stripe/webhook", apiBase), {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -93,7 +110,7 @@ try {
   });
   if (invalidSignature.status !== 400) throw new Error(`webhook invalid-signature probe returned HTTP ${invalidSignature.status}`);
 
-  console.log("Live release smoke OK: storefront routes, metadata, database-backed API health, and webhook rejection path.");
+  console.log("Live release smoke OK: storefront routes, metadata, database-backed API health, aggregate MPP diagnostics, and webhook rejection path.");
 } catch (error) {
   const outputDirectory = process.env.ARTCOVR_RELEASE_DIAGNOSTICS_DIR || "/tmp/artcovr-release-diagnostics";
   await mkdir(outputDirectory, { recursive: true });

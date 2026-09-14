@@ -31,9 +31,20 @@ ARTCOVR is a curated cover-art catalog and storefront with commercial licensing 
 - Optional agent commerce uses Stripe MPP at
   `/api/agent/artworks/{slug}/image`. Set the Stripe Business Profile ID in
   `STRIPE_PROFILE_ID`; the route uses the connected Stripe secret and charges
-  each artwork's catalog license price. `ARTCOVR_AGENT_IMAGE_PRICE_USD` is
-  available only as an explicit per-environment override and must be at least
-  `$0.50`.
+  each artwork's catalog license price. `ARTCOVR_AGENT_COMMERCE_ENABLED=false`
+  disables the optional route. `ARTCOVR_AGENT_IMAGE_PRICE_USD` is available
+  only for non-production controlled tests, must be at least `$0.50`, and can
+  never underprice the catalog license. Production always uses catalog pricing.
+- `/api/diagnostics` reports aggregate, privacy-safe agent-commerce readiness
+  (`disabled`, `misconfigured`, `unavailable`, or `ready`) and lifecycle
+  counters. It never returns Stripe credentials, payer identity, object keys,
+  payment IDs, or signed URLs. `/api/healthz` remains the storefront/API
+  database readiness check and is not degraded by optional MPP configuration.
+- Deterministic MPP readiness and pricing tests run with the API test suite.
+  The only live MPP check is opt-in: set
+  `ARTCOVR_RUN_STRIPE_MPP_E2E=1`, an explicit `STRIPE_PROFILE_ID`, and a
+  `STRIPE_SECRET_KEY` beginning with `sk_test_`; provide a test artwork slug
+  through that test's configuration. Never use live Stripe credentials.
 
 ## Stack
 

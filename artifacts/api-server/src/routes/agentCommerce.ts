@@ -8,6 +8,7 @@ import {
   type AgentPaymentFulfillment,
 } from "../commerceService";
 import { refundPaymentIntent } from "../stripeClient";
+import { recordAgentMppEvent } from "../analyticsService";
 
 const router: IRouter = Router();
 
@@ -23,6 +24,30 @@ function toWebRequest(req: Request) {
     method: req.method,
     headers,
   });
+}
+
+function paymentFailureReason(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+  if (
+    message.includes("disabled") ||
+    message.includes("configuration") ||
+    message.includes("required") ||
+    message.includes("invalid")
+  ) {
+    return "configuration_invalid" as const;
+  }
+  if (message.includes("stripe") || message.includes("credential")) {
+    return "stripe_verification_failed" as const;
+  }
+  if (
+    message.includes("replay") ||
+    message.includes("nonce") ||
+    message.includes("already used") ||
+    message.includes("receipt")
+  ) {
+    return "replay_rejected" as const;
+  }
+  return "payment_or_delivery_failure" as const;
 }
 
 async function sendWebResponse(
@@ -49,7 +74,11 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
   try {
     price = agentImagePriceUsd(artwork.priceCents ?? 0);
   } catch (error) {
-    req.log.error({ err: error }, "Agent image price configuration is invalid");
+    recordAgentMppEvent("payment_failed", { reason: "configuration_invalid" });
+    req.log.error(
+      { failure: "configuration_invalid" },
+      "Agent image price configuration is invalid",
+    );
     res.status(503).json({
       code: "agent_payments_unavailable",
       message: "Agent image payments are temporarily unavailable.",
@@ -60,6 +89,7 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
   try {
     let fulfillment: AgentPaymentFulfillment | null = null;
     let licensedOriginal: Uint8Array | null = null;
+    let paymentVerified = false;
     const mpp = await createAgentMpp({
       onPaymentSuccess: async (context) => {
         const requestMetadata = {
@@ -71,14 +101,23 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
           requestMetadata.artwork_id !== artwork.id ||
           requestMetadata.artwork_slug !== artwork.slug
         ) {
+          recordAgentMppEvent("payment_failed", { reason: "metadata_mismatch" });
           throw new Error("Agent payment metadata did not match the requested artwork.");
         }
 
+        paymentVerified = true;
+        recordAgentMppEvent("payment_verified");
+        let deliveryFailureReason = "fulfillment_failed";
         try {
           // Load the protected original only after MPP has verified payment.
           // A missing original throws here, before fulfillment can complete,
           // and the existing failure path refunds the payment.
-          licensedOriginal = await downloadBaseObject(artwork.id);
+          try {
+            licensedOriginal = await downloadBaseObject(artwork.id);
+          } catch (error) {
+            deliveryFailureReason = "protected_media_unavailable";
+            throw error;
+          }
           fulfillment = await fulfillAgentPayment({
             paymentIntentId: context.receipt.reference,
             artworkId: artwork.id,
@@ -87,7 +126,7 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
             saleMode: artwork.saleMode!,
             currency: context.request.currency,
           });
-        } catch (error) {
+        } catch {
           if (/^pi_[A-Za-z0-9_]+$/.test(context.receipt.reference)) {
             try {
               await refundPaymentIntent(
@@ -97,17 +136,23 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
                 },
                 `agent-fulfillment-failure:${context.receipt.reference}`,
               );
+              recordAgentMppEvent("refund_completed");
             } catch (refundError) {
+              recordAgentMppEvent("refund_pending", {
+                reason: "automatic_refund_failed",
+              });
               req.log.error(
                 {
-                  err: refundError,
-                  paymentIntentId: context.receipt.reference,
+                  failure: "automatic_refund_failed",
                 },
                 "Agent payment fulfillment failed and automatic refund failed",
               );
             }
           }
-          throw error;
+          recordAgentMppEvent("delivery_failed", {
+            reason: deliveryFailureReason,
+          });
+          throw new Error("Agent image delivery failed after payment verification.");
         }
       },
     });
@@ -132,6 +177,7 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
     })(toWebRequest(req));
 
     if (payment.status === 402) {
+      recordAgentMppEvent("challenge_issued");
       await sendWebResponse(payment.challenge, res);
       return;
     }
@@ -139,9 +185,10 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
     const completedFulfillment = fulfillment as AgentPaymentFulfillment | null;
     if (!completedFulfillment) {
       req.log.error(
-        { artworkId: artwork.id, artworkSlug: artwork.slug },
+        { failure: "fulfillment_missing" },
         "Agent payment completed without ARTCOVR fulfillment",
       );
+      recordAgentMppEvent("delivery_failed", { reason: "fulfillment_missing" });
       res.status(503).json({
         code: "agent_payment_unavailable",
         message: "The paid agent image is temporarily unavailable.",
@@ -150,6 +197,7 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
     }
 
     if (!completedFulfillment.deliver) {
+      recordAgentMppEvent("delivery_failed", { reason: "exclusive_conflict" });
       res.status(409).json({
         code: "artwork_unavailable",
         message: "That exclusive cover has already been sold.",
@@ -174,11 +222,17 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
       }),
     );
     await sendWebResponse(response, res);
+    recordAgentMppEvent("delivery_succeeded");
   } catch (error) {
-    req.log.error(
-      { err: error, artworkId: artwork.id, artworkSlug: artwork.slug },
-      "Agent image payment or delivery failed",
-    );
+    const reason = paymentFailureReason(error);
+    if (reason === "replay_rejected") {
+      recordAgentMppEvent("replay_rejected");
+    } else if (!/delivery failed after payment verification/i.test(
+      error instanceof Error ? error.message : "",
+    )) {
+      recordAgentMppEvent("payment_failed", { reason });
+    }
+    req.log.error({ failure: reason }, "Agent image payment or delivery failed");
     res.status(503).json({
       code: "agent_image_unavailable",
       message: "The paid agent image is temporarily unavailable.",
