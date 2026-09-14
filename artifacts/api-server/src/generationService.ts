@@ -417,7 +417,7 @@ export async function admitGeneration(
     // Validate the mandatory canvas before consuming a photo or allowance.
     try {
       if (!sourceKey)
-        sourceKey = await io.ensureBaseObject(artwork.id, artwork.slug);
+        sourceKey = await io.ensureBaseObject(artwork.id);
       if (!(await io.downloadPrivate(sourceKey)).length)
         throw new Error("Empty source");
     } catch {
@@ -905,7 +905,7 @@ export async function serializeAccount(
         {
           kind: "base" as const,
           generationId: null,
-          resolveKey: () => io.ensureBaseObject(artwork.id, artwork.slug),
+          resolveKey: () => io.ensureBaseObject(artwork.id),
         },
         ...(selected?.cleanObjectKey
           ? [

@@ -1,8 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { getPublicArtworkBySlug } from "../catalog";
 import { createAgentMpp, agentImagePriceUsd } from "../agentMpp";
-import { ensureBaseObject } from "../lib/imagePipeline";
-import { downloadPrivate } from "../lib/mediaStorage";
+import { downloadBaseObject } from "../lib/imagePipeline";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
 import {
   fulfillAgentPayment,
@@ -60,6 +59,7 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
 
   try {
     let fulfillment: AgentPaymentFulfillment | null = null;
+    let licensedOriginal: Uint8Array | null = null;
     const mpp = await createAgentMpp({
       onPaymentSuccess: async (context) => {
         const requestMetadata = {
@@ -75,6 +75,10 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
         }
 
         try {
+          // Load the protected original only after MPP has verified payment.
+          // A missing original throws here, before fulfillment can complete,
+          // and the existing failure path refunds the payment.
+          licensedOriginal = await downloadBaseObject(artwork.id);
           fulfillment = await fulfillAgentPayment({
             paymentIntentId: context.receipt.reference,
             artworkId: artwork.id,
@@ -153,8 +157,10 @@ router.get("/agent/artworks/:slug/image", async (req, res): Promise<void> => {
       return;
     }
 
-    const objectKey = await ensureBaseObject(artwork.id, artwork.slug);
-    const bytes = await downloadPrivate(objectKey);
+    const bytes = licensedOriginal as Uint8Array | null;
+    if (!bytes) {
+      throw new Error("The protected artwork original was not loaded.");
+    }
     const response = payment.withReceipt(
       new Response(bytes, {
         status: 200,

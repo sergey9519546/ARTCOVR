@@ -4,7 +4,7 @@ import {
   editImageWithMetadata,
   type ImageEditClient,
 } from "@workspace/integrations-openai-ai-server/image";
-import { downloadPrivate, uploadPrivate } from "./mediaStorage";
+import { downloadPrivate } from "./mediaStorage";
 
 export const acceptedImageTypes = new Set([
   "image/jpeg",
@@ -95,34 +95,44 @@ export async function inspectReference(
   };
 }
 
-export async function ensureBaseObject(artworkId: string, slug: string) {
-  const key = `artworks/base/${artworkId}.jpg`;
-  try {
-    await downloadPrivate(key);
-  } catch {
-    const { readFile } = await import("node:fs/promises");
-    // Source is src/lib/imagePipeline.ts; the deployed bundle is dist/index.mjs.
-    // Resolve relative to the module so starting from the workspace root is safe.
-    let bytes: Buffer;
-    try {
-      bytes = await readFile(
-        new URL(
-          `../../../artcovr/public/assets/artworks/${slug}.jpg`,
-          import.meta.url,
-        ),
-      );
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-      bytes = await readFile(
-        new URL(
-          `../../artcovr/public/assets/artworks/${slug}.jpg`,
-          import.meta.url,
-        ),
-      );
-    }
-    await uploadPrivate(key, new Uint8Array(bytes), "image/jpeg");
+export function protectedBaseObjectKey(artworkId: string) {
+  return `artworks/base/${artworkId}.jpg`;
+}
+
+type PrivateObjectReader = (key: string) => Promise<Uint8Array>;
+
+/**
+ * Read the licensed original from private storage.
+ *
+ * The public catalog image is a preview derivative only. It must never be
+ * promoted into private storage because doing so would make a public asset
+ * URL an equivalent source for paid delivery.
+ */
+export async function downloadBaseObject(
+  artworkId: string,
+  read: PrivateObjectReader = downloadPrivate,
+) {
+  const bytes = await read(protectedBaseObjectKey(artworkId));
+  if (!bytes.length) {
+    throw new ImagePipelineError(
+      "base_artwork_unavailable",
+      "The protected artwork original is empty.",
+    );
   }
-  return key;
+  return bytes;
+}
+
+/**
+ * Verify that the protected original exists and return its server-owned key.
+ * The key is used internally for generation and entitled account downloads;
+ * it is never a public catalog or API field.
+ */
+export async function ensureBaseObject(
+  artworkId: string,
+  read: PrivateObjectReader = downloadPrivate,
+) {
+  await downloadBaseObject(artworkId, read);
+  return protectedBaseObjectKey(artworkId);
 }
 
 export async function createImageEditResult(
