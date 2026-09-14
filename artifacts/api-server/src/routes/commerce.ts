@@ -23,6 +23,10 @@ import {
 } from "../stripeClient";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
 import { recordFunnelEvent } from "../salesReport";
+import {
+  CheckoutAdmissionLimiter,
+  type CheckoutAdmissionResult,
+} from "../checkoutAdmission";
 
 const router: IRouter = Router();
 const checkoutBody = z.object({
@@ -48,6 +52,7 @@ type CheckoutRouteDependencies = {
   getStripePriceForArtwork: typeof getStripePriceForArtwork;
   createCheckoutSession: typeof createCheckoutSession;
   retrieveCheckoutSession: typeof retrieveCheckoutSession;
+  checkoutAdmission: CheckoutAdmissionLimiter;
   logCheckoutFailure: (
     details: CheckoutFailureDetails,
     message: string,
@@ -58,6 +63,7 @@ const defaultCheckoutRouteDependencies: CheckoutRouteDependencies = {
   getStripePriceForArtwork,
   createCheckoutSession,
   retrieveCheckoutSession,
+  checkoutAdmission: new CheckoutAdmissionLimiter(),
   logCheckoutFailure: (details, message) => logger.error(details, message),
 };
 
@@ -209,6 +215,21 @@ export function createCheckoutHandler(
     res.status(409).json({
       code: "checkout_in_progress",
       message: "That checkout is still being prepared. Try again in a moment.",
+    });
+    return;
+  }
+
+  const admissionKeys = [
+    `ip:${req.ip || req.socket.remoteAddress || "unknown"}`,
+    clerkUserId ? `clerk:${clerkUserId}` : `email:${customerEmail}`,
+  ];
+  const admission: CheckoutAdmissionResult =
+    dependencies.checkoutAdmission.admit(admissionKeys);
+  if (!admission.allowed) {
+    res.set("Retry-After", String(admission.retryAfterSeconds));
+    res.status(429).json({
+      code: "checkout_rate_limited",
+      message: "Too many new checkout attempts. Try again later.",
     });
     return;
   }

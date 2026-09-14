@@ -48,6 +48,10 @@ export async function fulfillCheckoutSession(
   event: Stripe.Event,
   dependencies: FulfillmentDependencies = fulfillmentDependencies,
 ): Promise<void> {
+  if (event.type === "checkout.session.expired") {
+    await expireCheckoutSession(event, dependencies.expectedLivemode ?? expectedStripeLivemode());
+    return;
+  }
   if (event.type === "charge.refunded") {
     await revokeRefundedCharge(event, dependencies.expectedLivemode ?? expectedStripeLivemode());
     return;
@@ -239,6 +243,69 @@ export async function fulfillCheckoutSession(
     await tx
       .update(artcovrWebhookEvents)
       .set({ status: paid ? "processed" : "received", processedAt: new Date() })
+      .where(eq(artcovrWebhookEvents.id, event.id));
+  });
+}
+
+async function expireCheckoutSession(event: Stripe.Event, expectedLivemode: boolean) {
+  const session = event.data.object as Stripe.Checkout.Session;
+
+  await db.transaction(async (tx) => {
+    const [received] = await tx
+      .insert(artcovrWebhookEvents)
+      .values({ id: event.id, type: event.type, status: "received" })
+      .onConflictDoNothing()
+      .returning({ id: artcovrWebhookEvents.id });
+
+    if (!received) return;
+
+    const [order] = await tx
+      .select()
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.stripeCheckoutSessionId, session.id))
+      .limit(1);
+
+    if (!order) {
+      throw new Error(`No ARTCOVR order found for expired Stripe session ${session.id}`);
+    }
+
+    const modeMismatch =
+      event.livemode !== expectedLivemode ||
+      session.livemode !== expectedLivemode;
+    if (modeMismatch) {
+      await tx
+        .update(artcovrWebhookEvents)
+        .set({ status: "rejected", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+
+      logger.error(
+        {
+          diagnosis: stripeWebhookModeMismatchDiagnosis,
+          orderId: order.id,
+          stripeCheckoutSessionId: session.id,
+          stripeEventId: event.id,
+          expectedLivemode,
+          eventLivemode: event.livemode,
+          sessionLivemode: session.livemode,
+        },
+        "ARTCOVR rejected expired Stripe webhook from the wrong account mode",
+      );
+      return;
+    }
+
+    await tx
+      .update(artcovrOrders)
+      .set({ status: "expired" })
+      .where(
+        and(
+          eq(artcovrOrders.id, order.id),
+          eq(artcovrOrders.status, "reserved"),
+        ),
+      );
+
+    await tx
+      .update(artcovrWebhookEvents)
+      .set({ status: "processed", processedAt: new Date() })
       .where(eq(artcovrWebhookEvents.id, event.id));
   });
 }

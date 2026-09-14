@@ -24,6 +24,7 @@ import {
 } from "./routes/commerce";
 import { getPublicCatalog } from "./catalog";
 import { StripeCheckoutModeError } from "./stripeClient";
+import { CheckoutAdmissionLimiter } from "./checkoutAdmission";
 
 function orderValues(input: {
   id: string;
@@ -322,6 +323,176 @@ test("expired exclusive reservations are released before a new checkout", async 
     assert.equal(order?.status, "expired");
   } finally {
     await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+  }
+});
+
+test("an expired Stripe Checkout session expires its reserved repeatable order", async () => {
+  const suffix = randomUUID();
+  const artworkId = `test-expired-${suffix}`;
+  const orderId = `order-expired-${suffix}`;
+  const sessionId = `cs_expired_${suffix}`;
+  const eventId = `evt_expired_${suffix}`;
+
+  try {
+    await db.insert(artcovrOrders).values(
+      orderValues({
+        id: orderId,
+        artworkId,
+        idempotencyKey: randomUUID(),
+        status: "reserved",
+        saleMode: "repeatable",
+        stripeCheckoutSessionId: sessionId,
+      }),
+    );
+
+    const event = {
+      id: eventId,
+      livemode: false,
+      type: "checkout.session.expired",
+      data: {
+        object: {
+          id: sessionId,
+          livemode: false,
+        },
+      },
+    } as Stripe.Event;
+
+    const dependencies = {
+      expectedLivemode: false,
+      refundPaymentIntent: async () => {
+        throw new Error("An expired checkout must not create a refund.");
+      },
+    };
+    await fulfillCheckoutSession(event, dependencies);
+    await fulfillCheckoutSession(event, dependencies);
+
+    const [order] = await db
+      .select({ status: artcovrOrders.status })
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.id, orderId));
+    const [webhook] = await db
+      .select({ status: artcovrWebhookEvents.status })
+      .from(artcovrWebhookEvents)
+      .where(eq(artcovrWebhookEvents.id, eventId));
+
+    assert.equal(order?.status, "expired");
+    assert.equal(webhook?.status, "processed");
+  } finally {
+    await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+  }
+});
+
+test("checkout admission rejects new attempts after the bounded window budget", () => {
+  const limiter = new CheckoutAdmissionLimiter(60_000, 2);
+
+  assert.deepEqual(limiter.admit(["ip:198.51.100.10", "email:buyer@example.test"], 0), {
+    allowed: true,
+  });
+  assert.deepEqual(limiter.admit(["ip:198.51.100.10", "email:buyer@example.test"], 1), {
+    allowed: true,
+  });
+  assert.deepEqual(limiter.admit(["ip:198.51.100.10", "email:other@example.test"], 2), {
+    allowed: false,
+    retryAfterSeconds: 60,
+  });
+  assert.deepEqual(limiter.admit(["ip:198.51.100.10", "email:buyer@example.test"], 60_001), {
+    allowed: true,
+  });
+});
+
+test("new guest checkout attempts are bounded before another order or Stripe call", async (context) => {
+  const previousOrigin = process.env.ARTCOVR_PUBLIC_ORIGIN;
+  const previousNodeEnv = process.env.NODE_ENV;
+  process.env.ARTCOVR_PUBLIC_ORIGIN = "https://artcovr.example";
+  process.env.NODE_ENV = "test";
+  context.after(() => {
+    if (previousOrigin === undefined) delete process.env.ARTCOVR_PUBLIC_ORIGIN;
+    else process.env.ARTCOVR_PUBLIC_ORIGIN = previousOrigin;
+    if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previousNodeEnv;
+  });
+
+  const artwork = getPublicCatalog().find(
+    (candidate) => candidate.saleMode === "repeatable",
+  );
+  assert.ok(artwork);
+  const limiter = new CheckoutAdmissionLimiter(60_000, 1);
+  const firstKey = randomUUID();
+  const secondKey = randomUUID();
+  let priceCalls = 0;
+  let sessionCalls = 0;
+  const testApp = express();
+  testApp.use(express.json());
+  testApp.use((req, _res, next) => {
+    const auth = Object.assign(
+      () => ({ userId: null, tokenType: "session_token" }),
+      { [Symbol.for("@clerk/express.auth")]: true },
+    );
+    (req as unknown as { auth: typeof auth }).auth = auth;
+    next();
+  });
+  testApp.post(
+    "/checkout",
+    createCheckoutHandler({
+      checkoutAdmission: limiter,
+      getStripePriceForArtwork: async () => {
+        priceCalls += 1;
+        return { id: "price_rate_limit_test" } as Stripe.Price;
+      },
+      retrieveCheckoutSession: async () => {
+        throw new Error("The rate-limit test must not retrieve an existing session.");
+      },
+      createCheckoutSession: async () => {
+        sessionCalls += 1;
+        return {
+          id: `cs_rate_limit_${firstKey}`,
+          livemode: false,
+          url: "https://checkout.stripe.test/session",
+        } as Stripe.Checkout.Session;
+      },
+      logCheckoutFailure: () => {},
+    }),
+  );
+  const server = createServer(testApp);
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  if (!address || typeof address === "string") {
+    server.close();
+    throw new Error("The checkout rate-limit test server did not expose a TCP address.");
+  }
+
+  const request = (email: string, idempotencyKey: string) =>
+    fetch(`http://127.0.0.1:${address.port}/checkout`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        artworkId: artwork.id,
+        email,
+        idempotencyKey,
+      }),
+    });
+
+  try {
+    const first = await request("first@example.test", firstKey);
+    assert.equal(first.status, 200);
+
+    const second = await request("second@example.test", secondKey);
+    assert.equal(second.status, 429);
+    assert.equal(second.headers.get("retry-after"), "60");
+    assert.deepEqual(await second.json(), {
+      code: "checkout_rate_limited",
+      message: "Too many new checkout attempts. Try again later.",
+    });
+    assert.equal(priceCalls, 1);
+    assert.equal(sessionCalls, 1);
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
+    await db
+      .delete(artcovrOrders)
+      .where(eq(artcovrOrders.idempotencyKey, firstKey));
   }
 });
 
