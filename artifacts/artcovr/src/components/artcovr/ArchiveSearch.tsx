@@ -143,7 +143,9 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
   return <>
     <div className="discovery-workbench">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <label htmlFor="archive-search" className="discovery-label">Find your visual direction</label>
+        <h2 className="discovery-label">
+          <label htmlFor="archive-search">Find your visual direction</label>
+        </h2>
          <button type="button" className="discovery-pill" aria-pressed={crateOnly} onClick={() => {
            trackEvent("crate_view_toggled", { visible: !crateOnly });
            update({ crate: crateOnly ? null : "1" });
