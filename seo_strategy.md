@@ -5,7 +5,7 @@
 - Public catalog discovery, social previews, structured data, AI-crawler visibility, and source-detectable WCAG 2.2 A/AA issues.
 
 ## Out of scope
-- Authenticated account and owner routes (`/my-images`, `/catalog-intelligence`), sign-in/sign-up flows, checkout, API server, and mockup/design sandbox.
+- Authenticated account and owner UI routes (`/my-images`, `/catalog-intelligence`, `/sales`), sign-in/sign-up flows, checkout UI, and mockup/design sandbox. Task 259 includes read-only API-source review solely for catalog/price/licensing/feed agreements and account/customer-media protection; these routes are not indexing targets.
 
 ## Target audience
 - Artists, musicians, and creative-project owners seeking distinctive square cover art with commercial licensing and prompt-based editing.
@@ -23,3 +23,11 @@
 
 ## Dismissed categories
 - (None yet)
+
+## Durable scan context (task 259)
+- Intended canonical origin: https://artcovr.com; local/test generated artifacts may use artcovr.local and must not be deployed unchanged. Deployed origin/version requires separate verification.
+- Current discovery scope: 187 approved products, 20 genre collections, 13 fixed indexable pages (220 intended public URLs).
+- Buyer intent spans music-release/album/single cover art, genre discovery, commercial licenses, exclusive versus repeatable licensing, AI rights, and prompt customization. Validate search demand before adding editorial pages.
+- Static machine-readable inventory must not assert current exclusive availability without dynamic inventory evidence. Preserve approved prices/currency/licensing and never invent reviews, ratings or creator identities.
+- Privacy processor descriptions require owner approval and agreement between initial HTML and client content.
+- Source-only audits do not establish deployed status, measured CWV, search-account indexing, actual inventory or AI citations.
