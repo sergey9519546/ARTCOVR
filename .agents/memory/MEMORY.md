@@ -37,7 +37,7 @@
 - [Mockup graduation contracts](mockup-graduation-contracts.md) — preserve existing facet hooks and accessible names when replacing a live control with a visual prototype.
 - [MPP optional peer bundling](mpp-optional-peer-bundling.md) — HTTP-only mppx builds must externalize its optional MCP SDK peer.
 - [MPP payment hook placement](mppx-payment-hooks.md) — attach awaited fulfillment to the configured method descriptor; Stripe webhooks own durable release and revocation.
-- [Live inventory structured data](live-inventory-structured-data.md) — omit Product/Offer schema when page generation cannot read current reservation and sold state.
+- [Live inventory claims](live-inventory-structured-data.md) — static discovery requires live checks for exclusives; omit Product/Offer schema without authoritative inventory.
 - [Route schema delivery](route-schema-delivery.md) — keep shared schema generation code-split; discard outdated route work while preserving matching initial HTML.
 - [Dropdown browser verification](dropdown-browser-verification.md) — use keyboard navigation to verify archive dropdown states when pointer checks fail on off-viewport options.
 - [Autoscale static route resolution](autoscale-static-route-resolution.md) — verify nested index pages after slash redirects; catalog wildcard rewrites can break directory-index serving.

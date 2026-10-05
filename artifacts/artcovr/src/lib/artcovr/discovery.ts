@@ -20,11 +20,19 @@ function canonicalUrl(base: string, path: string) {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+const STATIC_AVAILABILITY_POLICY = {
+  source: "static_catalog",
+  exclusive:
+    "live_check_required means current inventory is not known by this feed. Exclusive works may be available, reserved, or sold; verify through checkout or the protected delivery endpoint before promising a purchase.",
+  repeatable:
+    "available describes catalog sale eligibility for a repeatable license, not a guarantee of successful payment or delivery.",
+};
+
 function saleAvailability(saleMode: Artwork["saleMode"]) {
   if (saleMode === "exclusive") {
     return {
       saleMode: "exclusive" as const,
-      availability: "available" as const,
+      availability: "live_check_required" as const,
       license: "exclusive commercial license",
     };
   }
@@ -55,7 +63,7 @@ type AgentCatalogArtwork = Pick<
   | "published"
 >;
 
-function isAgentPurchasable(item: AgentCatalogArtwork) {
+function isAgentSaleEligible(item: AgentCatalogArtwork) {
   return (
     item.rightsApproved &&
     item.published &&
@@ -66,7 +74,8 @@ function isAgentPurchasable(item: AgentCatalogArtwork) {
 
 /**
  * The machine-buyer projection is deliberately narrower than the public
- * discovery catalog: only works that can be purchased now are included.
+ * discovery catalog: only published, rights-approved works with sale terms
+ * are included. This static projection cannot establish live exclusive stock.
  * Preview images remain public, while the delivery URL always points to the
  * payment-protected endpoint.
  */
@@ -76,10 +85,11 @@ export function buildAgentCatalogJson(
 ) {
   const base = cleanSiteUrl(siteUrl);
   const licenseUrl = canonicalUrl(base, "/license");
-  const purchasable = items.filter(isAgentPurchasable);
+  const saleEligible = items.filter(isAgentSaleEligible);
 
   return JSON.stringify({
-    version: "artcovr-agent-catalog/v1",
+    version: "artcovr-agent-catalog/v2",
+    availabilityPolicy: STATIC_AVAILABILITY_POLICY,
     organization: {
       name: "ARTCOVR",
       url: base,
@@ -96,7 +106,7 @@ export function buildAgentCatalogJson(
       settlement: "stripe",
       challengeStatus: 402,
     },
-    items: purchasable.map((item) => {
+    items: saleEligible.map((item) => {
       const sale = saleAvailability(item.saleMode);
       return {
         id: item.id,
@@ -177,7 +187,8 @@ export function buildCatalogFactsJson(
   });
 
   return JSON.stringify({
-    version: "artcovr-catalog-facts/v1",
+    version: "artcovr-catalog-facts/v2",
+    availabilityPolicy: STATIC_AVAILABILITY_POLICY,
     organization,
     licenseUrl,
     items: catalog,
@@ -272,10 +283,11 @@ ARTCOVR's public catalog contains ${items.length} owner-approved works. Public a
 
 - Machine-purchase catalog: ${base}/agent-catalog.json
 - Paid image access API: ${base}/api/agent/artworks/{slug}/image
-- The machine-purchase catalog lists only published works that are purchasable now, with stable IDs, catalog prices, sale modes, license links, public previews, and protected delivery URLs.
+- The machine-purchase catalog lists published, rights-approved works with approved prices and sale modes, stable IDs, license links, public previews, and protected delivery URLs. It is a static discovery feed, not live inventory.
+- Exclusive works use live_check_required: they may be available, reserved, or sold. Verify through checkout or the protected delivery endpoint before promising a purchase. Repeatable availability describes catalog sale eligibility, not guaranteed payment or delivery.
 - Send a GET request for a listed artwork slug. The endpoint returns an MPP HTTP 402 payment challenge when no valid payment credential is present, then returns the licensed original image after a successful one-time payment.
 - Supported payment rail: Stripe Shared Payment Tokens through MPP. The minimum payment is $0.50 USD, and stablecoin or Tempo settlement is not configured.
-- Public preview URLs are not licensed-original delivery URLs. A successful delivery is a private, no-store JPEG response; a missing artwork returns 404 and temporary payment or delivery failures return 503.
+- Public preview URLs are not licensed-original delivery URLs. A successful delivery is a private, no-store JPEG response; a missing artwork returns 404, an exclusive inventory conflict can return 409 artwork_unavailable, and temporary payment or delivery failures return 503.
 
 ## Catalog
 
@@ -298,11 +310,11 @@ export function buildLlmsFullTxt(
       const price =
         item.priceCents === null ? "pricing pending" : `$${(item.priceCents / 100).toFixed(2)} USD`;
       const sale = saleAvailability(item.saleMode);
-      const machinePurchasable =
+      const machineSaleEligible =
         item.priceCents !== null &&
         item.saleMode !== null;
-      const machineAvailability = machinePurchasable ? "available" : "unavailable";
-      const machineDelivery = machinePurchasable
+      const machineAvailability = machineSaleEligible ? sale.availability : "unavailable";
+      const machineDelivery = machineSaleEligible
         ? `${base}/api/agent/artworks/${encodeURIComponent(item.slug)}/image`
         : "not listed until price and sale mode are approved";
       return `## ${item.title}
@@ -331,10 +343,11 @@ This document describes the ${items.length} public, owner-approved ARTCOVR cover
 ## Machine purchasing
 
 - Machine-purchase catalog: ${base}/agent-catalog.json
+- This is a static discovery catalog, not live inventory. Exclusive availability is live_check_required: works may be available, reserved, or sold. Verify through checkout or the protected delivery endpoint before promising a purchase. Repeatable availability describes catalog sale eligibility, not guaranteed payment or delivery.
 - Payment protocol: MPP with Stripe Shared Payment Tokens.
 - Minimum payment: $0.50 USD. Stablecoin and Tempo settlement are not configured.
 - Retry a listed delivery URL after receiving its HTTP 402 payment challenge. A successful HTTP 200 response is the licensed original image; public preview image URLs are not licensed delivery.
-- HTTP 404 means the artwork is not available through agent delivery. HTTP 503 means payment verification or delivery is temporarily unavailable.
+- HTTP 404 means the artwork is not available through agent delivery. HTTP 409 artwork_unavailable indicates an exclusive inventory conflict. HTTP 503 means payment verification or delivery is temporarily unavailable.
 
 ${records}`;
 }

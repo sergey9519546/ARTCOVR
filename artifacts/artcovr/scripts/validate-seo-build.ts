@@ -784,7 +784,7 @@ async function validateDiscoveryFiles(siteUrl: string) {
     seoFailure(factsFile, "JSON format", "file is not valid JSON");
   }
   check(
-    facts.version === "artcovr-catalog-facts/v1",
+    facts.version === "artcovr-catalog-facts/v2",
     factsFile,
     "schema version",
   );
@@ -807,7 +807,7 @@ async function validateDiscoveryFiles(siteUrl: string) {
     agentCatalogSource === expectedAgentCatalog,
     agentCatalogFile,
     "machine catalog parity",
-    "generated feed does not match the approved purchasable catalog",
+    "generated feed does not match the approved sale-eligible catalog",
   );
   let agentCatalog: { version?: unknown; items?: unknown };
   try {
@@ -816,7 +816,7 @@ async function validateDiscoveryFiles(siteUrl: string) {
     seoFailure(agentCatalogFile, "JSON format", "file is not valid JSON");
   }
   check(
-    agentCatalog.version === "artcovr-agent-catalog/v1",
+    agentCatalog.version === "artcovr-agent-catalog/v2",
     agentCatalogFile,
     "schema version",
   );
@@ -825,7 +825,7 @@ async function validateDiscoveryFiles(siteUrl: string) {
       agentCatalog.items.length ===
         publicCatalog.filter((item) => item.priceCents !== null && item.saleMode !== null).length,
     agentCatalogFile,
-    "purchasable catalog item count",
+    "sale-eligible catalog item count",
   );
   check(
     !/objectKey|orderId|paymentId|payer/i.test(agentCatalogSource),

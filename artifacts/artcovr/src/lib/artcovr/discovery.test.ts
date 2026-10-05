@@ -46,7 +46,7 @@ test("discovery files expose canonical public routes and catalog facts", () => {
   assert.match(full, /Machine-purchase catalog: https:\/\/example\.com\/agent-catalog\.json/);
 });
 
-test("agent catalog exposes only purchasable works and protected delivery links", () => {
+test("agent catalog exposes only sale-eligible works and protected delivery links", () => {
   const feed = JSON.parse(buildAgentCatalogJson([
     items[0],
     { ...items[0], id: "unpublished", slug: "unpublished", published: false },
@@ -55,7 +55,7 @@ test("agent catalog exposes only purchasable works and protected delivery links"
     { ...items[0], id: "pending-sale", slug: "pending-sale", saleMode: null },
   ], "https://example.com/"));
 
-  assert.equal(feed.version, "artcovr-agent-catalog/v1");
+  assert.equal(feed.version, "artcovr-agent-catalog/v2");
   assert.deepEqual(feed.payment, {
     protocol: "mpp",
     supportedRails: ["stripe_shared_payment_tokens"],
@@ -101,7 +101,7 @@ test("catalog facts distinguish exclusive, repeatable, and unknown sale states",
     },
   ], "https://example.com/"));
 
-  assert.equal(facts.version, "artcovr-catalog-facts/v1");
+  assert.equal(facts.version, "artcovr-catalog-facts/v2");
   assert.deepEqual(facts.organization, {
     name: "ARTCOVR",
     url: "https://example.com",
@@ -113,7 +113,7 @@ test("catalog facts distinguish exclusive, repeatable, and unknown sale states",
       availability: item.availability,
     })),
     [
-      { saleMode: "exclusive", availability: "available" },
+      { saleMode: "exclusive", availability: "live_check_required" },
       { saleMode: "repeatable", availability: "available" },
       { saleMode: "unknown", availability: "unknown" },
     ],
@@ -126,6 +126,64 @@ test("catalog facts distinguish exclusive, repeatable, and unknown sale states",
   assert.equal(facts.items[0].imageUrl, "https://example.com/assets/artworks/blue-hour.jpg");
   assert.equal(facts.items[0].aiGeneration.disclosed, true);
   assert.equal("creator" in facts.items[0], false);
+});
+
+// Inventory changes independently after a build. The public projection carries
+// no authoritative inventory data, so it must produce the same honest static
+// claim for each of these possible live states (including initially available).
+for (const inventoryState of ["available", "reserved", "sold"] as const) {
+  test(`static exclusive feeds require a live check when inventory is ${inventoryState}`, () => {
+    const fixture = {
+      inventory: { state: inventoryState },
+      publicArtwork: {
+        ...items[0],
+        saleMode: "exclusive" as const,
+        priceCents: 9900,
+      },
+    };
+    const catalog = [fixture.publicArtwork];
+    const facts = JSON.parse(buildCatalogFactsJson(catalog, "https://example.com"));
+    const agent = JSON.parse(buildAgentCatalogJson(catalog, "https://example.com"));
+
+    for (const feed of [facts, agent]) {
+      assert.equal(feed.items.length, 1);
+      assert.equal(feed.items[0].saleMode, "exclusive");
+      assert.equal(feed.items[0].availability, "live_check_required");
+      assert.equal(feed.items[0].price.amount, 99);
+      assert.equal(feed.items[0].price.currency, "USD");
+      assert.equal(feed.availabilityPolicy.source, "static_catalog");
+      assert.match(feed.availabilityPolicy.exclusive, /available, reserved, or sold/);
+      assert.match(feed.availabilityPolicy.exclusive, /verify through checkout/i);
+      assert.equal("inventory" in feed.items[0], false);
+    }
+    assert.equal(facts.items[0].license, "exclusive commercial license");
+    assert.equal(agent.items[0].license.name, "exclusive commercial license");
+    assert.equal(agent.items[0].price.amountCents, 9900);
+    assert.equal(agent.items[0].deliveryUrl, "https://example.com/api/agent/artworks/blue-hour/image");
+
+    const full = buildLlmsFullTxt(catalog, "https://example.com");
+    assert.match(full, /- Availability: live_check_required/);
+    assert.match(full, /- Agent purchase availability: live_check_required/);
+    assert.doesNotMatch(full, /- (?:Agent purchase availability|Availability): available\b/);
+  });
+}
+
+test("AI discovery explains static inventory limits without claiming immediate purchase", () => {
+  for (const text of [
+    buildLlmsTxt(items, "https://example.com"),
+    buildLlmsFullTxt(items, "https://example.com"),
+  ]) {
+    assert.match(text, /static discovery (?:feed|catalog), not live inventory/);
+    assert.match(text, /live_check_required/);
+    assert.match(text, /available, reserved, or sold/);
+    assert.match(text, /409 artwork_unavailable/);
+    assert.doesNotMatch(text, /purchasable now/);
+  }
+  const pending = buildLlmsFullTxt([
+    { ...items[0], saleMode: "exclusive", priceCents: null },
+  ], "https://example.com");
+  assert.match(pending, /- Agent purchase availability: unavailable/);
+  assert.match(pending, /- Agent delivery URL: not listed until price and sale mode are approved/);
 });
 
 test("catalog facts remain valid JSON for public text", () => {
