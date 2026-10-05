@@ -399,11 +399,11 @@ function ArtworkPromptStudio({ artwork }: { artwork: Artwork }) {
           </button>
 
           <div role="radiogroup" aria-label="Style handling" className="ml-auto flex gap-1">
-            <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "exact" ? "border-current" : "border-current/25 opacity-60"}`}>
+            <label className={`artcovr-style-choice cursor-pointer rounded-full border px-3 py-1 ${styleMode === "exact" ? "border-current" : "border-current/25 opacity-60"}`}>
               <input type="radio" name="style-mode" value="exact" checked={styleMode === "exact"} onChange={() => setStyleMode("exact")} disabled={busy} className="sr-only" />
               Exact style
             </label>
-            <label className={`cursor-pointer rounded-full border px-3 py-1 ${styleMode === "expand" ? "border-current" : "border-current/25 opacity-60"}`}>
+            <label className={`artcovr-style-choice cursor-pointer rounded-full border px-3 py-1 ${styleMode === "expand" ? "border-current" : "border-current/25 opacity-60"}`}>
               <input type="radio" name="style-mode" value="expand" checked={styleMode === "expand"} onChange={() => setStyleMode("expand")} disabled={busy} className="sr-only" />
               Expand
             </label>
@@ -476,7 +476,7 @@ function ArtworkPromptStudio({ artwork }: { artwork: Artwork }) {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={busy || reference.status === "uploading"}
-                aria-label={armedUploadId ? "Reference photo attached — replace it" : "Attach a reference photo"}
+                aria-label={armedUploadId ? "Photo attached — replace it" : "Add your photo as a reference"}
                 className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-3 text-xs font-bold transition-colors ${armedUploadId ? "artcovr-button border-current" : "border-current/30 hover:border-current"}`}
               >
                 <span aria-hidden="true" className="text-base">+</span><span>{armedUploadId ? "Photo attached" : "Add your photo"}</span>

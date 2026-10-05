@@ -620,6 +620,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   outline-offset: 4px;
 }
 
+/* Draw focus on the visible pill, not its clipped native radio. */
+.artcovr-style-choice:has(input:focus-visible) {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  opacity: 1;
+}
+
 /*
  * One wordmark lockup. Every ARTCOVR wordmark — header, hero, footer, page
  * transition, intro — carries identical weight, tracking, and leading, and

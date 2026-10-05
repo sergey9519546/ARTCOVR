@@ -185,7 +185,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
             <button type="button" className="discovery-order-arrow" aria-label="Previous artwork order" onClick={() => cycleOrder(-1)}>
               <ChevronLeft size={17} aria-hidden="true" />
             </button>
-            <button type="button" className="discovery-order-current" aria-label="Current artwork order" onClick={() => cycleOrder(1)} aria-live="polite">
+            <button type="button" className="discovery-order-current" aria-label={`${activeOrder.label} — change artwork order`} onClick={() => cycleOrder(1)} aria-live="polite">
               {activeOrder.label}
             </button>
             <button type="button" className="discovery-order-arrow" aria-label="Next artwork order" onClick={() => cycleOrder(1)}>
