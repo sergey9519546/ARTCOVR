@@ -14,12 +14,6 @@ import {
   getArtworkGenres,
   isCheckoutReady,
 } from "@/lib/artcovr/artworks";
-import {
-  buildArtworkStructuredData,
-  buildOrganizationStructuredData,
-  combineStructuredData,
-  serializeJsonLd,
-} from "@/lib/artcovr/seo";
 import NotFound from "@/pages/not-found";
 import { trackEvent } from "@/lib/artcovr/analytics";
 import { recordFunnelEvent } from "@/lib/artcovr/functions";
@@ -37,10 +31,6 @@ export default function ProductPage() {
   if (!art) return <NotFound />;
 
   const genres = getArtworkGenres(art);
-  const jsonLd = combineStructuredData(
-    buildOrganizationStructuredData(),
-    buildArtworkStructuredData({ ...art, genres }),
-  );
   const checkoutReady = isCheckoutReady(art);
   const licenseMode = getArtworkLicenseLabel(art);
 
@@ -48,7 +38,6 @@ export default function ProductPage() {
     <>
       <SiteHeader />
       <main id="main" className="mx-auto max-w-[1400px] px-4 pb-24 pt-32 lg:px-7">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
         <nav aria-label="Breadcrumb" className="text-[11px] font-bold uppercase tracking-[.1em]">
           <Link href="/archive" className="link-hover">Archive</Link><span className="mx-2">/</span><span>{art.title}</span>
         </nav>

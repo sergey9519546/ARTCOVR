@@ -289,7 +289,7 @@ test("publishes source-backed guide content and citable structured data", () => 
 
     const structuredData = JSON.parse(
       generatedDocument.match(
-        /<script type="application\/ld\+json" data-artcovr-static-structured-data="true">([\s\S]*?)<\/script>/,
+        /<script type="application\/ld\+json" data-artcovr-static-structured-data="true"[^>]*>([\s\S]*?)<\/script>/,
       )?.[1] ?? "null",
     );
     const types = structuredData["@graph"].map((entry: { ["@type"]?: string | string[] }) =>

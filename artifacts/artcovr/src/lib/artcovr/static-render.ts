@@ -1,11 +1,5 @@
-import {
-  buildArtworkCollectionStructuredData,
-  buildArtworkStructuredData,
-  buildFaqStructuredData,
-  buildOrganizationStructuredData,
-  combineStructuredData,
-  serializeJsonLd,
-} from "./seo";
+import { serializeJsonLd } from "./seo";
+import { buildRouteStructuredData, FAQ_QUESTIONS } from "./route-structured-data";
 import {
   getSocialPreviewMetadata,
   type RouteMetadata,
@@ -41,18 +35,6 @@ type RenderContext = {
   metadata: RouteMetadata;
   getGenres: (artwork: StaticArtwork) => readonly string[];
 };
-
-const FAQ_QUESTIONS = [
-  ["What am I licensing?", "A commercial license to use the purchased artwork and your included generated images in commercial projects. ARTCOVR publishes and licenses the base artwork and grants you a commercial license to the purchased files. You may not claim authorship of the AI-generated result."],
-  ["Can I alter the image?", "Yes. The artwork page has one freeform prompt box. Each successful generated image becomes the starting point for your next prompt, and Reset returns to the original artwork."],
-  ["What is exclusive artwork?", "Exclusive artwork is reserved for one checkout at a time for about 30 minutes and removed from ARTCOVR after verified payment. Expired or failed reservations are released; a currently reserved or sold exclusive cover cannot be purchased again. Exclusivity does not assign copyright or promise worldwide uniqueness."],
-  ["What is repeatable artwork?", "Repeatable artwork may be purchased by more than one customer under a non-exclusive commercial license."],
-  ["Are the images AI-generated?", "Yes. The base artwork is published by ARTCOVR. Generated results are produced by a third-party AI model from your prompt and delivered under the commercial license."],
-  ["Where are my images?", "Sign in to My Images to see purchases, prompts, generated images, remaining generations, expiration dates, and downloads."],
-  ["What is your refund window?", "Refund requests are reviewed by the owner within a reasonable period. Approved refunds revoke the commercial license for the refunded artwork and disable unused generations and download links."],
-  ["Can I resell the image file itself?", "No. Standalone resale, stock or template redistribution, and sublicensing for independent reuse are prohibited."],
-  ["Can I use purchased images to train a model?", "No. AI-training use is not included in the commercial license."],
-] as const;
 
 function escapeHtml(value: string) {
   return value.replace(
@@ -496,165 +478,6 @@ function renderNotFound() {
   return pageLayout(`<main id="main"><h1>Page not found.</h1><p>The requested ARTCOVR page could not be found.</p><p>${link("/archive", "Browse the cover art archive")}</p></main>`);
 }
 
-function structuredDataForRoute(context: RenderContext) {
-  const { artworks, siteUrl, metadata, getGenres } = context;
-  if (metadata.path === "/") {
-    const featured = homepageCollection(context);
-    const organization = buildOrganizationStructuredData(siteUrl);
-    const gallery = buildArtworkCollectionStructuredData(featured, siteUrl, {
-      path: "/",
-      name: "ARTCOVR curated cover art",
-      description: metadata.description,
-    });
-    return combineStructuredData(organization, gallery);
-  }
-  if (metadata.path === "/faq") {
-    return combineStructuredData(
-      buildOrganizationStructuredData(siteUrl),
-      buildFaqStructuredData(
-        FAQ_QUESTIONS.map(([question, answer]) => ({ question, answer })),
-        siteUrl,
-      ),
-    );
-  }
-  if (ANSWER_GUIDE_BY_PATH.has(metadata.path)) {
-    const guide = ANSWER_GUIDE_BY_PATH.get(metadata.path)!;
-    const guideUrl = absoluteUrl(metadata.path, siteUrl);
-    const organizationId = `${siteUrl}#organization`;
-    return combineStructuredData(
-      buildOrganizationStructuredData(siteUrl),
-      {
-        "@type": "WebPage",
-        "@id": `${guideUrl}#webpage`,
-        url: guideUrl,
-        name: metadata.title,
-        description: metadata.description,
-        isPartOf: { "@id": `${siteUrl}#website` },
-        about: guide.eyebrow,
-        mainEntity: { "@id": `${guideUrl}#faq` },
-      },
-      {
-        "@type": "Article",
-        "@id": `${guideUrl}#article`,
-        headline: guide.title,
-        description: metadata.description,
-        url: guideUrl,
-        datePublished: guide.datePublished,
-        dateModified: guide.lastReviewed,
-        author: { "@id": organizationId },
-        publisher: { "@id": organizationId },
-        mainEntityOfPage: { "@id": `${guideUrl}#webpage` },
-        citation: guide.sources.map((source) => ({
-          "@type": "CreativeWork",
-          name: source.title,
-          publisher: {
-            "@type": "Organization",
-            name: source.publisher,
-          },
-          url: absoluteUrl(source.href, siteUrl),
-          description: source.description,
-        })),
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${guideUrl}#faq`,
-        url: guideUrl,
-        mainEntity: guide.sections.map((section) => ({
-          "@type": "Question",
-          name: section.heading,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: section.answer,
-          },
-        })),
-      },
-    );
-  }
-  if (metadata.path === "/archive") {
-    return combineStructuredData(
-      buildOrganizationStructuredData(siteUrl),
-      buildArtworkCollectionStructuredData(artworks, siteUrl, {
-        path: "/archive",
-        name: "ARTCOVR cover art archive",
-        description: metadata.description,
-      }),
-    );
-  }
-  if (metadata.path === "/cover-art") {
-    return combineStructuredData(
-      buildOrganizationStructuredData(siteUrl),
-      buildArtworkCollectionStructuredData(artworks, siteUrl, {
-        path: "/cover-art",
-        name: "ARTCOVR music cover art by genre",
-        description: metadata.description,
-      }),
-    );
-  }
-  if (genreFromPath(metadata.path)) {
-    const genre = genreFromPath(metadata.path)!;
-    const matching = genreCollection({ artworks, metadata, getGenres });
-    return combineStructuredData(
-      buildOrganizationStructuredData(siteUrl),
-      buildArtworkCollectionStructuredData(matching, siteUrl, {
-        path: metadata.path,
-        name: `${displayGenreLabel(genre)} cover art`,
-        description: metadata.description,
-        breadcrumbs: [
-          {
-            name: "Music cover art by genre",
-            path: "/cover-art",
-          },
-          {
-            name: displayGenreLabel(genre),
-            path: metadata.path,
-          },
-        ],
-      }),
-    );
-  }
-  if (metadata.path.startsWith("/product/")) {
-    const slug = metadata.path.slice("/product/".length);
-    let artwork: StaticArtwork | undefined;
-    try {
-      artwork = artworks.find((candidate) => candidate.slug === decodeURIComponent(slug));
-    } catch {
-      artwork = undefined;
-    }
-    if (artwork) {
-      const productUrl = absoluteUrl(metadata.path, siteUrl);
-      return combineStructuredData(
-        buildOrganizationStructuredData(siteUrl),
-        buildArtworkStructuredData(
-          { ...artwork, genres: [...getGenres(artwork)] },
-          siteUrl,
-        ),
-        {
-          "@type": "WebPage",
-          "@id": `${productUrl}#webpage`,
-          url: productUrl,
-          name: metadata.title,
-          description: metadata.description,
-          isPartOf: { "@id": `${siteUrl}#website` },
-          breadcrumb: { "@id": `${productUrl}#breadcrumb` },
-          mainEntity: { "@id": `${productUrl}#artwork` },
-          primaryImageOfPage: { "@id": `${productUrl}#artwork` },
-        },
-      );
-    }
-  }
-  return combineStructuredData(
-    buildOrganizationStructuredData(siteUrl),
-    {
-      "@type": "WebPage",
-      "@id": `${absoluteUrl(metadata.path, siteUrl)}#webpage`,
-      url: absoluteUrl(metadata.path, siteUrl),
-      name: metadata.title,
-      description: metadata.description,
-      isPartOf: { "@id": `${siteUrl}#website` },
-    },
-  );
-}
-
 export function renderStaticRoute(context: RenderContext) {
   const { metadata } = context;
   let body = renderInfo(metadata.path);
@@ -681,6 +504,6 @@ export function renderStaticRoute(context: RenderContext) {
   }
   return {
     bodyHtml: body ?? renderNotFound(),
-    structuredDataHtml: `<script type="application/ld+json" data-artcovr-static-structured-data="true">${serializeJsonLd(structuredDataForRoute(context))}</script>`,
+    structuredDataHtml: `<script type="application/ld+json" data-artcovr-static-structured-data="true" data-artcovr-structured-data-path="${escapeHtml(metadata.path)}">${serializeJsonLd(buildRouteStructuredData(context))}</script>`,
   };
 }

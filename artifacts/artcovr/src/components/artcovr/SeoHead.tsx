@@ -3,9 +3,11 @@ import { useLocation } from "wouter";
 import {
   getSiteUrl,
   isSearchIndexingDisabled,
+  serializeJsonLd,
 } from "@/lib/artcovr/seo";
 import {
   displayArtworks,
+  featuredArtworks,
   getArtworkGenres,
   displayGenreLabel,
 } from "@/lib/artcovr/artworks";
@@ -13,6 +15,9 @@ import {
   getRouteMetadata,
   getSocialPreviewMetadata,
 } from "@/lib/artcovr/route-metadata";
+
+const routeSchemaSelector =
+  'script[type="application/ld+json"][data-artcovr-static-structured-data="true"], script[type="application/ld+json"][data-artcovr-route-structured-data="true"]';
 
 function routePath(location: string) {
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -78,15 +83,36 @@ export function SeoHead() {
       metadata.index &&
       !isSearchIndexingDisabled() &&
       (!catalogRoute || displayArtworks.length > 0);
-    // Static route rendering puts JSON-LD in the document head for crawlers.
-    // The interactive pages render their own route-specific JSON-LD in the
-    // page body, so remove the prerendered copy after the SPA mounts. React
-    // then removes the body copy naturally when the route changes.
-    document.head
-      .querySelectorAll<HTMLScriptElement>(
-        'script[type="application/ld+json"][data-artcovr-static-structured-data="true"]',
-      )
-      .forEach((script) => script.remove());
+    // Keep guide content/schema builders outside the homepage entry bundle.
+    // Cancellation prevents a delayed import from publishing a previous route.
+    document.head.querySelectorAll<HTMLScriptElement>(routeSchemaSelector)
+      .forEach((script) => {
+        if (script.dataset.artcovrStructuredDataPath !== metadata.path) script.remove();
+      });
+    let cancelled = false;
+    void import("@/lib/artcovr/route-structured-data")
+      .then(({ buildRouteStructuredData }) => {
+        if (cancelled) return;
+        // Adopt the static script on mount and replace its graph on navigation.
+        const scripts = document.head.querySelectorAll<HTMLScriptElement>(routeSchemaSelector);
+        const script = scripts[0] ?? document.createElement("script");
+        script.type = "application/ld+json";
+        script.removeAttribute("data-artcovr-static-structured-data");
+        script.dataset.artcovrRouteStructuredData = "true";
+        script.dataset.artcovrStructuredDataPath = metadata.path;
+        script.textContent = serializeJsonLd(buildRouteStructuredData({
+          artworks: displayArtworks,
+          homepageArtworks: featuredArtworks.slice(0, 12),
+          siteUrl,
+          metadata,
+          getGenres: (artwork) => getArtworkGenres(artwork).map(displayGenreLabel),
+        }));
+        if (!script.isConnected) document.head.appendChild(script);
+        Array.from(scripts).slice(1).forEach((duplicate) => duplicate.remove());
+      })
+      .catch((error) => {
+        if (!cancelled) console.error("Unable to update route structured data", error);
+      });
 
     document.title = social.title;
     upsertMeta("name", "description", social.description);
@@ -110,6 +136,7 @@ export function SeoHead() {
     upsertMeta("name", "twitter:image:alt", social.imageAlt);
     updateCanonical(social.canonical);
     updateImageSource(social.imageUrl);
+    return () => { cancelled = true; };
   }, [location]);
 
   return null;

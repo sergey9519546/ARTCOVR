@@ -38,4 +38,5 @@
 - [MPP optional peer bundling](mpp-optional-peer-bundling.md) — HTTP-only mppx builds must externalize its optional MCP SDK peer.
 - [MPP payment hook placement](mppx-payment-hooks.md) — attach awaited fulfillment to the configured method descriptor; Stripe webhooks own durable release and revocation.
 - [Live inventory structured data](live-inventory-structured-data.md) — omit Product/Offer schema when page generation cannot read current reservation and sold state.
+- [Route schema delivery](route-schema-delivery.md) — keep shared schema generation code-split; discard outdated route work while preserving matching initial HTML.
 - [Dropdown browser verification](dropdown-browser-verification.md) — use keyboard navigation to verify archive dropdown states when pointer checks fail on off-viewport options.
