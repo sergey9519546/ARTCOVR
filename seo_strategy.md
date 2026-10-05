@@ -1,7 +1,7 @@
 # SEO Strategy
 
 ## In scope
-- Public ARTCOVR storefront routes: home, archive, published product pages, about, FAQ, contact, license, refunds, privacy, and terms.
+- Public ARTCOVR storefront routes: home, archive, cover-art genre collections, licensing/AI-rights guides, published product pages, about, FAQ, contact, license, refunds, privacy, and terms.
 - Public catalog discovery, social previews, structured data, AI-crawler visibility, and source-detectable WCAG 2.2 A/AA issues.
 
 ## Out of scope
@@ -15,6 +15,11 @@
 
 ## Crawler assumptions
 - Public routes must provide crawlable, route-specific HTML and metadata to Google, social-preview bots, and AI crawlers. Client-side hydration alone is insufficient.
+
+## Rendering and content strategy
+- Public storefront is Vite/React with build-time static HTML generation; the homepage supplies its semantic catalog content in noscript while preserving the interactive intro.
+- Genre collections are derived from approved public catalog metadata; guides include sources and publication/review dates.
+- Public artwork schema intentionally uses ImageObject licensing markup without static Product/Offer inventory claims; checkout availability is dynamic.
 
 ## Dismissed categories
 - (None yet)
