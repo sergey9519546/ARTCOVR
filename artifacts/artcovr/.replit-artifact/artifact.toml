@@ -27,9 +27,6 @@ to = "/archive/index.html"
 from = "/cover-art"
 to = "/cover-art/index.html"
 
-[[services.production.rewrites]]
-from = "/cover-art/*"
-to = "/cover-art/*/index.html"
 
 [[services.production.rewrites]]
 from = "/about"
@@ -99,13 +96,7 @@ to = "/bag/index.html"
 from = "/shipping-and-return"
 to = "/shipping-and-return/index.html"
 
-[[services.production.rewrites]]
-from = "/product/*/"
-to = "/product/*/index.html"
 
-[[services.production.rewrites]]
-from = "/product/*"
-to = "/product/*/index.html"
 
 [[services.production.rewrites]]
 from = "/checkout/*"

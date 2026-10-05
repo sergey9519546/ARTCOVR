@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { checkPublicRouteInventory } from "./public-route-inventory.mjs";
 
 const releaseUrl = process.env.ARTCOVR_RELEASE_URL;
 if (!releaseUrl) {
@@ -47,27 +48,22 @@ try {
 
   const sitemap = await check("sitemap.xml", new URL("/sitemap.xml", base));
   if (!sitemap.body.includes(`<loc>${base.origin}/</loc>`)) throw new Error("sitemap does not use the release origin");
-  const escapedOrigin = base.origin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const productUrls = [
-    ...new Set(
-      [...sitemap.body.matchAll(new RegExp(`<loc>(${escapedOrigin}/product/[^<]+)</loc>`, "g"))]
-        .map((match) => match[1]),
-    ),
-  ].slice(0, 2);
-  if (productUrls.length < 2) {
-    throw new Error("sitemap does not contain at least two product routes");
-  }
-  for (const [index, productUrl] of productUrls.entries()) {
-    const product = await check(`representative product route ${index + 1}`, productUrl);
-    if (!/<title>[^<]+<\/title>/i.test(product.body)) {
-      throw new Error(`representative product route ${index + 1} is missing a title`);
-    }
-    if (!/<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(product.body)) {
-      throw new Error(`representative product route ${index + 1} is missing an h1`);
-    }
-    if (!product.body.includes("application/ld+json") && !product.body.includes("ARTCOVR_ROUTE_STRUCTURED_DATA")) {
-      throw new Error(`representative product route ${index + 1} is missing structured metadata`);
-    }
+  const routeInventory = await checkPublicRouteInventory({
+    origin: base,
+    sitemapBody: sitemap.body,
+  });
+  diagnostics.push({
+    name: "public route HTTP inventory",
+    routeCount: routeInventory.routeCount,
+    checkCount: routeInventory.checkCount,
+    failures: routeInventory.failures,
+    checks: routeInventory.checks,
+  });
+  if (routeInventory.failures.length > 0) {
+    const firstFailure = routeInventory.failures[0];
+    throw new Error(
+      `public route HTTP inventory found ${routeInventory.failures.length} failure(s) across ${routeInventory.checkCount} checks; first: ${firstFailure.route} (${firstFailure.agent ?? firstFailure.kind}): ${firstFailure.issue}`,
+    );
   }
 
   const robots = await check("robots.txt", new URL("/robots.txt", base));
@@ -110,7 +106,9 @@ try {
   });
   if (invalidSignature.status !== 400) throw new Error(`webhook invalid-signature probe returned HTTP ${invalidSignature.status}`);
 
-  console.log("Live release smoke OK: storefront routes, metadata, database-backed API health, aggregate MPP diagnostics, and webhook rejection path.");
+  console.log(
+    `Live release smoke OK: ${routeInventory.routeCount} public sitemap routes, ${routeInventory.checkCount} redirect-aware route checks, database-backed API health, aggregate MPP diagnostics, and webhook rejection path.`,
+  );
 } catch (error) {
   const outputDirectory = process.env.ARTCOVR_RELEASE_DIAGNOSTICS_DIR || "/tmp/artcovr-release-diagnostics";
   await mkdir(outputDirectory, { recursive: true });

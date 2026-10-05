@@ -40,3 +40,4 @@
 - [Live inventory structured data](live-inventory-structured-data.md) — omit Product/Offer schema when page generation cannot read current reservation and sold state.
 - [Route schema delivery](route-schema-delivery.md) — keep shared schema generation code-split; discard outdated route work while preserving matching initial HTML.
 - [Dropdown browser verification](dropdown-browser-verification.md) — use keyboard navigation to verify archive dropdown states when pointer checks fail on off-viewport options.
+- [Autoscale static route resolution](autoscale-static-route-resolution.md) — verify nested index pages after slash redirects; catalog wildcard rewrites can break directory-index serving.

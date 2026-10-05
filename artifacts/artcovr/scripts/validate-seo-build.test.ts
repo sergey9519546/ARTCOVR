@@ -25,7 +25,7 @@ import {
 import {
   parseProductionRewrites,
   validateRoute,
-  validateSitemapRouteMappings,
+  validateProductionRouteConfig,
 } from "./validate-seo-build";
 
 const publicCatalog = selectPublicCatalog(curatedPublic);
@@ -483,23 +483,24 @@ test("rejects homepage ItemList order that differs from static product links", (
   );
 });
 
-test("accepts static production mappings for genre sitemap routes", () => {
+test("allows generated product and genre indexes to use directory resolution", () => {
   const rewrites = parseProductionRewrites(`
 [[services.production.rewrites]]
 from = "/cover-art"
 to = "/cover-art/index.html"
 
 [[services.production.rewrites]]
-from = "/cover-art/*"
-to = "/cover-art/*/index.html"
+from = "/archive"
+to = "/archive/index.html"
 `);
 
   assert.doesNotThrow(() =>
-    validateSitemapRouteMappings(
+    validateProductionRouteConfig(
       [
         `${siteUrl}/`,
         `${siteUrl}/cover-art`,
         `${siteUrl}/cover-art/ambient`,
+        `${siteUrl}/product/${artwork.slug}`,
       ],
       siteUrl,
       rewrites,
@@ -507,14 +508,22 @@ to = "/cover-art/*/index.html"
   );
 });
 
-test("reports sitemap routes missing a production static mapping", () => {
+test("rejects wildcard production rewrites that shadow catalog directory indexes", () => {
   assert.throws(
     () =>
-      validateSitemapRouteMappings(
-        [`${siteUrl}/`, `${siteUrl}/cover-art/ambient`],
+      validateProductionRouteConfig(
+        [`${siteUrl}/`, `${siteUrl}/cover-art/ambient`, `${siteUrl}/product/${artwork.slug}`],
         siteUrl,
-        [],
+        parseProductionRewrites(`
+[[services.production.rewrites]]
+from = "/cover-art/*"
+to = "/cover-art/*/index.html"
+
+[[services.production.rewrites]]
+from = "/product/*/"
+to = "/product/*/index.html"
+`),
       ),
-    /artifact\.toml: production route mappings .*\/cover-art\/ambient/,
+    /artifact\.toml: catalog directory-index routing .*wildcard rewrites shadow generated route indexes/,
   );
 });

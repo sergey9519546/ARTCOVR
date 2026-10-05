@@ -586,35 +586,23 @@ export function parseProductionRewrites(source: string): StaticRewrite[] {
     });
 }
 
-function rewriteMatchesRoute(pattern: string, route: string) {
-  const expression = pattern
-    .split("*")
-    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join("[^/]+");
-  return new RegExp(`^${expression}$`).test(route);
-}
-
-export function validateSitemapRouteMappings(
+export function validateProductionRouteConfig(
   sitemapLocations: readonly string[],
   siteUrl: string,
   rewrites: readonly StaticRewrite[],
 ) {
-  const unmapped = sitemapLocations
-    .map((location) => new URL(location).pathname)
-    .filter(
-      (route) =>
-        route !== "/" &&
-        !rewrites.some(
-          (rewrite) =>
-            rewriteMatchesRoute(rewrite.from, route) &&
-            rewrite.to.endsWith("/index.html"),
-        ),
-    );
+  const catalogWildcardRewrites = rewrites.filter(
+    ({ from }) =>
+      from.includes("*") &&
+      (/^\/product\//.test(from) || /^\/cover-art\//.test(from)),
+  );
   check(
-    unmapped.length === 0,
+    catalogWildcardRewrites.length === 0,
     "artifact.toml",
-    "production route mappings",
-    `sitemap routes without a static rewrite: ${unmapped.slice(0, 5).join(", ")}`,
+    "catalog directory-index routing",
+    `wildcard rewrites shadow generated route indexes: ${catalogWildcardRewrites
+      .map(({ from }) => from)
+      .join(", ")}`,
   );
 
   const wrongOrigin = sitemapLocations.filter(
@@ -720,7 +708,7 @@ async function validateDiscoveryFiles(siteUrl: string) {
       "artifact manifest is missing",
     );
   }
-  validateSitemapRouteMappings(
+  validateProductionRouteConfig(
     locations,
     siteUrl,
     parseProductionRewrites(artifactToml),
