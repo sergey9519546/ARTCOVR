@@ -70,3 +70,17 @@ mtime_ms = 1788856254957
 storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:a8fb1401-f6a6-4b42-80e9-268ff8dc0fb4/5219a9cc-1821-44b7-bdf8-ca74c16707af/614d71b5-3b05-4ee9-ab94-d8191fcc11ba"
 storage_version_token = "1788856275513838"
 content_type = "image/jpeg"
+
+[[outputs]]
+id = "a62YRbC_H8gk-1BKJxROI"
+uri = "file://.local/outputs/artcovr-weekly-conversion-funnel.chart.html"
+type = "text"
+title = "One of two product sessions reached checkout intent"
+description = "ARTCOVR product-view to purchase funnel for the last seven days. Counts are approximate sessions and the sample is very small."
+logical_id = "4aceaa72-1749-4d1d-be50-5a6b61fa8197"
+content_hash = "sha256:a5ac209973eb2f41111499b88b9677bd854860cc4b2fd957b0bbc22529dc37e3"
+size = 2867
+mtime_ms = 1791237063519
+storage_uri = "gcs://replit-rams-assets-reed/rams/assets/repl:a8fb1401-f6a6-4b42-80e9-268ff8dc0fb4/4aceaa72-1749-4d1d-be50-5a6b61fa8197/73229ce9-47b5-4439-97c6-6598a4069347"
+storage_version_token = "1791237063939758"
+content_type = "text/html;profile=replit-chart"
