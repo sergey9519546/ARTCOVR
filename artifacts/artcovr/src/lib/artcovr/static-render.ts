@@ -83,11 +83,16 @@ function optimizedArtworkSources(image: string) {
   };
 }
 
-function responsiveArtworkImage(artwork: StaticArtwork, sizes: string) {
+function responsiveArtworkImage(
+  artwork: StaticArtwork,
+  sizes: string,
+  loading: "eager" | "lazy" = "lazy",
+) {
   const image = escapeHtml(artwork.image);
   const alt = escapeHtml(artwork.alt);
   const optimized = optimizedArtworkSources(artwork.image);
-  const img = `<img src="${image}" alt="${alt}" width="1200" height="1200" sizes="${escapeHtml(sizes)}" loading="lazy" decoding="async" />`;
+  const priority = loading === "eager" ? ' fetchpriority="high"' : "";
+  const img = `<img src="${image}" alt="${alt}" width="1200" height="1200" sizes="${escapeHtml(sizes)}" loading="${loading}" decoding="async"${priority} />`;
 
   if (!optimized) return img;
 
@@ -347,7 +352,7 @@ function renderProduct({ artworks, metadata, getGenres }: RenderContext) {
       <h1>${escapeHtml(artwork.title)}</h1>
     </header>
     <figure>
-      <img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(artwork.alt)}" width="1200" height="1200" />
+      ${responsiveArtworkImage(artwork, "(max-width: 1023px) 100vw, 66vw", "eager")}
       <figcaption>${escapeHtml(artwork.alt)}</figcaption>
     </figure>
     <section aria-labelledby="license-summary">

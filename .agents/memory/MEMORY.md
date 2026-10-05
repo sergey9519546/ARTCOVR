@@ -17,7 +17,7 @@
 - [Drizzle migration output](drizzle-migration-output.md) — keep the Drizzle migration output path package-relative so repeated generation can read its metadata.
 - [Drizzle migration timestamps](drizzle-migration-timestamps.md) — compare applied migration hashes, not journal generation times, because Drizzle records application time.
 - [Legacy database baseline](legacy-database-baseline.md) — only mark a matching existing development schema; fresh and partial databases take different paths.
-- [Preloader image budget](preloader-image-budget.md) — animated intro covers must use responsive derivatives; eager original assets can dominate the first-page payload.
+- [Preloader image budget](preloader-image-budget.md) — mount one intro cover eagerly and stage the rest; reserve high fetch priority for visible content heroes.
 - [Intro visual regression timing](intro-visual-regression.md) — freeze timed intro composition at a fixed active state before taking cross-viewport snapshots.
 - [Route transition curtain](route-transition-curtain.md) — keep lazy-route fallback states behind the branded curtain and warm destination chunks before navigation.
 - [Clerk theme tokens](clerk-theme-tokens.md) — style embedded auth with storefront theme variables so light/dark mode never makes credentials unreadable.

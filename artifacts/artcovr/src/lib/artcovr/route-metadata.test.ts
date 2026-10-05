@@ -144,6 +144,32 @@ describe("route metadata", () => {
     }
   });
 
+  test("prioritizes the responsive WebP image on static product routes", () => {
+    const artwork = displayArtworks[0];
+    assert.ok(artwork);
+    const optimizedName = artwork.image
+      .slice("/assets/artworks/".length, -".jpg".length);
+    const rendered = renderStaticRoute({
+      artworks: [artwork],
+      siteUrl: "https://artcovr.com",
+      metadata: getRouteMetadata(`/product/${artwork.slug}`, [artwork]),
+      getGenres: () => ["ambient"],
+    });
+
+    assert.match(
+      rendered.bodyHtml,
+      new RegExp(
+        `<picture>\\s*<source srcset="/assets/artworks/optimized/${optimizedName}-640\\.webp 640w, /assets/artworks/optimized/${optimizedName}\\.webp 1280w"[^>]*type="image/webp"`,
+      ),
+    );
+    assert.match(
+      rendered.bodyHtml,
+      new RegExp(
+        `<img src="${artwork.image}" alt="${artwork.alt.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}" width="1200" height="1200" sizes="[^"]+" loading="eager" decoding="async" fetchpriority="high"`,
+      ),
+    );
+  });
+
   test("keeps homepage links and ItemList on the same featured subset", () => {
     const homepageArtworks = featuredArtworks.slice(0, 12);
     const rendered = renderStaticRoute({

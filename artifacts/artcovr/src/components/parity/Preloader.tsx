@@ -47,6 +47,9 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
     import.meta.env.DEV &&
     (window as Window & { __artcovrIntroVisualTest?: boolean })
       .__artcovrIntroVisualTest === true;
+  const initiallyMountedImages =
+    staticPresentation || visualTestPresentation ? PRELOADER_IMAGES.length : 1;
+  const [mountedImages, setMountedImages] = useState(initiallyMountedImages);
   const [visibleImages, setVisibleImages] = useState(
     staticPresentation || visualTestPresentation ? PRELOADER_IMAGES.length : 0,
   );
@@ -69,11 +72,13 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
   useEffect(() => {
     document.documentElement.classList.add("ready");
     if (visualTestPresentation) {
+      setMountedImages(PRELOADER_IMAGES.length);
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(52);
       return;
     }
     if (staticPresentation) {
+      setMountedImages(PRELOADER_IMAGES.length);
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
@@ -84,14 +89,26 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
     }
 
     const safetyTimer = setTimeout(() => {
+      setMountedImages(PRELOADER_IMAGES.length);
       setVisibleImages(PRELOADER_IMAGES.length);
       setCounter(100);
     }, 8000);
     const timers: ReturnType<typeof setTimeout>[] = COUNTER_STEPS.map((step) =>
       setTimeout(() => setCounter(step.v), step.d),
     );
+    const animationFrames: number[] = [];
     for (let index = 0; index < PRELOADER_IMAGES.length; index += 1) {
-      timers.push(setTimeout(() => setVisibleImages(index + 1), IMAGE_START + index * IMAGE_INTERVAL));
+      timers.push(setTimeout(() => {
+        if (index === 0) {
+          setVisibleImages(1);
+          return;
+        }
+
+        setMountedImages(index + 1);
+        animationFrames.push(
+          requestAnimationFrame(() => setVisibleImages(index + 1)),
+        );
+      }, IMAGE_START + index * IMAGE_INTERVAL));
     }
     timers.push(setTimeout(() => {
       setExited(true);
@@ -107,7 +124,9 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
       if (e.key !== "Escape" && e.key !== "Tab" && e.key !== "Enter") return;
       clearTimeout(safetyTimer);
       timers.forEach((timer) => clearTimeout(timer));
+      animationFrames.forEach((frame) => cancelAnimationFrame(frame));
       setVisibleImages(PRELOADER_IMAGES.length);
+      setMountedImages(PRELOADER_IMAGES.length);
       setCounter(100);
       setExited(true);
       setDismissed(true);
@@ -120,6 +139,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
     return () => {
       clearTimeout(safetyTimer);
       timers.forEach((timer) => clearTimeout(timer));
+      animationFrames.forEach((frame) => cancelAnimationFrame(frame));
       window.removeEventListener("keydown", skipIntro);
     };
   }, []);
@@ -164,6 +184,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
           style={{ contain: "layout paint style" }}
         >
           {PRELOADER_IMAGES.map((artwork, index) => {
+            if (index >= mountedImages) return null;
             const visible = index < visibleImages;
             const shown = visible && !exited;
             return (
@@ -171,7 +192,7 @@ export function Preloader({ onExitStart, onComplete }: PreloaderProps) {
                 key={artwork.id}
                 src={artwork.image}
                 alt=""
-                loading="eager"
+                loading={index === 0 ? "eager" : "lazy"}
                 width={450}
                 height={450}
                 decoding="async"

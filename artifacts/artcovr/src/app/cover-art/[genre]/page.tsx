@@ -1,5 +1,6 @@
 import { useParams } from "wouter";
 import Link from "@/components/compat/Link";
+import Image from "@/components/compat/Image";
 import { PublicPage } from "@/components/artcovr/PublicPage";
 import { displayArtworks } from "@/lib/artcovr/artworks";
 import {
@@ -41,12 +42,13 @@ export default function GenreCoverArtPage() {
         {matching.map((artwork) => (
           <li key={artwork.slug}>
             <Link href={`/product/${encodeURIComponent(artwork.slug)}`} className="group block">
-              <img
+              <Image
                 src={artwork.image}
                 alt={artwork.alt}
                 width={1200}
                 height={1200}
                 loading="lazy"
+                sizes="(max-width: 639px) 100vw, 50vw"
                 className="aspect-square w-full object-cover"
               />
               <span className="mt-3 block text-lg font-extrabold group-hover:underline">
