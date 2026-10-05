@@ -33,6 +33,7 @@
   --background: #f3ecd9;
   --foreground: #000;
   --muted-foreground: #4c4a45;
+  --discovery-text-accent: #a9362e;
   --card: #fff;
   --card-foreground: #000;
   --border: rgb(0 0 0 / 14%);
@@ -48,6 +49,7 @@ html[data-theme="light"] {
   --background: #f3ecd9;
   --foreground: #000;
   --muted-foreground: #4c4a45;
+  --discovery-text-accent: #a9362e;
   --card: #fff;
   --card-foreground: #000;
   --border: rgb(0 0 0 / 14%);
@@ -60,6 +62,7 @@ html[data-theme="dark"] {
   --background: #000;
   --foreground: #f3ecd9;
   --muted-foreground: #c8c1b0;
+  --discovery-text-accent: #e9796e;
   --card: #171717;
   --card-foreground: #f3ecd9;
   --border: rgb(243 236 217 / 16%);
@@ -179,7 +182,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   text-transform: uppercase;
 }
 .discovery-palette-index-label {
-  color: #c84a3f;
+  color: var(--discovery-text-accent);
 }
 .discovery-palette-primary {
   padding: 18px 0 30px;
@@ -193,8 +196,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .discovery-palette-clear-inline,
 .discovery-palette-footer button {
-  border-bottom: 1px solid #c84a3f;
-  color: #c84a3f;
+  border-bottom: 1px solid currentColor;
+  color: var(--discovery-text-accent);
   cursor: pointer;
   font-size: 11px;
   font-weight: 700;
@@ -236,7 +239,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   text-transform: uppercase;
 }
 .discovery-palette-selected {
-  color: var(--background);
+  /* Opaque, theme-independent badge keeps every original swatch readable. */
+  background: #000;
+  color: #fff;
+  padding: 2px 3px;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 9px;
   font-weight: 700;
@@ -246,7 +252,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .discovery-palette-meta {
   min-height: 16px;
   margin: 18px 0 0;
-  color: color-mix(in srgb, currentColor 64%, transparent);
+  color: var(--muted-foreground);
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 10px;
   letter-spacing: .13em;
@@ -287,7 +293,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: var(--foreground);
 }
 .discovery-palette-select-label > span {
-  color: color-mix(in srgb, currentColor 46%, transparent);
+  color: var(--muted-foreground);
 }
 .discovery-palette-select-wrap {
   position: relative;
@@ -317,7 +323,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .discovery-palette-select-trigger[data-state="open"] {
   border-bottom-color: #c84a3f !important;
-  color: #c84a3f;
+  color: var(--discovery-text-accent);
 }
 .discovery-palette-select-trigger > svg {
   width: 16px;
@@ -351,11 +357,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: var(--foreground);
 }
 .discovery-palette-select-content [role="option"][data-state="checked"] {
-  color: #c84a3f;
+  color: var(--discovery-text-accent);
   font-weight: 700;
 }
 .discovery-palette-option-count {
-  color: color-mix(in srgb, currentColor 52%, transparent);
+  color: var(--muted-foreground);
   font-weight: 400;
 }
 .discovery-palette-footer {
