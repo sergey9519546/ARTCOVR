@@ -259,19 +259,20 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
     title: "Spotify & Apple Music Cover Art Specs | ARTCOVR",
     displayTitle: "SPOTIFY & APPLE MUSIC COVER ART.",
     description:
-      "Spotify requires square 640–10,000 px art; Apple Music for Artists lists JPG/PNG/GIF at least 4,000 px square. Verify distributor rules.",
+      "Check Spotify and Apple Music cover-art dimensions, formats, color guidance, and a final artwork file before delivery.",
     introduction:
-      "Spotify requires square cover art from 640 to 10,000 pixels per side in lossless TIFF, PNG, or JPG; Apple Music for Artists specifies a perfect square of at least 4,000 × 4,000 pixels in JPG, PNG, or GIF. Check the exact master against your distributor’s current upload rules—a catalog preview does not prove the delivered file’s resolution.",
+      "Spotify requires square cover art from 640 to 10,000 pixels per side in lossless TIFF, PNG, or JPG; Apple Music for Artists specifies a perfect square of at least 4,000 × 4,000 pixels in JPG, PNG, or GIF. Use the local preflight on this page to check the exact exported master, then confirm your distributor’s current upload rules—a catalog preview does not prove the delivered file’s resolution.",
     keyTakeaways: [
       "Both platforms specify square artwork, but their minimum dimensions differ.",
       "Spotify lists 640–10,000 pixels per side, lossless TIFF/PNG/JPG, sRGB at 24 bits per pixel, and says not to upscale.",
       "Apple Music for Artists specifies JPG, PNG, or GIF artwork at least 4,000 × 4,000 pixels.",
+      "The on-page preflight checks a selected file locally; a passing result does not guarantee platform acceptance.",
       "Apple’s cover guidance excludes unrelated promotion such as social handles, URLs, prices, dates, and barcodes.",
     ],
     scopeNote:
       "This guide summarizes the cited Spotify for Artists and Apple Music for Artists pages; platform guidance can change. If you deliver through a distributor, use its current upload checks too. An ARTCOVR license grants the usage rights in its terms, not a guarantee that a platform will accept a file.",
     datePublished: "2026-10-05",
-    lastReviewed: "2026-10-05",
+    lastReviewed: "2026-10-06",
     sections: [
       {
         heading: "What image dimensions does Spotify require?",
@@ -316,7 +317,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       {
         heading: "How can one export meet both published specifications?",
         answer:
-          "Use an actual square master between 4,000 and 10,000 pixels per side, in JPG or PNG, to fit the published dimensions and formats both pages list. For Spotify, use lossless encoding, sRGB at 24 bits per pixel, apply the color profile directly, and avoid embedded color-profile and orientation metadata. Do not upscale; start from a sufficiently large original and validate the final file with your distributor.",
+          "Use an actual square master between 4,000 and 10,000 pixels per side, in JPG or PNG, to fit the published dimensions and formats both pages list. For Spotify, use lossless encoding, sRGB at 24 bits per pixel, apply the color profile directly, and avoid embedded color-profile and orientation metadata. Do not upscale; start from a sufficiently large original. The preflight reports shape, dimensions, format, and detectable Spotify metadata separately, but it cannot prove the artwork’s color values or guarantee distributor acceptance.",
       },
       {
         heading: "Is a catalog preview enough to check the purchased file?",

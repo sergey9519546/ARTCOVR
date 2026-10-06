@@ -6,6 +6,7 @@ import {
 } from "@/lib/artcovr/answer-guides";
 import { artworks } from "@/lib/artcovr/artworks";
 import { selectPublicCatalog } from "@/lib/artcovr/catalog-visibility";
+import { CoverArtPreflight } from "@/components/artcovr/CoverArtPreflight";
 
 const publicArtwork = selectPublicCatalog(artworks).slice(0, 6);
 
@@ -29,6 +30,10 @@ function GuidePage({ guide }: { guide: AnswerGuide }) {
           ))}
         </ul>
       </section>
+
+      {guide.path === "/guides/spotify-apple-music-cover-art-requirements" && (
+        <CoverArtPreflight />
+      )}
 
       <div className="mt-12 space-y-10">
         {guide.sections.map((section, index) => {

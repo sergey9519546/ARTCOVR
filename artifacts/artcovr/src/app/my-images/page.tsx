@@ -16,6 +16,7 @@ import {
 import { trackEvent } from "@/lib/artcovr/analytics";
 import { appendOlderCreditActivity } from "@/lib/artcovr/account-activity";
 import { resolveCurrentDownload } from "@/lib/artcovr/account-download";
+import { CoverArtPreflight } from "@/components/artcovr/CoverArtPreflight";
 
 function formatDate(value: string | null) {
   return value
@@ -273,6 +274,7 @@ export default function MyImagesPage() {
 
   return (
     <PublicPage eyebrow="Account" title="MY IMAGES">
+      <CoverArtPreflight />
       {state === "loading" && <p role="status">Loading your images…</p>}
       {state === "ready" && message && (
         <p role="status" className="mb-4 text-sm">{message} Your current edit is preserved. <button type="button" className="underline" onClick={() => void loadAccount(true)}>Refresh account</button></p>
