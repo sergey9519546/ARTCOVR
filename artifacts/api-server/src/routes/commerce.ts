@@ -160,6 +160,21 @@ export function createCheckoutHandler(
 
   const existingOrder = existing[0];
   if (existingOrder) {
+    // A checkout UUID is a retry token, not permission to use another buyer's session.
+    // Guest retries remain anonymous and must also match the original receipt email.
+    const sameCheckoutPrincipal = existingOrder.clerkUserId
+      ? existingOrder.clerkUserId === clerkUserId
+      : !clerkUserId &&
+        Boolean(customerEmail) &&
+        existingOrder.customerEmail?.trim().toLowerCase() === customerEmail;
+    if (!sameCheckoutPrincipal) {
+      res.status(409).json({
+        code: "idempotency_conflict",
+        message: "That checkout request belongs to another customer.",
+      });
+      return;
+    }
+
     if (
       existingOrder.artworkId !== artwork.id ||
       existingOrder.amountCents !== artwork.priceCents ||

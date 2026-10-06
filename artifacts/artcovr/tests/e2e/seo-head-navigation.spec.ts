@@ -11,10 +11,13 @@ import {
 } from "../../src/lib/artcovr/route-metadata";
 import { buildRouteStructuredData } from "../../src/lib/artcovr/route-structured-data";
 import { renderStaticRoute } from "../../src/lib/artcovr/static-render";
+import { getSiteUrl } from "../../src/lib/artcovr/seo";
 import { ANSWER_GUIDE_BY_PATH } from "../../src/lib/artcovr/answer-guides";
 import { assertUsablePage } from "./fixtures";
 
-const siteUrl = "";
+// Match the interactive head's configured canonical origin. An unset origin
+// keeps the existing relative-URL development expectations.
+const siteUrl = getSiteUrl(process.env.VITE_SITE_URL ?? "");
 const getGenres = (artwork: (typeof displayArtworks)[number]) =>
   getArtworkGenres(artwork).map(displayGenreLabel);
 

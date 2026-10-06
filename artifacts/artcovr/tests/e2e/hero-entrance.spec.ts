@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { featuredArtworks, pickIntroArtworks } from "../../src/lib/artcovr/artworks";
 
 type HeroState = {
   matchesStaticMedia: boolean;
@@ -362,8 +363,8 @@ test("mobile intro renders its artwork stack before collapsing it on exit", asyn
     await expect(preloader).toBeVisible();
     await expect(artwork).not.toHaveCount(0);
 
-    const initial = await readIntroArtworkState(page);
-    expect(initial.total).toBeGreaterThan(1);
+    const expectedImageCount = pickIntroArtworks(featuredArtworks, 18).length;
+    expect(expectedImageCount).toBeGreaterThan(1);
     await expect
       .poll(async () => (await readIntroArtworkState(page)).rendered, {
         timeout: 3_500,
@@ -377,11 +378,15 @@ test("mobile intro renders its artwork stack before collapsing it on exit", asyn
       /Loading \d+ percent/,
     );
 
+    // Animated presentations mount their stack progressively. Observe the
+    // complete intended stack before checking its brief exit-collapse state.
+    await expect(artwork).toHaveCount(expectedImageCount);
     await expect
       .poll(async () => (await readIntroArtworkState(page)).collapsed, {
         timeout: 6_000,
+        intervals: [25, 50],
       })
-      .toBe(initial.total);
+      .toBe(expectedImageCount);
     await expect(preloader).toHaveAttribute("aria-hidden", "true");
     await expect(preloader).toBeAttached();
 

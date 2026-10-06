@@ -167,7 +167,7 @@ test("generation and reference failures release every loading state", async ({
   await expect(page.getByText("The reference image could not be decoded.")).toBeVisible();
   await expect(page.getByText("Uploading…")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Attach a reference photo" }),
+    page.getByRole("button", { name: "Add your photo as a reference", exact: true }),
   ).toBeEnabled();
 });
 

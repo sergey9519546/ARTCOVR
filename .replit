@@ -12,15 +12,6 @@ env = { "CI" = "true" }
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "clerk-privacy"
-
-[[workflows.workflow]]
 name = "clerk-privacy"
 author = "agent"
 
