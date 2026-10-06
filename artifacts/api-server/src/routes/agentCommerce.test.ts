@@ -1,8 +1,16 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
-import app from "../app";
+import express from "express";
+import pinoHttp from "pino-http";
+import agentCommerceRouter from "./agentCommerce";
 import { getPublicCatalog } from "../catalog";
+// These route contracts do not require a Clerk tenant. Full-app authentication
+// is covered by the dedicated Clerk privacy and browser integration checks.
+const app = express();
+app.use(pinoHttp({ level: "silent" }));
+app.use("/api", agentCommerceRouter);
+
 
 test("unknown agent artwork slugs do not reach payment setup", async () => {
   const server = createServer(app);
