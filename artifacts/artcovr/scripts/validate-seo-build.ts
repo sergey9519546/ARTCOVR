@@ -6,6 +6,9 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with { type: 
 import { featuredArtworks } from "../src/lib/artcovr/artworks";
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { displayGenreLabel, getArtworkGenres } from "../src/lib/artcovr/genre-index";
+import { LICENSE_POLICY } from "../src/lib/artcovr/license-policy";
+import { TERMS_POLICY } from "../src/lib/artcovr/terms-policy";
+import type { PolicyDocument } from "../src/lib/artcovr/policy-document";
 import {
   getIndexableRoutePaths,
   getPrerenderedRoutePaths,
@@ -324,6 +327,29 @@ export function validateRoute(
   const contentWithoutScripts = html
     .replace(/<script\b[\s\S]*?<\/script>/gi, "")
     .replace(/<style\b[\s\S]*?<\/style>/gi, "");
+  const policy: PolicyDocument | undefined = route === "/license"
+    ? LICENSE_POLICY
+    : route === "/legal/terms" ? TERMS_POLICY : undefined;
+  if (policy) {
+    const article = contentWithoutScripts.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1] ?? "";
+    const actual = [...article.matchAll(/<(p|h2|li)\b[^>]*>([\s\S]*?)<\/\1>/gi)]
+      .map((match) => [match[1].toLowerCase(), decodeHtml(match[2].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim())]);
+    const expected = [
+      ["p", policy.introduction],
+      ...policy.sections.flatMap((section) => [
+        ["h2", section.heading],
+        ...section.blocks.flatMap((block) => block.kind === "paragraph"
+          ? [["p", block.text]]
+          : block.items.map((item) => ["li", item])),
+      ]),
+    ];
+    check(
+      JSON.stringify(actual) === JSON.stringify(expected),
+      route,
+      "complete crawlable policy",
+      "initial HTML must contain every approved heading, paragraph, and restriction in order",
+    );
+  }
   const headings = [
     ...contentWithoutScripts.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi),
   ]

@@ -1,5 +1,8 @@
 import { serializeJsonLd } from "./seo";
 import { PRIVACY_POLICY } from "./privacy-policy";
+import { LICENSE_POLICY } from "./license-policy";
+import { TERMS_POLICY } from "./terms-policy";
+import { renderPolicyHtml } from "./policy-document";
 import { buildRouteStructuredData, FAQ_QUESTIONS } from "./route-structured-data";
 import {
   getSocialPreviewMetadata,
@@ -367,14 +370,9 @@ const INFO_CONTENT: Record<string, { eyebrow: string; title: string; body: strin
       <p>${link("/archive", "Browse the archive")} ${link("/license", "Read the commercial license")}</p>`,
   },
   "/license": {
-    eyebrow: "Licensing",
-    title: "Commercial cover art license.",
-    body: `<p>A completed ARTCOVR purchase grants you a commercial license for the purchased base artwork and the clean generated images included with that purchase. You may use those images in commercial creative projects, including music releases and their promotion.</p>
-      <h2>What the license does not allow</h2>
-      <ul><li>Resell an image as a standalone file, or offer it through a stock, asset, or template library.</li><li>Sublicense it for others to reuse independently.</li><li>Use it to train an AI model.</li><li>Claim authorship or copyright ownership of the AI-generated result.</li></ul>
-      <h2>Exclusive and repeatable artwork</h2>
-      <p>Repeatable artwork may be licensed to more than one customer. For exclusive artwork, verified payment removes the work from future sale on ARTCOVR. Exclusive means removal from this storefront; it does not transfer copyright or promise that no visually similar work exists anywhere else.</p>
-      <p>${link("/faq", "Read licensing questions")} ${link("/legal/terms", "Read full terms")}</p>`,
+    eyebrow: LICENSE_POLICY.eyebrow,
+    title: LICENSE_POLICY.title,
+    body: renderPolicyHtml(LICENSE_POLICY, escapeHtml, link),
   },
   "/refunds": {
     eyebrow: "Support",
@@ -402,12 +400,9 @@ const INFO_CONTENT: Record<string, { eyebrow: string; title: string; body: strin
       .join("")}`,
   },
   "/legal/terms": {
-    eyebrow: "Legal",
-    title: "Terms.",
-    body: `<p>These terms govern your use of ARTCOVR, individual artwork purchases, included image-generation access, and downloads. By purchasing, you agree to the license shown during checkout and these terms.</p>
-      <h2>Purchases and fulfillment</h2><p>Each checkout covers one artwork at the price shown in USD. Stripe processes the payment. Access begins only after ARTCOVR verifies payment through its payment webhook; a browser success page alone does not prove fulfillment.</p>
-      <h2>Artwork and generated images</h2><p>Exclusive artwork is removed from ARTCOVR after verified payment. Repeatable artwork remains available for other customers under separate non-exclusive licenses. Generated images remain subject to the commercial license and its restrictions.</p>
-      <p>${link("/license", "Read the commercial license")} ${link("/refunds", "Read the refund policy")}</p>`,
+    eyebrow: TERMS_POLICY.eyebrow,
+    title: TERMS_POLICY.title,
+    body: renderPolicyHtml(TERMS_POLICY, escapeHtml, link),
   },
 };
 

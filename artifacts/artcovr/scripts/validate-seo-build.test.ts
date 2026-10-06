@@ -7,6 +7,9 @@ import curatedPublic from "../src/lib/artcovr/curated-public.json" with {
 import { selectPublicCatalog } from "../src/lib/artcovr/catalog-visibility";
 import { featuredArtworks } from "../src/lib/artcovr/artworks";
 import { ANSWER_GUIDE_BY_PATH } from "../src/lib/artcovr/answer-guides";
+import { LICENSE_POLICY } from "../src/lib/artcovr/license-policy";
+import { TERMS_POLICY } from "../src/lib/artcovr/terms-policy";
+import type { PolicyDocument } from "../src/lib/artcovr/policy-document";
 import {
   displayGenreLabel,
   getArtworkGenres,
@@ -82,6 +85,37 @@ const escapedPublicFixture = {
       `ARTCOVR's "direct" cover-art process & license for artists.`,
   },
 };
+
+for (const [policyRoute, policy] of [
+  ["/license", LICENSE_POLICY],
+  ["/legal/terms", TERMS_POLICY],
+] as const) {
+  test(`SEO validation accepts the full ${policyRoute} policy and rejects omission of any block`, () => {
+    const fixture = publicRouteFixtures.find(({ route }) => route === policyRoute)!;
+    const html = renderGeneratedPublicDocument(fixture);
+    const validate = (document: string) => validateRoute(
+      policyRoute, document, siteUrl, ["Organization", "WebSite", "WebPage"],
+      { metadata: fixture.metadata },
+    );
+    assert.doesNotThrow(() => validate(html));
+    const document: PolicyDocument = policy;
+    const fragments = [
+      `<p>${document.introduction}</p>`,
+      ...document.sections.flatMap((section) => [
+        `<h2>${section.heading}</h2>`,
+        ...section.blocks.flatMap((block) => block.kind === "paragraph"
+          ? [`<p>${block.text}</p>`]
+          : block.items.map((item) => `<li>${item}</li>`)),
+      ]),
+    ];
+    for (const fragment of fragments) {
+      assert.ok(html.includes(fragment));
+      assert.throws(() => validate(html.replace(fragment, "")), /complete crawlable policy/);
+    }
+    const firstHeading = `<h2>${document.sections[0].heading}</h2>`;
+    assert.throws(() => validate(html.replace(firstHeading, `${firstHeading}${firstHeading}`)), /complete crawlable policy/);
+  });
+}
 
 function renderGeneratedProductDocument(fixture = catalogFixture) {
   const { route: fixtureRoute, metadata: fixtureMetadata, artwork: fixtureArtwork } = fixture;
@@ -344,7 +378,7 @@ test("gives the commercial license route a descriptive primary heading", () => {
     metadata: getRouteMetadata("/license", publicCatalog),
   });
 
-  assert.match(generatedDocument, /<h1>Commercial cover art license\.<\/h1>/);
+  assert.match(generatedDocument, /<h1>Commercial cover art license\.<\/h1>/i);
   assert.doesNotMatch(generatedDocument, /<h1>Clear before checkout\.<\/h1>/);
 });
 
