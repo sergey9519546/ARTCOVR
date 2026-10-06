@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { featuredArtworks } from "../../src/lib/artcovr/artworks";
+import { homepageArtworkGroups } from "../../src/lib/artcovr/homepage-artwork-groups";
 import { makeJourneyConsts } from "../../src/components/parity/journey";
 
 for (const width of [1069, 1440]) {
@@ -36,7 +36,7 @@ for (const width of [1069, 1440]) {
       return stable;
     }).toBe(true);
     const sectionStart = stableSectionStart!;
-    const constants = makeJourneyConsts(featuredArtworks.length);
+    const constants = makeJourneyConsts(homepageArtworkGroups.slide.length);
     await page.evaluate((top) => {
       for (let offset = 0; offset <= 1000; offset += 1) {
         window.scrollTo(0, top + offset);
@@ -48,6 +48,18 @@ for (const width of [1069, 1440]) {
     await page.waitForTimeout(100);
     const lead = page.getByRole("region", { name: "ARTCOVR spiral archive", exact: true }).locator('[data-shared-lead="true"]');
     await expect(lead).toBeVisible();
+    await expect(lead).toHaveAttribute(
+      "data-artwork-id",
+      homepageArtworkGroups.spiral[0].id,
+    );
+    await expect(lead).toHaveAttribute(
+      "href",
+      `/product/${homepageArtworkGroups.spiral[0].slug}`,
+    );
+    expect(homepageArtworkGroups.spiral[0].id).not.toBe(
+      homepageArtworkGroups.slide.at(-1)?.id,
+    );
+    await expect(lead).toHaveAttribute("tabindex", "0");
     await expect.poll(async () => {
       const section = await journey.boundingBox();
       const card = await lead.boundingBox();
@@ -55,6 +67,61 @@ for (const width of [1069, 1440]) {
     }).toBeLessThan(3);
   });
 }
+
+test("the visible carousel cover links to its own product page", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/archive", { waitUntil: "domcontentloaded" });
+
+  const artwork = homepageArtworkGroups.slide[0];
+  const card = page.getByTestId(`carousel-artwork-${artwork.id}`);
+  await expect(card).toBeVisible();
+  await expect(card).toHaveAttribute("href", `/product/${artwork.slug}`);
+  await card.click();
+  await expect(page).toHaveURL(`/product/${artwork.slug}`);
+});
+
+test("the spiral handoff cover opens its own product page by keyboard", async ({ page }) => {
+  const width = 1440;
+  await page.setViewportSize({ width, height: 960 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/archive", { waitUntil: "domcontentloaded" });
+
+  const journey = page.getByRole("region", {
+    name: "ARTCOVR archive journey",
+    exact: true,
+  });
+  await expect(journey).toBeVisible();
+  const pinSpacer = page.locator(".pin-spacer").filter({ has: journey });
+  const sectionStart = await pinSpacer.evaluate(
+    (element) => element.getBoundingClientRect().top + window.scrollY,
+  );
+  const constants = makeJourneyConsts(homepageArtworkGroups.slide.length);
+  await page.evaluate(
+    ({ top, spiralLeadId }) => {
+      for (let offset = 0; offset <= 1000; offset += 1) {
+        window.scrollTo(0, top + offset);
+        window.dispatchEvent(new Event("scroll"));
+        const lead = document.querySelector<HTMLElement>(
+          `[data-testid="spiral-artwork-${spiralLeadId}"]`,
+        );
+        if (lead?.style.visibility === "visible" && lead.tabIndex === 0) break;
+      }
+    },
+    {
+      top: sectionStart + constants.carouselSpan + 1,
+      spiralLeadId: homepageArtworkGroups.spiral[0].id,
+    },
+  );
+
+  const artwork = homepageArtworkGroups.spiral[0];
+  const lead = page.getByTestId(`spiral-artwork-${artwork.id}`);
+  await expect(lead).toBeVisible();
+  await expect(lead).toHaveAttribute("tabindex", "0");
+  await lead.focus();
+  await lead.press("Enter");
+  await expect(page).toHaveURL(`/product/${artwork.slug}`);
+});
 
 test("reduced-motion archive starts flush left with keyboard-operable cards", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

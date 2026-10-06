@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
-import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { homepageArtworkGroups } from "@/lib/artcovr/homepage-artwork-groups";
 import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 import {
   carouselCardSizeForViewport,
@@ -15,7 +15,7 @@ import {
   type JourneyStore,
 } from "./journey";
 
-const ITEMS = displayArtworks.map((artwork, index) => ({
+const ITEMS = homepageArtworkGroups.slide.map((artwork, index) => ({
   id: artwork.id,
   src: artwork.image,
   title: artwork.title,
@@ -108,7 +108,9 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
         const left = carouselRailCardLeft(index, CW, CG, translate);
         const onScreen = left + CW > 0 && left < viewportWidth;
         const nextTabIndex = onScreen ? 0 : -1;
-        if (card.tabIndex !== nextTabIndex) card.tabIndex = nextTabIndex;
+        if (card.getAttribute("tabindex") !== String(nextTabIndex)) {
+          card.tabIndex = nextTabIndex;
+        }
       });
     };
 
@@ -169,6 +171,41 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
       cards.forEach((card) => card.removeAttribute("tabindex"));
     };
   }, [layered, journey, CW, CG, viewportWidth, maxTravel]);
+
+  useEffect(() => {
+    if (!staticMode || layered) return;
+    const track = trackRef.current;
+    if (!track) return;
+
+    const cards = Array.from(
+      track.querySelectorAll<HTMLAnchorElement>(".carousel-card"),
+    );
+    const syncStaticFocusWindow = () => {
+      const viewport = track.getBoundingClientRect();
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const onScreen =
+          rect.right > viewport.left &&
+          rect.left < viewport.right &&
+          rect.bottom > viewport.top &&
+          rect.top < viewport.bottom;
+        const nextTabIndex = onScreen ? 0 : -1;
+        if (card.getAttribute("tabindex") !== String(nextTabIndex)) {
+          card.tabIndex = nextTabIndex;
+        }
+      });
+    };
+
+    syncStaticFocusWindow();
+    track.addEventListener("scroll", syncStaticFocusWindow, { passive: true });
+    window.addEventListener("resize", syncStaticFocusWindow);
+
+    return () => {
+      track.removeEventListener("scroll", syncStaticFocusWindow);
+      window.removeEventListener("resize", syncStaticFocusWindow);
+      cards.forEach((card) => card.removeAttribute("tabindex"));
+    };
+  }, [layered, staticMode, CW, CG, viewportWidth]);
 
   // Preserve the archive's keyboard navigation. Static mode scrolls its own
   // track; the layered mode translates the journey's master scroll — the
@@ -290,6 +327,8 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
               style={{ width: `${CW}px`, height: `${CH}px` }}
               href={`/product/${item.slug}`}
               data-artwork="true"
+              data-artwork-id={item.id}
+              data-testid={`carousel-artwork-${item.id}`}
               aria-label={`Open ${item.title}`}
             >
               <div className="h-full w-full overflow-hidden">
@@ -368,6 +407,8 @@ export function TiltedCarousel({ journey }: { journey?: JourneyStore | null }) {
               style={{ width: `${CW}px`, height: `${CH}px` }}
               href={`/product/${item.slug}`}
               data-artwork="true"
+              data-artwork-id={item.id}
+              data-testid={`carousel-artwork-${item.id}`}
               aria-label={`Open ${item.title}`}
             >
               <div className="h-full w-full overflow-hidden">

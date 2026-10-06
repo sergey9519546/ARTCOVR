@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { ProductCard } from "./ProductCard";
 import { GRID_RUNWAY_END, GridRunway } from "./GridRunway";
-// The home grid renders the featured tier only (owner rule: green works on the
-// front page, archive works on /archive). Aliased to the historical name so the
-// motion/parity source contracts keep matching.
-import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { homepageArtworkGroups } from "@/lib/artcovr/homepage-artwork-groups";
+
+const gridArtworks = homepageArtworkGroups.grid;
 
 const ARTWORK_IMAGE_FALLBACK = "/assets/artwork-placeholder.svg";
 
@@ -20,7 +19,7 @@ function shuffleArtworks<T>(items: readonly T[]) {
 }
 
 function hasRange(min: number, max: number) {
-  return displayArtworks.length >= min && displayArtworks.length <= max;
+  return gridArtworks.length >= min && gridArtworks.length <= max;
 }
 
 /**
@@ -34,7 +33,7 @@ const CLAMPED_TRAILING_CARDS = 16;
 export function ProductGrid() {
   const [revealed, setRevealed] = useState(false);
   const [shuffledRemainingArtworks, setShuffledRemainingArtworks] = useState(
-    () => displayArtworks.slice(GRID_RUNWAY_END),
+    () => gridArtworks.slice(GRID_RUNWAY_END),
   );
 
   useEffect(() => {
@@ -72,10 +71,10 @@ export function ProductGrid() {
     return () => document.removeEventListener("error", handleImageError, true);
   }, []);
 
-  if (displayArtworks.length === 0) return null;
+  if (gridArtworks.length === 0) return null;
   const isPartialCatalog = hasRange(4, 7);
   const remainingArtworks = shuffledRemainingArtworks;
-  const firstRow = displayArtworks.slice(0, 12);
+  const firstRow = gridArtworks.slice(0, 12);
   const uniformRowClass = "grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-y-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16";
   const firstRowSpacing = isPartialCatalog ? "mb-6 md:mb-8" : "mb-10 md:mb-12";
   const canReveal = remainingArtworks.length > CLAMPED_TRAILING_CARDS;
@@ -84,7 +83,11 @@ export function ProductGrid() {
   const showReveal = canReveal && !revealed;
 
   return (
-    <section className="px-4 lg:px-6" aria-labelledby="selected-artworks">
+    <section
+      className="px-4 lg:px-6"
+      aria-labelledby="selected-artworks"
+      data-testid="homepage-artwork-grid"
+    >
       <h2 id="selected-artworks" className="sr-only">
         Selected cover artwork
       </h2>
@@ -118,7 +121,7 @@ export function ProductGrid() {
           >
             {revealed
               ? "Show fewer covers"
-              : `Reveal more — ${displayArtworks.length} covers`}
+              : `Reveal more — ${gridArtworks.length} covers`}
           </button>
         </div>
       )}

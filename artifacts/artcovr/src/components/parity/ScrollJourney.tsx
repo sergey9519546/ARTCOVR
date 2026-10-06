@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { featuredArtworks } from "@/lib/artcovr/artworks";
+import { homepageArtworkGroups } from "@/lib/artcovr/homepage-artwork-groups";
 import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 import { TiltedCarousel } from "./TiltedCarousel";
 import { SpiralScroll } from "./SpiralScroll";
@@ -29,7 +29,7 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
   );
   const [motionFailed, setMotionFailed] = useState(false);
   const [consts] = useState<JourneyConsts>(() =>
-    makeJourneyConsts(featuredArtworks.length),
+    makeJourneyConsts(homepageArtworkGroups.slide.length),
   );
   useEffect(() => {
     const mediaQuery = window.matchMedia(JOURNEY_STATIC_MEDIA_QUERY);
@@ -65,7 +65,11 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
     }),
     [consts],
   );
-  const layered = !staticMode && !motionFailed;
+  const layered =
+    !staticMode &&
+    !motionFailed &&
+    homepageArtworkGroups.slide.length >= 2 &&
+    homepageArtworkGroups.spiral.length >= 2;
 
   useLayoutEffect(() => {
     if (!enabled || !layered || !rootRef.current) return;
@@ -145,7 +149,12 @@ export function ScrollJourney({ enabled }: { enabled: boolean }) {
     };
   }, [enabled, layered, consts.total]);
 
-  if (featuredArtworks.length < 2) return null;
+  if (
+    homepageArtworkGroups.slide.length === 0 &&
+    homepageArtworkGroups.spiral.length === 0
+  ) {
+    return null;
+  }
 
   return (
     <section

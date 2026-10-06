@@ -1,9 +1,9 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { displayArtworks } from "../../src/lib/artcovr/artworks";
 import { getArtworkColors } from "../../src/lib/artcovr/catalog-intelligence";
+import { homepageArtworkGroups } from "../../src/lib/artcovr/homepage-artwork-groups";
 import { hybridSearch } from "../../src/lib/artcovr/semantic-search";
 
-const FEATURED_TOTAL = 92;
 const ARCHIVE_TOTAL = 187;
 
 type FacetKey = "genre" | "mood" | "color";
@@ -103,12 +103,21 @@ async function findCompatibleOption(page: Page, key: FacetKey) {
 test("public catalog keeps genre coverage and featured/archive boundaries", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("#artcovr-preloader")).toHaveCount(0, {
+    timeout: 8_000,
+  });
   await expect(
     page.locator('section[aria-labelledby="selected-artworks"] a[data-artwork="true"]'),
-  ).toHaveCount(FEATURED_TOTAL);
+  ).toHaveCount(homepageArtworkGroups.grid.length);
   await expect(page.locator("[data-catalog-controls]")).toHaveCount(0);
   await expect(page.locator('[aria-label="ARTCOVR archive journey"]')).toHaveCount(1);
+  await expect(
+    page.locator('[aria-label="The ARTCOVR archive"] a[data-artwork="true"]'),
+  ).toHaveCount(homepageArtworkGroups.slide.length);
+  await expect(
+    page.locator('[aria-label="ARTCOVR spiral archive"] a[data-artwork="true"]'),
+  ).toHaveCount(homepageArtworkGroups.spiral.length);
 
   await page.goto("/archive");
   await expect(catalogStatus(page)).toHaveText(

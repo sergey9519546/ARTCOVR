@@ -17,8 +17,8 @@
 
 export const JOURNEY_PX_PER_CARD = 170;
 export const JOURNEY_CAROUSEL_MIN_SCROLL = 6000;
-// Forty sampled covers need enough physical wheel travel to be read rather
-// than flashed past. At 12,000px the spiral advances about 300px per cover.
+// Up to forty covers need enough physical wheel travel to be read rather than
+// flashed past. At 12,000px the spiral advances about 300px per cover.
 export const JOURNEY_SPIRAL_SPAN = 12000;
 // Master scroll pixels shared by both phases during the hand-off. Small enough
 // that the two motions co-exist (a real momentum hand-off), large enough that

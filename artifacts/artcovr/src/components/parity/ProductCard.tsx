@@ -23,6 +23,8 @@ export const ProductCard = memo(function ProductCard({
     <Link
       className="group block"
       data-artwork="true"
+      data-artwork-id={artwork.id}
+      data-testid={`artwork-card-${artwork.id}`}
       data-cursor="text"
       href={`/product/${artwork.slug}`}
       aria-label={`Open ${artwork.title}`}

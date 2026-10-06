@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "@/components/compat/Image";
 import Link from "@/components/compat/Link";
-import { featuredArtworks as displayArtworks } from "@/lib/artcovr/artworks";
+import { homepageArtworkGroups } from "@/lib/artcovr/homepage-artwork-groups";
 import { STATIC_MEDIA_QUERY } from "@/lib/artcovr/motion";
 import {
   carouselCardSizeForViewport,
@@ -17,24 +17,7 @@ import {
   type JourneyStore,
 } from "./journey";
 
-const MAX_SPIRAL_ITEMS = 40;
-function sampleSpiralItems(offset: number) {
-  if (displayArtworks.length === 0) return [];
-  const terminal = displayArtworks[displayArtworks.length - 1];
-  const sampled = displayArtworks.length <= MAX_SPIRAL_ITEMS
-    ? displayArtworks
-    : Array.from({ length: MAX_SPIRAL_ITEMS }, (_, index) => {
-    const sourceIndex = Math.floor(
-      (index * displayArtworks.length) / MAX_SPIRAL_ITEMS,
-    );
-    return displayArtworks[(sourceIndex + offset) % displayArtworks.length];
-  });
-  return [
-    terminal,
-    ...sampled.filter((artwork) => artwork.id !== terminal.id),
-  ].slice(0, MAX_SPIRAL_ITEMS);
-}
-const ITEMS = sampleSpiralItems(0);
+const ITEMS = homepageArtworkGroups.spiral;
 
 /*
  * The archive spiral is a depth tunnel, not a stack of absolutely-placed rows.
@@ -162,6 +145,9 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       // the first spiral cards slide, then settle, then fall into depth.
       const drift = (1 - smoothstep(s / 0.3)) * -cardSize * 0.6;
       const spiralOwnsLead = ph.handoff >= SHARED_HANDOFF_SWITCH;
+      if (sectionRef.current) {
+        sectionRef.current.style.pointerEvents = spiralOwnsLead ? "auto" : "none";
+      }
       const formationOpacity = smoothstep(
         clamp01((ph.handoff - 0.25) / 0.75),
       );
@@ -318,7 +304,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       });
     };
 
-    // Inert until place() decides otherwise, so no frame ships 40 stacked,
+    // Inert until place() decides otherwise, so no frame ships stacked,
     // invisible, clickable covers.
     itemElements.forEach((element) => {
       element.style.visibility = "hidden";
@@ -341,6 +327,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
       });
       stage.style.removeProperty("transform");
       stage.style.removeProperty("opacity");
+      sectionRef.current?.style.removeProperty("pointer-events");
       if (label) label.style.removeProperty("opacity");
       chrome.forEach((el) => el.style.removeProperty("opacity"));
     };
@@ -349,7 +336,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
   if (ITEMS.length === 0) return null;
 
   if (!layered || ITEMS.length < 2) {
-    const staticItems = displayArtworks;
+    const staticItems = ITEMS;
     return (
       <section
         className="px-4 py-20"
@@ -366,6 +353,8 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
               key={artwork.id}
               href={`/product/${artwork.slug}`}
               data-artwork="true"
+              data-artwork-id={artwork.id}
+              data-testid={`spiral-artwork-${artwork.id}`}
               className="group block"
             >
               <Image
@@ -397,6 +386,7 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
         background: "transparent",
         color: "var(--foreground)",
         perspective: `${PERSPECTIVE}px`,
+        pointerEvents: "none",
       }}
     >
       <div
@@ -431,6 +421,8 @@ export function SpiralScroll({ journey }: { journey?: JourneyStore | null }) {
             key={artwork.id}
             href={`/product/${artwork.slug}`}
             data-artwork="true"
+            data-artwork-id={artwork.id}
+            data-testid={`spiral-artwork-${artwork.id}`}
             data-shared-lead={index === 0 ? "true" : undefined}
             data-exit-grid={index >= Math.max(1, ITEMS.length - EXIT_GRID_COUNT) ? "true" : undefined}
             aria-label={`View ${artwork.title}`}
