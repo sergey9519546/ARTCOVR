@@ -148,11 +148,13 @@ row_counts() {
   "
 }
 
+# Compare every original legacy field. Additive migration fields are checked
+# separately below so adding columns cannot masquerade as altered legacy data.
 content_hash() {
   psql "$test_database_url" -X -v ON_ERROR_STOP=1 -Atqc "
     with snapshots(table_name, payload) as (
       select 'artcovr_credit_ledger',
-        coalesce((select jsonb_agg(to_jsonb(t) order by t.id)::text
+        coalesce((select jsonb_agg((to_jsonb(t) - 'clerk_user_id') order by t.id)::text
           from artcovr_credit_ledger t), '[]')
       union all
       select 'artcovr_generations',
@@ -164,7 +166,7 @@ content_hash() {
           from artcovr_inquiries t), '[]')
       union all
       select 'artcovr_orders',
-        coalesce((select jsonb_agg(to_jsonb(t) order by t.id)::text
+        coalesce((select jsonb_agg((to_jsonb(t) - 'refunded_cents' - 'sales_channel') order by t.id)::text
           from artcovr_orders t), '[]')
       union all
       select 'artcovr_reference_uploads',
@@ -264,6 +266,8 @@ fi
 # twice to prove a routine repeat does not duplicate history or touch commerce
 # data.
 run_development_migration "post-merge setup (first run)"
+assert_query "backfilled legacy ledger owner" "user-legacy-1" "select clerk_user_id from artcovr_credit_ledger where id = 'ledger-legacy-1'"
+assert_query "legacy order additive defaults" "0:storefront" "select refunded_cents::text || ':' || sales_channel from artcovr_orders where id = 'order-legacy-1'"
 assert_query "post-merge setup first run migration count" "${#migration_files[@]}" \
   "select count(*)::text from drizzle.__drizzle_migrations"
 if [[ "$(row_counts)" != "$before_counts" || "$(content_hash)" != "$before_content_hash" ]]; then
