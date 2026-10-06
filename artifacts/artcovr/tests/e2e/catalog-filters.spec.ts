@@ -56,8 +56,7 @@ async function clearFacet(page: Page, key: FacetKey) {
   if (key !== "color") {
     const select = facet(page, key).getByRole("combobox");
     await select.click();
-    await page.keyboard.press("Home");
-    await page.keyboard.press("Enter");
+    await page.getByRole("option").first().click();
     return;
   }
   await facet(page, key)
