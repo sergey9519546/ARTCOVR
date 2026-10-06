@@ -27,6 +27,8 @@ type ImageMetadata = {
   hasIccProfile: boolean;
   hasColorMetadata: boolean;
   hasOrientation: boolean;
+  isAnimated: boolean;
+  isMalformed: boolean;
 };
 
 const SPOTIFY_FORMATS = new Set<ImageFormat>(["JPEG", "PNG", "TIFF"]);
@@ -119,12 +121,15 @@ function readTiffMetadata(
 }
 
 function inspectTiff(bytes: Uint8Array): ImageMetadata {
+  const tiff = readTiffMetadata(bytes, 0, bytes.length);
   return {
     format: "TIFF",
     hasIccProfile: false,
     hasColorMetadata: false,
     hasOrientation: false,
-    ...readTiffMetadata(bytes, 0, bytes.length),
+    isAnimated: false,
+    isMalformed: !tiff.width || !tiff.height,
+    ...tiff,
   };
 }
 
@@ -136,14 +141,29 @@ function inspectPng(bytes: Uint8Array): ImageMetadata {
   let hasIccProfile = false;
   let hasColorMetadata = false;
   let hasOrientation = false;
+  let isAnimated = false;
+  let isMalformed = false;
+  let sawHeader = false;
+  let sawImageData = false;
+  let sawEnd = false;
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
   for (let offset = 8; offset + 12 <= bytes.length;) {
     const chunkLength = view.getUint32(offset);
     const chunkType = readAscii(bytes, offset + 4, 4);
     const dataOffset = offset + 8;
-    if (chunkLength > bytes.length - dataOffset - 4) break;
-    if (chunkType === "IHDR" && chunkLength >= 13) {
+    if (chunkLength > bytes.length - dataOffset - 4) {
+      isMalformed = true;
+      break;
+    }
+    if ((offset === 8 && chunkType !== "IHDR") || (!sawHeader && chunkType !== "IHDR")) {
+      isMalformed = true;
+    }
+    if (chunkType === "IHDR") {
+      if (sawHeader || chunkLength !== 13) isMalformed = true;
+      sawHeader = true;
+    }
+    if (chunkType === "IHDR" && chunkLength === 13) {
       width = view.getUint32(dataOffset);
       height = view.getUint32(dataOffset + 4);
       const bitDepth = bytes[dataOffset + 8];
@@ -160,6 +180,8 @@ function inspectPng(bytes: Uint8Array): ImageMetadata {
         colorType === 6 ? "RGBA" :
         colorType === 3 ? "Indexed" :
         colorType === 0 || colorType === 4 ? "Grayscale" : "Unknown";
+    } else if (chunkType === "IDAT") {
+      sawImageData = true;
     } else if (chunkType === "iCCP") {
       hasIccProfile = true;
       hasColorMetadata = true;
@@ -168,9 +190,17 @@ function inspectPng(bytes: Uint8Array): ImageMetadata {
     } else if (chunkType === "eXIf") {
       const exif = readTiffMetadata(bytes, dataOffset, chunkLength);
       hasOrientation = Boolean(exif.hasOrientation);
+    } else if (chunkType === "acTL") {
+      isAnimated = true;
+    } else if (chunkType === "IEND") {
+      if (chunkLength !== 0 || !sawImageData) isMalformed = true;
+      sawEnd = true;
     }
     offset = dataOffset + chunkLength + 4;
     if (chunkType === "IEND") break;
+  }
+  if (!sawHeader || !sawImageData || !sawEnd || !width || !height) {
+    isMalformed = true;
   }
 
   return {
@@ -182,6 +212,8 @@ function inspectPng(bytes: Uint8Array): ImageMetadata {
     hasIccProfile,
     hasColorMetadata,
     hasOrientation,
+    isAnimated,
+    isMalformed,
   };
 }
 
@@ -192,20 +224,36 @@ function inspectJpeg(bytes: Uint8Array): ImageMetadata {
   let colorMode: ColorMode | undefined;
   let hasIccProfile = false;
   let hasOrientation = false;
+  let sawFrame = false;
+  let sawScan = false;
+  let isMalformed = false;
 
   for (let offset = 2; offset + 4 <= bytes.length;) {
-    if (bytes[offset] !== 0xff) break;
+    if (bytes[offset] !== 0xff) {
+      isMalformed = true;
+      break;
+    }
     while (bytes[offset] === 0xff) offset += 1;
+    if (offset >= bytes.length) {
+      isMalformed = true;
+      break;
+    }
     const marker = bytes[offset++];
-    if (marker === 0xd9 || marker === 0xda) break;
+    if (marker === 0xd9) break;
     if (
       marker === 0x01 ||
       (marker >= 0xd0 && marker <= 0xd7)
     ) continue;
-    if (offset + 2 > bytes.length) break;
+    if (offset + 2 > bytes.length) {
+      isMalformed = true;
+      break;
+    }
     const segmentLength = (bytes[offset] << 8) | bytes[offset + 1];
     const dataOffset = offset + 2;
-    if (segmentLength < 2 || offset + segmentLength > bytes.length) break;
+    if (segmentLength < 2 || offset + segmentLength > bytes.length) {
+      isMalformed = true;
+      break;
+    }
     const dataLength = segmentLength - 2;
 
     if (
@@ -232,8 +280,20 @@ function inspectJpeg(bytes: Uint8Array): ImageMetadata {
       const components = bytes[dataOffset + 5];
       bitsPerPixel = precision * components;
       colorMode = components === 3 ? "RGB" : components === 4 ? "CMYK" : "Grayscale";
+      sawFrame = true;
+    }
+    if (marker === 0xda) {
+      sawScan = true;
+      break;
     }
     offset += segmentLength;
+  }
+  const hasEndMarker =
+    bytes.length >= 2 &&
+    bytes[bytes.length - 2] === 0xff &&
+    bytes[bytes.length - 1] === 0xd9;
+  if (!sawFrame || !sawScan || !hasEndMarker || !width || !height) {
+    isMalformed = true;
   }
 
   return {
@@ -245,17 +305,127 @@ function inspectJpeg(bytes: Uint8Array): ImageMetadata {
     hasIccProfile,
     hasColorMetadata: hasIccProfile,
     hasOrientation,
+    isAnimated: false,
+    isMalformed,
   };
 }
 
+function skipGifSubBlocks(bytes: Uint8Array, start: number) {
+  let offset = start;
+  while (offset < bytes.length) {
+    const blockLength = bytes[offset++];
+    if (blockLength === 0) return offset;
+    if (offset + blockLength > bytes.length) return undefined;
+    offset += blockLength;
+  }
+  return undefined;
+}
+
 function inspectGif(bytes: Uint8Array): ImageMetadata {
+  const width = bytes.length >= 10 ? bytes[6] | (bytes[7] << 8) : undefined;
+  const height = bytes.length >= 10 ? bytes[8] | (bytes[9] << 8) : undefined;
+  let isMalformed = bytes.length < 13 || !width || !height;
+  let isAnimated = false;
+  let offset = 13;
+  let frameCount = 0;
+  let sawTrailer = false;
+
+  if (!isMalformed) {
+    const packed = bytes[10];
+    if (packed & 0x80) offset += 3 * (2 ** ((packed & 0x07) + 1));
+    if (offset > bytes.length) isMalformed = true;
+  }
+
+  while (!isMalformed && offset < bytes.length) {
+    const blockType = bytes[offset++];
+    if (blockType === 0x3b) {
+      sawTrailer = true;
+      break;
+    }
+    if (blockType === 0x21) {
+      if (offset >= bytes.length) {
+        isMalformed = true;
+        break;
+      }
+      const nextOffset = skipGifSubBlocks(bytes, offset + 1);
+      if (nextOffset === undefined) {
+        isMalformed = true;
+        break;
+      }
+      offset = nextOffset;
+      continue;
+    }
+    if (blockType !== 0x2c || offset + 9 > bytes.length) {
+      isMalformed = true;
+      break;
+    }
+
+    const imagePacked = bytes[offset + 8];
+    offset += 9;
+    if (imagePacked & 0x80) offset += 3 * (2 ** ((imagePacked & 0x07) + 1));
+    if (offset >= bytes.length) {
+      isMalformed = true;
+      break;
+    }
+    offset += 1; // LZW minimum code size
+    const nextOffset = skipGifSubBlocks(bytes, offset);
+    if (nextOffset === undefined) {
+      isMalformed = true;
+      break;
+    }
+    offset = nextOffset;
+    frameCount += 1;
+  }
+
+  if (!sawTrailer || frameCount === 0) isMalformed = true;
+  isAnimated = frameCount > 1;
   return {
     format: "GIF",
-    width: bytes[6] | (bytes[7] << 8),
-    height: bytes[8] | (bytes[9] << 8),
+    width,
+    height,
     hasIccProfile: false,
     hasColorMetadata: false,
     hasOrientation: false,
+    isAnimated,
+    isMalformed,
+  };
+}
+
+function inspectWebp(bytes: Uint8Array): ImageMetadata {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const declaredLength = bytes.length >= 8 ? view.getUint32(4, true) + 8 : 0;
+  let isMalformed = declaredLength !== bytes.length || bytes.length < 20;
+  let isAnimated = false;
+  let sawImageChunk = false;
+
+  for (let offset = 12; offset + 8 <= bytes.length;) {
+    const chunkType = readAscii(bytes, offset, 4);
+    const chunkLength = view.getUint32(offset + 4, true);
+    const dataOffset = offset + 8;
+    if (chunkLength > bytes.length - dataOffset) {
+      isMalformed = true;
+      break;
+    }
+    if (["VP8 ", "VP8L", "ANMF"].includes(chunkType)) sawImageChunk = true;
+    if (chunkType === "VP8X" && chunkLength > 0 && (bytes[dataOffset] & 0x02)) {
+      isAnimated = true;
+    }
+    if (chunkType === "ANIM" || chunkType === "ANMF") isAnimated = true;
+    offset = dataOffset + chunkLength + (chunkLength & 1);
+    if (offset > bytes.length) {
+      isMalformed = true;
+      break;
+    }
+  }
+  if (!sawImageChunk) isMalformed = true;
+
+  return {
+    format: "WEBP",
+    hasIccProfile: false,
+    hasColorMetadata: false,
+    hasOrientation: false,
+    isAnimated,
+    isMalformed,
   };
 }
 
@@ -275,18 +445,15 @@ function inspectImage(bytes: Uint8Array): ImageMetadata {
     readAscii(bytes, 0, 4) === "RIFF" &&
     readAscii(bytes, 8, 4) === "WEBP"
   ) {
-    return {
-      format: "WEBP",
-      hasIccProfile: false,
-      hasColorMetadata: false,
-      hasOrientation: false,
-    };
+    return inspectWebp(bytes);
   }
   return {
     format: "Unknown",
     hasIccProfile: false,
     hasColorMetadata: false,
     hasOrientation: false,
+    isAnimated: false,
+    isMalformed: false,
   };
 }
 
@@ -345,6 +512,33 @@ function checksForPlatform(
               : "Export a JPG, PNG, or GIF file.",
         ),
   );
+
+  checks.push(
+    check(
+      "file-integrity",
+      "File structure",
+      metadata.isMalformed ? "issue" : metadata.format === "Unknown" ? "review" : "pass",
+      metadata.isMalformed
+        ? "The file appears incomplete or its required image structure could not be read."
+        : metadata.format === "Unknown"
+          ? "The checker does not recognize this format, so it could not inspect the file structure."
+          : "No obvious truncation was detected. This byte-level check does not decode every image pixel.",
+      metadata.isMalformed
+        ? "Export a fresh still image from your original artwork and check the new file."
+        : undefined,
+    ),
+  );
+  if (metadata.isAnimated) {
+    checks.push(
+      check(
+        "animation",
+        "Still image",
+        "issue",
+        "Multiple image frames or animation markers were detected; cover artwork should be a still image.",
+        "Export a single-frame still image from the intended frame.",
+      ),
+    );
+  }
 
   if (!metadata.width || !metadata.height) {
     checks.push(

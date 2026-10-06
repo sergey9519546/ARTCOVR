@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   checkCoverArtwork,
@@ -113,6 +114,12 @@ function byId(checks: CoverPreflightCheck[], id: string) {
   return found;
 }
 
+function editorFixture(filename: string) {
+  return new Uint8Array(
+    readFileSync(new URL(`../../../tests/fixtures/cover-preflight/${filename}`, import.meta.url)),
+  );
+}
+
 test("Spotify dimensions include both published boundaries", () => {
   assert.equal(byId(checkFor(png(640, 640), "spotify"), "dimensions").status, "pass");
   assert.equal(byId(checkFor(png(10_000, 10_000), "spotify"), "dimensions").status, "pass");
@@ -197,6 +204,52 @@ test("Apple reports that its cited guide does not specify color metadata rules",
 test("unrecognized or damaged input is not silently treated as valid artwork", () => {
   const checks = checkFor(new Uint8Array([1, 2, 3]), "spotify");
   assert.equal(byId(checks, "format").status, "issue");
+  assert.equal(byId(checks, "file-integrity").status, "review");
   assert.equal(byId(checks, "dimensions").status, "issue");
   assert.equal(byId(checks, "shape").status, "issue");
+});
+
+test("editor-exported JPEG, PNG, and big-endian TIFF metadata is detected", () => {
+  const fixtures = [
+    { filename: "image-editor-profile-orientation.jpg", type: "image/jpeg", format: "JPEG", width: 48, height: 32 },
+    { filename: "image-editor-profile-orientation.png", type: "image/png", format: "PNG", width: 36, height: 36 },
+    { filename: "image-editor-big-endian.tif", type: "image/tiff", format: "TIFF", width: 48, height: 32 },
+  ];
+
+  for (const fixture of fixtures) {
+    const result = checkCoverArtwork(
+      editorFixture(fixture.filename),
+      ["spotify"],
+      fixture.type,
+    );
+    assert.equal(result.format, fixture.format, fixture.filename);
+    assert.equal(result.width, fixture.width, fixture.filename);
+    assert.equal(result.height, fixture.height, fixture.filename);
+    assert.equal(byId(result.results[0].checks, "file-integrity").status, "pass", fixture.filename);
+    assert.equal(byId(result.results[0].checks, "color-profile").status, "issue", fixture.filename);
+    assert.equal(byId(result.results[0].checks, "orientation-metadata").status, "issue", fixture.filename);
+  }
+});
+
+test("malformed editor exports are not passed based on dimensions alone", () => {
+  for (const [filename, type] of [
+    ["truncated.jpg", "image/jpeg"],
+    ["truncated.png", "image/png"],
+  ]) {
+    const checks = checkFor(editorFixture(filename), "spotify", type);
+    assert.equal(byId(checks, "dimensions").status, "issue", filename);
+    assert.equal(byId(checks, "file-integrity").status, "issue", filename);
+  }
+});
+
+test("animated GIFs are flagged and unsupported WebP is reported by name", () => {
+  const gifChecks = checkFor(editorFixture("animated.gif"), "apple-music", "image/gif");
+  assert.equal(byId(gifChecks, "format").status, "pass");
+  assert.equal(byId(gifChecks, "file-integrity").status, "pass");
+  assert.equal(byId(gifChecks, "animation").status, "issue");
+
+  const webpChecks = checkFor(editorFixture("unsupported.webp"), "spotify", "image/webp");
+  assert.equal(byId(webpChecks, "format").status, "issue");
+  assert.match(byId(webpChecks, "format").detail, /WEBP is not listed/i);
+  assert.equal(byId(webpChecks, "file-integrity").status, "pass");
 });

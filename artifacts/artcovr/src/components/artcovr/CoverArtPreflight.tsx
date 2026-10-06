@@ -112,7 +112,7 @@ export function CoverArtPreflight() {
             data-testid="input-cover-preflight-file"
             className="mt-2 block min-h-11 w-full border border-current/30 px-3 py-2 text-sm font-normal"
             type="file"
-            accept=".jpg,.jpeg,.png,.tif,.tiff,.gif,image/jpeg,image/png,image/tiff,image/gif"
+            accept="image/*"
             onChange={(event) => {
               setFile(event.currentTarget.files?.[0] ?? null);
               setResults(null);
