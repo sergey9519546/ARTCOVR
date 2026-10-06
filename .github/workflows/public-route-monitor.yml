@@ -1,9 +1,6 @@
 name: Public route monitor
 
 on:
-  # 08:00 Pacific during daylight time (07:00 during standard time).
-  schedule:
-    - cron: "0 15 * * *"
   workflow_dispatch:
 
 permissions:

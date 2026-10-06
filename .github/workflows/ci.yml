@@ -1,9 +1,7 @@
 name: CI
 
+# Routine verification runs in Replit; GitHub Actions is an explicit manual fallback.
 on:
-  push:
-    branches: [main, artcovr-storefront, 'codex/**']
-  pull_request:
   workflow_dispatch:
 
 permissions:
