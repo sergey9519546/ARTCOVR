@@ -1,3 +1,11 @@
+import {
+  COVER_ART_GUIDANCE_REVIEWED_ON,
+  COVER_ART_PLATFORM_REQUIREMENTS,
+  describeCoverArtDimensions,
+  formatCoverArtDimension,
+  formatCoverArtFormats,
+} from "./cover-art-platform-requirements";
+
 export type AnswerGuide = {
   path: string;
   eyebrow: string;
@@ -34,6 +42,57 @@ export type AnswerGuideSource = {
   description: string;
   kind: "external" | "first-party";
 };
+
+const spotifyRequirements = COVER_ART_PLATFORM_REQUIREMENTS.spotify;
+const appleMusicRequirements = COVER_ART_PLATFORM_REQUIREMENTS["apple-music"];
+const spotifyFormats = formatCoverArtFormats(spotifyRequirements.formats);
+const appleMusicFormats = formatCoverArtFormats(appleMusicRequirements.formats);
+const spotifyDimensions = describeCoverArtDimensions(spotifyRequirements);
+const appleMusicMinimum = formatCoverArtDimension(
+  appleMusicRequirements.minimumDimension,
+);
+const spotifyColor = spotifyRequirements.color;
+const spotifyColorRequirements = spotifyColor
+  ? `${spotifyColor.colorSpace} at ${spotifyColor.bitsPerPixel} bits per pixel`
+  : "color-profile requirements not stated on the cited page";
+const commonFormats = spotifyRequirements.formats.filter((format) =>
+  appleMusicRequirements.formats.includes(format),
+);
+const commonMinimum = Math.max(
+  spotifyRequirements.minimumDimension,
+  appleMusicRequirements.minimumDimension,
+);
+const commonMaximum =
+  spotifyRequirements.maximumDimension === null ||
+  appleMusicRequirements.maximumDimension === null
+    ? null
+    : Math.min(
+        spotifyRequirements.maximumDimension,
+        appleMusicRequirements.maximumDimension,
+      );
+const sharedDimensions =
+  commonMaximum === null
+    ? `at least ${formatCoverArtDimension(commonMinimum)} pixels per side`
+    : `${formatCoverArtDimension(commonMinimum)} to ${formatCoverArtDimension(commonMaximum)} pixels per side`;
+const spotifyColorProfileGuidance = !spotifyColor
+  ? "follow the cited color guidance"
+  : spotifyColor.profilePlacement === "applied-to-values"
+    ? "apply the color profile directly to the pixel values"
+    : `follow the cited color-profile rule (${spotifyColor.profilePlacement})`;
+const spotifyProfileSummary = !spotifyColor
+  ? "Not stated on the cited cover-art page"
+  : spotifyColor.profilePlacement === "applied-to-values"
+    ? "color profile applied directly"
+    : `color profile ${spotifyColor.profilePlacement}`;
+const spotifyEmbeddedProfileGuidance = !spotifyColor
+  ? "follow the cited color guidance"
+  : spotifyColor.profilePlacement === "applied-to-values"
+    ? "avoid embedding color-profile metadata"
+    : "follow the cited embedded-profile rule";
+const spotifyOrientationGuidance =
+  spotifyRequirements.orientationMetadata === "avoid"
+    ? "avoid orientation metadata"
+    : "follow the cited orientation-metadata rule";
 
 export const ANSWER_GUIDES: readonly AnswerGuide[] = [
   {
@@ -231,7 +290,8 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
         kind: "external",
       },
       {
-        title: "Copyright and Artificial Intelligence, Part 2: Copyrightability",
+        title:
+          "Copyright and Artificial Intelligence, Part 2: Copyrightability",
         publisher: "U.S. Copyright Office",
         href: "https://www.copyright.gov/ai/Copyright-and-Artificial-Intelligence-Part-2-Copyrightability-Report.pdf",
         description:
@@ -260,51 +320,65 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
     displayTitle: "SPOTIFY & APPLE MUSIC COVER ART.",
     description:
       "Check Spotify and Apple Music cover-art dimensions, formats, color guidance, and a final artwork file before delivery.",
-    introduction:
-      "Spotify requires square cover art from 640 to 10,000 pixels per side in lossless TIFF, PNG, or JPG; Apple Music for Artists specifies a perfect square of at least 4,000 × 4,000 pixels in JPG, PNG, or GIF. Use the local preflight on this page to check the exact exported master, then confirm your distributor’s current upload rules—a catalog preview does not prove the delivered file’s resolution.",
+    introduction: `${spotifyRequirements.label} requires square cover art ${spotifyDimensions} in lossless ${spotifyFormats}; ${appleMusicRequirements.label} specifies a perfect square of at least ${appleMusicMinimum} × ${appleMusicMinimum} pixels in ${appleMusicFormats}. Use the local preflight on this page to check the exact exported master, then confirm your distributor’s current upload rules—a catalog preview does not prove the delivered file’s resolution.`,
     keyTakeaways: [
-      "Both platforms specify square artwork, but their minimum dimensions differ.",
-      "Spotify lists 640–10,000 pixels per side, lossless TIFF/PNG/JPG, sRGB at 24 bits per pixel, and says not to upscale.",
-      "Apple Music for Artists specifies JPG, PNG, or GIF artwork at least 4,000 × 4,000 pixels.",
+      `Both platforms specify ${spotifyRequirements.aspectRatio} artwork, but their minimum dimensions differ.`,
+      `${spotifyRequirements.label} lists ${spotifyDimensions}, lossless ${spotifyFormats}, ${spotifyColorRequirements}, and ${spotifyRequirements.doNotUpscale ? "says not to upscale" : "does not state an upscaling rule"}.`,
+      `${appleMusicRequirements.label} specifies ${appleMusicFormats} artwork at least ${appleMusicMinimum} × ${appleMusicMinimum} pixels.`,
       "The on-page preflight checks a selected file locally; a passing result does not guarantee platform acceptance.",
       "Apple’s cover guidance excludes unrelated promotion such as social handles, URLs, prices, dates, and barcodes.",
     ],
     scopeNote:
       "This guide summarizes the cited Spotify for Artists and Apple Music for Artists pages; platform guidance can change. If you deliver through a distributor, use its current upload checks too. An ARTCOVR license grants the usage rights in its terms, not a guarantee that a platform will accept a file.",
     datePublished: "2026-10-05",
-    lastReviewed: "2026-10-06",
+    lastReviewed: COVER_ART_GUIDANCE_REVIEWED_ON,
     sections: [
       {
         heading: "What image dimensions does Spotify require?",
-        answer:
-          "Spotify requires a 1:1 image between 640 and 10,000 pixels wide and tall. Its support page lists TIFF, PNG, or JPG using lossless encoding, asks for the highest resolution available, and says not to upscale images.",
+        answer: `${spotifyRequirements.label} requires a ${spotifyRequirements.aspectRatio} image ${spotifyDimensions}. Its support page lists ${spotifyFormats} using ${spotifyRequirements.losslessEncoding ? "lossless encoding" : "standard encoding"}, asks for the highest resolution available, and ${spotifyRequirements.doNotUpscale ? "says not to upscale images" : "does not state an upscaling rule"}.`,
       },
       {
         heading: "What image dimensions does Apple Music require?",
-        answer:
-          "Apple Music for Artists specifies a perfect square at least 4,000 × 4,000 pixels, in JPG, PNG, or GIF format. The cited page does not state a maximum dimension, so check the distributor’s current delivery rules rather than assuming a maximum.",
+        answer: `${appleMusicRequirements.label} specifies a perfect square at least ${appleMusicMinimum} × ${appleMusicMinimum} pixels, in ${appleMusicFormats} format. ${appleMusicRequirements.maximumDimension === null ? "The cited page does not state a maximum dimension, so check the distributor’s current delivery rules rather than assuming a maximum." : `The cited page lists a maximum dimension of ${formatCoverArtDimension(appleMusicRequirements.maximumDimension)} pixels.`}`,
       },
       {
         heading: "Are Spotify and Apple Music artwork requirements the same?",
-        answer:
-          "Both require square art, but the published specifications differ. Apple Music for Artists lists a higher minimum pixel size; Spotify publishes both a minimum and a maximum, along with specific color and metadata requirements.",
+        answer: `Both platforms require ${spotifyRequirements.aspectRatio} artwork, but the published specifications differ. ${appleMusicRequirements.label} lists a higher minimum pixel size; ${spotifyRequirements.label} publishes ${spotifyRequirements.maximumDimension === null ? "a minimum size" : "both a minimum and a maximum"}, along with specific color and metadata requirements.`,
         comparison: {
           caption:
             "Published cover-art specifications from Spotify for Artists and Apple Music for Artists",
           headers: ["Requirement", "Spotify", "Apple Music for Artists"],
           rows: [
-            ["Dimensions", "640–10,000 px wide and tall", "At least 4,000 × 4,000 px"],
-            ["Shape", "1:1 aspect ratio", "Perfect square"],
-            ["Formats", "TIFF, PNG, or JPG; lossless encoding", "JPG, PNG, or GIF"],
+            [
+              "Dimensions",
+              spotifyDimensions,
+              `At least ${appleMusicMinimum} × ${appleMusicMinimum} px`,
+            ],
+            [
+              "Shape",
+              `${spotifyRequirements.aspectRatio} aspect ratio`,
+              appleMusicRequirements.aspectRatio === "1:1"
+                ? "Perfect square"
+                : `${appleMusicRequirements.aspectRatio} aspect ratio`,
+            ],
+            [
+              "Formats",
+              `${spotifyFormats}${spotifyRequirements.losslessEncoding ? "; lossless encoding" : ""}`,
+              appleMusicFormats,
+            ],
             [
               "Color",
-              "sRGB, 24 bits per pixel; color profile applied directly",
-              "Not stated on the cited cover-art page",
+              `${spotifyColorRequirements}; ${spotifyProfileSummary}`,
+              appleMusicRequirements.color
+                ? `${appleMusicRequirements.color.colorSpace}, ${appleMusicRequirements.color.bitsPerPixel} bits per pixel`
+                : "Not stated on the cited cover-art page",
             ],
             [
               "Upscaling",
-              "Spotify says not to upscale",
-              "Not stated on the cited cover-art page",
+              `${spotifyRequirements.label} ${spotifyRequirements.doNotUpscale ? "says not to upscale" : "does not state an upscaling rule"}`,
+              appleMusicRequirements.doNotUpscale
+                ? `${appleMusicRequirements.label} says not to upscale`
+                : "Not stated on the cited cover-art page",
             ],
           ],
         },
@@ -316,8 +390,7 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       },
       {
         heading: "How can one export meet both published specifications?",
-        answer:
-          "Use an actual square master between 4,000 and 10,000 pixels per side, in JPG or PNG, to fit the published dimensions and formats both pages list. For Spotify, use lossless encoding, sRGB at 24 bits per pixel, apply the color profile directly, and avoid embedded color-profile and orientation metadata. Do not upscale; start from a sufficiently large original. The preflight reports shape, dimensions, format, and detectable Spotify metadata separately, but it cannot prove the artwork’s color values or guarantee distributor acceptance.",
+        answer: `Use an actual square master ${sharedDimensions}, in ${formatCoverArtFormats(commonFormats)}, to fit the published dimensions and formats both pages list. For ${spotifyRequirements.label}, use lossless encoding, ${spotifyColorRequirements}, ${spotifyColorProfileGuidance}, and ${spotifyEmbeddedProfileGuidance}; ${spotifyOrientationGuidance}. ${spotifyRequirements.doNotUpscale ? "Do not upscale; " : ""}start from a sufficiently large original. The preflight reports shape, dimensions, format, and detectable Spotify metadata separately, but it cannot prove the artwork’s color values or guarantee distributor acceptance.`,
       },
       {
         heading: "Is a catalog preview enough to check the purchased file?",
@@ -332,19 +405,11 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
     ],
     sources: [
       {
-        title: "Cover art requirements",
-        publisher: "Spotify for Artists",
-        href: "https://support.spotify.com/us/artists/article/cover-art-requirements",
-        description:
-          "Official guidance for Spotify cover-art dimensions, formats, aspect ratio, color handling, and upscaling.",
+        ...spotifyRequirements.source,
         kind: "external",
       },
       {
-        title: "Album cover art on Apple Music",
-        publisher: "Apple Music for Artists",
-        href: "https://artists.apple.com/support/1120-cover-art",
-        description:
-          "Official Apple Music cover-art dimensions, formats, and additional content guidelines.",
+        ...appleMusicRequirements.source,
         kind: "external",
       },
       {
@@ -358,7 +423,10 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
     ],
     links: [
       { href: "/archive", label: "Browse licensed cover art" },
-      { href: "/guides/cover-art-licensing", label: "Read the cover art licensing guide" },
+      {
+        href: "/guides/cover-art-licensing",
+        label: "Read the cover art licensing guide",
+      },
       { href: "/license", label: "Review the ARTCOVR license" },
     ],
   },

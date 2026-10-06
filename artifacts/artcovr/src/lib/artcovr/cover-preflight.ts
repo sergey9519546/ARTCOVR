@@ -1,3 +1,9 @@
+import {
+  COVER_ART_PLATFORM_REQUIREMENTS,
+  describeCoverArtDimensions,
+  formatCoverArtFormats,
+} from "./cover-art-platform-requirements";
+
 export type CoverPlatform = "spotify" | "apple-music";
 export type CoverCheckStatus = "pass" | "issue" | "review" | "info";
 
@@ -31,9 +37,6 @@ type ImageMetadata = {
   isMalformed: boolean;
 };
 
-const SPOTIFY_FORMATS = new Set<ImageFormat>(["JPEG", "PNG", "TIFF"]);
-const APPLE_MUSIC_FORMATS = new Set<ImageFormat>(["JPEG", "PNG", "GIF"]);
-
 function matches(bytes: Uint8Array, offset: number, values: number[]) {
   return values.every((value, index) => bytes[offset + index] === value);
 }
@@ -64,7 +67,10 @@ function readTiffMetadata(
   const count = readU16(ifd);
   if (count === undefined || ifd + 2 + count * 12 > end) return {};
 
-  const tags = new Map<number, { type: number; count: number; entry: number }>();
+  const tags = new Map<
+    number,
+    { type: number; count: number; entry: number }
+  >();
   for (let index = 0; index < count; index += 1) {
     const entry = ifd + 2 + index * 12;
     const tag = readU16(entry);
@@ -110,10 +116,10 @@ function readTiffMetadata(
   return {
     ...(width ? { width } : {}),
     ...(height ? { height } : {}),
-    ...(bits.length ? { bitsPerPixel: bits.reduce((sum, bit) => sum + bit, 0) } : {}),
-    ...(photometric !== undefined
-      ? { colorMode }
+    ...(bits.length
+      ? { bitsPerPixel: bits.reduce((sum, bit) => sum + bit, 0) }
       : {}),
+    ...(photometric !== undefined ? { colorMode } : {}),
     hasIccProfile: tags.has(34675),
     hasColorMetadata: tags.has(34675),
     hasOrientation: tags.has(274),
@@ -156,7 +162,10 @@ function inspectPng(bytes: Uint8Array): ImageMetadata {
       isMalformed = true;
       break;
     }
-    if ((offset === 8 && chunkType !== "IHDR") || (!sawHeader && chunkType !== "IHDR")) {
+    if (
+      (offset === 8 && chunkType !== "IHDR") ||
+      (!sawHeader && chunkType !== "IHDR")
+    ) {
       isMalformed = true;
     }
     if (chunkType === "IHDR") {
@@ -169,17 +178,28 @@ function inspectPng(bytes: Uint8Array): ImageMetadata {
       const bitDepth = bytes[dataOffset + 8];
       const colorType = bytes[dataOffset + 9];
       const channels =
-        colorType === 0 ? 1 :
-        colorType === 2 ? 3 :
-        colorType === 3 ? 1 :
-        colorType === 4 ? 2 :
-        colorType === 6 ? 4 : 0;
+        colorType === 0
+          ? 1
+          : colorType === 2
+            ? 3
+            : colorType === 3
+              ? 1
+              : colorType === 4
+                ? 2
+                : colorType === 6
+                  ? 4
+                  : 0;
       bitsPerPixel = bitDepth * channels;
       colorMode =
-        colorType === 2 ? "RGB" :
-        colorType === 6 ? "RGBA" :
-        colorType === 3 ? "Indexed" :
-        colorType === 0 || colorType === 4 ? "Grayscale" : "Unknown";
+        colorType === 2
+          ? "RGB"
+          : colorType === 6
+            ? "RGBA"
+            : colorType === 3
+              ? "Indexed"
+              : colorType === 0 || colorType === 4
+                ? "Grayscale"
+                : "Unknown";
     } else if (chunkType === "IDAT") {
       sawImageData = true;
     } else if (chunkType === "iCCP") {
@@ -240,10 +260,7 @@ function inspectJpeg(bytes: Uint8Array): ImageMetadata {
     }
     const marker = bytes[offset++];
     if (marker === 0xd9) break;
-    if (
-      marker === 0x01 ||
-      (marker >= 0xd0 && marker <= 0xd7)
-    ) continue;
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue;
     if (offset + 2 > bytes.length) {
       isMalformed = true;
       break;
@@ -267,19 +284,22 @@ function inspectJpeg(bytes: Uint8Array): ImageMetadata {
       dataLength >= 6 &&
       readAscii(bytes, dataOffset, 6) === "Exif\u0000\u0000"
     ) {
-      const exif = readTiffMetadata(
-        bytes,
-        dataOffset + 6,
-        dataLength - 6,
-      );
+      const exif = readTiffMetadata(bytes, dataOffset + 6, dataLength - 6);
       hasOrientation = Boolean(exif.hasOrientation);
-    } else if ([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(marker) && dataLength >= 6) {
+    } else if (
+      [
+        0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce,
+        0xcf,
+      ].includes(marker) &&
+      dataLength >= 6
+    ) {
       const precision = bytes[dataOffset];
       height = (bytes[dataOffset + 1] << 8) | bytes[dataOffset + 2];
       width = (bytes[dataOffset + 3] << 8) | bytes[dataOffset + 4];
       const components = bytes[dataOffset + 5];
       bitsPerPixel = precision * components;
-      colorMode = components === 3 ? "RGB" : components === 4 ? "CMYK" : "Grayscale";
+      colorMode =
+        components === 3 ? "RGB" : components === 4 ? "CMYK" : "Grayscale";
       sawFrame = true;
     }
     if (marker === 0xda) {
@@ -332,7 +352,7 @@ function inspectGif(bytes: Uint8Array): ImageMetadata {
 
   if (!isMalformed) {
     const packed = bytes[10];
-    if (packed & 0x80) offset += 3 * (2 ** ((packed & 0x07) + 1));
+    if (packed & 0x80) offset += 3 * 2 ** ((packed & 0x07) + 1);
     if (offset > bytes.length) isMalformed = true;
   }
 
@@ -362,7 +382,7 @@ function inspectGif(bytes: Uint8Array): ImageMetadata {
 
     const imagePacked = bytes[offset + 8];
     offset += 9;
-    if (imagePacked & 0x80) offset += 3 * (2 ** ((imagePacked & 0x07) + 1));
+    if (imagePacked & 0x80) offset += 3 * 2 ** ((imagePacked & 0x07) + 1);
     if (offset >= bytes.length) {
       isMalformed = true;
       break;
@@ -407,7 +427,7 @@ function inspectWebp(bytes: Uint8Array): ImageMetadata {
       break;
     }
     if (["VP8 ", "VP8L", "ANMF"].includes(chunkType)) sawImageChunk = true;
-    if (chunkType === "VP8X" && chunkLength > 0 && (bytes[dataOffset] & 0x02)) {
+    if (chunkType === "VP8X" && chunkLength > 0 && bytes[dataOffset] & 0x02) {
       isAnimated = true;
     }
     if (chunkType === "ANIM" || chunkType === "ANMF") isAnimated = true;
@@ -431,15 +451,18 @@ function inspectWebp(bytes: Uint8Array): ImageMetadata {
 
 function inspectImage(bytes: Uint8Array): ImageMetadata {
   if (matches(bytes, 0, [0xff, 0xd8, 0xff])) return inspectJpeg(bytes);
-  if (matches(bytes, 0, [137, 80, 78, 71, 13, 10, 26, 10])) return inspectPng(bytes);
+  if (matches(bytes, 0, [137, 80, 78, 71, 13, 10, 26, 10]))
+    return inspectPng(bytes);
   if (
     matches(bytes, 0, [0x49, 0x49, 0x2a, 0x00]) ||
     matches(bytes, 0, [0x4d, 0x4d, 0x00, 0x2a])
-  ) return inspectTiff(bytes);
+  )
+    return inspectTiff(bytes);
   if (
     bytes.length >= 10 &&
     ["GIF87a", "GIF89a"].includes(readAscii(bytes, 0, 6))
-  ) return inspectGif(bytes);
+  )
+    return inspectGif(bytes);
   if (
     bytes.length >= 12 &&
     readAscii(bytes, 0, 4) === "RIFF" &&
@@ -472,29 +495,33 @@ function checksForPlatform(
   platform: CoverPlatform,
   declaredType: string,
 ): CoverPreflightCheck[] {
-  const spotify = platform === "spotify";
-  const allowedFormats = spotify ? SPOTIFY_FORMATS : APPLE_MUSIC_FORMATS;
-  const platformLabel = spotify ? "Spotify" : "Apple Music";
+  const requirements = COVER_ART_PLATFORM_REQUIREMENTS[platform];
+  const allowedFormats = new Set<ImageFormat>(requirements.formats);
+  const platformLabel = platform === "spotify" ? "Spotify" : "Apple Music";
   const checks: CoverPreflightCheck[] = [];
   const fileTypeMismatch =
     declaredType &&
     metadata.format !== "Unknown" &&
     declaredType !== "application/octet-stream" &&
     !(
-      (metadata.format === "JPEG" && ["image/jpeg", "image/jpg"].includes(declaredType)) ||
+      (metadata.format === "JPEG" &&
+        ["image/jpeg", "image/jpg"].includes(declaredType)) ||
       (metadata.format === "PNG" && declaredType === "image/png") ||
-      (metadata.format === "TIFF" && ["image/tiff", "image/tif"].includes(declaredType)) ||
+      (metadata.format === "TIFF" &&
+        ["image/tiff", "image/tif"].includes(declaredType)) ||
       (metadata.format === "GIF" && declaredType === "image/gif") ||
       (metadata.format === "WEBP" && declaredType === "image/webp")
     );
 
   checks.push(
-    metadata.format !== "Unknown" && allowedFormats.has(metadata.format) && !fileTypeMismatch
+    metadata.format !== "Unknown" &&
+      allowedFormats.has(metadata.format) &&
+      !fileTypeMismatch
       ? check(
           "format",
           "File format",
           "pass",
-          `${metadata.format} is listed in ${platformLabel}'s published cover-art formats.`,
+          `${metadata.format} is listed in ${platformLabel}'s published cover-art formats.${requirements.losslessEncoding ? " This byte check cannot verify lossless encoding." : ""}`,
         )
       : check(
           "format",
@@ -506,10 +533,8 @@ function checksForPlatform(
               ? `The file content is ${metadata.format}, but the browser reports ${declaredType}.`
               : `${metadata.format} is not listed in ${platformLabel}'s published cover-art formats.`,
           metadata.format === "Unknown" || fileTypeMismatch
-            ? "Choose the original JPG, PNG, TIFF, or GIF file and make sure its contents match its file type."
-            : spotify
-              ? "Export a JPG, PNG, or TIFF file."
-              : "Export a JPG, PNG, or GIF file.",
+            ? "Choose an original file in one of the listed formats and make sure its contents match its file type."
+            : `Export a ${formatCoverArtFormats(requirements.formats)} file.`,
         ),
   );
 
@@ -517,7 +542,11 @@ function checksForPlatform(
     check(
       "file-integrity",
       "File structure",
-      metadata.isMalformed ? "issue" : metadata.format === "Unknown" ? "review" : "pass",
+      metadata.isMalformed
+        ? "issue"
+        : metadata.format === "Unknown"
+          ? "review"
+          : "pass",
       metadata.isMalformed
         ? "The file appears incomplete or its required image structure could not be read."
         : metadata.format === "Unknown"
@@ -558,28 +587,38 @@ function checksForPlatform(
       ),
     );
   } else {
-    const square = metadata.width === metadata.height;
+    const [ratioWidth, ratioHeight] = requirements.aspectRatio
+      .split(":")
+      .map(Number);
+    const square =
+      metadata.width * ratioHeight === metadata.height * ratioWidth;
+    const shapeLabel =
+      requirements.aspectRatio === "1:1"
+        ? "Square artwork"
+        : `${requirements.aspectRatio} artwork`;
     checks.push(
       check(
         "shape",
-        "Square artwork",
+        shapeLabel,
         square ? "pass" : "issue",
         square
-          ? `The image is square (${metadata.width} × ${metadata.height} px).`
-          : `The image is ${metadata.width} × ${metadata.height} px, not square.`,
-        square ? undefined : "Crop or recompose the original artwork to a 1:1 square before exporting. This check will not crop it for you.",
+          ? `The image matches the ${requirements.aspectRatio} aspect ratio (${metadata.width} × ${metadata.height} px).`
+          : `The image is ${metadata.width} × ${metadata.height} px, not ${requirements.aspectRatio}.`,
+        square
+          ? undefined
+          : `Crop or recompose the original artwork to a ${requirements.aspectRatio} aspect ratio before exporting. This check will not crop it for you.`,
       ),
     );
 
-    const meetsDimensions = spotify
-      ? metadata.width >= 640 &&
-        metadata.width <= 10_000 &&
-        metadata.height >= 640 &&
-        metadata.height <= 10_000
-      : metadata.width >= 4_000 && metadata.height >= 4_000;
-    const requirement = spotify
-      ? "640–10,000 px on each side"
-      : "at least 4,000 px on each side";
+    const withinMaximum =
+      requirements.maximumDimension === null ||
+      (metadata.width <= requirements.maximumDimension &&
+        metadata.height <= requirements.maximumDimension);
+    const meetsDimensions =
+      metadata.width >= requirements.minimumDimension &&
+      metadata.height >= requirements.minimumDimension &&
+      withinMaximum;
+    const requirement = describeCoverArtDimensions(requirements);
     checks.push(
       check(
         "dimensions",
@@ -588,18 +627,28 @@ function checksForPlatform(
         `${metadata.width} × ${metadata.height} px; ${platformLabel} lists ${requirement}.`,
         meetsDimensions
           ? undefined
-          : "Export from a sufficiently large original at the required size. Do not upscale a smaller file to meet the minimum.",
+          : requirements.doNotUpscale
+            ? "Export from a sufficiently large original at the required size. Do not upscale a smaller file to meet the minimum."
+            : "Export from a sufficiently large original at the required size.",
       ),
     );
   }
 
-  if (spotify) {
+  if (requirements.color) {
+    const colorRequirement = requirements.color;
     const colorProblems: string[] = [];
-    if (metadata.colorMode && metadata.colorMode !== "RGB") {
-      colorProblems.push(`the image is ${metadata.colorMode}, not RGB`);
+    if (metadata.colorMode && metadata.colorMode !== colorRequirement.mode) {
+      colorProblems.push(
+        `the image is ${metadata.colorMode}, not ${colorRequirement.mode}`,
+      );
     }
-    if (metadata.bitsPerPixel !== undefined && metadata.bitsPerPixel !== 24) {
-      colorProblems.push(`the image is ${metadata.bitsPerPixel} bits per pixel, not 24`);
+    if (
+      metadata.bitsPerPixel !== undefined &&
+      metadata.bitsPerPixel !== colorRequirement.bitsPerPixel
+    ) {
+      colorProblems.push(
+        `the image is ${metadata.bitsPerPixel} bits per pixel, not ${colorRequirement.bitsPerPixel}`,
+      );
     }
     checks.push(
       colorProblems.length
@@ -607,41 +656,42 @@ function checksForPlatform(
             "color-space",
             "Color space and depth",
             "issue",
-            `Spotify's guidance calls for 24-bit RGB; ${colorProblems.join(" and ")}.`,
-            "Export an RGB image at 24 bits per pixel and apply sRGB to the pixel values. This tool does not convert the image.",
+            `${requirements.label}'s guidance calls for ${colorRequirement.bitsPerPixel}-bit ${colorRequirement.mode}; ${colorProblems.join(" and ")}.`,
+            `Export a ${colorRequirement.mode} image at ${colorRequirement.bitsPerPixel} bits per pixel and apply ${colorRequirement.colorSpace} to the pixel values. This tool does not convert the image.`,
           )
         : metadata.colorMode && metadata.bitsPerPixel !== undefined
           ? check(
               "color-space",
               "Color space and depth",
               "review",
-              "RGB at 24 bits per pixel was detected. A byte check cannot prove that the pixel values are sRGB.",
-              "Confirm that your export applied sRGB directly to the pixel values.",
+              `${colorRequirement.mode} at ${colorRequirement.bitsPerPixel} bits per pixel was detected. A byte check cannot prove that the pixel values are ${colorRequirement.colorSpace}.`,
+              `Confirm that your export applied ${colorRequirement.colorSpace} directly to the pixel values.`,
             )
           : check(
               "color-space",
               "Color space and depth",
               "review",
-              "The checker could not confirm both RGB color mode and 24-bit depth from this file.",
-              "Verify the export settings with an image editor and confirm RGB, 24 bits per pixel, and sRGB applied to the pixel values.",
+              `The checker could not confirm both ${colorRequirement.mode} color mode and ${colorRequirement.bitsPerPixel}-bit depth from this file.`,
+              `Verify the export settings with an image editor and confirm ${colorRequirement.mode}, ${colorRequirement.bitsPerPixel} bits per pixel, and ${colorRequirement.colorSpace} applied to the pixel values.`,
             ),
     );
 
     checks.push(
-      metadata.hasIccProfile
+      metadata.hasIccProfile &&
+        colorRequirement.profilePlacement === "applied-to-values"
         ? check(
             "color-profile",
             "Embedded color profile",
             "issue",
-            "An embedded ICC profile was found. Spotify's cited guidance asks for the profile applied directly to the color values, not embedded in the file.",
-            "Apply sRGB to the pixel values during export, then remove the embedded profile metadata.",
+            `An embedded ICC profile was found. ${requirements.label}'s cited guidance asks for the profile applied directly to the color values, not embedded in the file.`,
+            `Apply ${colorRequirement.colorSpace} to the pixel values during export, then remove the embedded profile metadata.`,
           )
         : metadata.hasColorMetadata
           ? check(
               "color-profile",
               "Embedded color profile",
               "review",
-              "Color-related metadata was found, but no embedded ICC profile was detected. Confirm the export matches Spotify's current metadata rules.",
+              `Color-related metadata was found, but no embedded ICC profile was detected. Confirm the export matches ${requirements.label}'s current metadata rules.`,
               "Check the final export's color settings and remove profile metadata if your delivery provider requires it.",
             )
           : check(
@@ -651,14 +701,16 @@ function checksForPlatform(
               "No embedded ICC profile or color-profile metadata was detected.",
             ),
     );
+  }
 
+  if (requirements.orientationMetadata !== "unspecified") {
     checks.push(
-      metadata.hasOrientation
+      metadata.hasOrientation && requirements.orientationMetadata === "avoid"
         ? check(
             "orientation-metadata",
             "Orientation metadata",
             "issue",
-            "An orientation tag was found. The cited Spotify guidance says not to include orientation metadata.",
+            `An orientation tag was found. The cited ${requirements.label} guidance says not to include orientation metadata.`,
             "Apply the intended orientation to the pixels and export without the orientation tag.",
           )
         : check(
@@ -668,13 +720,21 @@ function checksForPlatform(
             "No orientation tag was detected.",
           ),
     );
-  } else {
+  }
+
+  const unspecifiedMetadataRules = [
+    requirements.color === null ? "a color-profile" : "",
+    requirements.orientationMetadata === "unspecified"
+      ? "an orientation-metadata"
+      : "",
+  ].filter(Boolean);
+  if (unspecifiedMetadataRules.length > 0) {
     checks.push(
       check(
         "color-metadata",
         "Color and orientation metadata",
         "info",
-        "The cited Apple Music for Artists cover-art guidance does not specify a color-profile or orientation-metadata requirement. Check your distributor's current rules.",
+        `The cited ${requirements.source.publisher} cover-art guidance does not specify ${unspecifiedMetadataRules.join(" or ")} requirement${unspecifiedMetadataRules.length === 1 ? "" : "s"}. Check your distributor's current rules.`,
       ),
     );
   }
