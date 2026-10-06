@@ -72,11 +72,10 @@ async function findCompatibleOption(page: Page, key: FacetKey) {
     await page.keyboard.press("Escape");
     for (let index = 1; index < optionCount; index += 1) {
       await select.click();
-      await page.keyboard.press("Home");
-      for (let step = 0; step < index; step += 1) {
-        await page.keyboard.press("ArrowDown");
-      }
-      await page.keyboard.press("Enter");
+      await page.getByRole("option").nth(index).click();
+      await expect
+        .poll(() => new URL(page.url()).searchParams.get(key))
+        .toBeTruthy();
       const count = resultCount(await catalogStatus(page).innerText());
       if (count > 0) return { choice: select, count };
       await clearFacet(page, key);
@@ -90,7 +89,7 @@ async function findCompatibleOption(page: Page, key: FacetKey) {
     const choice = options.nth(index);
     await choice.click();
     const count = resultCount(await catalogStatus(page).innerText());
-    if (count > 0) {
+    if (count > 0 && new URL(page.url()).searchParams.get(key)) {
       return { choice, count };
     }
     await clearFacet(page, key);
@@ -186,6 +185,69 @@ test("archive genre, mood and color filters work independently and together", as
   await expect(catalogStatus(page)).toHaveText(
     new RegExp(`^[1-9]\\d* / ${ARCHIVE_TOTAL} works$`),
   );
+});
+
+test("archive filters and results survive switching themes without reloading", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem("theme", "light");
+  });
+  await page.goto("/archive");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+  await chooseFirstFacetOption(page, "genre");
+  await findCompatibleOption(page, "mood");
+  await findCompatibleOption(page, "color");
+
+  const readFilteredState = async () => {
+    const url = new URL(page.url());
+    const genre = url.searchParams.get("genre");
+    const mood = url.searchParams.get("mood");
+    const color = url.searchParams.get("color");
+    expect(genre, "genre should remain in the archive URL").toBeTruthy();
+    expect(mood, "mood should remain in the archive URL").toBeTruthy();
+    expect(color, "color should remain in the archive URL").toBeTruthy();
+
+    return {
+      url: page.url(),
+      genreControl: (await facet(page, "genre").getByRole("combobox").innerText()).trim(),
+      moodControl: (await facet(page, "mood").getByRole("combobox").innerText()).trim(),
+      colorControl: await facet(page, "color")
+        .locator('button[aria-pressed="true"]')
+        .getAttribute("aria-label"),
+      resultCount: resultCount(await catalogStatus(page).innerText()),
+      artworkLinks: await page
+        .locator('section[aria-label="Artwork archive"] article a[href^="/product/"]')
+        .evaluateAll((links) => links.map((link) => link.getAttribute("href"))),
+    };
+  };
+
+  const filteredState = await readFilteredState();
+  expect(filteredState.resultCount).toBeGreaterThan(0);
+  expect(filteredState.colorControl).toMatch(/^Color: .+/);
+
+  let mainFrameNavigations = 0;
+  page.on("framenavigated", (frame) => {
+    if (frame === page.mainFrame()) mainFrameNavigations += 1;
+  });
+
+  await page
+    .getByRole("navigation", { name: "Primary" })
+    .getByRole("button", { name: "Switch to dark theme", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(await readFilteredState()).toEqual(filteredState);
+  expect(mainFrameNavigations).toBe(0);
+
+  await page
+    .getByRole("navigation", { name: "Primary" })
+    .getByRole("button", { name: "Switch to light theme", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(await readFilteredState()).toEqual(filteredState);
+  expect(mainFrameNavigations).toBe(0);
 });
 
 test("searching a displayed genre finds the filtered artwork", async ({

@@ -42,6 +42,7 @@
 - [Live inventory claims](live-inventory-structured-data.md) — static discovery requires live checks for exclusives; omit Product/Offer schema without authoritative inventory.
 - [Route schema delivery](route-schema-delivery.md) — keep shared schema generation code-split; discard outdated route work while preserving matching initial HTML.
 - [Dropdown browser verification](dropdown-browser-verification.md) — use keyboard navigation to verify archive dropdown states when pointer checks fail on off-viewport options.
+- [Combined facet test assertions](combined-facet-test-assertions.md) — verify each selected URL facet; a positive count may come from filters already applied.
 - [Autoscale static route resolution](autoscale-static-route-resolution.md) — verify nested index pages after slash redirects; catalog wildcard rewrites can break directory-index serving.
 - [Privacy disclosure approval](privacy-disclosure-approval.md) — approved factual wording does not establish the database host or providers' contractual legal roles.
 - [Disposable PostgreSQL sockets](disposable-postgres-socket.md) — `/run/postgresql` is absent here; point temporary local test clusters at an existing per-run socket directory.
