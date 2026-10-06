@@ -15,6 +15,12 @@ Publishing can finish compilation, bundle validation, and SEO validation but sti
 
 **How to apply:** Check the complete publishing logs for security-gate errors before treating sourcemap warnings as the cause of a failed build.
 
+Before forcing a vulnerable transitive dependency through an upstream major-version override, check whether its direct parent is still needed. Prefer removing an unused direct package over retaining dead functionality or forcing an incompatible major.
+
+**Why:** The storefront's unused Typography plugin was the sole path to the vulnerable selector parser.
+
+**How to apply:** Search imports, configuration, and utility-class usage before choosing between a parent upgrade, a compatible leaf patch, or removal of an unused package.
+
 Avoid reintroducing glob wrappers that depend on unpatched `braces` unless current upstream advisory data confirms a safe release.
 
 **Why:** The deeply nested-pattern stack-exhaustion advisory had no patched upstream version. Removing the higher-level proxy wrapper while keeping its existing transport, and using native file discovery, eliminated the vulnerable dependency without an incompatible override or suppression.
