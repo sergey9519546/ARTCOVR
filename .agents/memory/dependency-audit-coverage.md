@@ -9,6 +9,12 @@ A zero-finding pnpm audit is not proof that the platform's OSV dependency scan i
 
 **How to apply:** Report the results separately; do not claim a clean security scan or publish readiness from pnpm alone.
 
+Publishing can finish compilation, bundle validation, and SEO validation but still fail its independent dependency-security gate.
+
+**Why:** A critical advisory blocked publishing even though all build commands succeeded.
+
+**How to apply:** Check the complete publishing logs for security-gate errors before treating sourcemap warnings as the cause of a failed build.
+
 Avoid reintroducing glob wrappers that depend on unpatched `braces` unless current upstream advisory data confirms a safe release.
 
 **Why:** The deeply nested-pattern stack-exhaustion advisory had no patched upstream version. Removing the higher-level proxy wrapper while keeping its existing transport, and using native file discovery, eliminated the vulnerable dependency without an incompatible override or suppression.
