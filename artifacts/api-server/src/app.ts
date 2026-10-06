@@ -18,6 +18,11 @@ import {
 } from "./middlewares/trustBoundary";
 
 const app: Express = express();
+app.disable("x-powered-by");
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  next();
+});
 
 app.use(
   pinoHttp({

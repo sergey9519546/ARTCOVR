@@ -117,3 +117,19 @@ PORT = "22424"
 BASE_PATH = "/"
 
 ARTCOVR_PREVIEW_PROXY = "1"
+
+# Browser hardening. Keep Replit's owner preview usable.
+[[services.production.responseHeaders]]
+path = "/*"
+name = "X-Content-Type-Options"
+value = "nosniff"
+
+[[services.production.responseHeaders]]
+path = "/*"
+name = "Content-Security-Policy"
+value = "object-src 'none'; base-uri 'self'; frame-ancestors 'self' https://replit.com https://*.replit.com"
+
+[[services.production.responseHeaders]]
+path = "/*"
+name = "Content-Security-Policy-Report-Only"
+value = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'"

@@ -438,6 +438,13 @@ export async function expireCheckoutSession(sessionId: string) {
 }
 
 export async function ensureStripeWebhook(url: string) {
+  const target = new URL(url);
+  if (target.protocol !== "https:" || target.username || target.password || target.pathname !== "/api/stripe/webhook" || target.search || target.hash) {
+    throw new Error("Stripe webhook target must be an HTTPS webhook URL without credentials or query parameters.");
+  }
+  if (expectedStripeLivemode() && !["artcovr.com", "artcovr.replit.app"].includes(target.hostname)) {
+    throw new Error("Live Stripe webhooks may only target ARTCOVR production domains; preview registration is blocked.");
+  }
   const page = await stripeRequest<Stripe.ApiList<Stripe.WebhookEndpoint>>(
     "/v1/webhook_endpoints?limit=100",
   );
@@ -448,9 +455,17 @@ export async function ensureStripeWebhook(url: string) {
     "charge.refunded",
     "payment_intent.payment_failed",
   ] as const;
-  const existing = page.data.find(
-    (endpoint) => endpoint.url === url && endpoint.status === "enabled",
-  );
+  const matching = page.data.filter((endpoint) => endpoint.url === url);
+  if (page.data.some((endpoint) => endpoint.livemode !== expectedStripeLivemode())) {
+    throw new Error("Stripe webhook connection mode does not match the requested application environment.");
+  }
+  const existing = matching.find((endpoint) => endpoint.status === "enabled");
+  if (!existing && matching.length > 0) {
+    throw new Error("The ARTCOVR Stripe webhook is disabled. Restore the existing endpoint deliberately; automatic duplicate creation is blocked.");
+  }
+  if (page.has_more) {
+    throw new Error("Stripe webhook inventory is incomplete; refusing automatic endpoint changes.");
+  }
   if (
     existing &&
     (existing.enabled_events.includes("*") ||
