@@ -1,4 +1,5 @@
 import { serializeJsonLd } from "./seo";
+import { PRIVACY_POLICY } from "./privacy-policy";
 import { buildRouteStructuredData, FAQ_QUESTIONS } from "./route-structured-data";
 import {
   getSocialPreviewMetadata,
@@ -391,12 +392,13 @@ const INFO_CONTENT: Record<string, { eyebrow: string; title: string; body: strin
       <p>${link("/sign-in", "Sign in with email")} ${link("/archive", "Browse published artwork")}</p>`,
   },
   "/legal/privacy": {
-    eyebrow: "Legal",
-    title: "Privacy.",
-    body: `<p>ARTCOVR uses the minimum account, purchase, prompt, image, and inquiry information needed to operate the storefront. We do not sell personal information.</p>
-      <h2>Information we handle</h2><p>We process your email address and authentication records; purchases, license state, and refund status; prompts and generated-image records; download and allowance state; custom-work inquiries; and basic security, performance, and diagnostic logs.</p>
-      <h2>Service providers</h2><p>Supabase provides authentication, database, and private file storage. Stripe processes checkout and payment events. OpenAI receives the selected image and your prompt to produce a requested generated image.</p>
-      <h2>Retention and access</h2><p>Contact ARTCOVR to request access, correction, or deletion where applicable. Purchase and license records may be retained for accounting, dispute, and legal obligations.</p>`,
+    eyebrow: PRIVACY_POLICY.eyebrow,
+    title: PRIVACY_POLICY.title,
+    body: `<p>${escapeHtml(PRIVACY_POLICY.introduction)}</p>${PRIVACY_POLICY.sections
+      .map((section) => `<h2>${escapeHtml(section.heading)}</h2>${section.paragraphs
+        .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+        .join("")}`)
+      .join("")}`,
   },
   "/legal/terms": {
     eyebrow: "Legal",
