@@ -43,3 +43,4 @@
 - [Dropdown browser verification](dropdown-browser-verification.md) — use keyboard navigation to verify archive dropdown states when pointer checks fail on off-viewport options.
 - [Autoscale static route resolution](autoscale-static-route-resolution.md) — verify nested index pages after slash redirects; catalog wildcard rewrites can break directory-index serving.
 - [Privacy disclosure approval](privacy-disclosure-approval.md) — approved factual wording does not establish the database host or providers' contractual legal roles.
+- [Disposable PostgreSQL sockets](disposable-postgres-socket.md) — `/run/postgresql` is absent here; point temporary local test clusters at an existing per-run socket directory.
