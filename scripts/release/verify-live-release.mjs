@@ -72,10 +72,10 @@ try {
   const health = await check("API health", new URL("/api/healthz", apiBase));
   if (!/"status"\s*:\s*"ok"/.test(health.body)) throw new Error("API health did not report status ok");
 
-  const diagnostics = await check("API release diagnostics", new URL("/api/diagnostics", apiBase));
+  const apiDiagnostics = await check("API release diagnostics", new URL("/api/diagnostics", apiBase));
   let diagnosticsBody;
   try {
-    diagnosticsBody = JSON.parse(diagnostics.body);
+    diagnosticsBody = JSON.parse(apiDiagnostics.body);
   } catch {
     throw new Error("API release diagnostics did not return JSON");
   }

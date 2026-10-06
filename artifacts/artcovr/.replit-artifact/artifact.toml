@@ -24,11 +24,6 @@ from = "/archive"
 to = "/archive/index.html"
 
 [[services.production.rewrites]]
-from = "/cover-art"
-to = "/cover-art/index.html"
-
-
-[[services.production.rewrites]]
 from = "/about"
 to = "/about/index.html"
 
@@ -110,6 +105,1676 @@ to = "/sign-in/index.html"
 from = "/sign-up/*"
 to = "/sign-up/index.html"
 
+
+# BEGIN GENERATED CATALOG ROUTE REWRITES
+
+# Regenerate with pnpm run routes:project; exact matches preserve unknown-route 404s.
+
+[[services.production.rewrites]]
+from = "/cover-art"
+to = "/cover-art/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/"
+to = "/cover-art/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/ambient"
+to = "/cover-art/ambient/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/ambient/"
+to = "/cover-art/ambient/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/art-pop"
+to = "/cover-art/art-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/art-pop/"
+to = "/cover-art/art-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/baroque-pop"
+to = "/cover-art/baroque-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/baroque-pop/"
+to = "/cover-art/baroque-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/chamber-pop"
+to = "/cover-art/chamber-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/chamber-pop/"
+to = "/cover-art/chamber-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/classical"
+to = "/cover-art/classical/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/classical/"
+to = "/cover-art/classical/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/dream-pop"
+to = "/cover-art/dream-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/dream-pop/"
+to = "/cover-art/dream-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/electronic"
+to = "/cover-art/electronic/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/electronic/"
+to = "/cover-art/electronic/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/experimental"
+to = "/cover-art/experimental/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/experimental/"
+to = "/cover-art/experimental/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/hip-hop"
+to = "/cover-art/hip-hop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/hip-hop/"
+to = "/cover-art/hip-hop/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/idm"
+to = "/cover-art/idm/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/idm/"
+to = "/cover-art/idm/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/indie-rock"
+to = "/cover-art/indie-rock/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/indie-rock/"
+to = "/cover-art/indie-rock/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/industrial"
+to = "/cover-art/industrial/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/industrial/"
+to = "/cover-art/industrial/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/jazz"
+to = "/cover-art/jazz/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/jazz/"
+to = "/cover-art/jazz/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/minimal-techno"
+to = "/cover-art/minimal-techno/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/minimal-techno/"
+to = "/cover-art/minimal-techno/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/neo-classical"
+to = "/cover-art/neo-classical/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/neo-classical/"
+to = "/cover-art/neo-classical/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/noise-rock"
+to = "/cover-art/noise-rock/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/noise-rock/"
+to = "/cover-art/noise-rock/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/post-punk"
+to = "/cover-art/post-punk/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/post-punk/"
+to = "/cover-art/post-punk/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/psychedelic"
+to = "/cover-art/psychedelic/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/psychedelic/"
+to = "/cover-art/psychedelic/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/r-and-b-soul"
+to = "/cover-art/r-and-b-soul/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/r-and-b-soul/"
+to = "/cover-art/r-and-b-soul/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/symphonic-metal"
+to = "/cover-art/symphonic-metal/index.html"
+
+[[services.production.rewrites]]
+from = "/cover-art/symphonic-metal/"
+to = "/cover-art/symphonic-metal/index.html"
+
+[[services.production.rewrites]]
+from = "/product/afternoon-across-the-water"
+to = "/product/afternoon-across-the-water/index.html"
+
+[[services.production.rewrites]]
+from = "/product/afternoon-across-the-water/"
+to = "/product/afternoon-across-the-water/index.html"
+
+[[services.production.rewrites]]
+from = "/product/apparition-over-the-gorge"
+to = "/product/apparition-over-the-gorge/index.html"
+
+[[services.production.rewrites]]
+from = "/product/apparition-over-the-gorge/"
+to = "/product/apparition-over-the-gorge/index.html"
+
+[[services.production.rewrites]]
+from = "/product/approved-horizon"
+to = "/product/approved-horizon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/approved-horizon/"
+to = "/product/approved-horizon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/atmospheric-surrealist-nostalgia"
+to = "/product/atmospheric-surrealist-nostalgia/index.html"
+
+[[services.production.rewrites]]
+from = "/product/atmospheric-surrealist-nostalgia/"
+to = "/product/atmospheric-surrealist-nostalgia/index.html"
+
+[[services.production.rewrites]]
+from = "/product/azure-threshold"
+to = "/product/azure-threshold/index.html"
+
+[[services.production.rewrites]]
+from = "/product/azure-threshold/"
+to = "/product/azure-threshold/index.html"
+
+[[services.production.rewrites]]
+from = "/product/barcode-moon"
+to = "/product/barcode-moon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/barcode-moon/"
+to = "/product/barcode-moon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/basin-for-a-head"
+to = "/product/basin-for-a-head/index.html"
+
+[[services.production.rewrites]]
+from = "/product/basin-for-a-head/"
+to = "/product/basin-for-a-head/index.html"
+
+[[services.production.rewrites]]
+from = "/product/bioluminescent-abyssal-biomech"
+to = "/product/bioluminescent-abyssal-biomech/index.html"
+
+[[services.production.rewrites]]
+from = "/product/bioluminescent-abyssal-biomech/"
+to = "/product/bioluminescent-abyssal-biomech/index.html"
+
+[[services.production.rewrites]]
+from = "/product/birthday-spark"
+to = "/product/birthday-spark/index.html"
+
+[[services.production.rewrites]]
+from = "/product/birthday-spark/"
+to = "/product/birthday-spark/index.html"
+
+[[services.production.rewrites]]
+from = "/product/black-mineral-weather"
+to = "/product/black-mineral-weather/index.html"
+
+[[services.production.rewrites]]
+from = "/product/black-mineral-weather/"
+to = "/product/black-mineral-weather/index.html"
+
+[[services.production.rewrites]]
+from = "/product/blue-hour-monolith"
+to = "/product/blue-hour-monolith/index.html"
+
+[[services.production.rewrites]]
+from = "/product/blue-hour-monolith/"
+to = "/product/blue-hour-monolith/index.html"
+
+[[services.production.rewrites]]
+from = "/product/bold-graphic-neon-surrealism"
+to = "/product/bold-graphic-neon-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/bold-graphic-neon-surrealism/"
+to = "/product/bold-graphic-neon-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/boy-and-the-ant"
+to = "/product/boy-and-the-ant/index.html"
+
+[[services.production.rewrites]]
+from = "/product/boy-and-the-ant/"
+to = "/product/boy-and-the-ant/index.html"
+
+[[services.production.rewrites]]
+from = "/product/buried-clocks"
+to = "/product/buried-clocks/index.html"
+
+[[services.production.rewrites]]
+from = "/product/buried-clocks/"
+to = "/product/buried-clocks/index.html"
+
+[[services.production.rewrites]]
+from = "/product/camera-tears"
+to = "/product/camera-tears/index.html"
+
+[[services.production.rewrites]]
+from = "/product/camera-tears/"
+to = "/product/camera-tears/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cart-of-hours"
+to = "/product/cart-of-hours/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cart-of-hours/"
+to = "/product/cart-of-hours/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cassette-veins"
+to = "/product/cassette-veins/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cassette-veins/"
+to = "/product/cassette-veins/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cathedral-of-washers"
+to = "/product/cathedral-of-washers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cathedral-of-washers/"
+to = "/product/cathedral-of-washers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/celestial-paper-bag"
+to = "/product/celestial-paper-bag/index.html"
+
+[[services.production.rewrites]]
+from = "/product/celestial-paper-bag/"
+to = "/product/celestial-paper-bag/index.html"
+
+[[services.production.rewrites]]
+from = "/product/chair-after-midnight"
+to = "/product/chair-after-midnight/index.html"
+
+[[services.production.rewrites]]
+from = "/product/chair-after-midnight/"
+to = "/product/chair-after-midnight/index.html"
+
+[[services.production.rewrites]]
+from = "/product/chair-at-the-color-boundary"
+to = "/product/chair-at-the-color-boundary/index.html"
+
+[[services.production.rewrites]]
+from = "/product/chair-at-the-color-boundary/"
+to = "/product/chair-at-the-color-boundary/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cinematic-surreal-sci-fi"
+to = "/product/cinematic-surreal-sci-fi/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cinematic-surreal-sci-fi/"
+to = "/product/cinematic-surreal-sci-fi/index.html"
+
+[[services.production.rewrites]]
+from = "/product/city-of-copper-facades"
+to = "/product/city-of-copper-facades/index.html"
+
+[[services.production.rewrites]]
+from = "/product/city-of-copper-facades/"
+to = "/product/city-of-copper-facades/index.html"
+
+[[services.production.rewrites]]
+from = "/product/clocktower-vespers"
+to = "/product/clocktower-vespers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/clocktower-vespers/"
+to = "/product/clocktower-vespers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cloud-aperture"
+to = "/product/cloud-aperture/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cloud-aperture/"
+to = "/product/cloud-aperture/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cloud-chamber-communion"
+to = "/product/cloud-chamber-communion/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cloud-chamber-communion/"
+to = "/product/cloud-chamber-communion/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cloudwell-stair"
+to = "/product/cloudwell-stair/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cloudwell-stair/"
+to = "/product/cloudwell-stair/index.html"
+
+[[services.production.rewrites]]
+from = "/product/coffee-for-the-skeleton"
+to = "/product/coffee-for-the-skeleton/index.html"
+
+[[services.production.rewrites]]
+from = "/product/coffee-for-the-skeleton/"
+to = "/product/coffee-for-the-skeleton/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cold-cabinet"
+to = "/product/cold-cabinet/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cold-cabinet/"
+to = "/product/cold-cabinet/index.html"
+
+[[services.production.rewrites]]
+from = "/product/coral-beak"
+to = "/product/coral-beak/index.html"
+
+[[services.production.rewrites]]
+from = "/product/coral-beak/"
+to = "/product/coral-beak/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cosmic-pilgrim"
+to = "/product/cosmic-pilgrim/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cosmic-pilgrim/"
+to = "/product/cosmic-pilgrim/index.html"
+
+[[services.production.rewrites]]
+from = "/product/crimson-grain-surrealism"
+to = "/product/crimson-grain-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/crimson-grain-surrealism/"
+to = "/product/crimson-grain-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/crimson-tactile-surrealism"
+to = "/product/crimson-tactile-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/crimson-tactile-surrealism/"
+to = "/product/crimson-tactile-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cross-in-the-red"
+to = "/product/cross-in-the-red/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cross-in-the-red/"
+to = "/product/cross-in-the-red/index.html"
+
+[[services.production.rewrites]]
+from = "/product/crown-of-black-spikes"
+to = "/product/crown-of-black-spikes/index.html"
+
+[[services.production.rewrites]]
+from = "/product/crown-of-black-spikes/"
+to = "/product/crown-of-black-spikes/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cube-in-the-wheat"
+to = "/product/cube-in-the-wheat/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cube-in-the-wheat/"
+to = "/product/cube-in-the-wheat/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cyan-passage"
+to = "/product/cyan-passage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/cyan-passage/"
+to = "/product/cyan-passage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/days-almost-here"
+to = "/product/days-almost-here/index.html"
+
+[[services.production.rewrites]]
+from = "/product/days-almost-here/"
+to = "/product/days-almost-here/index.html"
+
+[[services.production.rewrites]]
+from = "/product/desert-broadcast-saint"
+to = "/product/desert-broadcast-saint/index.html"
+
+[[services.production.rewrites]]
+from = "/product/desert-broadcast-saint/"
+to = "/product/desert-broadcast-saint/index.html"
+
+[[services.production.rewrites]]
+from = "/product/dinner-after-the-alarm"
+to = "/product/dinner-after-the-alarm/index.html"
+
+[[services.production.rewrites]]
+from = "/product/dinner-after-the-alarm/"
+to = "/product/dinner-after-the-alarm/index.html"
+
+[[services.production.rewrites]]
+from = "/product/disruptive-analog-grunge"
+to = "/product/disruptive-analog-grunge/index.html"
+
+[[services.production.rewrites]]
+from = "/product/disruptive-analog-grunge/"
+to = "/product/disruptive-analog-grunge/index.html"
+
+[[services.production.rewrites]]
+from = "/product/door-in-the-red-orchard"
+to = "/product/door-in-the-red-orchard/index.html"
+
+[[services.production.rewrites]]
+from = "/product/door-in-the-red-orchard/"
+to = "/product/door-in-the-red-orchard/index.html"
+
+[[services.production.rewrites]]
+from = "/product/door-on-a-plate"
+to = "/product/door-on-a-plate/index.html"
+
+[[services.production.rewrites]]
+from = "/product/door-on-a-plate/"
+to = "/product/door-on-a-plate/index.html"
+
+[[services.production.rewrites]]
+from = "/product/dream-receiver"
+to = "/product/dream-receiver/index.html"
+
+[[services.production.rewrites]]
+from = "/product/dream-receiver/"
+to = "/product/dream-receiver/index.html"
+
+[[services.production.rewrites]]
+from = "/product/electric-cobalt-minimalist"
+to = "/product/electric-cobalt-minimalist/index.html"
+
+[[services.production.rewrites]]
+from = "/product/electric-cobalt-minimalist/"
+to = "/product/electric-cobalt-minimalist/index.html"
+
+[[services.production.rewrites]]
+from = "/product/emerald-colonnade"
+to = "/product/emerald-colonnade/index.html"
+
+[[services.production.rewrites]]
+from = "/product/emerald-colonnade/"
+to = "/product/emerald-colonnade/index.html"
+
+[[services.production.rewrites]]
+from = "/product/end-of-takeout"
+to = "/product/end-of-takeout/index.html"
+
+[[services.production.rewrites]]
+from = "/product/end-of-takeout/"
+to = "/product/end-of-takeout/index.html"
+
+[[services.production.rewrites]]
+from = "/product/escalator-to-nowhere"
+to = "/product/escalator-to-nowhere/index.html"
+
+[[services.production.rewrites]]
+from = "/product/escalator-to-nowhere/"
+to = "/product/escalator-to-nowhere/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-cloud-surrealism"
+to = "/product/ethereal-cloud-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-cloud-surrealism/"
+to = "/product/ethereal-cloud-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-monochrome-motion"
+to = "/product/ethereal-monochrome-motion/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-monochrome-motion/"
+to = "/product/ethereal-monochrome-motion/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-muted-minimalism"
+to = "/product/ethereal-muted-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-muted-minimalism/"
+to = "/product/ethereal-muted-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-painterly-botanica"
+to = "/product/ethereal-painterly-botanica/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-painterly-botanica/"
+to = "/product/ethereal-painterly-botanica/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-pastel-surrealism"
+to = "/product/ethereal-pastel-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ethereal-pastel-surrealism/"
+to = "/product/ethereal-pastel-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/exit-in-fragments"
+to = "/product/exit-in-fragments/index.html"
+
+[[services.production.rewrites]]
+from = "/product/exit-in-fragments/"
+to = "/product/exit-in-fragments/index.html"
+
+[[services.production.rewrites]]
+from = "/product/eyes-in-the-wiring"
+to = "/product/eyes-in-the-wiring/index.html"
+
+[[services.production.rewrites]]
+from = "/product/eyes-in-the-wiring/"
+to = "/product/eyes-in-the-wiring/index.html"
+
+[[services.production.rewrites]]
+from = "/product/face-between-frequencies"
+to = "/product/face-between-frequencies/index.html"
+
+[[services.production.rewrites]]
+from = "/product/face-between-frequencies/"
+to = "/product/face-between-frequencies/index.html"
+
+[[services.production.rewrites]]
+from = "/product/family-circuit"
+to = "/product/family-circuit/index.html"
+
+[[services.production.rewrites]]
+from = "/product/family-circuit/"
+to = "/product/family-circuit/index.html"
+
+[[services.production.rewrites]]
+from = "/product/filing-cathedral"
+to = "/product/filing-cathedral/index.html"
+
+[[services.production.rewrites]]
+from = "/product/filing-cathedral/"
+to = "/product/filing-cathedral/index.html"
+
+[[services.production.rewrites]]
+from = "/product/fishing-the-reflected-sky"
+to = "/product/fishing-the-reflected-sky/index.html"
+
+[[services.production.rewrites]]
+from = "/product/fishing-the-reflected-sky/"
+to = "/product/fishing-the-reflected-sky/index.html"
+
+[[services.production.rewrites]]
+from = "/product/floating-gambit"
+to = "/product/floating-gambit/index.html"
+
+[[services.production.rewrites]]
+from = "/product/floating-gambit/"
+to = "/product/floating-gambit/index.html"
+
+[[services.production.rewrites]]
+from = "/product/flowers-at-the-cash-machine"
+to = "/product/flowers-at-the-cash-machine/index.html"
+
+[[services.production.rewrites]]
+from = "/product/flowers-at-the-cash-machine/"
+to = "/product/flowers-at-the-cash-machine/index.html"
+
+[[services.production.rewrites]]
+from = "/product/glass-stair-in-the-clouds"
+to = "/product/glass-stair-in-the-clouds/index.html"
+
+[[services.production.rewrites]]
+from = "/product/glass-stair-in-the-clouds/"
+to = "/product/glass-stair-in-the-clouds/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-angular-urbanism"
+to = "/product/graphic-angular-urbanism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-angular-urbanism/"
+to = "/product/graphic-angular-urbanism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-kinetic-surrealism"
+to = "/product/graphic-kinetic-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-kinetic-surrealism/"
+to = "/product/graphic-kinetic-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-retro-printmaker"
+to = "/product/graphic-retro-printmaker/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-retro-printmaker/"
+to = "/product/graphic-retro-printmaker/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-surreal-pop"
+to = "/product/graphic-surreal-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-surreal-pop/"
+to = "/product/graphic-surreal-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-surrealist-collage"
+to = "/product/graphic-surrealist-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-surrealist-collage/"
+to = "/product/graphic-surrealist-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-surrealist-minimalism"
+to = "/product/graphic-surrealist-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/graphic-surrealist-minimalism/"
+to = "/product/graphic-surrealist-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/green-bell-towers"
+to = "/product/green-bell-towers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/green-bell-towers/"
+to = "/product/green-bell-towers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/grief-in-transit"
+to = "/product/grief-in-transit/index.html"
+
+[[services.production.rewrites]]
+from = "/product/grief-in-transit/"
+to = "/product/grief-in-transit/index.html"
+
+[[services.production.rewrites]]
+from = "/product/gritty-graphic-macabre"
+to = "/product/gritty-graphic-macabre/index.html"
+
+[[services.production.rewrites]]
+from = "/product/gritty-graphic-macabre/"
+to = "/product/gritty-graphic-macabre/index.html"
+
+[[services.production.rewrites]]
+from = "/product/halftone-skull-in-red"
+to = "/product/halftone-skull-in-red/index.html"
+
+[[services.production.rewrites]]
+from = "/product/halftone-skull-in-red/"
+to = "/product/halftone-skull-in-red/index.html"
+
+[[services.production.rewrites]]
+from = "/product/hands-holding-the-eye"
+to = "/product/hands-holding-the-eye/index.html"
+
+[[services.production.rewrites]]
+from = "/product/hands-holding-the-eye/"
+to = "/product/hands-holding-the-eye/index.html"
+
+[[services.production.rewrites]]
+from = "/product/head-in-the-rapeseed"
+to = "/product/head-in-the-rapeseed/index.html"
+
+[[services.production.rewrites]]
+from = "/product/head-in-the-rapeseed/"
+to = "/product/head-in-the-rapeseed/index.html"
+
+[[services.production.rewrites]]
+from = "/product/herald-of-the-orbit-bloom"
+to = "/product/herald-of-the-orbit-bloom/index.html"
+
+[[services.production.rewrites]]
+from = "/product/herald-of-the-orbit-bloom/"
+to = "/product/herald-of-the-orbit-bloom/index.html"
+
+[[services.production.rewrites]]
+from = "/product/high-contrast-fauvist-glitch"
+to = "/product/high-contrast-fauvist-glitch/index.html"
+
+[[services.production.rewrites]]
+from = "/product/high-contrast-fauvist-glitch/"
+to = "/product/high-contrast-fauvist-glitch/index.html"
+
+[[services.production.rewrites]]
+from = "/product/hyper-saturated-surreal-pop"
+to = "/product/hyper-saturated-surreal-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/product/hyper-saturated-surreal-pop/"
+to = "/product/hyper-saturated-surreal-pop/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ice-procession"
+to = "/product/ice-procession/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ice-procession/"
+to = "/product/ice-procession/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ink-bear-bloom"
+to = "/product/ink-bear-bloom/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ink-bear-bloom/"
+to = "/product/ink-bear-bloom/index.html"
+
+[[services.production.rewrites]]
+from = "/product/keeper-of-the-white-lantern"
+to = "/product/keeper-of-the-white-lantern/index.html"
+
+[[services.production.rewrites]]
+from = "/product/keeper-of-the-white-lantern/"
+to = "/product/keeper-of-the-white-lantern/index.html"
+
+[[services.production.rewrites]]
+from = "/product/key-to-the-threshold"
+to = "/product/key-to-the-threshold/index.html"
+
+[[services.production.rewrites]]
+from = "/product/key-to-the-threshold/"
+to = "/product/key-to-the-threshold/index.html"
+
+[[services.production.rewrites]]
+from = "/product/kinetic-ghost-minimalism"
+to = "/product/kinetic-ghost-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/kinetic-ghost-minimalism/"
+to = "/product/kinetic-ghost-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/kinetic-liminal-reflections"
+to = "/product/kinetic-liminal-reflections/index.html"
+
+[[services.production.rewrites]]
+from = "/product/kinetic-liminal-reflections/"
+to = "/product/kinetic-liminal-reflections/index.html"
+
+[[services.production.rewrites]]
+from = "/product/last-light-market"
+to = "/product/last-light-market/index.html"
+
+[[services.production.rewrites]]
+from = "/product/last-light-market/"
+to = "/product/last-light-market/index.html"
+
+[[services.production.rewrites]]
+from = "/product/last-sock-on-the-line"
+to = "/product/last-sock-on-the-line/index.html"
+
+[[services.production.rewrites]]
+from = "/product/last-sock-on-the-line/"
+to = "/product/last-sock-on-the-line/index.html"
+
+[[services.production.rewrites]]
+from = "/product/last-transaction"
+to = "/product/last-transaction/index.html"
+
+[[services.production.rewrites]]
+from = "/product/last-transaction/"
+to = "/product/last-transaction/index.html"
+
+[[services.production.rewrites]]
+from = "/product/letter-carriers-blue-hour"
+to = "/product/letter-carriers-blue-hour/index.html"
+
+[[services.production.rewrites]]
+from = "/product/letter-carriers-blue-hour/"
+to = "/product/letter-carriers-blue-hour/index.html"
+
+[[services.production.rewrites]]
+from = "/product/liminal-surrealist-distortion"
+to = "/product/liminal-surrealist-distortion/index.html"
+
+[[services.production.rewrites]]
+from = "/product/liminal-surrealist-distortion/"
+to = "/product/liminal-surrealist-distortion/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-cosmic-folklore"
+to = "/product/luminous-cosmic-folklore/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-cosmic-folklore/"
+to = "/product/luminous-cosmic-folklore/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-emerald-chiaroscuro"
+to = "/product/luminous-emerald-chiaroscuro/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-emerald-chiaroscuro/"
+to = "/product/luminous-emerald-chiaroscuro/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-nocturnal-abyss"
+to = "/product/luminous-nocturnal-abyss/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-nocturnal-abyss/"
+to = "/product/luminous-nocturnal-abyss/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-thermal-expressionism"
+to = "/product/luminous-thermal-expressionism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/luminous-thermal-expressionism/"
+to = "/product/luminous-thermal-expressionism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/machine-with-a-red-thought"
+to = "/product/machine-with-a-red-thought/index.html"
+
+[[services.production.rewrites]]
+from = "/product/machine-with-a-red-thought/"
+to = "/product/machine-with-a-red-thought/index.html"
+
+[[services.production.rewrites]]
+from = "/product/magenta-eclipse"
+to = "/product/magenta-eclipse/index.html"
+
+[[services.production.rewrites]]
+from = "/product/magenta-eclipse/"
+to = "/product/magenta-eclipse/index.html"
+
+[[services.production.rewrites]]
+from = "/product/magi-in-grey"
+to = "/product/magi-in-grey/index.html"
+
+[[services.production.rewrites]]
+from = "/product/magi-in-grey/"
+to = "/product/magi-in-grey/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mailbox-garden"
+to = "/product/mailbox-garden/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mailbox-garden/"
+to = "/product/mailbox-garden/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mechanical-saint"
+to = "/product/mechanical-saint/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mechanical-saint/"
+to = "/product/mechanical-saint/index.html"
+
+[[services.production.rewrites]]
+from = "/product/memory-in-blue-plaster"
+to = "/product/memory-in-blue-plaster/index.html"
+
+[[services.production.rewrites]]
+from = "/product/memory-in-blue-plaster/"
+to = "/product/memory-in-blue-plaster/index.html"
+
+[[services.production.rewrites]]
+from = "/product/microwave-bloom"
+to = "/product/microwave-bloom/index.html"
+
+[[services.production.rewrites]]
+from = "/product/microwave-bloom/"
+to = "/product/microwave-bloom/index.html"
+
+[[services.production.rewrites]]
+from = "/product/midnight-inventory"
+to = "/product/midnight-inventory/index.html"
+
+[[services.production.rewrites]]
+from = "/product/midnight-inventory/"
+to = "/product/midnight-inventory/index.html"
+
+[[services.production.rewrites]]
+from = "/product/minimalist-surrealist-dreamscapes"
+to = "/product/minimalist-surrealist-dreamscapes/index.html"
+
+[[services.production.rewrites]]
+from = "/product/minimalist-surrealist-dreamscapes/"
+to = "/product/minimalist-surrealist-dreamscapes/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mirror-box"
+to = "/product/mirror-box/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mirror-box/"
+to = "/product/mirror-box/index.html"
+
+[[services.production.rewrites]]
+from = "/product/monochrome-glitch-abstraction"
+to = "/product/monochrome-glitch-abstraction/index.html"
+
+[[services.production.rewrites]]
+from = "/product/monochrome-glitch-abstraction/"
+to = "/product/monochrome-glitch-abstraction/index.html"
+
+[[services.production.rewrites]]
+from = "/product/monochrome-gothic-printmaking"
+to = "/product/monochrome-gothic-printmaking/index.html"
+
+[[services.production.rewrites]]
+from = "/product/monochrome-gothic-printmaking/"
+to = "/product/monochrome-gothic-printmaking/index.html"
+
+[[services.production.rewrites]]
+from = "/product/monolithic-cobalt-liminality"
+to = "/product/monolithic-cobalt-liminality/index.html"
+
+[[services.production.rewrites]]
+from = "/product/monolithic-cobalt-liminality/"
+to = "/product/monolithic-cobalt-liminality/index.html"
+
+[[services.production.rewrites]]
+from = "/product/moody-ethereal-minimalism"
+to = "/product/moody-ethereal-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/moody-ethereal-minimalism/"
+to = "/product/moody-ethereal-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/motel-in-teal-night"
+to = "/product/motel-in-teal-night/index.html"
+
+[[services.production.rewrites]]
+from = "/product/motel-in-teal-night/"
+to = "/product/motel-in-teal-night/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mouth-full-of-coins"
+to = "/product/mouth-full-of-coins/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mouth-full-of-coins/"
+to = "/product/mouth-full-of-coins/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mouth-in-the-floor"
+to = "/product/mouth-in-the-floor/index.html"
+
+[[services.production.rewrites]]
+from = "/product/mouth-in-the-floor/"
+to = "/product/mouth-in-the-floor/index.html"
+
+[[services.production.rewrites]]
+from = "/product/narrative-surrealist-synthesis"
+to = "/product/narrative-surrealist-synthesis/index.html"
+
+[[services.production.rewrites]]
+from = "/product/narrative-surrealist-synthesis/"
+to = "/product/narrative-surrealist-synthesis/index.html"
+
+[[services.production.rewrites]]
+from = "/product/night-collected-in-a-bag"
+to = "/product/night-collected-in-a-bag/index.html"
+
+[[services.production.rewrites]]
+from = "/product/night-collected-in-a-bag/"
+to = "/product/night-collected-in-a-bag/index.html"
+
+[[services.production.rewrites]]
+from = "/product/night-shift-draftsman"
+to = "/product/night-shift-draftsman/index.html"
+
+[[services.production.rewrites]]
+from = "/product/night-shift-draftsman/"
+to = "/product/night-shift-draftsman/index.html"
+
+[[services.production.rewrites]]
+from = "/product/no-exit-agrees"
+to = "/product/no-exit-agrees/index.html"
+
+[[services.production.rewrites]]
+from = "/product/no-exit-agrees/"
+to = "/product/no-exit-agrees/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ocean-in-the-bath"
+to = "/product/ocean-in-the-bath/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ocean-in-the-bath/"
+to = "/product/ocean-in-the-bath/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ochre-orbits"
+to = "/product/ochre-orbits/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ochre-orbits/"
+to = "/product/ochre-orbits/index.html"
+
+[[services.production.rewrites]]
+from = "/product/offering-at-the-narrow-door"
+to = "/product/offering-at-the-narrow-door/index.html"
+
+[[services.production.rewrites]]
+from = "/product/offering-at-the-narrow-door/"
+to = "/product/offering-at-the-narrow-door/index.html"
+
+[[services.production.rewrites]]
+from = "/product/oneiric-geometric-surrealism"
+to = "/product/oneiric-geometric-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/oneiric-geometric-surrealism/"
+to = "/product/oneiric-geometric-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/open-circle"
+to = "/product/open-circle/index.html"
+
+[[services.production.rewrites]]
+from = "/product/open-circle/"
+to = "/product/open-circle/index.html"
+
+[[services.production.rewrites]]
+from = "/product/orange-door-encounter"
+to = "/product/orange-door-encounter/index.html"
+
+[[services.production.rewrites]]
+from = "/product/orange-door-encounter/"
+to = "/product/orange-door-encounter/index.html"
+
+[[services.production.rewrites]]
+from = "/product/parasol-walkers"
+to = "/product/parasol-walkers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/parasol-walkers/"
+to = "/product/parasol-walkers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/parking-meter-garden"
+to = "/product/parking-meter-garden/index.html"
+
+[[services.production.rewrites]]
+from = "/product/parking-meter-garden/"
+to = "/product/parking-meter-garden/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pastel-threshold"
+to = "/product/pastel-threshold/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pastel-threshold/"
+to = "/product/pastel-threshold/index.html"
+
+[[services.production.rewrites]]
+from = "/product/payphone-for-forgiveness"
+to = "/product/payphone-for-forgiveness/index.html"
+
+[[services.production.rewrites]]
+from = "/product/payphone-for-forgiveness/"
+to = "/product/payphone-for-forgiveness/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pilgrim-of-the-inner-light"
+to = "/product/pilgrim-of-the-inner-light/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pilgrim-of-the-inner-light/"
+to = "/product/pilgrim-of-the-inner-light/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pilgrim-of-the-prism-dawn"
+to = "/product/pilgrim-of-the-prism-dawn/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pilgrim-of-the-prism-dawn/"
+to = "/product/pilgrim-of-the-prism-dawn/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pinned-cloud"
+to = "/product/pinned-cloud/index.html"
+
+[[services.production.rewrites]]
+from = "/product/pinned-cloud/"
+to = "/product/pinned-cloud/index.html"
+
+[[services.production.rewrites]]
+from = "/product/playing-the-stapler"
+to = "/product/playing-the-stapler/index.html"
+
+[[services.production.rewrites]]
+from = "/product/playing-the-stapler/"
+to = "/product/playing-the-stapler/index.html"
+
+[[services.production.rewrites]]
+from = "/product/portrait-in-slippage"
+to = "/product/portrait-in-slippage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/portrait-in-slippage/"
+to = "/product/portrait-in-slippage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/procession-in-fog"
+to = "/product/procession-in-fog/index.html"
+
+[[services.production.rewrites]]
+from = "/product/procession-in-fog/"
+to = "/product/procession-in-fog/index.html"
+
+[[services.production.rewrites]]
+from = "/product/rain-keeps-the-house"
+to = "/product/rain-keeps-the-house/index.html"
+
+[[services.production.rewrites]]
+from = "/product/rain-keeps-the-house/"
+to = "/product/rain-keeps-the-house/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ramen-with-my-skeleton"
+to = "/product/ramen-with-my-skeleton/index.html"
+
+[[services.production.rewrites]]
+from = "/product/ramen-with-my-skeleton/"
+to = "/product/ramen-with-my-skeleton/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-door-black-water"
+to = "/product/red-door-black-water/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-door-black-water/"
+to = "/product/red-door-black-water/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-measure"
+to = "/product/red-measure/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-measure/"
+to = "/product/red-measure/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-silo"
+to = "/product/red-silo/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-silo/"
+to = "/product/red-silo/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-thread"
+to = "/product/red-thread/index.html"
+
+[[services.production.rewrites]]
+from = "/product/red-thread/"
+to = "/product/red-thread/index.html"
+
+[[services.production.rewrites]]
+from = "/product/reverse-rain"
+to = "/product/reverse-rain/index.html"
+
+[[services.production.rewrites]]
+from = "/product/reverse-rain/"
+to = "/product/reverse-rain/index.html"
+
+[[services.production.rewrites]]
+from = "/product/rooms-above-weather"
+to = "/product/rooms-above-weather/index.html"
+
+[[services.production.rewrites]]
+from = "/product/rooms-above-weather/"
+to = "/product/rooms-above-weather/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sail-cathedral"
+to = "/product/sail-cathedral/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sail-cathedral/"
+to = "/product/sail-cathedral/index.html"
+
+[[services.production.rewrites]]
+from = "/product/saturated-surrealist-minimalism"
+to = "/product/saturated-surrealist-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/saturated-surrealist-minimalism/"
+to = "/product/saturated-surrealist-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/second-sunrise"
+to = "/product/second-sunrise/index.html"
+
+[[services.production.rewrites]]
+from = "/product/second-sunrise/"
+to = "/product/second-sunrise/index.html"
+
+[[services.production.rewrites]]
+from = "/product/serene-pastel-surrealism"
+to = "/product/serene-pastel-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/serene-pastel-surrealism/"
+to = "/product/serene-pastel-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sherbet-orbits"
+to = "/product/sherbet-orbits/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sherbet-orbits/"
+to = "/product/sherbet-orbits/index.html"
+
+[[services.production.rewrites]]
+from = "/product/signal-garden"
+to = "/product/signal-garden/index.html"
+
+[[services.production.rewrites]]
+from = "/product/signal-garden/"
+to = "/product/signal-garden/index.html"
+
+[[services.production.rewrites]]
+from = "/product/signal-over-the-shore"
+to = "/product/signal-over-the-shore/index.html"
+
+[[services.production.rewrites]]
+from = "/product/signal-over-the-shore/"
+to = "/product/signal-over-the-shore/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sleeper-on-the-rainbow"
+to = "/product/sleeper-on-the-rainbow/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sleeper-on-the-rainbow/"
+to = "/product/sleeper-on-the-rainbow/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sleeping-cart"
+to = "/product/sleeping-cart/index.html"
+
+[[services.production.rewrites]]
+from = "/product/sleeping-cart/"
+to = "/product/sleeping-cart/index.html"
+
+[[services.production.rewrites]]
+from = "/product/stars-in-a-takeout-bag"
+to = "/product/stars-in-a-takeout-bag/index.html"
+
+[[services.production.rewrites]]
+from = "/product/stars-in-a-takeout-bag/"
+to = "/product/stars-in-a-takeout-bag/index.html"
+
+[[services.production.rewrites]]
+from = "/product/stem-in-the-quiet"
+to = "/product/stem-in-the-quiet/index.html"
+
+[[services.production.rewrites]]
+from = "/product/stem-in-the-quiet/"
+to = "/product/stem-in-the-quiet/index.html"
+
+[[services.production.rewrites]]
+from = "/product/storm-in-a-fishbowl"
+to = "/product/storm-in-a-fishbowl/index.html"
+
+[[services.production.rewrites]]
+from = "/product/storm-in-a-fishbowl/"
+to = "/product/storm-in-a-fishbowl/index.html"
+
+[[services.production.rewrites]]
+from = "/product/subway-of-apologies"
+to = "/product/subway-of-apologies/index.html"
+
+[[services.production.rewrites]]
+from = "/product/subway-of-apologies/"
+to = "/product/subway-of-apologies/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-graphic-minimalism"
+to = "/product/surreal-graphic-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-graphic-minimalism/"
+to = "/product/surreal-graphic-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-liminal-minimalism"
+to = "/product/surreal-liminal-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-liminal-minimalism/"
+to = "/product/surreal-liminal-minimalism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-minimalist-waterscapes"
+to = "/product/surreal-minimalist-waterscapes/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-minimalist-waterscapes/"
+to = "/product/surreal-minimalist-waterscapes/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-pastoral-technicolor"
+to = "/product/surreal-pastoral-technicolor/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-pastoral-technicolor/"
+to = "/product/surreal-pastoral-technicolor/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-retro-cosmic-collage"
+to = "/product/surreal-retro-cosmic-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-retro-cosmic-collage/"
+to = "/product/surreal-retro-cosmic-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-retro-futurist-collage"
+to = "/product/surreal-retro-futurist-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surreal-retro-futurist-collage/"
+to = "/product/surreal-retro-futurist-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surrealist-liminal-pastoralism"
+to = "/product/surrealist-liminal-pastoralism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surrealist-liminal-pastoralism/"
+to = "/product/surrealist-liminal-pastoralism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surrealist-sky-collage"
+to = "/product/surrealist-sky-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/surrealist-sky-collage/"
+to = "/product/surrealist-sky-collage/index.html"
+
+[[services.production.rewrites]]
+from = "/product/tactile-organic-opulence"
+to = "/product/tactile-organic-opulence/index.html"
+
+[[services.production.rewrites]]
+from = "/product/tactile-organic-opulence/"
+to = "/product/tactile-organic-opulence/index.html"
+
+[[services.production.rewrites]]
+from = "/product/tears-as-currency"
+to = "/product/tears-as-currency/index.html"
+
+[[services.production.rewrites]]
+from = "/product/tears-as-currency/"
+to = "/product/tears-as-currency/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-boating-afternoon"
+to = "/product/the-boating-afternoon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-boating-afternoon/"
+to = "/product/the-boating-afternoon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-branch-bearer"
+to = "/product/the-branch-bearer/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-branch-bearer/"
+to = "/product/the-branch-bearer/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-brass-halo"
+to = "/product/the-brass-halo/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-brass-halo/"
+to = "/product/the-brass-halo/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-crumbling-colossus"
+to = "/product/the-crumbling-colossus/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-crumbling-colossus/"
+to = "/product/the-crumbling-colossus/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-dune-observatory"
+to = "/product/the-dune-observatory/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-dune-observatory/"
+to = "/product/the-dune-observatory/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-lives-not-chosen"
+to = "/product/the-lives-not-chosen/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-lives-not-chosen/"
+to = "/product/the-lives-not-chosen/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-stitched-icon"
+to = "/product/the-stitched-icon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-stitched-icon/"
+to = "/product/the-stitched-icon/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-uplifted-face"
+to = "/product/the-uplifted-face/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-uplifted-face/"
+to = "/product/the-uplifted-face/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-verdigris-skull"
+to = "/product/the-verdigris-skull/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-verdigris-skull/"
+to = "/product/the-verdigris-skull/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-waiting-bench"
+to = "/product/the-waiting-bench/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-waiting-bench/"
+to = "/product/the-waiting-bench/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-xerox-scream"
+to = "/product/the-xerox-scream/index.html"
+
+[[services.production.rewrites]]
+from = "/product/the-xerox-scream/"
+to = "/product/the-xerox-scream/index.html"
+
+[[services.production.rewrites]]
+from = "/product/three-registers-of-silence"
+to = "/product/three-registers-of-silence/index.html"
+
+[[services.production.rewrites]]
+from = "/product/three-registers-of-silence/"
+to = "/product/three-registers-of-silence/index.html"
+
+[[services.production.rewrites]]
+from = "/product/tower-of-smoke"
+to = "/product/tower-of-smoke/index.html"
+
+[[services.production.rewrites]]
+from = "/product/tower-of-smoke/"
+to = "/product/tower-of-smoke/index.html"
+
+[[services.production.rewrites]]
+from = "/product/transit-diagram"
+to = "/product/transit-diagram/index.html"
+
+[[services.production.rewrites]]
+from = "/product/transit-diagram/"
+to = "/product/transit-diagram/index.html"
+
+[[services.production.rewrites]]
+from = "/product/two-dancers-in-linen"
+to = "/product/two-dancers-in-linen/index.html"
+
+[[services.production.rewrites]]
+from = "/product/two-dancers-in-linen/"
+to = "/product/two-dancers-in-linen/index.html"
+
+[[services.production.rewrites]]
+from = "/product/unopened-staircase"
+to = "/product/unopened-staircase/index.html"
+
+[[services.production.rewrites]]
+from = "/product/unopened-staircase/"
+to = "/product/unopened-staircase/index.html"
+
+[[services.production.rewrites]]
+from = "/product/unsaid-things"
+to = "/product/unsaid-things/index.html"
+
+[[services.production.rewrites]]
+from = "/product/unsaid-things/"
+to = "/product/unsaid-things/index.html"
+
+[[services.production.rewrites]]
+from = "/product/vase-in-the-mist"
+to = "/product/vase-in-the-mist/index.html"
+
+[[services.production.rewrites]]
+from = "/product/vase-in-the-mist/"
+to = "/product/vase-in-the-mist/index.html"
+
+[[services.production.rewrites]]
+from = "/product/veil-in-red-wind"
+to = "/product/veil-in-red-wind/index.html"
+
+[[services.production.rewrites]]
+from = "/product/veil-in-red-wind/"
+to = "/product/veil-in-red-wind/index.html"
+
+[[services.production.rewrites]]
+from = "/product/vibrant-risograph-surrealism"
+to = "/product/vibrant-risograph-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/vibrant-risograph-surrealism/"
+to = "/product/vibrant-risograph-surrealism/index.html"
+
+[[services.production.rewrites]]
+from = "/product/vigil-at-the-golden-cross"
+to = "/product/vigil-at-the-golden-cross/index.html"
+
+[[services.production.rewrites]]
+from = "/product/vigil-at-the-golden-cross/"
+to = "/product/vigil-at-the-golden-cross/index.html"
+
+[[services.production.rewrites]]
+from = "/product/violet-archivist"
+to = "/product/violet-archivist/index.html"
+
+[[services.production.rewrites]]
+from = "/product/violet-archivist/"
+to = "/product/violet-archivist/index.html"
+
+[[services.production.rewrites]]
+from = "/product/weather-under-the-umbrella"
+to = "/product/weather-under-the-umbrella/index.html"
+
+[[services.production.rewrites]]
+from = "/product/weather-under-the-umbrella/"
+to = "/product/weather-under-the-umbrella/index.html"
+
+[[services.production.rewrites]]
+from = "/product/wheel-of-quiet-relics"
+to = "/product/wheel-of-quiet-relics/index.html"
+
+[[services.production.rewrites]]
+from = "/product/wheel-of-quiet-relics/"
+to = "/product/wheel-of-quiet-relics/index.html"
+
+[[services.production.rewrites]]
+from = "/product/white-eyes-in-the-rain"
+to = "/product/white-eyes-in-the-rain/index.html"
+
+[[services.production.rewrites]]
+from = "/product/white-eyes-in-the-rain/"
+to = "/product/white-eyes-in-the-rain/index.html"
+
+[[services.production.rewrites]]
+from = "/product/widow-in-the-wildflowers"
+to = "/product/widow-in-the-wildflowers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/widow-in-the-wildflowers/"
+to = "/product/widow-in-the-wildflowers/index.html"
+
+[[services.production.rewrites]]
+from = "/product/yellow-field-interruption"
+to = "/product/yellow-field-interruption/index.html"
+
+[[services.production.rewrites]]
+from = "/product/yellow-field-interruption/"
+to = "/product/yellow-field-interruption/index.html"
+
+# END GENERATED CATALOG ROUTE REWRITES
 
 [services.env]
 VITE_SITE_URL = "https://artcovr.com"

@@ -605,6 +605,15 @@ export function validateProductionRouteConfig(
       .join(", ")}`,
   );
 
+  for (const location of sitemapLocations) {
+    const route = new URL(location).pathname.replace(/\/$/, "");
+    if (route !== "/cover-art" && !route.startsWith("/cover-art/") && !route.startsWith("/product/")) continue;
+    for (const from of [route, route + "/"]) {
+      check(rewrites.some((rule) => rule.from === from && rule.to === route + "/index.html"),
+        "artifact.toml", "explicit catalog route mapping", from);
+    }
+  }
+
   const wrongOrigin = sitemapLocations.filter(
     (location) => new URL(location).origin !== siteUrl,
   );

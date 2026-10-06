@@ -218,6 +218,7 @@ export function buildSitemapXml(
     { path: "/guides/cover-art-licensing", changefreq: "monthly", priority: "0.7" },
     { path: "/guides/exclusive-cover-art", changefreq: "monthly", priority: "0.7" },
     { path: "/guides/ai-generated-cover-art", changefreq: "monthly", priority: "0.7" },
+    { path: "/guides/spotify-apple-music-cover-art-requirements", changefreq: "monthly", priority: "0.7" },
     { path: "/legal/privacy", changefreq: "yearly", priority: "0.3" },
     { path: "/legal/terms", changefreq: "yearly", priority: "0.3" },
     ...items.map((item) => ({
@@ -278,6 +279,7 @@ ARTCOVR's public catalog contains ${items.length} owner-approved works. Public a
 - [How to license cover art](${base}/guides/cover-art-licensing)
 - [Exclusive cover art explained](${base}/guides/exclusive-cover-art)
 - [AI-generated cover art rights](${base}/guides/ai-generated-cover-art)
+- [Spotify and Apple Music cover art requirements](${base}/guides/spotify-apple-music-cover-art-requirements)
 
 ## Agent access
 

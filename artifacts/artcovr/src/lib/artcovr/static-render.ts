@@ -152,6 +152,7 @@ function siteFooter() {
       ${link("/guides/cover-art-licensing", "Licensing guide")}
       ${link("/guides/exclusive-cover-art", "Exclusive cover art")}
       ${link("/guides/ai-generated-cover-art", "AI art rights")}
+      ${link("/guides/spotify-apple-music-cover-art-requirements", "Spotify & Apple Music specs")}
       ${link("/refunds", "Refunds")}
       ${link("/legal/privacy", "Privacy")}
       ${link("/legal/terms", "Terms")}
@@ -433,8 +434,12 @@ function renderAnswerGuide({ artworks, metadata }: RenderContext) {
   if (!guide) return null;
   const questions = guide.sections
     .map(
-      (section) =>
-        `<section><h2>${escapeHtml(section.heading)}</h2><p>${escapeHtml(section.answer)}</p></section>`,
+      (section) => {
+        const comparison = section.comparison
+          ? `<div role="region" aria-label="${escapeHtml(section.comparison.caption)}" tabindex="0" class="mt-5 overflow-x-auto"><table class="w-full min-w-[42rem] border-collapse text-left text-sm"><caption class="mb-3 text-left text-xs font-bold uppercase tracking-[.08em] opacity-70">${escapeHtml(section.comparison.caption)}</caption><thead><tr class="border-y border-current/30">${section.comparison.headers.map((header) => `<th scope="col" class="px-3 py-3 align-top font-extrabold">${escapeHtml(header)}</th>`).join("")}</tr></thead><tbody>${section.comparison.rows.map((row) => `<tr class="border-b border-current/20">${row.map((cell, cellIndex) => cellIndex === 0 ? `<th scope="row" class="px-3 py-3 align-top font-bold">${escapeHtml(cell)}</th>` : `<td class="px-3 py-3 align-top opacity-80">${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`
+          : "";
+        return `<section><h2>${escapeHtml(section.heading)}</h2><p>${escapeHtml(section.answer)}</p>${comparison}</section>`;
+      },
     )
     .join("");
   const artworkLinks = artworks
@@ -455,7 +460,7 @@ function renderAnswerGuide({ artworks, metadata }: RenderContext) {
     <article>${questions}</article>
     <section aria-labelledby="guide-sources">
       <h2 id="guide-sources">Sources and scope</h2>
-      <p>This page is general information, not legal advice. External sources provide general context; the ARTCOVR license and terms control an ARTCOVR purchase.</p>
+      <p>${escapeHtml(guide.scopeNote ?? "This page is general information, not legal advice. External sources provide general context; the ARTCOVR license and terms control an ARTCOVR purchase.")}</p>
       <ul>${guide.sources.map((source) => `<li>${link(source.href, source.title)} — ${escapeHtml(source.publisher)}. ${escapeHtml(source.description)}</li>`).join("")}</ul>
      <p>Last reviewed <time datetime="${escapeHtml(guide.lastReviewed)}">${escapeHtml(guide.lastReviewed)}</time></p>
     </section>

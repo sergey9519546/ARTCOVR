@@ -42,6 +42,54 @@ function GuidePage({ guide }: { guide: AnswerGuide }) {
               {section.heading}
             </h2>
             <p className="mt-3 text-sm leading-6 opacity-80">{section.answer}</p>
+            {section.comparison && (
+              <div
+                className="mt-5 overflow-x-auto"
+                role="region"
+                aria-label={section.comparison.caption}
+                tabIndex={0}
+              >
+                <table className="w-full min-w-[42rem] border-collapse text-left text-sm">
+                  <caption className="mb-3 text-left text-xs font-bold uppercase tracking-[.08em] opacity-70">
+                    {section.comparison.caption}
+                  </caption>
+                  <thead>
+                    <tr className="border-y border-current/30">
+                      {section.comparison.headers.map((header) => (
+                        <th
+                          key={header}
+                          scope="col"
+                          className="px-3 py-3 align-top font-extrabold"
+                        >
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {section.comparison.rows.map((row) => (
+                      <tr key={row[0]} className="border-b border-current/20">
+                        {row.map((cell, cellIndex) =>
+                          cellIndex === 0 ? (
+                            <th
+                              key={cell}
+                              scope="row"
+                              className="px-3 py-3 align-top font-bold"
+                            >
+                              {cell}
+                            </th>
+                          ) : (
+                            <td key={cell} className="px-3 py-3 align-top opacity-80">
+                              {cell}
+                            </td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </section>
           );
         })}
@@ -52,8 +100,8 @@ function GuidePage({ guide }: { guide: AnswerGuide }) {
           Sources and scope
         </h2>
         <p className="mt-3 text-sm leading-6 opacity-80">
-          This page is general information, not legal advice. External sources provide
-          general context; the ARTCOVR license and terms control an ARTCOVR purchase.
+          {guide.scopeNote ??
+            "This page is general information, not legal advice. External sources provide general context; the ARTCOVR license and terms control an ARTCOVR purchase."}
         </p>
         <ul className="mt-5 space-y-4 text-sm leading-6">
           {guide.sources.map((source) => (
@@ -127,4 +175,12 @@ export function ExclusiveCoverArtGuidePage() {
 
 export function AiGeneratedCoverArtGuidePage() {
   return <GuidePage guide={guide("/guides/ai-generated-cover-art")} />;
+}
+
+export function SpotifyAppleMusicCoverArtRequirementsGuidePage() {
+  return (
+    <GuidePage
+      guide={guide("/guides/spotify-apple-music-cover-art-requirements")}
+    />
+  );
 }

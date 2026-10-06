@@ -267,6 +267,26 @@ test("publishes source-backed guide content and citable structured data", () => 
       generatedDocument,
       new RegExp(`<time datetime="${guide.lastReviewed}">${guide.lastReviewed}</time>`),
     );
+    for (const section of guide.sections) {
+      if (!section.comparison) continue;
+      assert.ok(section.comparison.headers.length > 1, `${path} comparison needs multiple columns`);
+      assert.ok(section.comparison.rows.length > 0, `${path} comparison needs data rows`);
+      assert.ok(
+        section.comparison.rows.every((row) => row.length === section.comparison!.headers.length),
+        `${path} comparison rows must match the header width`,
+      );
+      assert.ok(generatedDocument.includes(section.comparison.caption));
+      assert.ok(
+        generatedDocument.includes(
+          `role="region" aria-label="${section.comparison.caption}" tabindex="0"`,
+        ),
+        `${path} comparison should be keyboard-scrollable`,
+      );
+      assert.match(generatedDocument, /<th scope="row"/);
+      for (const header of section.comparison.headers) {
+        assert.ok(generatedDocument.includes(header), `${path} comparison is missing ${header}`);
+      }
+    }
     for (const source of guide.sources) {
       assert.ok(source.title.trim(), `${path} has a source without a title`);
       assert.ok(source.publisher.trim(), `${path} has a source without a publisher`);
@@ -483,7 +503,7 @@ test("rejects homepage ItemList order that differs from static product links", (
   );
 });
 
-test("allows generated product and genre indexes to use directory resolution", () => {
+test("requires exact clean and trailing-slash catalog rewrites", () => {
   const rewrites = parseProductionRewrites(`
 [[services.production.rewrites]]
 from = "/cover-art"
@@ -494,6 +514,14 @@ from = "/archive"
 to = "/archive/index.html"
 `);
 
+  for (const route of ["/cover-art", "/cover-art/ambient", "/product/" + artwork.slug]) {
+    for (const from of [route, route + "/"]) rewrites.push({ from, to: route + "/index.html" });
+  }
+  assert.throws(() => validateProductionRouteConfig(
+    [siteUrl + "/product/" + artwork.slug], siteUrl, []), /explicit catalog route mapping/);
+  assert.throws(() => validateProductionRouteConfig(
+    [siteUrl + "/product/" + artwork.slug], siteUrl,
+    rewrites.filter((rule) => !rule.from.endsWith("/"))), /explicit catalog route mapping/);
   assert.doesNotThrow(() =>
     validateProductionRouteConfig(
       [

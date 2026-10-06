@@ -6,12 +6,19 @@ export type AnswerGuide = {
   description: string;
   introduction: string;
   keyTakeaways: readonly string[];
+  /** Optional scope note for sources whose guidance changes independently of ARTCOVR. */
+  scopeNote?: string;
   /** The first-publication date of the guide in the public guide set. */
   datePublished: string;
   lastReviewed: string;
   sections: readonly {
     heading: string;
     answer: string;
+    comparison?: {
+      caption: string;
+      headers: readonly string[];
+      rows: readonly (readonly string[])[];
+    };
   }[];
   sources: readonly AnswerGuideSource[];
   links: readonly {
@@ -244,6 +251,114 @@ export const ANSWER_GUIDES: readonly AnswerGuide[] = [
       { href: "/license", label: "Read the commercial license" },
       { href: "/faq", label: "Read the cover art FAQ" },
       { href: "/about", label: "Learn how ARTCOVR works" },
+    ],
+  },
+  {
+    path: "/guides/spotify-apple-music-cover-art-requirements",
+    eyebrow: "Streaming artwork requirements",
+    title: "Spotify & Apple Music Cover Art Specs | ARTCOVR",
+    displayTitle: "SPOTIFY & APPLE MUSIC COVER ART.",
+    description:
+      "Spotify requires square 640–10,000 px art; Apple Music for Artists lists JPG/PNG/GIF at least 4,000 px square. Verify distributor rules.",
+    introduction:
+      "Spotify requires square cover art from 640 to 10,000 pixels per side in lossless TIFF, PNG, or JPG; Apple Music for Artists specifies a perfect square of at least 4,000 × 4,000 pixels in JPG, PNG, or GIF. Check the exact master against your distributor’s current upload rules—a catalog preview does not prove the delivered file’s resolution.",
+    keyTakeaways: [
+      "Both platforms specify square artwork, but their minimum dimensions differ.",
+      "Spotify lists 640–10,000 pixels per side, lossless TIFF/PNG/JPG, sRGB at 24 bits per pixel, and says not to upscale.",
+      "Apple Music for Artists specifies JPG, PNG, or GIF artwork at least 4,000 × 4,000 pixels.",
+      "Apple’s cover guidance excludes unrelated promotion such as social handles, URLs, prices, dates, and barcodes.",
+    ],
+    scopeNote:
+      "This guide summarizes the cited Spotify for Artists and Apple Music for Artists pages; platform guidance can change. If you deliver through a distributor, use its current upload checks too. An ARTCOVR license grants the usage rights in its terms, not a guarantee that a platform will accept a file.",
+    datePublished: "2026-10-05",
+    lastReviewed: "2026-10-05",
+    sections: [
+      {
+        heading: "What image dimensions does Spotify require?",
+        answer:
+          "Spotify requires a 1:1 image between 640 and 10,000 pixels wide and tall. Its support page lists TIFF, PNG, or JPG using lossless encoding, asks for the highest resolution available, and says not to upscale images.",
+      },
+      {
+        heading: "What image dimensions does Apple Music require?",
+        answer:
+          "Apple Music for Artists specifies a perfect square at least 4,000 × 4,000 pixels, in JPG, PNG, or GIF format. The cited page does not state a maximum dimension, so check the distributor’s current delivery rules rather than assuming a maximum.",
+      },
+      {
+        heading: "Are Spotify and Apple Music artwork requirements the same?",
+        answer:
+          "Both require square art, but the published specifications differ. Apple Music for Artists lists a higher minimum pixel size; Spotify publishes both a minimum and a maximum, along with specific color and metadata requirements.",
+        comparison: {
+          caption:
+            "Published cover-art specifications from Spotify for Artists and Apple Music for Artists",
+          headers: ["Requirement", "Spotify", "Apple Music for Artists"],
+          rows: [
+            ["Dimensions", "640–10,000 px wide and tall", "At least 4,000 × 4,000 px"],
+            ["Shape", "1:1 aspect ratio", "Perfect square"],
+            ["Formats", "TIFF, PNG, or JPG; lossless encoding", "JPG, PNG, or GIF"],
+            [
+              "Color",
+              "sRGB, 24 bits per pixel; color profile applied directly",
+              "Not stated on the cited cover-art page",
+            ],
+            [
+              "Upscaling",
+              "Spotify says not to upscale",
+              "Not stated on the cited cover-art page",
+            ],
+          ],
+        },
+      },
+      {
+        heading: "What content should I avoid on an Apple Music cover?",
+        answer:
+          "Apple says artwork should not be misleading or generic and should include only relevant information, such as the artist name and release title. Its guidance excludes social handles, email addresses, website URLs, competitor references, prices, dates, barcodes, advertising, and images from other copyright holders without written permission.",
+      },
+      {
+        heading: "How can one export meet both published specifications?",
+        answer:
+          "Use an actual square master between 4,000 and 10,000 pixels per side, in JPG or PNG, to fit the published dimensions and formats both pages list. For Spotify, use lossless encoding, sRGB at 24 bits per pixel, apply the color profile directly, and avoid embedded color-profile and orientation metadata. Do not upscale; start from a sufficiently large original and validate the final file with your distributor.",
+      },
+      {
+        heading: "Is a catalog preview enough to check the purchased file?",
+        answer:
+          "No. A storefront preview or mockup may be resized or compressed. Check the exact licensed download you plan to submit: confirm its pixel dimensions, square crop, file format, color handling, and sharpness at full size. If the original is too small, obtain a suitable high-resolution master instead of treating an upscale as added detail.",
+      },
+      {
+        heading: "Does a commercial license guarantee platform acceptance?",
+        answer:
+          "No. A commercial license defines permitted use; Spotify, Apple Music, and the distributor control their own submission requirements. Confirm that the artwork is licensed for your intended release and that the final file passes the delivery provider’s current checks.",
+      },
+    ],
+    sources: [
+      {
+        title: "Cover art requirements",
+        publisher: "Spotify for Artists",
+        href: "https://support.spotify.com/us/artists/article/cover-art-requirements",
+        description:
+          "Official guidance for Spotify cover-art dimensions, formats, aspect ratio, color handling, and upscaling.",
+        kind: "external",
+      },
+      {
+        title: "Album cover art on Apple Music",
+        publisher: "Apple Music for Artists",
+        href: "https://artists.apple.com/support/1120-cover-art",
+        description:
+          "Official Apple Music cover-art dimensions, formats, and additional content guidelines.",
+        kind: "external",
+      },
+      {
+        title: "Commercial Cover Art License",
+        publisher: "ARTCOVR",
+        href: "/license",
+        description:
+          "ARTCOVR’s terms for permitted uses and restrictions; the license does not certify platform acceptance.",
+        kind: "first-party",
+      },
+    ],
+    links: [
+      { href: "/archive", label: "Browse licensed cover art" },
+      { href: "/guides/cover-art-licensing", label: "Read the cover art licensing guide" },
+      { href: "/license", label: "Review the ARTCOVR license" },
     ],
   },
 ] as const;

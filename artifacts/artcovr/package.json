@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "node scripts/build-storefront.mjs && pnpm run bundle:check && pnpm run seo:validate",
+    "build": "pnpm run routes:project:check && node scripts/build-storefront.mjs && pnpm run bundle:check && pnpm run seo:validate",
     "bundle:check": "node scripts/validate-bundle-budget.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -19,7 +19,9 @@
     "catalog-intelligence:import": "tsx scripts/catalog-intelligence-import.ts",
     "prospects:validate": "tsx scripts/validate-prospect-reports.ts",
     "catalog:project": "tsx scripts/project-approved-catalog.ts",
-    "catalog:project:check": "tsx scripts/project-approved-catalog.ts --check --launch"
+    "catalog:project:check": "tsx scripts/project-approved-catalog.ts --check --launch",
+    "routes:project": "tsx scripts/project-route-rewrites.ts",
+    "routes:project:check": "tsx scripts/project-route-rewrites.ts --check"
   },
   "devDependencies": {
     "@clerk/testing": "2.2.42",

@@ -33,11 +33,16 @@ test("discovery files expose canonical public routes and catalog facts", () => {
   assert.match(sitemap, /<image:loc>https:\/\/example\.com\/assets\/artworks\/blue-hour\.jpg/);
   assert.match(sitemap, /<image:caption>Blue geometric cover artwork/);
   assert.match(sitemap, /<image:license>https:\/\/example\.com\/license/);
+  assert.match(sitemap, /https:\/\/example\.com\/guides\/spotify-apple-music-cover-art-requirements/);
   assert.doesNotMatch(sitemap, /sign-in|checkout|my-images/);
 
   const llms = buildLlmsTxt(items, "https://example.com/");
   assert.match(llms, /ARTCOVR is a curated storefront/);
   assert.match(llms, /\[Blue Hour\]\(https:\/\/example\.com\/product\/blue-hour\)/);
+  assert.match(
+    llms,
+    /\[Spotify and Apple Music cover art requirements\]\(https:\/\/example\.com\/guides\/spotify-apple-music-cover-art-requirements\)/,
+  );
 
   const full = buildLlmsFullTxt(items, "https://example.com/");
   assert.match(full, /exclusive commercial license|repeatable non-exclusive commercial license/);

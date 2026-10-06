@@ -188,6 +188,12 @@ export const STATIC_METADATA: Record<string, Omit<RouteMetadata, "path">> = {
       "Learn how ARTCOVR handles AI-generated cover art, commercial usage, authorship limits, prompt-based editing, redistribution, and model-training restrictions.",
     index: true,
   },
+  "/guides/spotify-apple-music-cover-art-requirements": {
+    title: "Spotify & Apple Music Cover Art Specs | ARTCOVR",
+    description:
+      "Spotify requires square 640–10,000 px art; Apple Music for Artists lists JPG/PNG/GIF at least 4,000 px square. Verify distributor rules.",
+    index: true,
+  },
 };
 
 function trimTitle(value: string, maxLength = 60) {
