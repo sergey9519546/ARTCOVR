@@ -1,0 +1,37 @@
+name: Public route monitor
+
+on:
+  # 08:00 Pacific during daylight time (07:00 during standard time).
+  schedule:
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-route-monitor
+  cancel-in-progress: false
+
+jobs:
+  public-routes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ARTCOVR_RELEASE_URL: https://artcovr.com
+      ARTCOVR_PUBLIC_ROUTE_REPORT_PATH: public-route-report/report.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check public routes only
+        run: node scripts/release/verify-public-routes.mjs
+      - name: Retain sanitized route report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-route-report-${{ github.run_id }}
+          path: public-route-report/report.json
+          if-no-files-found: warn
+          retention-days: 30

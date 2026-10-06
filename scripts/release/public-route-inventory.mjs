@@ -8,11 +8,13 @@ export const PUBLIC_ROUTE_USER_AGENTS = [
   },
   {
     name: "googlebot",
-    value: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    value:
+      "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
   },
 ];
 
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 const NEGATIVE_PATHS = [
   "/product/not-a-real-artcovr-route",
   "/cover-art/not-a-real-genre",
@@ -29,9 +31,7 @@ function decodeXml(value) {
 }
 
 function getAttribute(tag, name) {
-  return new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`, "i").exec(
-    tag,
-  )?.[1];
+  return new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`, "i").exec(tag)?.[1];
 }
 
 function plainText(fragment) {
@@ -81,8 +81,9 @@ function routeVariants(sitemapUrl) {
       ? []
       : [
           {
-            variant:
-              alternatePath.endsWith("/") ? "trailing-slash" : "no-trailing-slash",
+            variant: alternatePath.endsWith("/")
+              ? "trailing-slash"
+              : "no-trailing-slash",
             url: alternateUrl,
           },
         ]),
@@ -102,6 +103,7 @@ async function fetchWithRedirects({
   userAgent,
   expectedOrigin,
   fetchImpl,
+  requestTimeoutMs,
   maxRedirects = 10,
 }) {
   let currentUrl = new URL(url);
@@ -112,6 +114,7 @@ async function fetchWithRedirects({
       method: "GET",
       redirect: "manual",
       headers: { "user-agent": userAgent },
+      signal: AbortSignal.timeout(requestTimeoutMs),
     });
     const location = response.headers.get("location");
 
@@ -239,9 +242,12 @@ function readSitemapLocations(sitemapBody, origin) {
 function publicRouteIssues(record, expectedCanonical) {
   const issues = [];
   if (record.failure) issues.push(record.failure);
-  if (record.status !== 200) issues.push(`expected HTTP 200, received ${record.status}`);
+  if (record.status !== 200)
+    issues.push(`expected HTTP 200, received ${record.status}`);
   if (!record.contentType.toLowerCase().includes("text/html")) {
-    issues.push(`expected text/html, received ${record.contentType || "no content type"}`);
+    issues.push(
+      `expected text/html, received ${record.contentType || "no content type"}`,
+    );
   }
   if (!record.title || /page not found/i.test(record.title)) {
     issues.push(`missing route-specific title (${record.title || "none"})`);
@@ -266,7 +272,8 @@ function publicRouteIssues(record, expectedCanonical) {
 function negativeRouteIssues(record) {
   const issues = [];
   if (record.failure) issues.push(record.failure);
-  if (record.status !== 404) issues.push(`expected genuine HTTP 404, received ${record.status}`);
+  if (record.status !== 404)
+    issues.push(`expected genuine HTTP 404, received ${record.status}`);
   if (!/page not found/i.test(record.title)) {
     issues.push(`expected not-found title, received ${record.title || "none"}`);
   }
@@ -276,7 +283,7 @@ function negativeRouteIssues(record) {
   return issues;
 }
 
-async function probe(request, origin, fetchImpl) {
+async function probe(request, origin, fetchImpl, requestTimeoutMs) {
   const base = {
     kind: request.kind,
     route: request.route,
@@ -291,6 +298,7 @@ async function probe(request, origin, fetchImpl) {
       userAgent: request.agent.value,
       expectedOrigin: origin,
       fetchImpl,
+      requestTimeoutMs,
     });
     const inspected = inspectHtml(response.body);
     const record = {
@@ -303,8 +311,9 @@ async function probe(request, origin, fetchImpl) {
       h1: inspected.h1,
       canonical: inspected.canonical,
       hasStructuredData:
-        /<script\b[^>]*type=["']application\/ld\+json["']/i.test(response.body) ||
-        response.body.includes("ARTCOVR_ROUTE_STRUCTURED_DATA"),
+        /<script\b[^>]*type=["']application\/ld\+json["']/i.test(
+          response.body,
+        ) || response.body.includes("ARTCOVR_ROUTE_STRUCTURED_DATA"),
       bodyHash: createHash("sha256").update(response.body).digest("hex"),
       failure: response.failure,
     };
@@ -384,7 +393,10 @@ function parityIssues(checks) {
     if (group.length < 2) continue;
     const first = group[0];
     for (const other of group.slice(1)) {
-      if (first.bodyHash !== other.bodyHash || first.canonical !== other.canonical) {
+      if (
+        first.bodyHash !== other.bodyHash ||
+        first.canonical !== other.canonical
+      ) {
         failures.push({
           kind: "slash-variant parity",
           route: first.route,
@@ -403,6 +415,7 @@ export async function checkPublicRouteInventory({
   sitemapBody,
   fetchImpl = fetch,
   concurrency = 10,
+  requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
 }) {
   const base = origin instanceof URL ? origin : new URL(origin);
   const { locations, failures: sitemapFailures } = readSitemapLocations(
@@ -446,7 +459,7 @@ export async function checkPublicRouteInventory({
   }
 
   const checks = await runConcurrent(requests, concurrency, (request) =>
-    probe(request, base.origin, fetchImpl),
+    probe(request, base.origin, fetchImpl, requestTimeoutMs),
   );
   const failures = [
     ...sitemapFailures,
