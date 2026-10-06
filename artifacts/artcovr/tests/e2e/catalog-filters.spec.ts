@@ -99,7 +99,7 @@ async function findCompatibleOption(page: Page, key: FacetKey) {
   throw new Error(`No compatible ${key} option was visible`);
 }
 
-test("public catalog keeps genre coverage and featured/archive boundaries", async ({
+test("archive keeps the full catalog while separating featured covers as a curated sequence", async ({
   page,
 }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -125,6 +125,15 @@ test("public catalog keeps genre coverage and featured/archive boundaries", asyn
 
   const cards = page.locator('section[aria-label="Artwork archive"] article');
   await expect(cards).toHaveCount(ARCHIVE_TOTAL);
+  const archivePaths = await cards
+    .locator('a[href^="/product/"]')
+    .evaluateAll((links) =>
+      links.map((link) => link.getAttribute("href")).filter(Boolean),
+    );
+  expect(new Set(archivePaths).size).toBe(ARCHIVE_TOTAL);
+  expect(new Set(archivePaths)).toEqual(
+    new Set(displayArtworks.map(({ slug }) => `/product/${slug}`)),
+  );
 
   const genreLines = await cards.evaluateAll((artworkCards) =>
     artworkCards.map((card) => {
@@ -134,6 +143,21 @@ test("public catalog keeps genre coverage and featured/archive boundaries", asyn
   );
   expect(genreLines).toHaveLength(ARCHIVE_TOTAL);
   expect(genreLines.every((genreLine) => genreLine.length > 0)).toBe(true);
+
+  const editorialSequence = page.getByRole("region", {
+    name: "Selected covers, in sequence.",
+  });
+  await expect(editorialSequence).toBeVisible();
+  await expect(editorialSequence).toContainText(
+    "The covers in this sequence are selected from the full catalog above; the full archive remains searchable and filterable there.",
+  );
+  const curatedPaths = await editorialSequence
+    .locator('a[href^="/product/"]')
+    .evaluateAll((links) =>
+      links.map((link) => link.getAttribute("href")).filter(Boolean),
+    );
+  expect(curatedPaths.length).toBeGreaterThan(0);
+  expect(curatedPaths.every((path) => archivePaths.includes(path))).toBe(true);
 });
 
 test("archive genre, mood and color filters work independently and together", async ({

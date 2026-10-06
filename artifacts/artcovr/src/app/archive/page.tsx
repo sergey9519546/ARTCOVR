@@ -23,7 +23,29 @@ export default function ArchivePage() {
         <section aria-label="Artwork archive" className="mt-10 md:mt-12">
           <ArchiveSearch items={displayArtworks} />
         </section>
-        <ScrollJourney enabled />
+        <section
+          aria-labelledby="archive-editorial-sequence"
+          className="mt-24 border-t-2 border-current pt-6"
+        >
+          <header className="mb-8 grid gap-4 md:grid-cols-[1.1fr_1fr] md:items-end md:gap-12">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[.1em]">
+                Curated editorial sequence
+              </p>
+              <h2
+                id="archive-editorial-sequence"
+                className="mt-3 text-[clamp(2.25rem,7vw,6rem)] font-extrabold leading-[.9] tracking-[-.075em]"
+              >
+                Selected covers, in sequence.
+              </h2>
+            </div>
+            <p className="max-w-[53ch] text-sm leading-6">
+              The covers in this sequence are selected from the full catalog
+              above; the full archive remains searchable and filterable there.
+            </p>
+          </header>
+          <ScrollJourney enabled />
+        </section>
       </main>
       <SiteFooter />
     </>
