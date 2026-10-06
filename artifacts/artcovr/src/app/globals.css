@@ -353,7 +353,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   line-height: 1.35;
 }
 .discovery-palette-select-content [role="option"][data-highlighted] {
-  background: color-mix(in srgb, #c84a3f 12%, var(--background));
+  background: color-mix(in srgb, #c84a3f 18%, var(--background));
   color: var(--foreground);
 }
 .discovery-palette-select-content [role="option"][data-state="checked"] {
@@ -363,6 +363,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .discovery-palette-option-count {
   color: var(--muted-foreground);
   font-weight: 400;
+  white-space: nowrap;
 }
 .discovery-palette-footer {
   display: flex;

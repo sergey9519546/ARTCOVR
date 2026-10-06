@@ -299,6 +299,143 @@ async function preparePaletteScreenshot(
   await page.evaluate(() => document.fonts.ready);
 }
 
+type OpenMenuViewport = "phone" | "tablet" | "desktop";
+
+async function verifyOpenFacetMenu(
+  page: Page,
+  key: Exclude<FacetKey, "color">,
+  theme: PaletteTheme,
+  viewport: OpenMenuViewport,
+) {
+  const trigger = facet(page, key).getByRole("combobox");
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+
+  let menu = page.getByRole("listbox");
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("Home");
+  await page.keyboard.press("ArrowDown");
+
+  const selectedOption = menu.locator('[role="option"][data-highlighted]');
+  await expect(selectedOption).toBeVisible();
+  await expect(selectedOption.locator(".discovery-palette-option-count")).toBeVisible();
+  const selectedLabel = (await selectedOption.innerText())
+    .trim()
+    .replace(/\s+·\s+\d+\s+works$/, "");
+
+  await page.keyboard.press("Enter");
+  await expect(menu).toHaveCount(0);
+  await expect(trigger).toContainText(selectedLabel);
+  await expect.poll(() => new URL(page.url()).searchParams.get(key)).toBeTruthy();
+  expect(resultCount(await catalogStatus(page).innerText())).toBeGreaterThan(0);
+
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  menu = page.getByRole("listbox");
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("ArrowDown");
+
+  const selected = menu.locator('[role="option"][data-state="checked"]');
+  const highlighted = menu.locator('[role="option"][data-highlighted]');
+  await expect(selected).toHaveCount(1);
+  await expect(highlighted).toHaveCount(1);
+  await expect(selected).toBeVisible();
+  await expect(highlighted).toBeVisible();
+  await expect(selected).not.toHaveAttribute("data-highlighted", "");
+  await expect(selected.locator(".discovery-palette-option-count")).toBeVisible();
+  await expect(highlighted.locator(".discovery-palette-option-count")).toBeVisible();
+
+  const layout = await menu.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    const selectedOption = element.querySelector<HTMLElement>(
+      '[role="option"][data-state="checked"]',
+    );
+    const highlightedOption = element.querySelector<HTMLElement>(
+      '[role="option"][data-highlighted]',
+    );
+    if (!selectedOption || !highlightedOption) {
+      throw new Error("The open archive menu is missing its selected or highlighted option");
+    }
+
+    const countFits = (option: HTMLElement) => {
+      const count = option.querySelector<HTMLElement>(".discovery-palette-option-count");
+      if (!count) return false;
+      const optionBounds = option.getBoundingClientRect();
+      const countBounds = count.getBoundingClientRect();
+      return (
+        countBounds.width > 0 &&
+        countBounds.height > 0 &&
+        countBounds.left >= optionBounds.left - 1 &&
+        countBounds.right <= optionBounds.right + 1 &&
+        countBounds.left >= 0 &&
+        countBounds.right <= window.innerWidth &&
+        countBounds.top >= 0 &&
+        countBounds.bottom <= window.innerHeight
+      );
+    };
+    const optionFits = (option: HTMLElement) => {
+      const optionBounds = option.getBoundingClientRect();
+      return (
+        optionBounds.width > 0 &&
+        optionBounds.height > 0 &&
+        optionBounds.left >= bounds.left - 1 &&
+        optionBounds.right <= bounds.right + 1 &&
+        optionBounds.top >= bounds.top - 1 &&
+        optionBounds.bottom <= bounds.bottom + 1 &&
+        optionBounds.left >= 0 &&
+        optionBounds.right <= window.innerWidth &&
+        optionBounds.top >= 0 &&
+        optionBounds.bottom <= window.innerHeight
+      );
+    };
+    return {
+      menuFitsViewport:
+        bounds.width > 0 &&
+        bounds.height > 0 &&
+        bounds.left >= 0 &&
+        bounds.right <= window.innerWidth &&
+        bounds.top >= 0 &&
+        bounds.bottom <= window.innerHeight,
+      selectedOptionFits: optionFits(selectedOption),
+      highlightedOptionFits: optionFits(highlightedOption),
+      selectedCountFits: countFits(selectedOption),
+      highlightedCountFits: countFits(highlightedOption),
+      selectedTextColor: getComputedStyle(selectedOption).color,
+      highlightedTextColor: getComputedStyle(highlightedOption).color,
+      selectedCountColor: getComputedStyle(
+        selectedOption.querySelector(".discovery-palette-option-count")!,
+      ).color,
+      highlightedCountColor: getComputedStyle(
+        highlightedOption.querySelector(".discovery-palette-option-count")!,
+      ).color,
+      highlightedBackground: getComputedStyle(highlightedOption).backgroundColor,
+    };
+  });
+
+  expect(layout.menuFitsViewport).toBe(true);
+  expect(layout.selectedOptionFits).toBe(true);
+  expect(layout.highlightedOptionFits).toBe(true);
+  expect(layout.selectedCountFits).toBe(true);
+  expect(layout.highlightedCountFits).toBe(true);
+  for (const color of [
+    layout.selectedTextColor,
+    layout.highlightedTextColor,
+    layout.selectedCountColor,
+    layout.highlightedCountColor,
+    layout.highlightedBackground,
+  ]) {
+    expect(color).not.toBe("rgba(0, 0, 0, 0)");
+  }
+
+  await expect(menu).toHaveScreenshot(
+    `archive-filter-menu-${theme}-${viewport}-${key}-open.png`,
+    { animations: "disabled", caret: "hide", scale: "css" },
+  );
+
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+}
+
 async function snapshotPaletteStates(
   page: Page,
   viewport: "desktop" | "tablet" | "tablet-wide" | "mobile",
@@ -465,6 +602,33 @@ test.describe("archive palette visual states", () => {
       });
     });
   });
+});
+
+test.describe("open archive filter menus", () => {
+  const viewports = [
+    { name: "phone" as const, size: { width: 390, height: 844 } },
+    { name: "tablet" as const, size: { width: 768, height: 1000 } },
+    { name: "desktop" as const, size: { width: 1440, height: 1000 } },
+  ];
+
+  for (const theme of ["light", "dark"] as const) {
+    for (const viewport of viewports) {
+      test.describe(`${theme} theme, ${viewport.name}`, () => {
+        test.use({
+          colorScheme: theme,
+          viewport: viewport.size,
+        });
+
+        test("keeps genre and mood menus readable and keyboard operable", async ({
+          page,
+        }) => {
+          await preparePaletteScreenshot(page, theme);
+          await verifyOpenFacetMenu(page, "genre", theme, viewport.name);
+          await verifyOpenFacetMenu(page, "mood", theme, viewport.name);
+        });
+      });
+    }
+  }
 });
 
 test.describe("archive palette tablet text zoom", () => {
