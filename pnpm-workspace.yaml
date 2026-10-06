@@ -46,8 +46,9 @@ overrides:
   '@esbuild-kit/esm-loader': npm:tsx@^4.21.0
   uuid: 11.1.1
   esbuild: 0.28.1
-  brace-expansion: 5.0.9
-  fast-uri: 3.1.6
+  brace-expansion: 5.0.12
+  fast-uri: 3.1.8
+  markdown-it: 14.3.2
   js-yaml: 4.3.2
   nanoid: 3.3.18
   qs: 6.16.0
