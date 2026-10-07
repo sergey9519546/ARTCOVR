@@ -2,7 +2,7 @@ import OpenAI from "openai";
 
 // Missing generation credentials must not take down checkout or the public API.
 export function getOpenAI(env: NodeJS.ProcessEnv = process.env) {
-  const provider = env.ARTCOVR_IMAGE_PROVIDER?.trim() || "auto";
+  const provider = env.ARTCOVR_IMAGE_PROVIDER?.trim() || "openai";
   if (!["auto", "openai", "replit"].includes(provider)) {
     throw new Error("ARTCOVR_IMAGE_PROVIDER must be auto, openai, or replit.");
   }
@@ -10,8 +10,9 @@ export function getOpenAI(env: NodeJS.ProcessEnv = process.env) {
   const apiKey = env.AI_INTEGRATIONS_OPENAI_API_KEY?.trim();
   const baseURL = env.AI_INTEGRATIONS_OPENAI_BASE_URL?.trim();
   const insideReplit = Boolean(env.REPL_ID?.trim());
-  // Select once, before making a request. Replit's installed managed integration
-  // is the default in Replit; no failed request is retried through another host.
+  // GPT Image 2 is not available through the managed route. Default to the
+  // official API in Replit too; managed mode remains an explicit opt-in. No
+  // failed request is retried through another host.
   const useManaged = provider === "replit" ||
     (provider === "auto" && (!directKey || (insideReplit && Boolean(apiKey && baseURL))));
   if (!useManaged) {

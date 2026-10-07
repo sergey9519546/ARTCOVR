@@ -152,6 +152,7 @@ test("provider errors and timeouts fail once without leaking response secrets", 
 
 test("direct credentials use only the official endpoint with bounded time and no retries", () => {
   const client = getOpenAI({
+    REPL_ID: "fake-replit-runtime",
     OPENAI_API_KEY: "fake-direct-key",
     OPENAI_BASE_URL: "https://wrong-host.invalid/v1",
     AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key",
@@ -165,6 +166,7 @@ test("direct credentials use only the official endpoint with bounded time and no
 
 test("managed integration uses only its paired credentials and HTTPS endpoint", () => {
   const client = getOpenAI({
+    ARTCOVR_IMAGE_PROVIDER: "replit",
     AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key",
     AI_INTEGRATIONS_OPENAI_BASE_URL: "https://managed.invalid/openai/v1/",
   });
@@ -173,13 +175,18 @@ test("managed integration uses only its paired credentials and HTTPS endpoint", 
   assert.equal(client.maxRetries, 0);
   assert.equal(client.timeout, 150_000);
   for (const endpoint of ["http://managed.invalid/v1", "broken", "https://user:password@managed.invalid/v1", "https://managed.invalid/v1?key=fake", "https://managed.invalid/v1#fragment"]) {
-    assert.throws(() => getOpenAI({ AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key", AI_INTEGRATIONS_OPENAI_BASE_URL: endpoint }), /endpoint/);
+    assert.throws(() => getOpenAI({ ARTCOVR_IMAGE_PROVIDER: "replit", AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key", AI_INTEGRATIONS_OPENAI_BASE_URL: endpoint }), /endpoint/);
   }
 });
 
-test("credential setup fails lazily and never mixes incomplete credential pairs", () => {
-  for (const env of [{}, { AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key" }, { AI_INTEGRATIONS_OPENAI_BASE_URL: "https://managed.invalid/v1" }]) {
-    assert.throws(() => getOpenAI(env), /Image editing is not configured/);
+test("direct is the safe default, while explicit managed mode requires its complete credential pair", () => {
+  assert.throws(() => getOpenAI({}), /Direct OpenAI image editing requires OPENAI_API_KEY/);
+  for (const env of [
+    { ARTCOVR_IMAGE_PROVIDER: "replit" },
+    { ARTCOVR_IMAGE_PROVIDER: "replit", AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key" },
+    { ARTCOVR_IMAGE_PROVIDER: "replit", AI_INTEGRATIONS_OPENAI_BASE_URL: "https://managed.invalid/v1" },
+  ]) {
+    assert.throws(() => getOpenAI(env), /Replit image editing requires its managed API key and endpoint together/);
   }
 });
 
@@ -190,11 +197,11 @@ test("managed integration accepts Replit's exact local sidecar without forwardin
       AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key",
       AI_INTEGRATIONS_OPENAI_BASE_URL: `http://${hostname}:1106/openai/v1`,
     };
-    const managed = getOpenAI(env);
+    const managed = getOpenAI({ ...env, ARTCOVR_IMAGE_PROVIDER: "replit" });
     assert.equal(managed.baseURL, env.AI_INTEGRATIONS_OPENAI_BASE_URL);
     assert.equal(managed.apiKey, "fake-managed-key");
     assert.equal(managed.maxRetries, 0);
-    const automaticallyManaged = getOpenAI({ ...env, OPENAI_API_KEY: "fake-direct-key" });
+    const automaticallyManaged = getOpenAI({ ...env, ARTCOVR_IMAGE_PROVIDER: "auto", OPENAI_API_KEY: "fake-direct-key" });
     assert.equal(automaticallyManaged.baseURL, env.AI_INTEGRATIONS_OPENAI_BASE_URL);
     assert.equal(automaticallyManaged.apiKey, "fake-managed-key");
     const direct = getOpenAI({ ...env, ARTCOVR_IMAGE_PROVIDER: "openai", OPENAI_API_KEY: "fake-direct-key" });
@@ -247,14 +254,14 @@ test("automatic mode does not select an incomplete managed pair over an availabl
     { AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key" },
     { AI_INTEGRATIONS_OPENAI_BASE_URL: "https://managed.invalid/v1" },
   ]) {
-    const direct = getOpenAI({ ...partial, REPL_ID: "fake-replit-runtime", OPENAI_API_KEY: "fake-direct-key" });
+    const direct = getOpenAI({ ...partial, REPL_ID: "fake-replit-runtime", ARTCOVR_IMAGE_PROVIDER: "auto", OPENAI_API_KEY: "fake-direct-key" });
     assert.equal(direct.baseURL, "https://api.openai.com/v1");
     assert.equal(direct.apiKey, "fake-direct-key");
   }
 });
 
 test("HTTP managed endpoints cannot escape the Replit loopback sidecar exception", () => {
-  const managed = { AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key" };
+  const managed = { ARTCOVR_IMAGE_PROVIDER: "replit", AI_INTEGRATIONS_OPENAI_API_KEY: "fake-managed-key" };
   for (const baseURL of [
     "http://localhost:1106/openai/v1",
     "http://127.0.0.1:1106/openai/v1",
