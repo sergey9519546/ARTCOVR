@@ -250,6 +250,71 @@ test("archive filters and results survive switching themes without reloading", a
   expect(mainFrameNavigations).toBe(0);
 });
 
+test("mobile menu theme switching preserves archive filters and results without reloading", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 402, height: 874 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem("theme", "light");
+  });
+  await page.goto("/archive");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+  await findCompatibleOption(page, "genre");
+  await findCompatibleOption(page, "mood");
+  await findCompatibleOption(page, "color");
+
+  const readFilteredState = async () => {
+    const url = new URL(page.url());
+    const genre = url.searchParams.get("genre");
+    const mood = url.searchParams.get("mood");
+    const color = url.searchParams.get("color");
+    expect(genre, "genre should remain in the archive URL").toBeTruthy();
+    expect(mood, "mood should remain in the archive URL").toBeTruthy();
+    expect(color, "color should remain in the archive URL").toBeTruthy();
+
+    return {
+      url: page.url(),
+      genreControl: (await facet(page, "genre").getByRole("combobox").innerText()).trim(),
+      moodControl: (await facet(page, "mood").getByRole("combobox").innerText()).trim(),
+      colorControl: await facet(page, "color")
+        .locator('button[aria-pressed="true"]')
+        .getAttribute("aria-label"),
+      resultCount: resultCount(await catalogStatus(page).innerText()),
+      artworkLinks: await page
+        .locator('section[aria-label="Artwork archive"] article a[href^="/product/"]')
+        .evaluateAll((links) => links.map((link) => link.getAttribute("href"))),
+    };
+  };
+
+  const filteredState = await readFilteredState();
+  expect(filteredState.resultCount).toBeGreaterThan(0);
+  expect(filteredState.colorControl).toMatch(/^Color: .+/);
+
+  let mainFrameNavigations = 0;
+  page.on("framenavigated", (frame) => {
+    if (frame === page.mainFrame()) mainFrameNavigations += 1;
+  });
+
+  await page.getByRole("button", { name: "Menu", exact: true }).click();
+  const mobileMenu = page.getByRole("dialog", { name: "Navigation menu" });
+  await expect(mobileMenu).toBeVisible();
+
+  await mobileMenu
+    .getByRole("button", { name: "Switch to dark theme", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(await readFilteredState()).toEqual(filteredState);
+  expect(mainFrameNavigations).toBe(0);
+
+  await mobileMenu
+    .getByRole("button", { name: "Switch to light theme", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(await readFilteredState()).toEqual(filteredState);
+  expect(mainFrameNavigations).toBe(0);
+});
+
 test("searching a displayed genre finds the filtered artwork", async ({
   page,
 }) => {
