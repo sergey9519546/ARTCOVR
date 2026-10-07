@@ -14,21 +14,23 @@ import {
 type AuthState = {
   isLoaded: boolean;
   isSignedIn: boolean;
+  userId: string | null;
   signOut(options?: { redirectUrl?: string }): Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 
 function ClerkAuthBridge({ children }: { children: ReactNode }) {
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn, userId } = useClerkAuth();
   const { signOut } = useClerk();
   const value = useMemo<AuthState>(
     () => ({
       isLoaded,
       isSignedIn: Boolean(isSignedIn),
+      userId: userId ?? null,
       signOut: (options) => signOut(options),
     }),
-    [isLoaded, isSignedIn, signOut],
+    [isLoaded, isSignedIn, signOut, userId],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -49,6 +51,7 @@ export function ArtcovrAuthProvider({
     const value: AuthState = {
       isLoaded: true,
       isSignedIn: true,
+      userId: "e2e-authenticated-user",
       async signOut(options) {
         window.localStorage.removeItem("artcovr:e2e-auth");
         window.location.assign(options?.redirectUrl || "/");

@@ -172,6 +172,78 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
 
+  /functions/v1/artwork-order-preference:
+    get:
+      operationId: getArtworkOrderPreference
+      tags: [account]
+      summary: Load the signed-in user's artwork ordering preference
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Preference scoped to the signed-in Clerk user.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkOrderPreferenceResponse"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Preference could not be loaded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    put:
+      operationId: putArtworkOrderPreference
+      tags: [account]
+      summary: Save the signed-in user's artwork ordering preference
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtworkOrderPreferenceInput"
+      responses:
+        "200":
+          description: Saved preference scoped to the signed-in Clerk user.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkOrderPreferenceSavedResponse"
+        "400":
+          description: Invalid artwork ordering preference.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Preference could not be saved.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
   /functions/v1/claim-guest-purchases:
     post:
       operationId: claimGuestPurchases
@@ -843,6 +915,36 @@ components:
           type: integer
           minimum: 0
       required: [claimedOrderIds, claimedCredits]
+
+    ArtworkOrderPreferenceMode:
+      type: string
+      enum: [rotate, shuffle]
+
+    ArtworkOrderPreferenceInput:
+      type: object
+      additionalProperties: false
+      properties:
+        preference:
+          $ref: "#/components/schemas/ArtworkOrderPreferenceMode"
+      required: [preference]
+
+    ArtworkOrderPreferenceResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        preference:
+          anyOf:
+            - $ref: "#/components/schemas/ArtworkOrderPreferenceMode"
+            - type: "null"
+      required: [preference]
+
+    ArtworkOrderPreferenceSavedResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        preference:
+          $ref: "#/components/schemas/ArtworkOrderPreferenceMode"
+      required: [preference]
 
     ReferenceUploadResponse:
       type: object

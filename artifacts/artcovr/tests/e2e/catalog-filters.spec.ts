@@ -3,6 +3,7 @@ import { displayArtworks } from "../../src/lib/artcovr/artworks";
 import { getArtworkColors } from "../../src/lib/artcovr/catalog-intelligence";
 import { homepageArtworkGroups } from "../../src/lib/artcovr/homepage-artwork-groups";
 import { hybridSearch } from "../../src/lib/artcovr/semantic-search";
+import { orderArtworkForVisit } from "../../src/lib/artcovr/artwork-order-preference";
 
 const ARCHIVE_TOTAL = 187;
 
@@ -490,7 +491,13 @@ test("archive keeps search relevance through color filtering and restores curati
   await page.getByRole("button", { name: "Clear archive search", exact: true }).click();
   await expect(input).toHaveValue("");
   await expect(input).toBeFocused();
-  await expect.poll(paths).toEqual(displayArtworks.map(({ slug }) => `/product/${slug}`));
+  await expect
+    .poll(paths)
+    .toEqual(
+      orderArtworkForVisit(displayArtworks, "rotate", 1).map(
+        ({ slug }) => `/product/${slug}`,
+      ),
+    );
   await expect.poll(() => new URL(page.url()).searchParams.get("query")).toBeNull();
 });
 

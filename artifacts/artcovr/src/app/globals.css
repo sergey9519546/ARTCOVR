@@ -369,6 +369,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: var(--discovery-text-accent);
   font-weight: 700;
 }
+.discovery-palette-select-content [role="option"][data-state="checked"][data-highlighted] {
+  color: var(--foreground);
+}
 .discovery-palette-option-count {
   color: var(--muted-foreground);
   font-weight: 400;

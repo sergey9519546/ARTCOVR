@@ -1,4 +1,9 @@
 import { ArtcovrApiError as ArtcovrApiErrorBase } from "@/lib/artcovr/api-error";
+import type {
+  ArtworkOrderPreferenceInput,
+  ArtworkOrderPreferenceResponse,
+  ArtworkOrderPreferenceSavedResponse,
+} from "@workspace/api-client-react";
 
 export class ArtcovrApiError extends ArtcovrApiErrorBase {}
 
@@ -351,6 +356,22 @@ export function getMyImages(creditActivityCursor?: string) {
     {
       method: "GET",
     },
+  );
+}
+
+export function getArtworkOrderPreference() {
+  return request<ArtworkOrderPreferenceResponse>(
+    "/functions/v1/artwork-order-preference",
+    { method: "GET" },
+  );
+}
+
+export function putArtworkOrderPreference(
+  input: ArtworkOrderPreferenceInput,
+) {
+  return request<ArtworkOrderPreferenceSavedResponse>(
+    "/functions/v1/artwork-order-preference",
+    { method: "PUT", body: JSON.stringify(input) },
   );
 }
 

@@ -18,3 +18,4 @@
 //   export type Post = typeof postsTable.$inferSelect;
 
 export * from "./artcovr";
+export * from "./artcovr-artwork-order-preferences";

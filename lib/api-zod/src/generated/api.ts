@@ -162,6 +162,26 @@ export const GetMyImagesResponse = zod.object({
 
 
 /**
+ * @summary Load the signed-in user's artwork ordering preference
+ */
+export const GetArtworkOrderPreferenceResponse = zod.object({
+  "preference": zod.union([zod.enum(['rotate', 'shuffle']),zod.null()])
+})
+
+
+/**
+ * @summary Save the signed-in user's artwork ordering preference
+ */
+export const PutArtworkOrderPreferenceBody = zod.object({
+  "preference": zod.enum(['rotate', 'shuffle'])
+})
+
+export const PutArtworkOrderPreferenceResponse = zod.object({
+  "preference": zod.enum(['rotate', 'shuffle'])
+})
+
+
+/**
  * Attaches eligible guest purchases to the authenticated Clerk user when the user has a verified email address matching the checkout email.
  * @summary Claim guest purchases after signing in
  */

@@ -107,6 +107,26 @@ export interface ClaimGuestPurchasesResult {
   claimedCredits: number;
 }
 
+export type ArtworkOrderPreferenceMode = typeof ArtworkOrderPreferenceMode[keyof typeof ArtworkOrderPreferenceMode];
+
+
+export const ArtworkOrderPreferenceMode = {
+  rotate: 'rotate',
+  shuffle: 'shuffle',
+} as const;
+
+export interface ArtworkOrderPreferenceInput {
+  preference: ArtworkOrderPreferenceMode;
+}
+
+export interface ArtworkOrderPreferenceResponse {
+  preference: ArtworkOrderPreferenceMode | null;
+}
+
+export interface ArtworkOrderPreferenceSavedResponse {
+  preference: ArtworkOrderPreferenceMode;
+}
+
 export interface ReferenceUploadResponse {
   referenceUploadId: string;
 }

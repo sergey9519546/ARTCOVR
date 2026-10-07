@@ -14,6 +14,8 @@ import { buildCatalogFacetIndex } from "@/lib/artcovr/catalog-intelligence";
 import { rankSimilarArtwork, rankGenreArtwork, normalizeDiscoveryGenre, type ArtworkSimilarityMode } from "@/lib/artcovr/discovery-index";
 import { CRATE_STORAGE_KEY, readSavedSlugs, orderDiscoveryArtwork, type DiscoveryOrder } from "@/lib/artcovr/discovery-state";
 import { trackEvent } from "@/lib/artcovr/analytics";
+import { useArtworkOrderPreference } from "@/lib/artcovr/artwork-order-preference-context";
+import { ArtworkOrderPreferenceControl } from "./ArtworkOrderPreferenceControl";
 
 const SIMILAR_MODES = { visual: "Image connections", palette: "Shared palette", mood: "Shared mood" } as const;
 
@@ -25,6 +27,10 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
   const previousSeedSlug = useRef<string | undefined>(undefined);
   const [location, navigate] = useLocation();
   const search = useSearch();
+  const {
+    preference: artworkPreference,
+    visitIndex,
+  } = useArtworkOrderPreference();
   const params = useMemo(() => new URLSearchParams(search), [search]);
   const query = params.get("query") ?? "";
   const rawGenre = params.get("genre") || null;
@@ -129,8 +135,14 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
     if (query.trim()) candidates = hybridSearch(query, candidates);
     candidates = applyCatalogView(candidates, { genre: null, color: view.color, mood: view.mood }, undefined, facetIndex);
     if (crateOnly) candidates = candidates.filter((item) => savedSet.has(item.slug));
-    return orderDiscoveryArtwork(candidates, order);
-  }, [items, seed, similarSlug, similarMatches, genreMatches, expandGenre, query, view.genre, view.color, view.mood, facetIndex, crateOnly, savedSet, order]);
+    if (order === "recommended" && (query.trim() || seed || view.genre)) return candidates;
+    return orderDiscoveryArtwork(
+      candidates,
+      order,
+      artworkPreference,
+      visitIndex,
+    );
+  }, [items, seed, similarSlug, similarMatches, genreMatches, expandGenre, query, view.genre, view.color, view.mood, facetIndex, crateOnly, savedSet, order, artworkPreference, visitIndex]);
   const hasActiveSearch = Boolean(query.trim() || view.genre || view.color || view.mood || similarSlug || crateOnly);
   const typedGenre = normalizeDiscoveryGenre(query);
 
@@ -177,6 +189,7 @@ export function ArchiveSearch({ items }: { items: Artwork[] }) {
       </section>}
       {similarSlug && !seed && <p role="status" className="mt-4 text-sm">That starting artwork is not in the public archive. Clear the direction to explore available works.</p>}
       {crateOnly && <p className="mt-4 text-sm text-current/70">Your shortlist on this browser—not a reservation or a purchase. Other active filters still apply.</p>}
+      <ArtworkOrderPreferenceControl className="mt-5 justify-end" />
       <div className="discovery-results-bar">
         <h2 ref={resultsHeading} tabIndex={-1} className="scroll-mt-24 text-lg font-bold">{filteredItems.length} {filteredItems.length === 1 ? "work" : "works"}{seed ? " to follow" : view.genre ? ` for ${displayGenreLabel(view.genre)}` : " to explore"}</h2>
         <div className="flex flex-wrap items-center gap-3">

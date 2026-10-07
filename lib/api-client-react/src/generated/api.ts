@@ -23,6 +23,9 @@ import type {
   AccountData,
   AgentPaymentChallenge,
   ApiError,
+  ArtworkOrderPreferenceInput,
+  ArtworkOrderPreferenceResponse,
+  ArtworkOrderPreferenceSavedResponse,
   CheckoutRequest,
   CheckoutResponse,
   ClaimGuestPurchasesResult,
@@ -384,6 +387,154 @@ export function useGetMyImages<TData = Awaited<ReturnType<typeof getMyImages>>, 
 
 
 
+
+export const getGetArtworkOrderPreferenceUrl = () => {
+
+
+
+
+  return `/api/functions/v1/artwork-order-preference`
+}
+
+/**
+ * @summary Load the signed-in user's artwork ordering preference
+ */
+export const getArtworkOrderPreference = async ( options?: Parameters<typeof customFetch>[1]): Promise<ArtworkOrderPreferenceResponse> => {
+
+  return customFetch<ArtworkOrderPreferenceResponse>(getGetArtworkOrderPreferenceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetArtworkOrderPreferenceQueryKey = () => {
+    return [
+    `/api/functions/v1/artwork-order-preference`
+    ] as const;
+    }
+
+
+export const getGetArtworkOrderPreferenceQueryOptions = <TData = Awaited<ReturnType<typeof getArtworkOrderPreference>>, TError = ErrorType<ApiError>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArtworkOrderPreference>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetArtworkOrderPreferenceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getArtworkOrderPreference>>> = ({ signal }) => getArtworkOrderPreference({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getArtworkOrderPreference>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetArtworkOrderPreferenceQueryResult = NonNullable<Awaited<ReturnType<typeof getArtworkOrderPreference>>>
+export type GetArtworkOrderPreferenceQueryError = ErrorType<ApiError>
+
+
+/**
+ * @summary Load the signed-in user's artwork ordering preference
+ */
+
+export function useGetArtworkOrderPreference<TData = Awaited<ReturnType<typeof getArtworkOrderPreference>>, TError = ErrorType<ApiError>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArtworkOrderPreference>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetArtworkOrderPreferenceQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPutArtworkOrderPreferenceUrl = () => {
+
+
+
+
+  return `/api/functions/v1/artwork-order-preference`
+}
+
+/**
+ * @summary Save the signed-in user's artwork ordering preference
+ */
+export const putArtworkOrderPreference = async (artworkOrderPreferenceInput: ArtworkOrderPreferenceInput, options?: Parameters<typeof customFetch>[1]): Promise<ArtworkOrderPreferenceSavedResponse> => {
+
+  return customFetch<ArtworkOrderPreferenceSavedResponse>(getPutArtworkOrderPreferenceUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(artworkOrderPreferenceInput)
+  }
+);}
+
+
+
+
+
+export const getPutArtworkOrderPreferenceMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putArtworkOrderPreference>>, TError,{data: BodyType<ArtworkOrderPreferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof putArtworkOrderPreference>>, TError,{data: BodyType<ArtworkOrderPreferenceInput>}, TContext> => {
+
+const mutationKey = ['putArtworkOrderPreference'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putArtworkOrderPreference>>, {data: BodyType<ArtworkOrderPreferenceInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  putArtworkOrderPreference(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutArtworkOrderPreferenceMutationResult = NonNullable<Awaited<ReturnType<typeof putArtworkOrderPreference>>>
+    export type PutArtworkOrderPreferenceMutationBody = BodyType<ArtworkOrderPreferenceInput>
+    export type PutArtworkOrderPreferenceMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Save the signed-in user's artwork ordering preference
+ */
+export const usePutArtworkOrderPreference = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putArtworkOrderPreference>>, TError,{data: BodyType<ArtworkOrderPreferenceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof putArtworkOrderPreference>>,
+        TError,
+        {data: BodyType<ArtworkOrderPreferenceInput>},
+        TContext
+      > => {
+      return useMutation(getPutArtworkOrderPreferenceMutationOptions(options));
+    }
 
 export const getClaimGuestPurchasesUrl = () => {
 

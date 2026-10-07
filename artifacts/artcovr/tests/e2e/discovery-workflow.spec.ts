@@ -19,6 +19,9 @@ function paths(items: readonly { slug: string }[]) {
 
 test("a visitor saves a crate, reloads it, and removes a cover without creating a reservation", async ({ page }) => {
   const selected = displayArtworks.slice(0, 2);
+  const selectedOrder = paths(
+    orderDiscoveryArtwork(selected, "recommended", "rotate", 1),
+  );
   await page.goto("/archive");
   for (const artwork of selected) {
     await page.getByRole("button", { name: `Save ${artwork.title} to crate`, exact: true }).click();
@@ -27,11 +30,11 @@ test("a visitor saves a crate, reloads it, and removes a cover without creating 
   const crate = page.getByRole("button", { name: "My crate 2", exact: true });
   await crate.click();
   await expect(crate).toHaveAttribute("aria-pressed", "true");
-  await expect.poll(() => resultPaths(page)).toEqual(paths(selected));
+  await expect.poll(() => resultPaths(page)).toEqual(selectedOrder);
   await expect(page.getByText(/Your shortlist on this browser/)).toContainText("not a reservation or a purchase");
   await page.reload();
   await expect(page.getByRole("button", { name: "My crate 2", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect.poll(() => resultPaths(page)).toEqual(paths(selected));
+  await expect.poll(() => resultPaths(page)).toEqual(selectedOrder);
   await page.getByRole("button", { name: `Remove ${selected[0].title} from crate`, exact: true }).click();
   await expect.poll(() => resultPaths(page)).toEqual(paths(selected.slice(1)));
   await expect(page.getByRole("button", { name: "My crate 1", exact: true })).toBeVisible();
@@ -108,7 +111,9 @@ test("order and density persist through reload and restore curated order explici
   await previousOrder.click();
   await expect.poll(() => resultPaths(page)).toEqual(paths(orderDiscoveryArtwork(displayArtworks, "diverse")));
   await previousOrder.click();
-  await expect.poll(() => resultPaths(page)).toEqual(paths(displayArtworks));
+  await expect
+    .poll(() => resultPaths(page))
+    .toEqual(paths(orderDiscoveryArtwork(displayArtworks, "recommended", "rotate", 1)));
 });
 
 test("music genres expose metadata evidence and add only supported visual neighbors on request", async ({ page }) => {

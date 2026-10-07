@@ -13,6 +13,15 @@ import {
   serializeCreditActivityPage,
 } from "../generationService";
 import { InvalidCreditActivityCursorError } from "../creditService";
+import {
+  GetArtworkOrderPreferenceResponse,
+  PutArtworkOrderPreferenceBody,
+  PutArtworkOrderPreferenceResponse,
+} from "@workspace/api-zod";
+import {
+  getArtworkOrderPreference,
+  saveArtworkOrderPreference,
+} from "../artworkOrderPreference";
 
 const router: IRouter = Router();
 
@@ -83,5 +92,57 @@ router.get("/functions/v1/my-images", requireAuth, async (req, res): Promise<voi
     res.status(502).json({ code: "account_assets_failed", message: "Account media could not be loaded." });
   }
 });
+
+router.get(
+  "/functions/v1/artwork-order-preference",
+  requireAuth,
+  async (req, res): Promise<void> => {
+    const clerkUserId = getAuthenticatedUserId(req);
+    try {
+      const preference = await getArtworkOrderPreference(clerkUserId);
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(GetArtworkOrderPreferenceResponse.parse({ preference }));
+    } catch (error) {
+      req.log.error({ err: error }, "Artwork order preference load failed");
+      res.status(500).json({
+        code: "artwork_order_preference_load_failed",
+        message: "We could not load your artwork preference.",
+      });
+    }
+  },
+);
+
+router.put(
+  "/functions/v1/artwork-order-preference",
+  requireAuth,
+  async (req, res): Promise<void> => {
+    const parsed = PutArtworkOrderPreferenceBody.strict().safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        code: "invalid_artwork_order_preference",
+        message: "Choose Rotation or Shuffle.",
+      });
+      return;
+    }
+
+    const clerkUserId = getAuthenticatedUserId(req);
+    try {
+      const preference = await saveArtworkOrderPreference(
+        clerkUserId,
+        parsed.data.preference,
+      );
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(PutArtworkOrderPreferenceResponse.parse({ preference }));
+    } catch (error) {
+      req.log.error({ err: error }, "Artwork order preference save failed");
+      res.status(500).json({
+        code: "artwork_order_preference_save_failed",
+        message: "We could not save your artwork preference.",
+      });
+    }
+  },
+);
 
 export default router;

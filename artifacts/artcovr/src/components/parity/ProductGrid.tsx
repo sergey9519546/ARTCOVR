@@ -1,22 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProductCard } from "./ProductCard";
 import { GRID_RUNWAY_END, GridRunway } from "./GridRunway";
 import { homepageArtworkGroups } from "@/lib/artcovr/homepage-artwork-groups";
+import { orderArtworkForVisit } from "@/lib/artcovr/artwork-order-preference";
+import { useArtworkOrderPreference } from "@/lib/artcovr/artwork-order-preference-context";
+import { ArtworkOrderPreferenceControl } from "@/components/artcovr/ArtworkOrderPreferenceControl";
 
 const gridArtworks = homepageArtworkGroups.grid;
 
 const ARTWORK_IMAGE_FALLBACK = "/assets/artwork-placeholder.svg";
-
-function shuffleArtworks<T>(items: readonly T[]) {
-  const shuffled = [...items];
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-  return shuffled;
-}
 
 function hasRange(min: number, max: number) {
   return gridArtworks.length >= min && gridArtworks.length <= max;
@@ -32,13 +26,16 @@ const CLAMPED_TRAILING_CARDS = 16;
 
 export function ProductGrid() {
   const [revealed, setRevealed] = useState(false);
-  const [shuffledRemainingArtworks, setShuffledRemainingArtworks] = useState(
-    () => gridArtworks.slice(GRID_RUNWAY_END),
+  const { preference, visitIndex } = useArtworkOrderPreference();
+  const remainingArtworks = useMemo(
+    () =>
+      orderArtworkForVisit(
+        gridArtworks.slice(GRID_RUNWAY_END),
+        preference,
+        visitIndex,
+      ),
+    [preference, visitIndex],
   );
-
-  useEffect(() => {
-    setShuffledRemainingArtworks((items) => shuffleArtworks(items));
-  }, []);
 
   useEffect(() => {
     const applyFallback = (image: HTMLImageElement) => {
@@ -73,7 +70,6 @@ export function ProductGrid() {
 
   if (gridArtworks.length === 0) return null;
   const isPartialCatalog = hasRange(4, 7);
-  const remainingArtworks = shuffledRemainingArtworks;
   const firstRow = gridArtworks.slice(0, 12);
   const uniformRowClass = "grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-y-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-16";
   const firstRowSpacing = isPartialCatalog ? "mb-6 md:mb-8" : "mb-10 md:mb-12";
@@ -91,6 +87,8 @@ export function ProductGrid() {
       <h2 id="selected-artworks" className="sr-only">
         Selected cover artwork
       </h2>
+
+      <ArtworkOrderPreferenceControl className="mb-6 justify-end" />
 
       <div className={`${uniformRowClass} ${firstRowSpacing}`}>
         {firstRow.map((artwork, index) => (

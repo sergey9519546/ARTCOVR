@@ -15,9 +15,16 @@ localPort = 22424
 run = "pnpm --filter @workspace/artcovr run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/artcovr", "run", "build" ]
 serve = "static"
 publicDir = "artifacts/artcovr/dist/public"
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/artcovr", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+REPLIT_ENVIRONMENT = "production"
+VITE_SITE_URL = "https://artcovr.com"
 
 [[services.production.rewrites]]
 from = "/archive"

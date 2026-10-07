@@ -20,6 +20,7 @@ import {
   ArtcovrAuthProvider,
   useArtcovrAuth,
 } from "@/lib/artcovr/auth";
+import { ArtworkOrderPreferenceProvider } from "@/lib/artcovr/artwork-order-preference-context";
 import { isDevelopmentClerkKey } from "@/lib/artcovr/clerk-config";
 import {
   Route,
@@ -344,11 +345,13 @@ function ClerkProviderWithRoutes() {
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
-      {!deterministicAuth ? <ClerkQueryClientCacheInvalidator /> : null}
-      <ScrollToTop />
-      <CanonicalPathRedirect />
-      <SeoHead />
-      <Router />
+      <ArtworkOrderPreferenceProvider>
+        {!deterministicAuth ? <ClerkQueryClientCacheInvalidator /> : null}
+        <ScrollToTop />
+        <CanonicalPathRedirect />
+        <SeoHead />
+        <Router />
+      </ArtworkOrderPreferenceProvider>
     </ArtcovrAuthProvider>
   );
 }
