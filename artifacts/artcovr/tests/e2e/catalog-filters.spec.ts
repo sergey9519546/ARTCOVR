@@ -250,6 +250,61 @@ test("archive filters and results survive switching themes without reloading", a
   expect(mainFrameNavigations).toBe(0);
 });
 
+test("the chosen theme survives artwork navigation, returning to the archive, and refresh", async ({
+  page,
+}) => {
+  await page.goto("/archive", { waitUntil: "domcontentloaded" });
+  const primaryNavigation = page.getByRole("navigation", { name: "Primary" });
+  await expect(
+    primaryNavigation.getByRole("button", {
+      name: "Switch to dark theme",
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  await primaryNavigation
+    .getByRole("button", { name: "Switch to dark theme", exact: true })
+    .click();
+
+  const expectDarkTheme = async () => {
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(
+      page
+        .getByRole("navigation", { name: "Primary" })
+        .getByRole("button", {
+          name: "Switch to light theme",
+          exact: true,
+        }),
+    ).toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
+      "dark",
+    );
+  };
+
+  await expectDarkTheme();
+
+  const artworkLink = page
+    .locator('section[aria-label="Artwork archive"] article a[href^="/product/"]')
+    .first();
+  await artworkLink.click();
+  await expect(page).toHaveURL(/\/product\/[^/?]+$/);
+  await expect(page.locator("main h1")).toBeVisible();
+  await expectDarkTheme();
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/archive(?:\?.*)?$/);
+  await expect(
+    page.locator('section[aria-label="Artwork archive"] article').first(),
+  ).toBeVisible();
+  await expectDarkTheme();
+
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(
+    page.locator('section[aria-label="Artwork archive"] article').first(),
+  ).toBeVisible();
+  await expectDarkTheme();
+});
+
 test("mobile menu theme switching preserves archive filters and results without reloading", async ({
   page,
 }) => {
