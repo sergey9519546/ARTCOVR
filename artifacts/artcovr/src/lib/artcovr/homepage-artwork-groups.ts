@@ -1,8 +1,8 @@
 import { featuredArtworks } from "./artworks";
 
 const GROUP_WEIGHTS = {
-  grid: 31,
-  slide: 31,
+  grid: 33,
+  slide: 29,
   spiral: 30,
 } as const;
 const TOTAL_WEIGHT =
@@ -64,8 +64,9 @@ function allocateGroupCounts(total: number): GroupCounts {
 }
 
 /**
- * Assign every featured cover to one homepage surface. The 31/31/30 weights
- * match the current 92-cover catalog; for larger catalogs, the spiral remains
+ * Assign every featured cover to one homepage surface. The 33/29/30 weights
+ * give the current 92-cover catalog a complete 16-card trailing grid after the
+ * 12 opening cards and five-card runway; for larger catalogs, the spiral stays
  * capped at 40 covers and the remaining works are split evenly between grid
  * and slide. A catalog too small to populate all three areas stays in the grid.
  */

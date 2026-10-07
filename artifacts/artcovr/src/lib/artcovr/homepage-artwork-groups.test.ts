@@ -8,11 +8,12 @@ import {
   partitionHomepageArtworks,
 } from "./homepage-artwork-groups";
 
-test("the current featured catalog is split 31/31/30 without repeated covers", () => {
+test("the current featured catalog is split 33/29/30 without repeated covers", () => {
   const { grid, slide, spiral } = homepageArtworkGroups;
   const allGroups = [...grid, ...slide, ...spiral];
 
-  assert.deepEqual([grid.length, slide.length, spiral.length], [31, 31, 30]);
+  assert.deepEqual([grid.length, slide.length, spiral.length], [33, 29, 30]);
+  assert.equal(grid.length - 12 - 5, 16);
   assert.equal(allGroups.length, featuredArtworks.length);
   assert.deepEqual(
     new Set(allGroups.map(({ id }) => id)),
