@@ -17,6 +17,18 @@ export function useTheme() {
     setThemeState(next);
     setMounted(true);
   }, []);
+  useEffect(() => {
+    const syncTheme = (event: StorageEvent) => {
+      if (event.key !== "theme") return;
+      if (event.newValue !== "light" && event.newValue !== "dark") return;
+
+      setThemeState(event.newValue);
+      document.documentElement.setAttribute("data-theme", event.newValue);
+    };
+
+    window.addEventListener("storage", syncTheme);
+    return () => window.removeEventListener("storage", syncTheme);
+  }, []);
   const setTheme = useCallback((n: Theme) => { setThemeState(n); document.documentElement.setAttribute("data-theme", n); try { localStorage.setItem("theme", n); } catch {} }, []);
   return { theme, setTheme, mounted };
 }

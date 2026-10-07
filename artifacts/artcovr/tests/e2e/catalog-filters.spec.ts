@@ -250,6 +250,64 @@ test("archive filters and results survive switching themes without reloading", a
   expect(mainFrameNavigations).toBe(0);
 });
 
+test("theme changes synchronize across open archive tabs without reloading", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("theme", "light");
+  });
+  await page.goto("/archive");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+  const otherTab = await page.context().newPage();
+  await otherTab.goto("/archive");
+  await expect(otherTab.locator("html")).toHaveAttribute("data-theme", "light");
+
+  let otherTabNavigations = 0;
+  otherTab.on("framenavigated", (frame) => {
+    if (frame === otherTab.mainFrame()) otherTabNavigations += 1;
+  });
+
+  const primaryNavigation = page.getByRole("navigation", { name: "Primary" });
+  const otherPrimaryNavigation = otherTab.getByRole("navigation", {
+    name: "Primary",
+  });
+
+  await primaryNavigation
+    .getByRole("button", { name: "Switch to dark theme", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(otherTab.locator("html")).toHaveAttribute(
+    "data-theme",
+    "dark",
+  );
+  await expect(
+    otherPrimaryNavigation.getByRole("button", {
+      name: "Switch to light theme",
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(otherTabNavigations).toBe(0);
+
+  await primaryNavigation
+    .getByRole("button", { name: "Switch to light theme", exact: true })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(otherTab.locator("html")).toHaveAttribute(
+    "data-theme",
+    "light",
+  );
+  await expect(
+    otherPrimaryNavigation.getByRole("button", {
+      name: "Switch to dark theme",
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(otherTabNavigations).toBe(0);
+
+  await otherTab.close();
+});
+
 test("the chosen theme survives artwork navigation, returning to the archive, and refresh", async ({
   page,
 }) => {
