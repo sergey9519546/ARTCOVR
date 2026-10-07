@@ -26,7 +26,7 @@
 
 ## Durable scan context (task 259)
 - Intended canonical origin: https://artcovr.com; local/test generated artifacts may use artcovr.local and must not be deployed unchanged. Deployed origin/version requires separate verification.
-- Current discovery scope: 187 approved products, 20 genre collections, 13 fixed indexable pages (220 intended public URLs).
+- Current discovery scope: 187 approved products, 20 genre collections, 14 fixed indexable pages (221 intended public URLs as of task 301), including the Spotify and Apple Music cover-art requirements guide.
 - Buyer intent spans music-release/album/single cover art, genre discovery, commercial licenses, exclusive versus repeatable licensing, AI rights, and prompt customization. Validate search demand before adding editorial pages.
 - Static machine-readable inventory must not assert current exclusive availability without dynamic inventory evidence. Preserve approved prices/currency/licensing and never invent reviews, ratings or creator identities.
 - Privacy processor descriptions require owner approval and agreement between initial HTML and client content.
