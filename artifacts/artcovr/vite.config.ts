@@ -396,12 +396,13 @@ export default defineConfig(async ({ mode }) => {
       emptyOutDir: true,
       rollupOptions: {
         output: {
-          // Keep the homepage's required motion and auth runtimes cacheable
-          // independently from its preloader/catalog entry. Route-only code
-          // is split at the lazy imports in App.tsx; these named chunks keep
-          // the remaining homepage entry below Vite's warning threshold
-          // without delaying any part of the existing homepage journey.
+          // Keep the shared class merger and the homepage's required motion and
+          // auth runtimes cacheable independently from its preloader/catalog
+          // entry. Route-only code is split at the lazy imports in App.tsx;
+          // these named chunks keep the homepage entry below Vite's warning
+          // threshold without delaying its existing journey.
           manualChunks: {
+            'class-utils': ['tailwind-merge'],
             clerk: ['@clerk/react', '@clerk/themes'],
             motion: ['gsap', 'lenis'],
           },
