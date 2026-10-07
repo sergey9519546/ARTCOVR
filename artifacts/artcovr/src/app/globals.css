@@ -337,6 +337,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .discovery-palette-select-content {
   min-width: var(--radix-select-trigger-width);
+  max-height: min(
+    var(--radix-select-content-available-height),
+    calc(100vh - 1.5rem)
+  );
+  max-height: min(
+    var(--radix-select-content-available-height),
+    calc(100dvh - 1.5rem)
+  );
+  overscroll-behavior-y: contain;
   border: 1px solid color-mix(in srgb, var(--foreground) 25%, transparent) !important;
   border-radius: 0 !important;
   background: var(--background) !important;

@@ -498,6 +498,132 @@ async function verifyOpenFacetMenu(
   await expect(menu).toHaveCount(0);
 }
 
+async function moveTriggerNearPhoneBottom(trigger: Locator) {
+  await trigger.evaluate((element) => {
+    document.documentElement.style.scrollBehavior = "auto";
+    const bounds = element.getBoundingClientRect();
+    window.scrollTo(
+      0,
+      window.scrollY + bounds.bottom - window.innerHeight + 12,
+    );
+  });
+
+  const bottomGap = await trigger.evaluate(
+    (element) => window.innerHeight - element.getBoundingClientRect().bottom,
+  );
+  expect(bottomGap).toBeGreaterThanOrEqual(8);
+  expect(bottomGap).toBeLessThanOrEqual(16);
+}
+
+async function verifyPhoneBottomEdgeFacetMenu(
+  page: Page,
+  key: Exclude<FacetKey, "color">,
+) {
+  const trigger = facet(page, key).getByRole("combobox");
+  await moveTriggerNearPhoneBottom(trigger);
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+
+  const menu = page.getByRole("listbox");
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("Home");
+  await page.keyboard.press("ArrowDown");
+
+  const selectedOption = menu.locator('[role="option"][data-state="checked"]');
+  const highlightedOption = menu.locator('[role="option"][data-highlighted]');
+  await expect(selectedOption).toBeVisible();
+  await expect(highlightedOption).toBeVisible();
+  await expect(
+    selectedOption.locator(".discovery-palette-option-count"),
+  ).toBeVisible();
+  await expect(
+    highlightedOption.locator(".discovery-palette-option-count"),
+  ).toBeVisible();
+
+  const layout = await menu.evaluate((element) => {
+    const menuBounds = element.getBoundingClientRect();
+    const optionFits = (option: HTMLElement | null) => {
+      if (!option) return false;
+      const optionBounds = option.getBoundingClientRect();
+      const count = option.querySelector<HTMLElement>(
+        ".discovery-palette-option-count",
+      );
+      if (!count) return false;
+      const countBounds = count.getBoundingClientRect();
+      return (
+        optionBounds.width > 0 &&
+        optionBounds.height > 0 &&
+        optionBounds.left >= menuBounds.left - 1 &&
+        optionBounds.right <= menuBounds.right + 1 &&
+        optionBounds.top >= menuBounds.top - 1 &&
+        optionBounds.bottom <= menuBounds.bottom + 1 &&
+        optionBounds.left >= 0 &&
+        optionBounds.right <= window.innerWidth &&
+        optionBounds.top >= 0 &&
+        optionBounds.bottom <= window.innerHeight &&
+        countBounds.width > 0 &&
+        countBounds.height > 0 &&
+        countBounds.left >= optionBounds.left - 1 &&
+        countBounds.right <= optionBounds.right + 1 &&
+        countBounds.left >= 0 &&
+        countBounds.right <= window.innerWidth &&
+        countBounds.top >= 0 &&
+        countBounds.bottom <= window.innerHeight
+      );
+    };
+
+    return {
+      menuFitsViewport:
+        menuBounds.width > 0 &&
+        menuBounds.height > 0 &&
+        menuBounds.left >= 0 &&
+        menuBounds.right <= window.innerWidth &&
+        menuBounds.top >= 0 &&
+        menuBounds.bottom <= window.innerHeight,
+      selectedOptionFits: optionFits(
+        element.querySelector<HTMLElement>(
+          '[role="option"][data-state="checked"]',
+        ),
+      ),
+      highlightedOptionFits: optionFits(
+        element.querySelector<HTMLElement>(
+          '[role="option"][data-highlighted]',
+        ),
+      ),
+    };
+  });
+
+  expect(layout.menuFitsViewport).toBe(true);
+  expect(layout.selectedOptionFits).toBe(true);
+  expect(layout.highlightedOptionFits).toBe(true);
+
+  const highlightedText = await highlightedOption.innerText();
+  const highlightedCount = highlightedText.match(/·\s+(\d+)\s+works$/);
+  expect(highlightedCount, `${key} option should show its result count`).not.toBeNull();
+  expect(Number(highlightedCount?.[1])).toBeGreaterThan(0);
+  const highlightedLabel = highlightedText
+    .trim()
+    .replace(/\s+·\s+\d+\s+works$/, "");
+
+  await page.keyboard.press("Enter");
+  await expect(menu).toHaveCount(0);
+  await expect(trigger).toContainText(highlightedLabel);
+  await expect.poll(() => new URL(page.url()).searchParams.get(key)).toBeTruthy();
+  expect(resultCount(await catalogStatus(page).innerText())).toBeGreaterThan(0);
+
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(menu).toBeVisible();
+  await expect(menu.locator('[role="option"][data-state="checked"]')).toBeVisible();
+  await expect(
+    menu
+      .locator('[role="option"][data-state="checked"]')
+      .locator(".discovery-palette-option-count"),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+}
+
 async function snapshotPaletteStates(
   page: Page,
   viewport: "desktop" | "tablet" | "tablet-wide" | "mobile",
@@ -691,6 +817,26 @@ test.describe("open archive filter menus", () => {
       });
     }
   }
+});
+
+test.describe("phone archive menus near the viewport bottom", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("keeps genre and mood choices usable at the lower screen edge", async ({
+    page,
+  }) => {
+    await preparePaletteScreenshot(page);
+    await verifyPhoneBottomEdgeFacetMenu(page, "genre");
+
+    await page
+      .getByRole("button", { name: "Clear all filters", exact: true })
+      .click();
+    await expect(catalogStatus(page)).toHaveText(
+      `${ARCHIVE_TOTAL} / ${ARCHIVE_TOTAL} works`,
+    );
+
+    await verifyPhoneBottomEdgeFacetMenu(page, "mood");
+  });
 });
 
 test.describe("archive palette tablet text zoom", () => {
