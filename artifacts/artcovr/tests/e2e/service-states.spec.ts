@@ -309,7 +309,7 @@ test("My Images appends older activity without replacing account data", async ({
   });
 
   await page.goto("/my-images", { waitUntil: "domcontentloaded" });
-  await expect(page.getByText("2 image-edit credits available across your purchases.")).toBeVisible();
+  await expect(page.getByText("2 image-edit credits available across your account.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Download base" })).toBeVisible();
   await page.getByRole("button", { name: "Load older activity" }).click();
   await expect(page.getByText("Generation used")).toBeVisible();

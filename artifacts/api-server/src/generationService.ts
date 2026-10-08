@@ -595,6 +595,7 @@ export async function runGeneration(
   let ownsJob = false;
   try {
     const claim = await db.transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`generation:${userId}`}))`);
       if (job.purchaseId) {
         await lockPurchaseCredits(tx, job.purchaseId);
         const [order] = await tx

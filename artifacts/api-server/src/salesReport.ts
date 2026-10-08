@@ -186,7 +186,7 @@ export function buildOwnerSalesReport(input: {
         refund.salesChannel ?? orderById.get(refund.orderId)?.salesChannel,
     })),
     ...legacyRefunds,
-  ];
+  ].filter((refund) => moneyNumber(refund.amountCents) > 0);
   const grossRevenueCents = paidOrders.reduce(
     (total, order) => total + moneyNumber(order.amountCents),
     0,

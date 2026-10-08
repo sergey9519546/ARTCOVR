@@ -488,3 +488,66 @@ test("an artwork refund arriving before payment fulfillment blocks later entitle
     await db.delete(artcovrWebhookEvents).where(inArray(artcovrWebhookEvents.id, eventIds));
   }
 });
+
+for (const fullSnapshotFirst of [false, true]) {
+  test(`refund totals reconcile anonymous snapshots and identified refunds (${fullSnapshotFirst ? "full first" : "partial first"})`, async () => {
+    const f = await fixture(3);
+    try {
+      await f.fulfill(f.sessionEvent(`evt_accounting_paid_${randomUUID()}`));
+      const partialId = `re_accounting_partial_${randomUUID()}`;
+      const remainingId = `re_accounting_remaining_${randomUUID()}`;
+      const partial = { id: partialId, amount: 150, created: Math.floor(Date.now() / 1000) };
+      const remaining = { id: remainingId, amount: 300, created: Math.floor(Date.now() / 1000) };
+      const initial = refundBeforeFulfillmentEvent(f.paymentIntentId, 450, {
+        refunded: fullSnapshotFirst,
+        amount_refunded: fullSnapshotFirst ? 450 : 150,
+        refunds: { data: [] },
+      });
+      await f.fulfill(initial);
+      const initialRows = await db.select().from(artcovrRefundEvents).where(eq(artcovrRefundEvents.orderId, f.id));
+      assert.equal(initialRows.length, 1);
+      assert.equal(initialRows[0]!.stripeRefundId, null);
+      assert.equal(initialRows[0]!.amountCents, fullSnapshotFirst ? 450 : 150);
+      assert.equal(await f.balance(), fullSnapshotFirst ? 0 : 3);
+
+      if (fullSnapshotFirst) {
+        // An older partial snapshot exposes one real ID after the full total.
+        await f.fulfill(refundBeforeFulfillmentEvent(f.paymentIntentId, 450, {
+          refunded: false, amount_refunded: 150, refunds: { data: [partial] },
+        }));
+        const rows = await db.select().from(artcovrRefundEvents).where(eq(artcovrRefundEvents.orderId, f.id));
+        assert.equal(rows.reduce((total, row) => total + row.amountCents, 0), 450);
+        const [purchase] = await db.select().from(artcovrCreditPackPurchases).where(eq(artcovrCreditPackPurchases.id, f.id));
+        assert.equal(purchase.refundedCents, 450);
+        assert.equal(purchase.status, "refunded");
+        assert.equal(await f.balance(), 0);
+      }
+
+      const identifiedFull = refundBeforeFulfillmentEvent(f.paymentIntentId, 450, {
+        refunds: { data: [partial, remaining] },
+      });
+      await f.fulfill(identifiedFull);
+      await f.fulfill(identifiedFull);
+      await f.fulfill({ ...identifiedFull, id: `evt_accounting_redelivery_${randomUUID()}` });
+      // Old partial events must neither reduce totals nor resurrect credits.
+      await f.fulfill(refundBeforeFulfillmentEvent(f.paymentIntentId, 450, {
+        refunded: false, amount_refunded: 150, refunds: { data: [partial] },
+      }));
+
+      const rows = await db.select().from(artcovrRefundEvents).where(eq(artcovrRefundEvents.orderId, f.id));
+      assert.equal(rows.reduce((total, row) => total + row.amountCents, 0), 450);
+      assert.equal(rows.length, 3);
+      assert.equal(rows.find((row) => row.id === initialRows[0]!.id)?.amountCents, 0);
+      assert.equal(rows.find((row) => row.stripeRefundId === partialId)?.amountCents, 150);
+      assert.equal(rows.find((row) => row.stripeRefundId === remainingId)?.amountCents, 300);
+      const [purchase] = await db.select().from(artcovrCreditPackPurchases).where(eq(artcovrCreditPackPurchases.id, f.id));
+      assert.equal(purchase.refundedCents, 450);
+      assert.equal(purchase.status, "refunded");
+      assert.equal(await f.balance(), 0);
+      const ledger = await db.select().from(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, f.id));
+      assert.equal(ledger.filter((row) => row.entryType === "revoke").length, 1);
+    } finally {
+      await f.cleanup();
+    }
+  });
+}

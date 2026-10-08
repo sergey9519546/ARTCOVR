@@ -626,17 +626,20 @@ async function revokeRefundedCharge(
         .map((refund) => refund.stripeRefundId)
         .filter((id): id is string => Boolean(id)),
     );
-    let recordedRefundCents = existingRefunds.reduce(
+    const previouslyRecordedCents = existingRefunds.reduce(
       (total, refund) => total + refund.amountCents,
       0,
     );
+    let identifiedRefundCents = existingRefunds
+      .filter((refund) => refund.stripeRefundId)
+      .reduce((total, refund) => total + refund.amountCents, 0);
     let latestRefundId: string | null = null;
     const refundObjects = charge.refunds?.data ?? [];
 
     for (const refund of refundObjects) {
       const refundId = refund.id;
       const amountCents = Number(refund.amount ?? 0);
-      if (knownRefundIds.has(refundId) || amountCents <= 0) continue;
+      if (knownRefundIds.has(refundId) || !Number.isSafeInteger(amountCents) || amountCents <= 0) continue;
       const [inserted] = await tx
         .insert(artcovrRefundEvents)
         .values({
@@ -650,28 +653,42 @@ async function revokeRefundedCharge(
         .onConflictDoNothing()
         .returning({ id: artcovrRefundEvents.id });
       if (inserted) {
-        recordedRefundCents += amountCents;
+        identifiedRefundCents += amountCents;
+        knownRefundIds.add(refundId);
         latestRefundId = refundId;
       }
     }
 
-    const providerRefundedCents = Math.max(
+    // Cumulative snapshots and identified refunds describe the same money.
+    // As refund IDs arrive, replace anonymous fallback coverage rather than
+    // adding those amounts again. Keep receipt IDs, even when coverage reaches 0.
+    const recordedRefundCents = Math.max(
+      previouslyRecordedCents,
+      order?.refundedCents ?? creditPack!.refundedCents,
       Number(charge.amount_refunded ?? 0),
-      recordedRefundCents,
+      identifiedRefundCents,
     );
-    const missingRefundCents = providerRefundedCents - recordedRefundCents;
-    if (missingRefundCents > 0) {
+    let unassignedRefundCents = recordedRefundCents - identifiedRefundCents;
+    for (const refund of existingRefunds) {
+      if (refund.stripeRefundId) continue;
+      const amountCents = Math.min(refund.amountCents, unassignedRefundCents);
+      if (amountCents !== refund.amountCents) {
+        await tx.update(artcovrRefundEvents).set({ amountCents })
+          .where(eq(artcovrRefundEvents.id, refund.id));
+      }
+      unassignedRefundCents -= amountCents;
+    }
+    if (unassignedRefundCents > 0) {
       await tx
         .insert(artcovrRefundEvents)
         .values({
           id: `refund-event:${event.id}`,
           orderId: purchaseId,
           stripeEventId: event.id,
-          amountCents: missingRefundCents,
+          amountCents: unassignedRefundCents,
           refundedAt: stripeDate(event.created),
         })
         .onConflictDoNothing();
-      recordedRefundCents += missingRefundCents;
     }
 
     const refundId =

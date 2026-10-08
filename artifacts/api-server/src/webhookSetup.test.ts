@@ -29,7 +29,7 @@ test("webhook setup refuses unsafe live targets and never recreates disabled end
   requests.length=0;
   data = [{id:"we_enabled",url:"https://artcovr.com/api/stripe/webhook",status:"enabled",livemode:true,enabled_events:["*"]}];
   await ensureStripeWebhook("https://artcovr.com/api/stripe/webhook");
-  assert.deepEqual(requests, ["GET /v1/webhook_endpoints?limit=100"]);
+  assert.deepEqual(requests, ["GET /v1/prices?limit=1", "GET /v1/webhook_endpoints?limit=100"]);
   requests.length=0;
   process.env.NODE_ENV="test";
   await assert.rejects(ensureStripeWebhook("https://artcovr.com/api/stripe/webhook"), /mode/);

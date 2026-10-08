@@ -385,3 +385,43 @@ test("owner sales report reconciles storefront and agent channels", () => {
     },
   });
 });
+test("reconciled zero refund summaries retain history without increasing report counts", () => {
+  const refundedAt = new Date("2026-09-08T12:00:00.000Z");
+  const orders = [
+    { id: "storefront-reconciled", artworkId: "art-storefront", artworkSlug: "storefront",
+      amountCents: 1000, refundedCents: 450, status: "refunded",
+      paidAt: new Date("2026-09-02T12:00:00.000Z"), refundedAt },
+    { id: "agent-reconciled", artworkId: "art-agent", artworkSlug: "agent",
+      amountCents: 2000, refundedCents: 500, status: "refunded", salesChannel: "agent_mpp",
+      paidAt: new Date("2026-09-02T12:00:00.000Z"), refundedAt },
+    { id: "zero-history-only", artworkId: "art-history", artworkSlug: "history",
+      amountCents: 500, refundedCents: 500, status: "refunded",
+      paidAt: new Date("2026-09-02T12:00:00.000Z"), refundedAt },
+  ];
+  const refundEvents = [
+    { orderId: orders[0]!.id, artworkId: "art-storefront", artworkSlug: "storefront", amountCents: 0, refundedAt },
+    { orderId: orders[0]!.id, artworkId: "art-storefront", artworkSlug: "storefront", amountCents: 150, refundedAt },
+    { orderId: orders[0]!.id, artworkId: "art-storefront", artworkSlug: "storefront", amountCents: 300, refundedAt },
+    { orderId: orders[1]!.id, artworkId: "art-agent", artworkSlug: "agent", amountCents: 0, refundedAt, salesChannel: "agent_mpp" },
+    { orderId: orders[1]!.id, artworkId: "art-agent", artworkSlug: "agent", amountCents: 500, refundedAt, salesChannel: "agent_mpp" },
+    // This summary's real refund is outside the period. Its retained history
+    // must suppress legacy order fallback without counting a refund here.
+    { orderId: orders[2]!.id, artworkId: "art-history", artworkSlug: "history", amountCents: 0, refundedAt },
+    { orderId: orders[2]!.id, artworkId: "art-history", artworkSlug: "history", amountCents: 500,
+      refundedAt: new Date("2026-09-12T12:00:00.000Z") },
+  ];
+  const report = buildOwnerSalesReport({
+    range, orders, refundEvents, ledgerEntries: [], funnelEvents: [],
+  });
+  assert.deepEqual(report.summary, {
+    paidOrders: 3, grossRevenueCents: 3500, refunds: 3, refundedCents: 950, netRevenueCents: 2550,
+  });
+  assert.equal(report.channels.storefront.refunds, 2);
+  assert.equal(report.channels.storefront.refundedCents, 450);
+  assert.equal(report.channels.storefront.netRevenueCents, 1050);
+  assert.equal(report.channels.agent_mpp.refunds, 1);
+  assert.equal(report.channels.agent_mpp.refundedCents, 500);
+  assert.equal(report.channels.agent_mpp.netRevenueCents, 1500);
+  assert.equal(refundEvents.length, 7);
+  assert.equal(refundEvents.filter((refund) => refund.amountCents === 0).length, 3);
+});

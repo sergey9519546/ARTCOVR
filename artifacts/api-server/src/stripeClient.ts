@@ -400,7 +400,7 @@ export async function retrieveCheckoutSessionForPaymentIntent(
   paymentIntentId: string,
   requestPage: (path: string) => Promise<Stripe.ApiList<Stripe.Checkout.Session>> = (path) =>
     stripeRequest<Stripe.ApiList<Stripe.Checkout.Session>>(path),
-) {
+): Promise<Stripe.Checkout.Session | null> {
   const query = new URLSearchParams({ payment_intent: paymentIntentId, limit: "2" });
   const page = await requestPage(`/v1/checkout/sessions?${query.toString()}`);
   if (page.has_more || page.data.length > 1) {

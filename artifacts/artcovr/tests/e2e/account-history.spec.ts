@@ -43,7 +43,7 @@ for (const failOlderPage of [false, true]) {
       await expect(history.getByRole("listitem")).toHaveCount(27);
       await expect(page.getByRole("button", { name: "Load older activity", exact: true })).toHaveCount(0);
     }
-    await expect(page.getByText("2 image-edit credits available across your purchases.", { exact: true })).toBeVisible();
+    await expect(page.getByText("2 image-edit credits available across your account.", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Download base", exact: true })).toBeVisible();
     await expect(prompt).toHaveValue("Keep my current artwork edit");
   });

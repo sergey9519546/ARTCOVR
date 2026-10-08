@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
 import sharp from "sharp";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   artcovrCreditLedger,
   artcovrCreditPackPurchases,
@@ -19,7 +19,7 @@ import {
   runGeneration,
   generationStatus,
 } from "./generationService";
-import { getPurchaseCreditBalance, lockPurchaseCredits, revokePurchaseCreditsInTransaction, spendPurchaseCredit } from "./creditService";
+import { getPurchaseCreditBalance, releasePurchaseCredit, lockPurchaseCredits, revokePurchaseCreditsInTransaction, spendPurchaseCredit } from "./creditService";
 import { addWatermark, createImageEditResult } from "./lib/imagePipeline";
 
 async function fixture() {
@@ -642,4 +642,134 @@ test("photo cleanup failure preserves a successful edit and the record needed to
     const references = await db.select().from(artcovrReferenceUploads).where(eq(artcovrReferenceUploads.id, photo.id));
     assert.equal(references.length, 1, "retain metadata so the private photo is not orphaned after a deletion failure");
   } finally { await f.cleanup(); }
+});
+
+test("stalled cleanup and a queued worker share the customer lock before credit locks", { timeout: 15_000 }, async () => {
+  const f = await fixture();
+  const purchaseId = await f.order();
+  let announceStalledRow!: () => void;
+  const stalledRowUpdated = new Promise<void>((resolve) => {
+    announceStalledRow = resolve;
+  });
+  let finishStalledCleanup!: () => void;
+  const stalledCleanupMayReleaseCredit = new Promise<void>((resolve) => {
+    finishStalledCleanup = resolve;
+  });
+  let stalledCleanup: Promise<void> | undefined;
+  try {
+    const job = await admitGeneration({ ...f.input, purchaseId }, f.io);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 3);
+
+    stalledCleanup = db.transaction(async (tx) => {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${`generation:${f.userId}`}))`,
+      );
+      const stalled = await tx
+        .update(artcovrGenerations)
+        .set({
+          status: "timed_out",
+          allowanceSlot: null,
+          errorCode: "generation_timeout",
+          finishedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(artcovrGenerations.id, job.id),
+            eq(artcovrGenerations.clerkUserId, f.userId),
+            eq(artcovrGenerations.status, "queued"),
+          ),
+        )
+        .returning({ id: artcovrGenerations.id });
+      assert.equal(stalled.length, 1);
+      announceStalledRow();
+      await stalledCleanupMayReleaseCredit;
+      await releasePurchaseCredit(tx, {
+        userId: f.userId,
+        purchaseId,
+        generationId: job.id,
+        reason: "Timed-out image generation credit release",
+      });
+    });
+    await stalledRowUpdated;
+
+    let providerCalls = 0;
+    const worker = runGeneration(job, f.userId, {
+      ...f.io,
+      createImageEditResult: async (source, prompt, size, photo, contentType) => {
+        providerCalls += 1;
+        return f.io.createImageEditResult(
+          source,
+          prompt,
+          size,
+          photo,
+          contentType,
+        );
+      },
+    });
+
+    const generationKey = `generation:${f.userId}`;
+    const artworkCreditKey = `credits:${purchaseId}`;
+    let observedBoundary: "generation" | "artwork" | undefined;
+    const observationDeadline = Date.now() + 5_000;
+    while (!observedBoundary && Date.now() < observationDeadline) {
+      const observation = await db.execute<{
+        worker_waits_generation: boolean;
+        worker_holds_artwork: boolean;
+      }>(sql`
+        with keys as (
+          select
+            hashtext(${generationKey})::bigint as generation_key,
+            hashtext(${artworkCreditKey})::bigint as artwork_key
+        )
+        select
+          exists (
+            select 1
+            from pg_locks, keys
+            where locktype = 'advisory'
+              and database = (
+                select oid from pg_database where datname = current_database()
+              )
+              and objsubid = 1
+              and classid = (((keys.generation_key >> 32) & 4294967295)::oid)
+              and objid = ((keys.generation_key & 4294967295)::oid)
+              and not granted
+          ) as worker_waits_generation,
+          exists (
+            select 1
+            from pg_locks, keys
+            where locktype = 'advisory'
+              and database = (
+                select oid from pg_database where datname = current_database()
+              )
+              and objsubid = 1
+              and classid = (((keys.artwork_key >> 32) & 4294967295)::oid)
+              and objid = ((keys.artwork_key & 4294967295)::oid)
+              and granted
+          ) as worker_holds_artwork
+      `);
+      const [locks] = observation.rows;
+      if (locks?.worker_waits_generation) observedBoundary = "generation";
+      else if (locks?.worker_holds_artwork) observedBoundary = "artwork";
+      else await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    assert.equal(
+      observedBoundary,
+      "generation",
+      "the worker must wait on the customer lock before taking the artwork credit lock",
+    );
+
+    finishStalledCleanup();
+    await Promise.all([stalledCleanup, worker]);
+    const [generation] = await db
+      .select()
+      .from(artcovrGenerations)
+      .where(eq(artcovrGenerations.id, job.id));
+    assert.equal(generation.status, "timed_out");
+    assert.equal(providerCalls, 0);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 4);
+  } finally {
+    finishStalledCleanup?.();
+    await stalledCleanup?.catch(() => undefined);
+    await f.cleanup();
+  }
 });
