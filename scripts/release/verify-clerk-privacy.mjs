@@ -1,36 +1,247 @@
 import { createServer } from "node:net";
 import { spawn, spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { mkdtemp, mkdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SKIPPED_ENVIRONMENT_GAP = 78;
 const API_STARTUP_TIMEOUT_MS = 60_000;
 const API_HEALTH_POLL_MS = 250;
 const API_STOP_TIMEOUT_MS = 5_000;
+const POSTGRES_START_TIMEOUT_SECONDS = 30;
 const workspaceRoot = fileURLToPath(new URL("../../", import.meta.url));
 
 function isLoopbackHost(hostname) {
   return ["localhost", "127.0.0.1", "[::1]"].includes(hostname);
 }
 
-function isSafeDevelopmentTarget(rawBaseUrl, env) {
+function withoutDatabaseEnvironment(env) {
+  return Object.fromEntries(
+    Object.entries(env).filter(
+      ([key]) => key !== "DATABASE_URL" && !/^PG[A-Z0-9_]*$/.test(key),
+    ),
+  );
+}
+
+export function disposableDatabaseEnvironment(env, databaseUrl) {
+  const database = new URL(databaseUrl);
+  if (
+    !["postgres:", "postgresql:"].includes(database.protocol) ||
+    !isLoopbackHost(database.hostname) ||
+    !database.port
+  ) {
+    throw new Error("Disposable PostgreSQL must use a loopback TCP connection.");
+  }
+  return {
+    ...withoutDatabaseEnvironment(env),
+    DATABASE_URL: databaseUrl,
+  };
+}
+
+function postgresToolEnvironment(env) {
+  return {
+    PATH: env.PATH ?? process.env.PATH ?? "",
+    HOME: env.HOME ?? tmpdir(),
+    LANG: env.LANG ?? "C",
+  };
+}
+
+function runPostgresCommand(
+  command,
+  args,
+  phase,
+  { runCommand = spawnSync, env = process.env } = {},
+) {
+  const result = runCommand(command, args, {
+    cwd: workspaceRoot,
+    encoding: "utf8",
+    stdio: "pipe",
+    env: postgresToolEnvironment(env),
+  });
+  if (result.error || result.status !== 0) {
+    const code =
+      result.error?.code ??
+      (result.status === null ? result.signal ?? "unknown" : result.status);
+    throw new Error(`Disposable PostgreSQL ${phase} failed (code ${code}).`);
+  }
+  return result;
+}
+
+export async function startDisposablePostgres(
+  env = process.env,
+  { runCommand = spawnSync, makeTempDirectory = mkdtemp } = {},
+) {
+  const rootDir = await makeTempDirectory(
+    join(tmpdir(), "artcovr-clerk-privacy-"),
+  );
+  const dataDir = join(rootDir, "data");
+  const socketDir = join(rootDir, "socket");
+  const logFile = join(rootDir, "postgres.log");
+  let port;
+  const databaseName = `clerk_privacy_${randomUUID().replaceAll("-", "")}`;
+  let serverMayBeRunning = false;
+  let cluster = { rootDir, dataDir, socketDir, logFile, databaseName };
   try {
-    const baseUrl = new URL(rawBaseUrl);
-    const loopback = isLoopbackHost(baseUrl.hostname);
-    const workspaceDevDomain =
-      baseUrl.protocol === "https:" &&
-      baseUrl.hostname.endsWith(".replit.dev") &&
-      baseUrl.hostname === env.REPLIT_DEV_DOMAIN;
-    return (
-      (loopback || workspaceDevDomain) &&
-      ["http:", "https:"].includes(baseUrl.protocol) &&
-      !baseUrl.username &&
-      !baseUrl.password &&
-      baseUrl.pathname === "/" &&
-      !baseUrl.search &&
-      !baseUrl.hash
+    port = await findAvailableLoopbackPort();
+    cluster = { ...cluster, port };
+    await mkdir(socketDir);
+    runPostgresCommand(
+      "initdb",
+      [
+        "--pgdata",
+        dataDir,
+        "--username=postgres",
+        "--auth=trust",
+        "--no-locale",
+        "--encoding=UTF8",
+      ],
+      "initialization",
+      { runCommand, env },
     );
-  } catch {
-    return false;
+    serverMayBeRunning = true;
+    runPostgresCommand(
+      "pg_ctl",
+      [
+        "--pgdata",
+        dataDir,
+        "--log",
+        logFile,
+        "--options",
+        `-h 127.0.0.1 -p ${port} -k ${socketDir} -c listen_addresses=127.0.0.1`,
+        "--wait",
+        "--timeout",
+        String(POSTGRES_START_TIMEOUT_SECONDS),
+        "start",
+      ],
+      "startup",
+      { runCommand, env },
+    );
+    runPostgresCommand(
+      "createdb",
+      [
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--username",
+        "postgres",
+        databaseName,
+      ],
+      "database creation",
+      { runCommand, env },
+    );
+    return {
+      ...cluster,
+      databaseUrl: `postgresql://postgres@127.0.0.1:${port}/${databaseName}`,
+    };
+  } catch (error) {
+    const partialCluster = { ...cluster, serverMayBeRunning };
+    const teardown = await stopDisposablePostgres(partialCluster, {
+      runCommand,
+      removeDirectory: rm,
+      env,
+    });
+    if (!teardown.ok) {
+      const primary =
+        error instanceof Error ? error.message : "unknown startup failure";
+      throw new Error(`${primary}; ${teardown.error}`);
+    }
+    throw error;
+  }
+}
+
+export async function stopDisposablePostgres(
+  cluster,
+  {
+    runCommand = spawnSync,
+    removeDirectory = rm,
+    env = process.env,
+  } = {},
+) {
+  if (cluster.serverMayBeRunning !== false) {
+    const stop = (mode) =>
+      runCommand(
+        "pg_ctl",
+        [
+          "--pgdata",
+          cluster.dataDir,
+          "--mode",
+          mode,
+          "--wait",
+          "--timeout",
+          String(POSTGRES_START_TIMEOUT_SECONDS),
+          "stop",
+        ],
+        {
+          cwd: workspaceRoot,
+          encoding: "utf8",
+          stdio: "pipe",
+          env: postgresToolEnvironment(env),
+        },
+      );
+    let result = stop("fast");
+    if (result.error || result.status !== 0) {
+      result = stop("immediate");
+      if (result.error || result.status !== 0) {
+        const status = runCommand(
+          "pg_ctl",
+          ["--pgdata", cluster.dataDir, "status"],
+          {
+            cwd: workspaceRoot,
+            encoding: "utf8",
+            stdio: "pipe",
+            env: postgresToolEnvironment(env),
+          },
+        );
+        if (status.error || status.status === 0) {
+          const code =
+            result.error?.code ??
+            (result.status === null
+              ? result.signal ?? "unknown"
+              : result.status);
+          return {
+            ok: false,
+            error: `PostgreSQL could not be stopped safely (code ${code}); temporary files were retained.`,
+          };
+        }
+      }
+    }
+  }
+  try {
+    await removeDirectory(cluster.rootDir, { recursive: true, force: true });
+    return { ok: true, action: "stopped-and-removed" };
+  } catch (error) {
+    const code =
+      typeof error === "object" && error && "code" in error
+        ? String(error.code)
+        : "unknown";
+    return { ok: false, error: `PostgreSQL temporary files could not be removed (code ${code}).` };
+  }
+}
+
+export function migrateDisposableDatabase(
+  env,
+  { runCommand = spawnSync } = {},
+) {
+  const childEnv = disposableDatabaseEnvironment(env, env.DATABASE_URL);
+  const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+  const result = runCommand(
+    pnpm,
+    ["--filter", "@workspace/db", "run", "migrate"],
+    {
+      cwd: workspaceRoot,
+      env: childEnv,
+      stdio: "inherit",
+      encoding: "utf8",
+    },
+  );
+  if (result.error || result.status !== 0) {
+    const code =
+      result.error?.code ??
+      (result.status === null ? result.signal ?? "unknown" : result.status);
+    throw new Error(`Disposable database migration failed (code ${code}).`);
   }
 }
 
@@ -177,7 +388,7 @@ export async function startDisposableApi(
     `Disposable API startup: launching on isolated port ${port} (readiness phase: process startup).`,
   );
   const childEnv = {
-    ...env,
+    ...disposableDatabaseEnvironment(env, env.DATABASE_URL),
     NODE_ENV: "development",
     REPLIT_ENVIRONMENT: "development",
     PORT: String(port),
@@ -223,7 +434,7 @@ function runDevelopmentSmoke(
   if (disposableApi) smokeArgs.push("--origin", disposableApi.baseUrl);
   return spawnProcess(pnpm, smokeArgs, {
     env: {
-      ...env,
+      ...disposableDatabaseEnvironment(env, env.DATABASE_URL),
       REPLIT_ENVIRONMENT: "development",
       ...(disposableApi
         ? {
@@ -258,12 +469,19 @@ export function clerkPrivacySmokePreflight(env) {
     };
   }
 
+  if (env.ARTCOVR_DEV_SMOKE_BASE_URL) {
+    return {
+      kind: "rejected",
+      reason:
+        "configured API targets are refused; the Clerk privacy smoke always starts its own local API",
+    };
+  }
+
   const missing = [];
   if (!env.CLERK_SECRET_KEY) missing.push("CLERK_SECRET_KEY");
   if (!(env.VITE_CLERK_PUBLISHABLE_KEY ?? env.CLERK_PUBLISHABLE_KEY)) {
     missing.push("VITE_CLERK_PUBLISHABLE_KEY or CLERK_PUBLISHABLE_KEY");
   }
-  if (!env.DATABASE_URL) missing.push("DATABASE_URL");
   if (missing.length) {
     return {
       kind: "skipped",
@@ -271,64 +489,18 @@ export function clerkPrivacySmokePreflight(env) {
     };
   }
 
-  const configuredBaseUrl = env.ARTCOVR_DEV_SMOKE_BASE_URL;
-  if (configuredBaseUrl && !isSafeDevelopmentTarget(configuredBaseUrl, env)) {
-    return {
-      kind: "rejected",
-      reason:
-        "the Clerk privacy smoke target must be a loopback origin or this workspace's exact REPLIT_DEV_DOMAIN",
-    };
-  }
-
   return {
     kind: "ready",
-    baseUrl: configuredBaseUrl ?? `http://127.0.0.1:${env.PORT ?? "8080"}`,
+    baseUrl: `http://127.0.0.1:${env.PORT ?? "8080"}`,
   };
-}
-
-export function classifyConfiguredTargetFailure({ error, status, stderr } = {}) {
-  const output = Buffer.isBuffer(stderr) ? stderr.toString("utf8") : String(stderr ?? "");
-  const outputDetail = output
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .at(-1);
-  if (!error && !outputDetail) {
-    return {
-      category: "smoke",
-      detail: `the smoke command exited with status ${status}`,
-    };
-  }
-
-  const detail = error instanceof Error ? error.message : outputDetail ?? String(error);
-  const code = typeof error === "object" && error ? error.code : undefined;
-  const name = typeof error === "object" && error ? error.name : undefined;
-
-  if (
-    ["ENOTFOUND", "EAI_AGAIN", "EAI_FAIL", "EAI_NONAME"].includes(code) ||
-    /(?:DNS resolution failed|getaddrinfo .*(?:ENOTFOUND|EAI_))/i.test(detail)
-  ) {
-    return { category: "dns", detail };
-  }
-  if (
-    ["ETIMEDOUT", "ESOCKETTIMEDOUT"].includes(code) ||
-    name === "TimeoutError" ||
-    /(?:timed? ?out|timeout|operation was aborted due to timeout)/i.test(detail)
-  ) {
-    return { category: "timeout", detail };
-  }
-  if (
-    code === "ECONNREFUSED" ||
-    /ECONNREFUSED|connection refused/i.test(detail)
-  ) {
-    return { category: "connection-refused", detail };
-  }
-  return { category: "smoke", detail };
 }
 
 export async function runClerkPrivacySmoke(
   env = process.env,
   {
+    startDatabase = startDisposablePostgres,
+    migrateDatabase = migrateDisposableDatabase,
+    stopDatabase = stopDisposablePostgres,
     startApi = startDisposableApi,
     waitForHealth = waitForApiHealth,
     runSmoke = runDevelopmentSmoke,
@@ -350,50 +522,33 @@ export async function runClerkPrivacySmoke(
     return 2;
   }
 
+  let disposableDatabase;
   let disposableApi;
   let smokeStatus = 1;
-  const usesConfiguredTarget = Boolean(env.ARTCOVR_DEV_SMOKE_BASE_URL);
-  const reportConfiguredTargetFailure = (detail) => {
-    const failure = classifyConfiguredTargetFailure(detail);
-    error(
-      `CLERK PRIVACY SMOKE FAILED FOR CONFIGURED TARGET ${decision.baseUrl}: ${failure.detail}. The configured API may be unreachable; no disposable API startup or teardown was attempted.`,
-    );
-    error(
-      `CLERK PRIVACY SMOKE CONFIGURED TARGET FAILURE: ${JSON.stringify(
-        failure,
-      )}`,
-    );
-  };
   try {
-    if (usesConfiguredTarget) {
-      log(`Using configured development API target ${decision.baseUrl}.`);
-    } else {
-      disposableApi = await startApi(env);
-      decision.baseUrl = disposableApi.baseUrl;
-      await waitForHealth(disposableApi.baseUrl, disposableApi.child);
-      log(
-        `Disposable API readiness complete: database health is ready on isolated port ${disposableApi.port}.`,
-      );
-    }
+    disposableDatabase = await startDatabase(env);
+    const isolatedEnv = disposableDatabaseEnvironment(
+      env,
+      disposableDatabase.databaseUrl,
+    );
+    log("Disposable PostgreSQL cluster ready; only its local database will be migrated.");
+    await migrateDatabase(isolatedEnv);
+    log("Disposable database migrations complete.");
 
-    const result = await runSmoke(env, decision.baseUrl, disposableApi);
+    disposableApi = await startApi(isolatedEnv);
+    decision.baseUrl = disposableApi.baseUrl;
+    await waitForHealth(disposableApi.baseUrl, disposableApi.child);
+    log(
+      `Disposable API readiness complete: database health is ready on isolated port ${disposableApi.port}.`,
+    );
+
+    const result = await runSmoke(isolatedEnv, decision.baseUrl, disposableApi);
     if (result.error) {
-      if (usesConfiguredTarget) {
-        reportConfiguredTargetFailure({ error: result.error });
-      } else {
-        error(
-          `CLERK PRIVACY SMOKE FAILED TO START: ${result.error.message}`,
-        );
-      }
+      error(`CLERK PRIVACY SMOKE FAILED TO START: ${result.error.message}`);
       smokeStatus = 1;
     } else {
       smokeStatus = result.status ?? 1;
-      if (usesConfiguredTarget && smokeStatus !== 0) {
-        reportConfiguredTargetFailure({
-          status: smokeStatus,
-          stderr: result.stderr,
-        });
-      } else if (!usesConfiguredTarget && smokeStatus !== 0 && result.stderr) {
+      if (smokeStatus !== 0 && result.stderr) {
         const output = Buffer.isBuffer(result.stderr)
           ? result.stderr.toString("utf8")
           : String(result.stderr);
@@ -405,18 +560,9 @@ export async function runClerkPrivacySmoke(
   } catch (smokeError) {
     const message =
       smokeError instanceof Error ? smokeError.message : String(smokeError);
-    if (usesConfiguredTarget) {
-      reportConfiguredTargetFailure({ error: smokeError });
-    } else {
-      error(`CLERK PRIVACY SMOKE FAILED: ${message}`);
-    }
+    error(`CLERK PRIVACY SMOKE FAILED: ${message}`);
     smokeStatus = 1;
   } finally {
-    log(
-      `CLERK PRIVACY SMOKE RESULT: ${
-        smokeStatus === 0 ? "passed" : `failed (exit ${smokeStatus})`
-      }`,
-    );
     if (disposableApi) {
       try {
         const teardown = await stopApi(disposableApi.child);
@@ -444,6 +590,31 @@ export async function runClerkPrivacySmoke(
         if (smokeStatus === 0) smokeStatus = 1;
       }
     }
+    if (disposableDatabase) {
+      try {
+        const teardown = await stopDatabase(disposableDatabase);
+        if (!teardown.ok) {
+          error(`CLERK PRIVACY DATABASE TEARDOWN FAILED: ${teardown.error}`);
+          smokeStatus = 1;
+        } else {
+          log(
+            "Disposable PostgreSQL teardown complete: stopped and removed its temporary cluster.",
+          );
+        }
+      } catch (teardownError) {
+        const message =
+          teardownError instanceof Error
+            ? teardownError.message
+            : String(teardownError);
+        error(`CLERK PRIVACY DATABASE TEARDOWN FAILED: ${message}`);
+        smokeStatus = 1;
+      }
+    }
+    log(
+      `CLERK PRIVACY SMOKE RESULT: ${
+        smokeStatus === 0 ? "passed" : `failed (exit ${smokeStatus})`
+      }`,
+    );
   }
   return smokeStatus;
 }

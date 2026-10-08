@@ -47,3 +47,4 @@
 - [Autoscale static route resolution](autoscale-static-route-resolution.md) — verify nested index pages after slash redirects; catalog wildcard rewrites can break directory-index serving.
 - [Privacy disclosure approval](privacy-disclosure-approval.md) — approved factual wording does not establish the database host or providers' contractual legal roles.
 - [Disposable PostgreSQL sockets](disposable-postgres-socket.md) — `/run/postgresql` is absent here; point temporary local test clusters at an existing per-run socket directory.
+- [Clerk privacy smoke isolation](clerk-privacy-smoke-isolation.md) — the verifier must migrate and run against its own temporary local database, never the inherited workspace target.

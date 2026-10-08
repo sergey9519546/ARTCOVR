@@ -132,20 +132,60 @@ export async function cleanupDevelopmentSmokeFixtures(
   dependencies: DevelopmentSmokeCleanupDependencies,
 ): Promise<void> {
   const incomplete = new Set<string>();
-  const reportIncomplete = (category: string) => incomplete.add(category);
-  const attempt = async (category: string, operation: () => Promise<void>) => {
+  const failureDetails = new Set<string>();
+  const recordFailure = (category: string, phase: string, error?: unknown) => {
+    incomplete.add(category);
+    const candidate =
+      typeof error === "object" && error !== null && "code" in error
+        ? String(error.code)
+        : "";
+    const safeCode = /^[A-Za-z0-9_:-]{2,32}$/.test(candidate)
+      ? candidate
+      : "unknown";
+    failureDetails.add(`${phase} (${safeCode})`);
+  };
+  const attempt = async (
+    category: string,
+    phase: string,
+    operation: () => Promise<void>,
+  ) => {
     try {
       await operation();
-    } catch {
-      reportIncomplete(category);
+      return true;
+    } catch (error) {
+      recordFailure(category, phase, error);
+      return false;
     }
   };
 
-  if (input.users.length) {
-    await attempt(cleanupCategory.generationObjects, async () => {
-      await dependencies.timeoutRunningGenerations();
-      const rows = await dependencies.listGenerations();
-      for (const row of rows) {
+  const isRunGeneration = (id: string) => input.generationIds.includes(id);
+  let generationsComplete = true;
+  if (input.generationIds.length && !input.users.length) {
+    recordFailure(
+      cleanupCategory.generations,
+      "generation cleanup skipped because run users are unavailable",
+    );
+    generationsComplete = false;
+  } else if (input.users.length && input.generationIds.length) {
+    generationsComplete = await attempt(
+      cleanupCategory.generations,
+      "timeout running generations",
+      dependencies.timeoutRunningGenerations,
+    );
+    if (generationsComplete) {
+      let rows: SmokeGenerationCleanupRow[] | undefined;
+      try {
+        rows = await dependencies.listGenerations();
+      } catch (error) {
+        recordFailure(cleanupCategory.generations, "list generations", error);
+        generationsComplete = false;
+      }
+      for (const row of rows ?? []) {
+        if (!isRunGeneration(row.id)) {
+          recordFailure(cleanupCategory.generations, "generation scope validation");
+          generationsComplete = false;
+          continue;
+        }
         const keys = [row.cleanObjectKey, row.previewObjectKey].filter(
           (key): key is string => Boolean(key),
         );
@@ -154,63 +194,130 @@ export async function cleanupDevelopmentSmokeFixtures(
             (key) => !key.startsWith(`generated/${row.artworkId}/${row.id}/`),
           )
         ) {
-          throw new Error("Unexpected cleanup object path");
+          recordFailure(cleanupCategory.generationObjects, "object path validation");
+          generationsComplete = false;
+          continue;
         }
-        if (keys.length) await dependencies.removePrivate(keys);
-        await dependencies.deleteGeneration(row.id);
+        if (
+          keys.length &&
+          !(await attempt(
+            cleanupCategory.generationObjects,
+            "remove generation objects",
+            () => dependencies.removePrivate(keys),
+          ))
+        ) {
+          generationsComplete = false;
+          continue;
+        }
+        if (
+          !(await attempt(
+            cleanupCategory.generations,
+            "delete generation",
+            () => dependencies.deleteGeneration(row.id),
+          ))
+        ) {
+          generationsComplete = false;
+        }
       }
-    });
+    }
   }
-
-  await attempt(cleanupCategory.ledger, async () => {
-    if (input.ledgerIds.length) await dependencies.deleteLedger(input.ledgerIds);
-  });
-
-  await attempt(cleanupCategory.orders, async () => {
-    if (input.orderIds.length) await dependencies.deleteOrders(input.orderIds);
-  });
 
   const verifyEmpty = async (
     category: string,
+    phase: string,
     ids: string[],
     findRemaining: () => Promise<string[]>,
   ) => {
-    if (!ids.length) return;
+    if (!ids.length) return true;
     try {
-      if ((await findRemaining()).length) reportIncomplete(category);
-    } catch {
-      reportIncomplete(cleanupCategory.verification);
+      if ((await findRemaining()).length) {
+        recordFailure(category, `${phase} found leftover rows`);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      recordFailure(cleanupCategory.verification, phase, error);
+      return false;
     }
   };
-  await verifyEmpty(
-    cleanupCategory.generations,
-    input.generationIds,
-    dependencies.remainingGenerationIds,
-  );
-  await verifyEmpty(
-    cleanupCategory.ledger,
-    input.ledgerIds,
-    dependencies.remainingLedgerIds,
-  );
-  await verifyEmpty(
-    cleanupCategory.orders,
-    input.orderIds,
-    dependencies.remainingOrderIds,
-  );
+  if (
+    !(await verifyEmpty(
+      cleanupCategory.generations,
+      "verify generations",
+      input.generationIds,
+      dependencies.remainingGenerationIds,
+    ))
+  ) {
+    generationsComplete = false;
+  }
+
+  let ledgerComplete = false;
+  if (generationsComplete) {
+    const ledgerDeleted = await attempt(
+      cleanupCategory.ledger,
+      "delete ledger rows",
+      async () => {
+        if (input.ledgerIds.length) await dependencies.deleteLedger(input.ledgerIds);
+      },
+    );
+    const ledgerVerified = await verifyEmpty(
+      cleanupCategory.ledger,
+      "verify ledger",
+      input.ledgerIds,
+      dependencies.remainingLedgerIds,
+    );
+    ledgerComplete = ledgerDeleted && ledgerVerified;
+  } else if (input.ledgerIds.length) {
+    recordFailure(
+      cleanupCategory.ledger,
+      "ledger rows retained because generation cleanup is incomplete",
+    );
+  }
+
+  if (generationsComplete && ledgerComplete) {
+    await attempt(
+      cleanupCategory.orders,
+      "delete order rows",
+      async () => {
+        if (input.orderIds.length) await dependencies.deleteOrders(input.orderIds);
+      },
+    );
+    await verifyEmpty(
+      cleanupCategory.orders,
+      "verify orders",
+      input.orderIds,
+      dependencies.remainingOrderIds,
+    );
+  } else if (input.orderIds.length) {
+    recordFailure(
+      cleanupCategory.orders,
+      generationsComplete
+        ? "order rows retained because ledger cleanup is incomplete"
+        : "order rows retained because generation cleanup is incomplete",
+    );
+  }
 
   for (const session of input.sessions) {
-    await attempt(cleanupCategory.session, () =>
+    await attempt(cleanupCategory.session, "revoke Clerk session", () =>
       dependencies.revokeSession(session),
     );
   }
   for (const user of input.users) {
-    await attempt(cleanupCategory.user, () => dependencies.deleteUser(user));
+    await attempt(cleanupCategory.user, "delete Clerk test user", () =>
+      dependencies.deleteUser(user),
+    );
   }
-  await attempt(cleanupCategory.database, dependencies.closePool);
+  await attempt(
+    cleanupCategory.database,
+    "close database connection",
+    dependencies.closePool,
+  );
 
   if (incomplete.size) {
     throw new SmokeError(
-      `Cleanup incomplete for ${[...incomplete].join(", ")}; run marker ${input.runId}.`,
+      `Cleanup incomplete for ${[...incomplete].join(", ")}; failures: ${[
+        ...failureDetails,
+      ].join(", ")}; run marker ${input.runId}.`,
     );
   }
 }
@@ -408,6 +515,7 @@ export async function runDevelopmentSmoke(args: string[]) {
       const admitted = await api("/functions/v1/generate-image", sessions[0], body);
       if (admitted.status !== 202 || typeof admitted.json.generationId !== "string") throw new SmokeError(`Generation admission returned HTTP ${admitted.status} (${String(admitted.json.code ?? "no error code")}).`);
       const generationId = admitted.json.generationId;
+      generationIds.push(generationId);
       const duplicate = await api("/functions/v1/generate-image", sessions[0], body);
       assert.equal(duplicate.status, 202);
       assert.equal(duplicate.json.generationId, generationId);
@@ -446,6 +554,7 @@ export async function runDevelopmentSmoke(args: string[]) {
             .set({ status: "timed_out", allowanceSlot: null })
             .where(
               and(
+                inArray(artcovrGenerations.id, generationIds),
                 inArray(artcovrGenerations.clerkUserId, users),
                 sql`${artcovrGenerations.status} in ('queued','running')`,
               ),
@@ -455,7 +564,12 @@ export async function runDevelopmentSmoke(args: string[]) {
           db
             .select()
             .from(artcovrGenerations)
-            .where(inArray(artcovrGenerations.clerkUserId, users)),
+            .where(
+              and(
+                inArray(artcovrGenerations.id, generationIds),
+                inArray(artcovrGenerations.clerkUserId, users),
+              ),
+            ),
         removePrivate,
         deleteGeneration: async (id) => {
           await db

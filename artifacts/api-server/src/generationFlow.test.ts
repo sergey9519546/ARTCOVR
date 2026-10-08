@@ -13,8 +13,13 @@ import {
 } from "@workspace/db";
 import { ImageProviderError, type ImageEditClient } from "@workspace/integrations-openai-ai-server/image";
 import { getPublicCatalog } from "./catalog";
-import { admitGeneration, runGeneration, generationStatus } from "./generationService";
-import { getPurchaseCreditBalance, spendPurchaseCredit } from "./creditService";
+import {
+  admitGeneration,
+  GenerationServiceError,
+  runGeneration,
+  generationStatus,
+} from "./generationService";
+import { getPurchaseCreditBalance, lockPurchaseCredits, revokePurchaseCreditsInTransaction, spendPurchaseCredit } from "./creditService";
 import { addWatermark, createImageEditResult } from "./lib/imagePipeline";
 
 async function fixture() {
@@ -62,13 +67,38 @@ async function fixture() {
     });
     return id;
   }
+  async function creditPack(credits = 1) {
+    const id = `credit_pack_${randomUUID()}`;
+    await db.insert(artcovrCreditPackPurchases).values({
+      id,
+      clerkUserId: userId,
+      idempotencyKey: randomUUID(),
+      credits,
+      amountCents: credits * 150,
+      currency: "usd",
+      status: "paid",
+      paidAt: new Date(),
+    });
+    await db.insert(artcovrCreditLedger).values({
+      id: `credit-${randomUUID()}`,
+      clerkUserId: userId,
+      accountKey: userId,
+      orderId: id,
+      entryType: "grant",
+      amount: credits,
+      reason: "Standalone credit pack grant",
+      sourceId: `credit-pack-test:${id}`,
+    });
+    return id;
+  }
   async function cleanup() {
     await db.delete(artcovrGenerations).where(eq(artcovrGenerations.clerkUserId, userId));
     if (photoIds.length) await db.delete(artcovrReferenceUploads).where(inArray(artcovrReferenceUploads.id, photoIds));
     await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.accountKey, userId));
+    await db.delete(artcovrCreditPackPurchases).where(eq(artcovrCreditPackPurchases.clerkUserId, userId));
     await db.delete(artcovrOrders).where(eq(artcovrOrders.clerkUserId, userId));
   }
-  return { userId, source, requests, files, io, input, photo, order, cleanup };
+  return { userId, source, requests, files, io, input, photo, order, creditPack, cleanup };
 }
 
 test("original, purchased preview, identity photo, follow-up, earlier version and reset deliver the selected image bytes", async () => {
@@ -277,6 +307,149 @@ test("a standalone credit pack cannot grant access to an unowned artwork", async
     await db
       .delete(artcovrCreditPackPurchases)
       .where(eq(artcovrCreditPackPurchases.id, creditPackId));
+  }
+});
+
+test("a concurrent refund that wins the artwork lock prevents top-up admission", { timeout: 15_000 }, async () => {
+  const f = await fixture();
+  const purchaseId = await f.order();
+  const creditPackId = await f.creditPack();
+  let announceRefundLock!: () => void;
+  const refundLockAcquired = new Promise<void>((resolve) => {
+    announceRefundLock = resolve;
+  });
+  let finishRefund!: () => void;
+  const refundMayCommit = new Promise<void>((resolve) => {
+    finishRefund = resolve;
+  });
+  let refunding: Promise<void> | undefined;
+  try {
+    refunding = db.transaction(async (tx) => {
+      await lockPurchaseCredits(tx, purchaseId);
+      announceRefundLock();
+      await refundMayCommit;
+      await tx
+        .update(artcovrOrders)
+        .set({
+          status: "refunded",
+          accessRevokedAt: new Date(),
+          accessRevocationReason: "stripe_refund",
+        })
+        .where(eq(artcovrOrders.id, purchaseId));
+      await revokePurchaseCreditsInTransaction(tx, {
+        userId: f.userId,
+        purchaseId,
+        reason: "Purchase refunded",
+        sourceId: `purchase:${purchaseId}:refund`,
+      });
+    });
+    await refundLockAcquired;
+
+    let sourceReads = 0;
+    let announceSourceRead!: () => void;
+    const sourceWasRead = new Promise<void>((resolve) => {
+      announceSourceRead = resolve;
+    });
+    const admission = admitGeneration(
+      { ...f.input, purchaseId },
+      {
+        ...f.io,
+        downloadPrivate: async (key) => {
+          sourceReads += 1;
+          announceSourceRead();
+          return f.io.downloadPrivate(key);
+        },
+      },
+    );
+    const admissionRejected = assert.rejects(
+      admission,
+      (error: unknown) =>
+        error instanceof GenerationServiceError &&
+        error.code === "purchase_not_entitled",
+    );
+    const sourceReadBeforeRefund = await Promise.race([
+      sourceWasRead.then(() => true),
+      new Promise<false>((resolve) => setTimeout(() => resolve(false), 1_000)),
+    ]);
+    finishRefund();
+    await Promise.all([refunding, admissionRejected]);
+
+    assert.equal(sourceReadBeforeRefund, false);
+    assert.equal(sourceReads, 0);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 1);
+    assert.equal(
+      (await db.select().from(artcovrGenerations).where(eq(artcovrGenerations.clerkUserId, f.userId))).length,
+      0,
+    );
+  } finally {
+    finishRefund?.();
+    await refunding?.catch(() => undefined);
+    await f.cleanup();
+  }
+});
+
+test("a refund after admission blocks the queued worker and returns its top-up debit", async () => {
+  const f = await fixture();
+  const purchaseId = await f.order();
+  const creditPackId = await f.creditPack();
+  try {
+    for (let index = 0; index < 4; index += 1) {
+      assert.equal(
+        await db.transaction((tx) =>
+          spendPurchaseCredit(tx, {
+            userId: f.userId,
+            purchaseId,
+            generationId: `exhaust-included-${randomUUID()}`,
+          }),
+        ),
+        true,
+      );
+    }
+    const photo = await f.photo();
+    const job = await admitGeneration(
+      { ...f.input, purchaseId, referenceUploadId: photo.id },
+      f.io,
+    );
+    assert.equal(job.creditSourcePurchaseId, creditPackId);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 0);
+
+    await db.transaction(async (tx) => {
+      await lockPurchaseCredits(tx, purchaseId);
+      await tx
+        .update(artcovrOrders)
+        .set({
+          status: "refunded",
+          accessRevokedAt: new Date(),
+          accessRevocationReason: "stripe_refund",
+        })
+        .where(eq(artcovrOrders.id, purchaseId));
+      await revokePurchaseCreditsInTransaction(tx, {
+        userId: f.userId,
+        purchaseId,
+        reason: "Purchase refunded",
+        sourceId: `purchase:${purchaseId}:refund`,
+      });
+    });
+
+    let providerCalls = 0;
+    await runGeneration(job, f.userId, {
+      ...f.io,
+      createImageEditResult: async (...args) => {
+        providerCalls += 1;
+        return f.io.createImageEditResult(...args);
+      },
+    });
+    const [generation] = await db
+      .select()
+      .from(artcovrGenerations)
+      .where(eq(artcovrGenerations.id, job.id));
+    assert.equal(providerCalls, 0);
+    assert.equal(generation.status, "blocked");
+    assert.equal(generation.errorCode, "purchase_not_entitled");
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 1);
+    assert.equal(f.files.has(photo.id), false);
+  } finally {
+    await f.cleanup();
   }
 });
 

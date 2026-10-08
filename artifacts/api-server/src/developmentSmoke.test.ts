@@ -72,14 +72,22 @@ function cleanupHarness(options: {
   const remaining = options.remaining ?? {};
   const operation = (name: string, result?: () => Promise<void>) => async () => {
     calls.push(name);
-    if (failures.has(name)) throw new Error(`${name} failed`);
+    if (failures.has(name)) {
+      throw Object.assign(new Error(`${name} raw failure details`), {
+        code: "EACCES",
+      });
+    }
     await result?.();
   };
   const dependencies: DevelopmentSmokeCleanupDependencies = {
     timeoutRunningGenerations: operation("timeout generations"),
     listGenerations: async () => {
       calls.push("list generations");
-      if (failures.has("list generations")) throw new Error("list generations failed");
+      if (failures.has("list generations")) {
+        throw Object.assign(new Error("list generations raw failure details"), {
+          code: "EIO",
+        });
+      }
       return [
         {
           id: "generation-0",
@@ -101,17 +109,29 @@ function cleanupHarness(options: {
     deleteOrders: operation("delete orders"),
     remainingGenerationIds: async () => {
       calls.push("verify generations");
-      if (failures.has("verify generations")) throw new Error("verify generations failed");
+      if (failures.has("verify generations")) {
+        throw Object.assign(new Error("verify generations raw failure details"), {
+          code: "EIO",
+        });
+      }
       return remaining.generations ?? [];
     },
     remainingLedgerIds: async () => {
       calls.push("verify ledger");
-      if (failures.has("verify ledger")) throw new Error("verify ledger failed");
+      if (failures.has("verify ledger")) {
+        throw Object.assign(new Error("verify ledger raw failure details"), {
+          code: "EIO",
+        });
+      }
       return remaining.ledger ?? [];
     },
     remainingOrderIds: async () => {
       calls.push("verify orders");
-      if (failures.has("verify orders")) throw new Error("verify orders failed");
+      if (failures.has("verify orders")) {
+        throw Object.assign(new Error("verify orders raw failure details"), {
+          code: "EIO",
+        });
+      }
       return remaining.orders ?? [];
     },
     revokeSession: (id) => operation(`revoke ${id}`)(),
@@ -148,10 +168,10 @@ test("cleanup still removes every fixture category after seeding or API assertio
       "delete generation generation-0",
       "remove private images",
       "delete generation generation-1",
-      "delete ledger",
-      "delete orders",
       "verify generations",
+      "delete ledger",
       "verify ledger",
+      "delete orders",
       "verify orders",
       "revoke session-0",
       "revoke session-1",
@@ -162,7 +182,7 @@ test("cleanup still removes every fixture category after seeding or API assertio
   }
 });
 
-test("cleanup reports object-removal and leftover-generation failures but still removes accounts", async () => {
+test("cleanup preserves ledger and order rows when generation object removal fails", async () => {
   const harness = cleanupHarness({
     failures: ["remove private images"],
     remaining: { generations: ["generation-0", "generation-1"] },
@@ -173,25 +193,46 @@ test("cleanup reports object-removal and leftover-generation failures but still 
     (error: Error) => {
       assert.match(
         error.message,
-        /Cleanup incomplete for fixture generation objects, fixture generations; run marker smoke-run-fixture\./,
+        /Cleanup incomplete for fixture generation objects, fixture generations, fixture credit ledger, fixture orders; failures: .*remove generation objects \(EACCES\).*run marker smoke-run-fixture\./,
       );
+      assert.doesNotMatch(error.message, /raw failure details/);
       return true;
     },
   );
+  assert.equal(harness.calls.includes("delete ledger"), false);
+  assert.equal(harness.calls.includes("delete orders"), false);
+  assert.equal(harness.calls.includes("verify ledger"), false);
+  assert.equal(harness.calls.includes("verify orders"), false);
   assert.ok(harness.calls.includes("revoke session-0"));
   assert.ok(harness.calls.includes("delete user-1"));
   assert.ok(harness.calls.includes("close pool"));
 });
 
-test("cleanup attempts every category and reports all incomplete categories with its run marker", async () => {
+test("cleanup keeps order rows if ledger deletion is incomplete", async () => {
+  const harness = cleanupHarness({
+    failures: ["delete ledger"],
+    remaining: { ledger: ["ledger-0", "ledger-1"] },
+  });
+
+  await assert.rejects(
+    cleanupDevelopmentSmokeFixtures(cleanupInput, harness.dependencies),
+    (error: Error) => {
+      assert.match(
+        error.message,
+        /fixture credit ledger, fixture orders; failures: .*delete ledger rows \(EACCES\).*order rows retained because ledger cleanup is incomplete \(unknown\)/,
+      );
+      return true;
+    },
+  );
+  assert.ok(harness.calls.includes("verify ledger"));
+  assert.equal(harness.calls.includes("delete orders"), false);
+  assert.equal(harness.calls.includes("verify orders"), false);
+});
+
+test("cleanup reports safe phase codes and continues account cleanup after generation timeout failure", async () => {
   const harness = cleanupHarness({
     failures: [
       "timeout generations",
-      "delete ledger",
-      "delete orders",
-      "verify generations",
-      "verify ledger",
-      "verify orders",
       "revoke session-0",
       "revoke session-1",
       "delete user-0",
@@ -205,11 +246,15 @@ test("cleanup attempts every category and reports all incomplete categories with
     (error: Error) => {
       assert.match(
         error.message,
-        /Cleanup incomplete for fixture generation objects, fixture credit ledger, fixture orders, cleanup verification, Clerk session, Clerk test user, database connection; run marker smoke-run-fixture\./,
+        /Cleanup incomplete for fixture generations, fixture credit ledger, fixture orders, Clerk session, Clerk test user, database connection; failures: timeout running generations \(EACCES\).*ledger rows retained because generation cleanup is incomplete \(unknown\).*revoke Clerk session \(EACCES\).*run marker smoke-run-fixture\./,
       );
+      assert.doesNotMatch(error.message, /raw failure details/);
       return true;
     },
   );
-  assert.ok(harness.calls.includes("verify orders"));
+  assert.ok(harness.calls.includes("verify generations"));
+  assert.equal(harness.calls.includes("list generations"), false);
+  assert.equal(harness.calls.includes("delete ledger"), false);
+  assert.equal(harness.calls.includes("delete orders"), false);
   assert.ok(harness.calls.includes("delete user-1"));
 });

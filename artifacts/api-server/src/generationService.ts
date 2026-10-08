@@ -27,6 +27,7 @@ import {
   getPurchaseCreditBalance,
   getUserCreditBalance,
   listCreditPackBalances,
+  lockPurchaseCredits,
   listUserCreditActivity,
   listPurchaseCreditBalances,
   listSpendableCreditPackBalances,
@@ -316,6 +317,7 @@ export async function admitGeneration(
 
     let order: typeof artcovrOrders.$inferSelect | undefined;
     if (input.purchaseId) {
+      await lockPurchaseCredits(tx, input.purchaseId);
       order = (
         await tx
           .select()
@@ -592,18 +594,65 @@ export async function runGeneration(
   const uploaded: string[] = [];
   let ownsJob = false;
   try {
-    const claimed = await db
-      .update(artcovrGenerations)
-      .set({ status: "running", startedAt: new Date() })
-      .where(
-        and(
-          eq(artcovrGenerations.id, job.id),
-          eq(artcovrGenerations.clerkUserId, userId),
-          eq(artcovrGenerations.status, "queued"),
-        ),
-      )
-      .returning({ id: artcovrGenerations.id });
-    if (!claimed.length) return;
+    const claim = await db.transaction(async (tx) => {
+      if (job.purchaseId) {
+        await lockPurchaseCredits(tx, job.purchaseId);
+        const [order] = await tx
+          .select()
+          .from(artcovrOrders)
+          .where(
+            and(
+              eq(artcovrOrders.id, job.purchaseId),
+              eq(artcovrOrders.clerkUserId, userId),
+              eq(artcovrOrders.artworkId, job.artwork.id),
+            ),
+          )
+          .limit(1);
+        if (!order || !isActiveEntitlement(order) || order.accessRevokedAt) {
+          const blocked = await tx
+            .update(artcovrGenerations)
+            .set({
+              status: "blocked",
+              allowanceSlot: null,
+              errorCode: "purchase_not_entitled",
+              finishedAt: new Date(),
+            })
+            .where(
+              and(
+                eq(artcovrGenerations.id, job.id),
+                eq(artcovrGenerations.clerkUserId, userId),
+                eq(artcovrGenerations.status, "queued"),
+              ),
+            )
+            .returning({ id: artcovrGenerations.id });
+          const creditSourcePurchaseId =
+            job.creditSourcePurchaseId ?? job.purchaseId;
+          if (blocked.length && creditSourcePurchaseId) {
+            await releasePurchaseCredit(tx, {
+              userId,
+              purchaseId: creditSourcePurchaseId,
+              generationId: job.id,
+              reason: "Revoked purchase generation credit release",
+            });
+          }
+          return { claimed: [], terminalized: blocked.length > 0 };
+        }
+      }
+      const claimed = await tx
+        .update(artcovrGenerations)
+        .set({ status: "running", startedAt: new Date() })
+        .where(
+          and(
+            eq(artcovrGenerations.id, job.id),
+            eq(artcovrGenerations.clerkUserId, userId),
+            eq(artcovrGenerations.status, "queued"),
+          ),
+        )
+        .returning({ id: artcovrGenerations.id });
+      return { claimed, terminalized: false };
+    });
+    ownsJob = claim.terminalized;
+    if (!claim.claimed.length) return;
     ownsJob = true;
     const source = await io.downloadPrivate(job.sourceKey);
     const identityReference = job.referenceKey
