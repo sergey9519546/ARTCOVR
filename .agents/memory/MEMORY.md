@@ -1,5 +1,5 @@
 - [Artifact-scoped browser tooling](browser-test-tooling.md) — add test dependencies through the pnpm workspace filter rather than the generic root installer.
-- [Clerk browser signup checks](clerk-browser-signup-checks.md) — real Clerk signup smoke tests need a tenant configuration that permits automated verification; development anti-bot challenges block headless Chromium.
+- [Clerk browser signup checks](clerk-browser-signup-checks.md) — automated Clerk signup needs tenant verification settings; development anti-bot blocks headless Chromium.
 - [Hero animation gating](hero-animation-gating.md) — keep the entrance CSS-owned and start it beneath the preloader curtain; JS/CSS transform handoffs cause visible jumps.
 - [Catalog intelligence joins](catalog-intelligence-import.md) — connect each cover by slug/filename across editorial metadata, visual labels, keywords, vector identity, and related works.
 - [Artifact API startup](artifact-api-startup.md) — listen on the injected PORT before optional external-service initialization so workflow readiness is observable.
@@ -25,11 +25,11 @@
 - [Archive palette snapshot baselines](archive-palette-snapshots.md) — refresh theme, viewport, and state snapshots after intentional filter contrast changes; keep comparison tolerances strict.
 - [Stripe catalog cleanup limits](stripe-catalog-cleanup.md) — audit price pages sequentially through the proxy; destructive duplicate cleanup stays confirmation-gated.
 - [Stripe environment account checks](stripe-environment-account-check.md) — verify account identity and session metadata instead of inferring ownership from environment labels.
-- [Stripe test-mode verification](stripe-test-mode-verification.md) — bind the development connection explicitly; local NODE_ENV does not always override platform connector selection.
+- [Stripe test-mode verification](stripe-test-mode-verification.md) — proxy mode has varied between development runs; recheck connection, selected price, and session before each write.
 - [Artwork edit provider contract](artwork-edit-provider-contract.md) — always send the current artwork first; uploaded identity photos supplement it and never replace it.
 - [Real Clerk E2E prerequisites](real-clerk-e2e-prerequisites.md) — live account journeys stay skipped until disposable test-account inputs are configured.
 - [Credit ledger lifecycle](credit-ledger-lifecycle.md) — paid edits debit per purchase atomically; failures release, refunds revoke, and guest grants use a temporary scoped principal.
-- [Standalone credit top-ups](standalone-credit-topups.md) — customers can buy generation credits without purchasing a new artwork.
+- [Standalone credit top-ups](standalone-credit-topups.md) — credits fund generations only on artwork the customer already owns; they never grant or extend artwork access.
 - [Playwright query interception](playwright-query-routes.md) — route globs for API calls with query parameters need a trailing wildcard or the request bypasses the mock.
 - [Release process lifecycle tests](release-process-lifecycle-tests.md) — synchronize child-process signal assertions with an explicit harness readiness marker.
 - [Release smoke outage reasons](release-smoke-error-reasons.md) — capture sanitized smoke stderr so configured-target DNS and timeout failures do not collapse into exit codes.

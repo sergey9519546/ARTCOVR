@@ -122,10 +122,15 @@ test("duplicate requests and workers produce one edit and one allowance charge",
 
 test("edits spend included credits first, then top-up credits on an owned artwork", async () => {
   const f = await fixture();
-  const purchaseId = await f.order();
   const creditPackId = `credit_pack_${randomUUID()}`;
   const spentGenerationIds = Array.from({ length: 4 }, () => randomUUID());
   try {
+    const purchaseId = await f.order();
+    const artworkAccessExpiresAt = new Date(Date.now() + 24 * 60 * 60_000);
+    await db
+      .update(artcovrOrders)
+      .set({ entitlementExpiresAt: artworkAccessExpiresAt })
+      .where(eq(artcovrOrders.id, purchaseId));
     await db.insert(artcovrCreditPackPurchases).values({
       id: creditPackId,
       clerkUserId: f.userId,
@@ -181,6 +186,15 @@ test("edits spend included credits first, then top-up credits on an owned artwor
     );
     assert.equal(job.purchaseId, purchaseId);
     assert.equal(job.creditSourcePurchaseId, creditPackId);
+    const [orderAfterTopUpSpend] = await db
+      .select()
+      .from(artcovrOrders)
+      .where(eq(artcovrOrders.id, purchaseId));
+    assert.equal(
+      orderAfterTopUpSpend.entitlementExpiresAt?.getTime(),
+      artworkAccessExpiresAt.getTime(),
+      "spending top-up credits must not extend artwork access",
+    );
     assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 0);
 
     await runGeneration(job, f.userId, {
@@ -197,6 +211,67 @@ test("edits spend included credits first, then top-up credits on an owned artwor
     );
     assert.equal(retry.creditSourcePurchaseId, creditPackId);
     assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 0);
+  } finally {
+    await f.cleanup();
+    await db
+      .delete(artcovrCreditPackPurchases)
+      .where(eq(artcovrCreditPackPurchases.id, creditPackId));
+  }
+});
+
+test("a standalone credit pack cannot grant access to an unowned artwork", async () => {
+  const f = await fixture();
+  const creditPackId = `credit_pack_${randomUUID()}`;
+  try {
+    await db.insert(artcovrCreditPackPurchases).values({
+      id: creditPackId,
+      clerkUserId: f.userId,
+      idempotencyKey: randomUUID(),
+      credits: 2,
+      amountCents: 300,
+      currency: "usd",
+      status: "paid",
+      paidAt: new Date(),
+    });
+    await db.insert(artcovrCreditLedger).values({
+      id: `credit-${randomUUID()}`,
+      clerkUserId: f.userId,
+      accountKey: f.userId,
+      orderId: creditPackId,
+      entryType: "grant",
+      amount: 2,
+      reason: "Standalone credit pack grant",
+      sourceId: `credit-pack-test:${creditPackId}`,
+    });
+
+    assert.equal(
+      await getPurchaseCreditBalance(db, f.userId, creditPackId),
+      2,
+    );
+    await assert.rejects(
+      admitGeneration({ ...f.input, purchaseId: creditPackId }, f.io),
+      { code: "purchase_not_entitled" },
+    );
+    assert.equal(
+      (
+        await db
+          .select()
+          .from(artcovrOrders)
+          .where(eq(artcovrOrders.id, creditPackId))
+      ).length,
+      0,
+    );
+    assert.equal(
+      (
+        await db
+          .select()
+          .from(artcovrGenerations)
+          .where(eq(artcovrGenerations.clerkUserId, f.userId))
+      ).length,
+      0,
+    );
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 2);
+    assert.equal(f.requests.length, 0);
   } finally {
     await f.cleanup();
     await db
