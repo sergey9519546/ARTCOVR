@@ -395,6 +395,20 @@ export async function retrieveCheckoutSession(sessionId: string) {
   );
 }
 
+// Resolve even older sessions that have no PaymentIntent metadata.
+export async function retrieveCheckoutSessionForPaymentIntent(
+  paymentIntentId: string,
+  requestPage: (path: string) => Promise<Stripe.ApiList<Stripe.Checkout.Session>> = (path) =>
+    stripeRequest<Stripe.ApiList<Stripe.Checkout.Session>>(path),
+) {
+  const query = new URLSearchParams({ payment_intent: paymentIntentId, limit: "2" });
+  const page = await requestPage(`/v1/checkout/sessions?${query.toString()}`);
+  if (page.has_more || page.data.length > 1) {
+    throw new Error("Ambiguous Checkout session association for refunded payment");
+  }
+  return page.data[0] ?? null;
+}
+
 export async function createCheckoutSession(
   input: {
     orderId: string;

@@ -10,7 +10,7 @@ import {
 } from "@workspace/db";
 import { commerceConfig, licenseTermsForSaleMode } from "./commerce-config";
 import { logger } from "./lib/logger";
-import { expectedStripeLivemode, refundPaymentIntent } from "./stripeClient";
+import { expectedStripeLivemode, refundPaymentIntent, retrieveCheckoutSessionForPaymentIntent } from "./stripeClient";
 import { lockPurchaseCredits, revokePurchaseCreditsInTransaction } from "./creditService";
 
 export const checkoutReservationMs = 31 * 60_000;
@@ -20,6 +20,7 @@ const stripeWebhookModeMismatchDiagnosis = "stripe_webhook_mode_mismatch";
 type FulfillmentDependencies = {
   refundPaymentIntent: typeof refundPaymentIntent;
   expectedLivemode?: boolean;
+  retrieveCheckoutSessionForPaymentIntent?: typeof retrieveCheckoutSessionForPaymentIntent;
 };
 
 const fulfillmentDependencies: FulfillmentDependencies = {
@@ -72,7 +73,11 @@ export async function fulfillCheckoutSession(
     return;
   }
   if (event.type === "charge.refunded") {
-    await revokeRefundedCharge(event, dependencies.expectedLivemode ?? expectedStripeLivemode());
+    await revokeRefundedCharge(
+      event,
+      dependencies.expectedLivemode ?? expectedStripeLivemode(),
+      dependencies.retrieveCheckoutSessionForPaymentIntent ?? retrieveCheckoutSessionForPaymentIntent,
+    );
     return;
   }
   if (event.type === "payment_intent.payment_failed") {
@@ -476,7 +481,11 @@ async function expireCheckoutSession(event: Stripe.Event, expectedLivemode: bool
   });
 }
 
-async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boolean) {
+async function revokeRefundedCharge(
+  event: Stripe.Event,
+  expectedLivemode: boolean,
+  retrieveSession: typeof retrieveCheckoutSessionForPaymentIntent,
+) {
   const charge = event.data.object as Stripe.Charge;
   const paymentIntentId = stripeId(charge.payment_intent);
   if (!paymentIntentId) return;
@@ -510,6 +519,29 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
             eq(artcovrCreditPackPurchases.stripePaymentIntentId, paymentIntentId),
           )
           .limit(1);
+    let associatedSession: Stripe.Checkout.Session | null = null;
+    if (!order && !creditPack) {
+      // Webhooks are unordered: Checkout fulfillment may not have stored the PI yet.
+      // Use Stripe's canonical PI/session relationship, never charge metadata alone.
+      associatedSession = await retrieveSession(paymentIntentId);
+      if (associatedSession) {
+        [order] = await tx.select().from(artcovrOrders)
+          .where(eq(artcovrOrders.stripeCheckoutSessionId, associatedSession.id)).limit(1);
+        [creditPack] = order ? [] : await tx.select().from(artcovrCreditPackPurchases)
+          .where(eq(artcovrCreditPackPurchases.stripeCheckoutSessionId, associatedSession.id)).limit(1);
+        if (!order && !creditPack && associatedSession.client_reference_id) {
+          // A payment can finish while the checkout route is saving its session ID.
+          const reference = associatedSession.client_reference_id;
+          const [pendingOrder] = await tx.select({ id: artcovrOrders.id }).from(artcovrOrders)
+            .where(eq(artcovrOrders.id, reference)).limit(1);
+          const [pendingPack] = await tx.select({ id: artcovrCreditPackPurchases.id }).from(artcovrCreditPackPurchases)
+            .where(eq(artcovrCreditPackPurchases.id, reference)).limit(1);
+          if (pendingOrder || pendingPack) {
+            throw new Error("Refund Checkout session binding is not yet persisted");
+          }
+        }
+      }
+    }
     if (!order && !creditPack) {
       await tx
         .update(artcovrWebhookEvents)
@@ -538,6 +570,47 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
         .where(eq(artcovrCreditPackPurchases.id, purchaseId))
         .limit(1);
       if (!creditPack) throw new Error("Refund purchase disappeared during fulfillment");
+    }
+
+    if (associatedSession) {
+      const purchase = order ?? creditPack!;
+      const sessionMatches = order
+        ? associatedSession.metadata?.order_id === order.id &&
+          associatedSession.metadata?.artwork_id === order.artworkId &&
+          associatedSession.metadata?.sale_mode === order.saleMode
+        : creditPackSessionMatches(associatedSession, creditPack!);
+      const matches =
+        associatedSession.id === purchase.stripeCheckoutSessionId &&
+        associatedSession.client_reference_id === purchase.id &&
+        stripeId(associatedSession.payment_intent) === paymentIntentId &&
+        (!purchase.stripePaymentIntentId || purchase.stripePaymentIntentId === paymentIntentId) &&
+        associatedSession.mode === "payment" &&
+        associatedSession.status === "complete" &&
+        associatedSession.payment_status === "paid" &&
+        associatedSession.livemode === expectedLivemode &&
+        associatedSession.amount_total === purchase.amountCents &&
+        associatedSession.currency?.toLowerCase() === purchase.currency.toLowerCase() &&
+        charge.amount === purchase.amountCents &&
+        charge.currency?.toLowerCase() === purchase.currency.toLowerCase() &&
+        Number.isSafeInteger(charge.amount_refunded) &&
+        charge.amount_refunded > 0 &&
+        charge.amount_refunded <= purchase.amountCents &&
+        (!charge.refunded || charge.amount_refunded === purchase.amountCents) &&
+        sessionMatches;
+      if (!matches) {
+        await tx.update(artcovrWebhookEvents).set({ status: "rejected", processedAt: new Date() })
+          .where(eq(artcovrWebhookEvents.id, event.id));
+        logger.error({ diagnosis: "refund_checkout_binding_mismatch", paymentIntentId, stripeEventId: event.id },
+          "ARTCOVR rejected an unbound refund that did not match its Checkout purchase");
+        return;
+      }
+      if (order) {
+        await tx.update(artcovrOrders).set({ stripePaymentIntentId: paymentIntentId })
+          .where(eq(artcovrOrders.id, purchaseId));
+      } else {
+        await tx.update(artcovrCreditPackPurchases).set({ stripePaymentIntentId: paymentIntentId })
+          .where(eq(artcovrCreditPackPurchases.id, purchaseId));
+      }
     }
 
     const existingRefunds = await tx

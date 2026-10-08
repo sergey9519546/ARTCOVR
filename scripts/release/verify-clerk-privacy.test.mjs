@@ -8,6 +8,7 @@ import {
   disposableDatabaseEnvironment,
   migrateDisposableDatabase,
   runClerkPrivacySmoke,
+  startDisposableApi,
   startDisposablePostgres,
   stopDisposableApi,
   stopDisposablePostgres,
@@ -287,6 +288,70 @@ test("API readiness preserves the last database health probe failure", async () 
     }),
     /final health failure: connect ECONNREFUSED 127\.0\.0\.1:4321/,
   );
+});
+
+test("disposable API runs as a directly owned process after an isolated build", async () => {
+  const databaseUrl = "postgresql://postgres@127.0.0.1:55439/clerk_privacy";
+  const calls = [];
+  const child = new EventEmitter();
+  child.exitCode = null;
+  child.signalCode = null;
+
+  const result = await startDisposableApi(
+    { ...smokeEnv, DATABASE_URL: databaseUrl },
+    {
+      runBuild: (command, args, options) => {
+        calls.push({ kind: "build", command, args, options });
+        return { status: 0, error: null };
+      },
+      spawnProcess: (command, args, options) => {
+        calls.push({ kind: "start", command, args, options });
+        return child;
+      },
+      log: () => {},
+    },
+  );
+
+  assert.equal(calls[0].kind, "build");
+  assert.deepEqual(calls[0].args, [
+    "--filter",
+    "@workspace/api-server",
+    "run",
+    "build",
+  ]);
+  assert.equal(calls[0].options.env.DATABASE_URL, databaseUrl);
+  assert.equal(calls[0].options.env.PGHOST, undefined);
+  assert.equal(calls[1].kind, "start");
+  assert.equal(calls[1].command, process.execPath);
+  assert.deepEqual(calls[1].args, [
+    "--enable-source-maps",
+    "./dist/index.mjs",
+  ]);
+  assert.equal(calls[1].options.env.DATABASE_URL, databaseUrl);
+  assert.match(calls[1].options.cwd, /artifacts\/api-server$/);
+  assert.equal(result.child, child);
+});
+
+test("disposable API does not start when its isolated build fails", async () => {
+  let spawnCount = 0;
+  await assert.rejects(
+    startDisposableApi(
+      {
+        ...smokeEnv,
+        DATABASE_URL: "postgresql://postgres@127.0.0.1:55439/clerk_privacy",
+      },
+      {
+        runBuild: () => ({ status: 1, error: null }),
+        spawnProcess: () => {
+          spawnCount += 1;
+          return new EventEmitter();
+        },
+        log: () => {},
+      },
+    ),
+    /Disposable API build failed \(code 1\)/,
+  );
+  assert.equal(spawnCount, 0);
 });
 
 test("API teardown reports when the disposable API ignores both signals", async () => {

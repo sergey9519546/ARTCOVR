@@ -434,9 +434,9 @@ test("a refund after admission blocks the queued worker and returns its top-up d
     let providerCalls = 0;
     await runGeneration(job, f.userId, {
       ...f.io,
-      createImageEditResult: async (...args) => {
+      createImageEditResult: async (source, prompt, size, photo, contentType) => {
         providerCalls += 1;
-        return f.io.createImageEditResult(...args);
+        return f.io.createImageEditResult(source, prompt, size, photo, contentType);
       },
     });
     const [generation] = await db

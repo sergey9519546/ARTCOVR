@@ -8,6 +8,7 @@ import {
   createCheckoutSession,
   expectedStripeLivemode,
   listStripeCheckoutSessions,
+  retrieveCheckoutSessionForPaymentIntent,
   StripeConnectionModeError,
   StripeCheckoutModeError,
   validateCheckoutSessionMode,
@@ -156,6 +157,33 @@ test("development checkout is blocked before any Stripe write when the proxy is 
       error.code === "stripe_connection_mode_mismatch",
   );
   assert.deepEqual(requests, ["GET /v1/prices?limit=1"]);
+});
+
+test("refund association filters by PI and fails closed on ambiguous sessions", async () => {
+  const canonical = checkoutSessionFixture("cs_refund_association", "complete");
+  const paths: string[] = [];
+  const page = (data: Stripe.Checkout.Session[], has_more = false) =>
+    ({ object: "list", data, has_more, url: "/v1/checkout/sessions" }) as Stripe.ApiList<Stripe.Checkout.Session>;
+  assert.equal(
+    await retrieveCheckoutSessionForPaymentIntent("pi_specific", async (path) => {
+      paths.push(path);
+      return page([canonical]);
+    }),
+    canonical,
+  );
+  const query = new URL(paths[0]!, "https://stripe.test");
+  assert.equal(query.pathname, "/v1/checkout/sessions");
+  assert.equal(query.searchParams.get("payment_intent"), "pi_specific");
+  assert.equal(query.searchParams.get("limit"), "2");
+  assert.equal(await retrieveCheckoutSessionForPaymentIntent("pi_unknown", async () => page([])), null);
+  await assert.rejects(
+    retrieveCheckoutSessionForPaymentIntent("pi_ambiguous", async () => page([canonical, canonical])),
+    /Ambiguous/,
+  );
+  await assert.rejects(
+    retrieveCheckoutSessionForPaymentIntent("pi_paginated", async () => page([canonical], true)),
+    /Ambiguous/,
+  );
 });
 
 test("Checkout session fixtures preserve lifecycle status, expanded prices, and pagination", async () => {

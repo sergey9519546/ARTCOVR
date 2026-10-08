@@ -380,13 +380,10 @@ export async function waitForApiHealth(
 
 export async function startDisposableApi(
   env,
-  { spawnProcess = spawn } = {},
+  { spawnProcess = spawn, runBuild = spawnSync, log = console.log } = {},
 ) {
   const port = await findAvailableLoopbackPort();
   const baseUrl = `http://127.0.0.1:${port}`;
-  console.log(
-    `Disposable API startup: launching on isolated port ${port} (readiness phase: process startup).`,
-  );
   const childEnv = {
     ...disposableDatabaseEnvironment(env, env.DATABASE_URL),
     NODE_ENV: "development",
@@ -399,11 +396,30 @@ export async function startDisposableApi(
       env.CLERK_PUBLISHABLE_KEY ?? env.VITE_CLERK_PUBLISHABLE_KEY,
   };
   const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-  const child = spawnProcess(
+  const build = runBuild(
     pnpm,
-    ["--filter", "@workspace/api-server", "run", "dev"],
+    ["--filter", "@workspace/api-server", "run", "build"],
     {
       cwd: workspaceRoot,
+      env: childEnv,
+      stdio: "inherit",
+      encoding: "utf8",
+    },
+  );
+  if (build.error || build.status !== 0) {
+    const code =
+      build.error?.code ??
+      (build.status === null ? build.signal ?? "unknown" : build.status);
+    throw new Error(`Disposable API build failed (code ${code}).`);
+  }
+  log(
+    `Disposable API startup: launching on isolated port ${port} (readiness phase: process startup).`,
+  );
+  const child = spawnProcess(
+    process.execPath,
+    ["--enable-source-maps", "./dist/index.mjs"],
+    {
+      cwd: join(workspaceRoot, "artifacts/api-server"),
       env: childEnv,
       stdio: "inherit",
     },
