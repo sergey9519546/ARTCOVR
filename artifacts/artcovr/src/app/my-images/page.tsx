@@ -8,7 +8,11 @@ import { displayArtworks, getArtworkBySlug } from "@/lib/artcovr/artworks";
 import {
   ArtcovrApiError,
   claimGuestPurchases,
+  createCreditPackCheckout,
+  getCreditPackCheckoutStatus,
+  getCreditPackOptions,
   getMyImages,
+  type CreditPackOptions,
   type AccountData,
   type AccountDownload,
   type AccountGeneration,
@@ -88,6 +92,8 @@ export default function MyImagesPage() {
   const [state, setState] = useState<"loading" | "signed-out" | "ready" | "error">("loading");
   const [data, setData] = useState<AccountData>({
     totalCreditBalance: 0,
+    topUpCreditBalance: 0,
+    creditPackPurchases: [],
     creditActivity: [],
     creditActivityNextCursor: null,
     purchases: [],
@@ -97,10 +103,15 @@ export default function MyImagesPage() {
   const [message, setMessage] = useState("");
   const [downloadMessage, setDownloadMessage] = useState("");
   const [loadingOlderActivity, setLoadingOlderActivity] = useState(false);
+  const [creditPackOptions, setCreditPackOptions] = useState<CreditPackOptions | null>(null);
+  const [creditPackQuantity, setCreditPackQuantity] = useState(1);
+  const [creditPackBusy, setCreditPackBusy] = useState(false);
+  const [creditPackMessage, setCreditPackMessage] = useState("");
   const mounted = useRef(false);
   const checkoutPolls = useRef(0);
   const checkoutReturnTracked = useRef(false);
   const checkoutCompletedTracked = useRef(new Set<string>());
+  const creditPackAttempt = useRef<{ credits: number; key: string } | null>(null);
 
   useEffect(() => {
     mounted.current = true;
@@ -222,6 +233,121 @@ export default function MyImagesPage() {
   }, [loadAccount]);
 
   useEffect(() => {
+    if (state !== "ready" || creditPackOptions) return;
+    let active = true;
+    void getCreditPackOptions()
+      .then((options) => {
+        if (!active) return;
+        setCreditPackOptions(options);
+        setCreditPackMessage("");
+      })
+      .catch((error) => {
+        if (!active) return;
+        setCreditPackMessage(
+          error instanceof Error
+            ? error.message
+            : "Standalone credit packs are temporarily unavailable.",
+        );
+      });
+    return () => {
+      active = false;
+    };
+  }, [state, creditPackOptions]);
+
+  const startCreditPackCheckout = useCallback(async () => {
+    if (!creditPackOptions || creditPackBusy) return;
+    let attempt = creditPackAttempt.current;
+    if (!attempt || attempt.credits !== creditPackQuantity) {
+      attempt = { credits: creditPackQuantity, key: crypto.randomUUID() };
+      creditPackAttempt.current = attempt;
+    }
+    setCreditPackBusy(true);
+    setCreditPackMessage("");
+    try {
+      const checkout = await createCreditPackCheckout(
+        attempt.credits,
+        attempt.key,
+      );
+      window.location.assign(checkout.checkoutUrl);
+    } catch (error) {
+      setCreditPackMessage(
+        error instanceof Error
+          ? error.message
+          : "Credit checkout could not be started. Try again.",
+      );
+    } finally {
+      if (mounted.current) setCreditPackBusy(false);
+    }
+  }, [creditPackBusy, creditPackOptions, creditPackQuantity]);
+
+  useEffect(() => {
+    if (state !== "ready" || typeof window === "undefined") return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const checkoutState = searchParams.get("credit_checkout");
+    if (checkoutState === "cancelled") {
+      setCreditPackMessage("Checkout was cancelled. No credits were added.");
+      return;
+    }
+    if (checkoutState !== "return") return;
+    const sessionId = searchParams.get("session_id");
+    if (!sessionId) {
+      setCreditPackMessage("We could not verify that credit checkout.");
+      return;
+    }
+
+    let active = true;
+    let timer: number | undefined;
+    let attempts = 0;
+    setCreditPackMessage("Confirming your credit pack payment…");
+    const checkStatus = async () => {
+      try {
+        const status = await getCreditPackCheckoutStatus(sessionId);
+        if (!active) return;
+        if (status.status === "paid") {
+          await loadAccount(true);
+          if (active) {
+            setCreditPackMessage(
+              `${status.credits} image-edit credit${status.credits === 1 ? "" : "s"} added to your account.`,
+            );
+          }
+          return;
+        }
+        if (status.status === "expired" || status.status === "refunded") {
+          setCreditPackMessage(
+            status.status === "refunded"
+              ? "This credit pack was refunded."
+              : "This credit checkout expired before payment completed.",
+          );
+          return;
+        }
+      } catch (error) {
+        if (!active) return;
+        if (attempts >= 14) {
+          setCreditPackMessage(
+            error instanceof Error
+              ? error.message
+              : "Payment confirmation is delayed. Refresh your account shortly.",
+          );
+          return;
+        }
+      }
+      attempts += 1;
+      if (attempts >= 15) {
+        setCreditPackMessage(
+          "Payment is still being confirmed. Refresh your account shortly.",
+        );
+        return;
+      }
+      timer = window.setTimeout(() => void checkStatus(), 2000);
+    };
+    void checkStatus();
+    return () => {
+      active = false;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [loadAccount, state]);
+
+  useEffect(() => {
     if (state !== "ready" || typeof window === "undefined") return;
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get("checkout") !== "return") return;
@@ -314,7 +440,7 @@ export default function MyImagesPage() {
           </button>
         </div>
       )}
-      {state === "ready" && data.purchases.length === 0 && data.generations.length === 0 && (
+      {state === "ready" && data.purchases.length === 0 && data.generations.length === 0 && !(data.creditPackPurchases?.length) && (
         <section className="border-y border-current/20 py-10" aria-label="Empty image library">
           <p className="text-xl font-bold">No purchases or generated images yet.</p>
           <p className="mt-3 max-w-[48ch] text-sm leading-6 opacity-70">
@@ -325,11 +451,91 @@ export default function MyImagesPage() {
           </Link>
         </section>
       )}
-      {state === "ready" && data.purchases.length > 0 && (
+      {state === "ready" && (
         <p className="mb-10 border-y border-current/20 py-4 text-sm">
           <span className="font-bold">{data.totalCreditBalance}</span>{" "}
-          image-edit credit{data.totalCreditBalance === 1 ? "" : "s"} available across your purchases.
+          image-edit credit{data.totalCreditBalance === 1 ? "" : "s"} available across your account
+          {(data.topUpCreditBalance ?? 0) > 0 ? ` · ${data.topUpCreditBalance} from credit packs` : ""}.
         </p>
+      )}
+      {state === "ready" && (
+        <section className="mb-16 border-t-2 border-current pt-5" aria-labelledby="credit-pack-heading">
+          <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">Standalone purchase</p>
+          <h2 id="credit-pack-heading" className="mt-2 text-3xl font-extrabold tracking-tight">Add image-edit credits</h2>
+          <p className="mt-3 max-w-[56ch] text-sm leading-6 text-[var(--muted-foreground)]">
+            Use these credits for edits on any artwork you already own. Buying credits does not purchase artwork or extend artwork access.
+          </p>
+          <div className="mt-5 flex flex-wrap items-end gap-4">
+            <label className="grid gap-2 text-xs font-bold uppercase tracking-[.08em]">
+              Credits
+              <input
+                type="number"
+                min={1}
+                max={creditPackOptions?.maxCredits ?? 50}
+                step={1}
+                value={creditPackQuantity}
+                onChange={(event) => {
+                  creditPackAttempt.current = null;
+                  const value = Number(event.target.value);
+                  setCreditPackQuantity(Number.isFinite(value) ? value : 0);
+                }}
+                disabled={!creditPackOptions || creditPackBusy}
+                className="min-h-11 w-28 border border-current/30 bg-transparent px-3 text-sm"
+              />
+            </label>
+            {creditPackOptions && (
+              <p className="min-h-11 content-center text-sm">
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: creditPackOptions.currency,
+                }).format((creditPackOptions.creditPriceCents * creditPackQuantity) / 100)}
+                {" "}total · {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: creditPackOptions.currency,
+                }).format(creditPackOptions.creditPriceCents / 100)} per credit
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => void startCreditPackCheckout()}
+              disabled={
+                !creditPackOptions ||
+                creditPackBusy ||
+                !Number.isInteger(creditPackQuantity) ||
+                creditPackQuantity < 1 ||
+                creditPackQuantity > (creditPackOptions?.maxCredits ?? 0)
+              }
+              className="artcovr-button inline-flex min-h-11 items-center px-5 py-3 text-xs font-bold uppercase tracking-[.08em] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {creditPackBusy ? "Opening checkout…" : "Buy credits"}
+            </button>
+          </div>
+          {creditPackMessage && <p role="status" className="mt-4 text-sm">{creditPackMessage}</p>}
+        </section>
+      )}
+      {state === "ready" && (data.creditPackPurchases?.length ?? 0) > 0 && (
+        <section className="mb-16 border-t-2 border-current pt-5" aria-labelledby="credit-pack-history">
+          <p className="text-[11px] font-bold uppercase tracking-[.1em] opacity-60">Purchase history</p>
+          <h2 id="credit-pack-history" className="mt-2 text-3xl font-extrabold tracking-tight">Credit packs</h2>
+          <ol className="mt-6 divide-y divide-current/15 border-y border-current/15">
+            {(data.creditPackPurchases ?? []).map((pack) => (
+              <li key={pack.id} className="flex flex-wrap items-center justify-between gap-4 py-4 text-sm">
+                <div>
+                  <p className="font-bold">{pack.credits} image-edit credit{pack.credits === 1 ? "" : "s"} · {pack.status}</p>
+                  <p className="mt-1 text-[var(--muted-foreground)]">
+                    {pack.remainingCredits} remaining · {formatDate(pack.paidAt)}
+                  </p>
+                </div>
+                <span className="font-bold tabular-nums">
+                  {(pack.amountCents / 100).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: pack.currency,
+                  })}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
       )}
       {state === "ready" && (data.creditActivity?.length ?? 0) > 0 && (
         <section className="mb-16 border-t-2 border-current pt-5" aria-labelledby="credit-activity">
@@ -444,6 +650,7 @@ export default function MyImagesPage() {
                 artwork={editorArtwork}
                 purchase={purchase}
                 generations={purchaseGenerations}
+                accountCreditBalance={data.totalCreditBalance ?? purchase.remainingCredits ?? 0}
                 baseImageUrl={baseImageUrl}
                 selectedPreviewImageUrl={selectedPreviewImageUrl}
                 onGenerationCompleted={refreshAccount}

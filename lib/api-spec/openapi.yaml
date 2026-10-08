@@ -14,6 +14,8 @@ tags:
     description: Guest and authenticated checkout operations
   - name: account
     description: Authenticated customer account and purchase operations
+  - name: credit-packs
+    description: Authenticated standalone generation-credit purchases
   - name: generation
     description: Authenticated image generation operations
   - name: media
@@ -167,6 +169,125 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "502":
           description: Account media could not be loaded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/credit-pack-options:
+    get:
+      operationId: getCreditPackOptions
+      tags: [credit-packs]
+      summary: Get standalone credit purchase options
+      description: Returns the server-configured unit price and maximum quantity after verifying the Stripe credit price is available.
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Purchase options based on the active one-time Stripe price.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditPackOptionsResponse"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: The generation credit price is not configured in Stripe.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/credit-pack-checkouts:
+    post:
+      operationId: createCreditPackCheckout
+      tags: [credit-packs]
+      summary: Start a standalone credit pack checkout
+      description: Creates a Stripe Checkout session for a server-priced quantity of generation credits. It does not grant artwork access.
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreditPackCheckoutInput"
+      responses:
+        "200":
+          description: Checkout session created or resumed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditPackCheckoutResponse"
+        "400":
+          description: Invalid credit quantity or idempotency key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: The idempotency key conflicts with an existing checkout.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: Stripe could not open checkout.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: The generation credit price is not configured in Stripe.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /functions/v1/credit-pack-checkouts/{sessionId}:
+    get:
+      operationId: getCreditPackCheckoutStatus
+      tags: [credit-packs]
+      summary: Check a standalone credit checkout after returning from Stripe
+      security:
+        - clerkSession: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+      responses:
+        "200":
+          description: Checkout status scoped to the signed-in customer.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditPackCheckoutStatus"
+        "401":
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Credit checkout was not found for this customer.
           content:
             application/json:
               schema:
@@ -904,6 +1025,70 @@ components:
           minimum: 0
       required: [purchaseId, checkoutUrl, expiresAt, includedCredits]
 
+    CreditPackOptionsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        currency:
+          type: string
+        creditPriceCents:
+          type: integer
+          minimum: 1
+        maxCredits:
+          type: integer
+          minimum: 1
+      required: [currency, creditPriceCents, maxCredits]
+
+    CreditPackCheckoutInput:
+      type: object
+      additionalProperties: false
+      properties:
+        credits:
+          type: integer
+          minimum: 1
+          maximum: 50
+        idempotencyKey:
+          type: string
+          format: uuid
+      required: [credits, idempotencyKey]
+
+    CreditPackCheckoutResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        creditPackPurchaseId:
+          type: string
+        checkoutUrl:
+          type: string
+          format: uri
+        expiresAt:
+          type: string
+          format: date-time
+        credits:
+          type: integer
+          minimum: 1
+        amountCents:
+          type: integer
+          minimum: 1
+      required:
+        - creditPackPurchaseId
+        - checkoutUrl
+        - expiresAt
+        - credits
+        - amountCents
+
+    CreditPackCheckoutStatus:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [reserved, paid, expired, refunded]
+        credits:
+          type: integer
+          minimum: 1
+      required: [status, credits]
+
     ClaimGuestPurchasesResult:
       type: object
       properties:
@@ -1046,11 +1231,20 @@ components:
         totalCreditBalance:
           type: integer
           minimum: 0
-          description: Current image-edit credit balance. Older responses may omit this field.
+          description: Current image-edit credit balance across artwork purchases and standalone packs. Older responses may omit this field.
+        topUpCreditBalance:
+          type: integer
+          minimum: 0
+          description: Remaining credits from paid standalone credit packs.
+        creditPackPurchases:
+          type: array
+          description: Standalone credit pack purchase history. Older responses may omit this field.
+          items:
+            $ref: "#/components/schemas/AccountCreditPackPurchase"
         creditActivity:
           type: array
           maxItems: 25
-          description: Purchase-scoped credit events, newest first. Older responses may omit activity history.
+          description: Account credit events, newest first. Older responses may omit activity history.
           items:
             $ref: "#/components/schemas/AccountCreditActivity"
         creditActivityNextCursor:
@@ -1078,7 +1272,7 @@ components:
 
     AccountCreditActivity:
       type: object
-      description: Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
+      description: Customer-safe account credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
       properties:
         purchaseId:
           type: string
@@ -1096,6 +1290,31 @@ components:
           type: string
           format: date-time
       required: [purchaseId, artworkTitle, event, label, amount, occurredAt]
+
+    AccountCreditPackPurchase:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        credits:
+          type: integer
+          minimum: 1
+        amountCents:
+          type: integer
+          minimum: 1
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [reserved, paid, expired, refunded]
+        paidAt:
+          type: [string, "null"]
+          format: date-time
+        remainingCredits:
+          type: integer
+          minimum: 0
+      required: [id, credits, amountCents, currency, status, paidAt, remainingCredits]
 
     AccountPurchase:
       type: object

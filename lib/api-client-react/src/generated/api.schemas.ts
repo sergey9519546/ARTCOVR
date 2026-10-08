@@ -101,6 +101,49 @@ export interface CheckoutResponse {
   includedCredits: number;
 }
 
+export interface CreditPackOptionsResponse {
+  currency: string;
+  /** @minimum 1 */
+  creditPriceCents: number;
+  /** @minimum 1 */
+  maxCredits: number;
+}
+
+export interface CreditPackCheckoutInput {
+  /**
+     * @minimum 1
+     * @maximum 50
+     */
+  credits: number;
+  idempotencyKey: string;
+}
+
+export interface CreditPackCheckoutResponse {
+  creditPackPurchaseId: string;
+  checkoutUrl: string;
+  expiresAt: string;
+  /** @minimum 1 */
+  credits: number;
+  /** @minimum 1 */
+  amountCents: number;
+}
+
+export type CreditPackCheckoutStatusStatus = typeof CreditPackCheckoutStatusStatus[keyof typeof CreditPackCheckoutStatusStatus];
+
+
+export const CreditPackCheckoutStatusStatus = {
+  reserved: 'reserved',
+  paid: 'paid',
+  expired: 'expired',
+  refunded: 'refunded',
+} as const;
+
+export interface CreditPackCheckoutStatus {
+  status: CreditPackCheckoutStatusStatus;
+  /** @minimum 1 */
+  credits: number;
+}
+
 export interface ClaimGuestPurchasesResult {
   claimedOrderIds: string[];
   /** @minimum 0 */
@@ -237,6 +280,30 @@ export interface GenerationStatus {
   finishedAt: string | null;
 }
 
+export type AccountCreditPackPurchaseStatus = typeof AccountCreditPackPurchaseStatus[keyof typeof AccountCreditPackPurchaseStatus];
+
+
+export const AccountCreditPackPurchaseStatus = {
+  reserved: 'reserved',
+  paid: 'paid',
+  expired: 'expired',
+  refunded: 'refunded',
+} as const;
+
+export interface AccountCreditPackPurchase {
+  id: string;
+  /** @minimum 1 */
+  credits: number;
+  /** @minimum 1 */
+  amountCents: number;
+  currency: string;
+  status: AccountCreditPackPurchaseStatus;
+  /** @nullable */
+  paidAt: string | null;
+  /** @minimum 0 */
+  remainingCredits: number;
+}
+
 export type AccountCreditActivityEvent = typeof AccountCreditActivityEvent[keyof typeof AccountCreditActivityEvent];
 
 
@@ -250,7 +317,7 @@ export const AccountCreditActivityEvent = {
 } as const;
 
 /**
- * Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
+ * Customer-safe account credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
  */
 export interface AccountCreditActivity {
   purchaseId: string;
@@ -410,12 +477,19 @@ export interface AccountUnavailableDownload {
 
 export interface AccountData {
   /**
-     * Current image-edit credit balance. Older responses may omit this field.
+     * Current image-edit credit balance across artwork purchases and standalone packs. Older responses may omit this field.
      * @minimum 0
      */
   totalCreditBalance?: number;
   /**
-     * Purchase-scoped credit events, newest first. Older responses may omit activity history.
+     * Remaining credits from paid standalone credit packs.
+     * @minimum 0
+     */
+  topUpCreditBalance?: number;
+  /** Standalone credit pack purchase history. Older responses may omit this field. */
+  creditPackPurchases?: AccountCreditPackPurchase[];
+  /**
+     * Account credit events, newest first. Older responses may omit activity history.
      * @maxItems 25
      */
   creditActivity?: AccountCreditActivity[];

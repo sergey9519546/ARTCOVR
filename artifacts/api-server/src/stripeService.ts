@@ -5,6 +5,7 @@ import {
   listStripeProducts,
 } from "./stripeClient";
 import {
+  selectCreditUnitPriceCandidate,
   productsForArtwork,
   selectStripePriceCandidate,
   type StripePriceCandidate,
@@ -49,6 +50,40 @@ export async function getStripePriceForArtwork(
   if (!selected) {
     throw new StripeCatalogError(
       `No matching Stripe price is configured for artwork ${artwork.slug}.`,
+    );
+  }
+
+  return selected.price;
+}
+
+export async function getStripePriceForCreditUnit(): Promise<Stripe.Price> {
+  const products = await listStripeProducts();
+  const creditProducts = products.filter(
+    (product) =>
+      product.metadata.artcovr_product_type === "image_generation_credit",
+  );
+
+  if (!creditProducts.length) {
+    throw new StripeCatalogError(
+      "No Stripe product is configured for generation credits.",
+    );
+  }
+
+  const candidates: StripePriceCandidate[] = (
+    await Promise.all(
+      creditProducts.map(async (product) =>
+        (await listStripePrices(product.id)).map((price) => ({
+          product,
+          price,
+        })),
+      ),
+    )
+  ).flat();
+  const selected = selectCreditUnitPriceCandidate(candidates);
+
+  if (!selected) {
+    throw new StripeCatalogError(
+      "No active one-time Stripe price matches the configured generation credit price.",
     );
   }
 

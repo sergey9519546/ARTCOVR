@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import {
   artcovrGenerations,
+  artcovrCreditPackPurchases,
   artcovrOrders,
   artcovrReferenceUploads,
   db,
@@ -23,8 +24,10 @@ import {
 import {
   getPurchaseCreditBalance,
   getUserCreditBalance,
+  listCreditPackBalances,
   listUserCreditActivity,
   listPurchaseCreditBalances,
+  listSpendableCreditPackBalances,
   releasePurchaseCredit,
   revokePurchaseCredits,
   spendPurchaseCredit,
@@ -75,12 +78,15 @@ async function expireStalledGenerations(userId: string) {
       .returning({
         id: artcovrGenerations.id,
         purchaseId: artcovrGenerations.purchaseId,
+        creditSourcePurchaseId: artcovrGenerations.creditSourcePurchaseId,
       });
     for (const generation of stalled) {
-      if (generation.purchaseId) {
+      const creditSourcePurchaseId =
+        generation.creditSourcePurchaseId ?? generation.purchaseId;
+      if (creditSourcePurchaseId) {
         await releasePurchaseCredit(tx, {
           userId,
-          purchaseId: generation.purchaseId,
+          purchaseId: creditSourcePurchaseId,
           generationId: generation.id,
           reason: "Timed-out image generation credit release",
         });
@@ -262,6 +268,8 @@ export async function admitGeneration(
         id,
         artwork,
         purchaseId: existing.purchaseId,
+        creditSourcePurchaseId:
+          existing.creditSourcePurchaseId ?? existing.purchaseId,
         sourceKey: existing.sourceObjectKey,
         referenceKey: null,
         providerPrompt,
@@ -469,32 +477,49 @@ export async function admitGeneration(
     }
 
     let slot: number | null = null;
+    let creditSourcePurchaseId: string | null = null;
     if (input.purchaseId) {
       const balance = await getPurchaseCreditBalance(
         tx,
         input.userId,
         input.purchaseId,
       );
-      if (balance < 1)
+      if (balance > 0) {
+        const spent = await spendPurchaseCredit(tx, {
+          userId: input.userId,
+          purchaseId: input.purchaseId,
+          generationId: id,
+        });
+        if (spent) {
+          creditSourcePurchaseId = input.purchaseId;
+          // Retain this field as an audit-friendly sequence for older records.
+          // It is not used for admission; the ledger is the source of truth.
+          slot = Math.max(1, (order?.includedCredits ?? 1) - balance + 1);
+        }
+      }
+      if (!creditSourcePurchaseId) {
+        const availablePacks = await listSpendableCreditPackBalances(
+          tx,
+          input.userId,
+        );
+        for (const pack of availablePacks) {
+          const spent = await spendPurchaseCredit(tx, {
+            userId: input.userId,
+            purchaseId: pack.purchaseId,
+            generationId: id,
+          });
+          if (spent) {
+            creditSourcePurchaseId = pack.purchaseId;
+            break;
+          }
+        }
+      }
+      if (!creditSourcePurchaseId)
         fail(
           409,
           "generation_credits_exhausted",
-          "No image-edit credits remain for this purchase.",
+          "No image-edit credits remain in your account.",
         );
-      const spent = await spendPurchaseCredit(tx, {
-        userId: input.userId,
-        purchaseId: input.purchaseId,
-        generationId: id,
-      });
-      if (!spent)
-        fail(
-          409,
-          "generation_credits_exhausted",
-          "No image-edit credits remain for this purchase.",
-        );
-      // Retain this field as an audit-friendly sequence for older records. It
-      // is not used for admission; the ledger is the source of truth.
-      slot = Math.max(1, (order?.includedCredits ?? 1) - balance + 1);
     } else {
       const successful = await tx
         .select({ slot: artcovrGenerations.allowanceSlot })
@@ -531,6 +556,7 @@ export async function admitGeneration(
       artworkId: artwork.id,
       clerkUserId: input.userId,
       purchaseId: input.purchaseId ?? null,
+      creditSourcePurchaseId,
       parentGenerationId,
       referenceUploadId: referenceUpload?.id ?? null,
       phase: input.purchaseId ? "purchased" : "preview",
@@ -545,6 +571,7 @@ export async function admitGeneration(
       id,
       artwork,
       purchaseId: input.purchaseId ?? null,
+      creditSourcePurchaseId,
       sourceKey,
       referenceKey: referenceUpload?.objectKey ?? null,
       providerPrompt,
@@ -649,10 +676,12 @@ export async function runGeneration(
           ),
         )
         .returning({ id: artcovrGenerations.id });
-      if (failed.length && job.purchaseId) {
+      const creditSourcePurchaseId =
+        job.creditSourcePurchaseId ?? job.purchaseId;
+      if (failed.length && creditSourcePurchaseId) {
         await releasePurchaseCredit(tx, {
           userId,
-          purchaseId: job.purchaseId,
+          purchaseId: creditSourcePurchaseId,
           generationId: job.id,
           reason: timedOut
             ? "Timed-out image generation credit release"
@@ -794,19 +823,29 @@ export async function serializeAccount(
         ),
       ),
   );
-  const [creditActivityPage, purchaseBalances, totalCreditBalance] =
+  const [
+    creditActivityPage,
+    purchaseBalances,
+    creditPackBalances,
+    totalCreditBalance,
+  ] =
     await Promise.all([
       listUserCreditActivity(db, userId),
       listPurchaseCreditBalances(db, userId),
+      listCreditPackBalances(db, userId),
       getUserCreditBalance(db, userId),
     ]);
   const purchaseBalancesById = new Map(
     purchaseBalances.map((balance) => [balance.purchaseId, balance.balance]),
   );
   const ordersById = new Map(orders.map((order) => [order.id, order]));
+  const creditPackIds = new Set(
+    creditPackBalances.map((purchase) => purchase.purchaseId),
+  );
   const serializedCreditActivity = serializeCreditActivities(
     creditActivityPage.activities,
     ordersById,
+    creditPackIds,
   );
   const purchases = orders.map((order) => {
     const artwork = getPublicArtworkById(order.artworkId);
@@ -947,6 +986,26 @@ export async function serializeAccount(
   );
   return {
     totalCreditBalance: Math.max(0, totalCreditBalance),
+    topUpCreditBalance: creditPackBalances.reduce(
+      (total, purchase) =>
+        total +
+        (purchase.status === "paid"
+          ? Math.max(0, Number(purchase.balance))
+          : 0),
+      0,
+    ),
+    creditPackPurchases: creditPackBalances.map((purchase) => ({
+      id: purchase.purchaseId,
+      credits: purchase.credits,
+      amountCents: purchase.amountCents,
+      currency: purchase.currency,
+      status: purchase.status,
+      paidAt: purchase.paidAt?.toISOString() ?? null,
+      remainingCredits:
+        purchase.status === "paid"
+          ? Math.max(0, Number(purchase.balance))
+          : 0,
+    })),
     creditActivity: serializedCreditActivity,
     creditActivityNextCursor: creditActivityPage.nextCursor,
     purchases,
@@ -959,10 +1018,23 @@ export async function serializeAccount(
 function serializeCreditActivities(
   activities: Awaited<ReturnType<typeof listUserCreditActivity>>["activities"],
   ordersById: Map<string, typeof artcovrOrders.$inferSelect>,
+  creditPackIds: Set<string>,
 ) {
   return activities.flatMap((activity) => {
     const order = ordersById.get(activity.purchaseId);
-    if (!order) return [];
+    if (!order && !creditPackIds.has(activity.purchaseId)) return [];
+    if (!order) {
+      return [
+        {
+          purchaseId: activity.purchaseId,
+          artworkTitle: "Standalone credit pack",
+          event: activity.event,
+          label: activity.label,
+          amount: activity.amount,
+          occurredAt: activity.occurredAt.toISOString(),
+        },
+      ];
+    }
     const artwork = getPublicArtworkById(order.artworkId);
     return [
       {
@@ -1003,11 +1075,24 @@ export async function serializeCreditActivityPage(
               inArray(artcovrOrders.id, purchaseIds),
             ),
           );
+  const creditPacks =
+    purchaseIds.length === 0
+      ? []
+      : await db
+          .select({ id: artcovrCreditPackPurchases.id })
+          .from(artcovrCreditPackPurchases)
+          .where(
+            and(
+              eq(artcovrCreditPackPurchases.clerkUserId, userId),
+              inArray(artcovrCreditPackPurchases.id, purchaseIds),
+            ),
+          );
 
   return {
     creditActivity: serializeCreditActivities(
       creditActivityPage.activities,
       new Map(orders.map((order) => [order.id, order])),
+      new Set(creditPacks.map((purchase) => purchase.id)),
     ),
     creditActivityNextCursor: creditActivityPage.nextCursor,
   };

@@ -3,10 +3,13 @@ import test from "node:test";
 import type Stripe from "stripe";
 import type { PublicCatalogArtwork } from "./catalog";
 import {
+  productsForCreditUnit,
   productsForArtwork,
+  selectCreditUnitPriceCandidate,
   selectStripePriceCandidate,
   type StripePriceCandidate,
 } from "./stripeCatalog";
+import { commerceConfig } from "./commerce-config";
 
 const artwork: PublicCatalogArtwork = {
   id: "art_test",
@@ -125,5 +128,40 @@ test("artwork products are grouped deterministically", () => {
       artwork.id,
     ).map(({ id }) => id),
     ["prod_older", "prod_newer"],
+  );
+});
+
+test("credit checkout accepts only the tagged active one-time unit price", () => {
+  const active = product("prod_credits", 1, "price_credits");
+  active.metadata = { artcovr_product_type: "image_generation_credit" };
+  const unrelated = product("prod_unrelated_credits", 2, "price_wrong");
+  unrelated.metadata = { artcovr_product_type: "artwork" };
+  const inactive = product("prod_inactive_credits", 3, "price_inactive");
+  inactive.active = false;
+  inactive.metadata = { artcovr_product_type: "image_generation_credit" };
+
+  const candidates: StripePriceCandidate[] = [
+    {
+      product: active,
+      price: price("price_credits", active.id, commerceConfig.creditPriceCents, 1),
+    },
+    {
+      product: active,
+      price: price("price_wrong_amount", active.id, commerceConfig.creditPriceCents + 1, 2),
+    },
+    {
+      product: unrelated,
+      price: price("price_wrong", unrelated.id, commerceConfig.creditPriceCents, 2),
+    },
+    {
+      product: inactive,
+      price: price("price_inactive", inactive.id, commerceConfig.creditPriceCents, 3),
+    },
+  ];
+
+  assert.deepEqual(productsForCreditUnit([inactive, unrelated, active]), [active]);
+  assert.equal(
+    selectCreditUnitPriceCandidate(candidates)?.price.id,
+    "price_credits",
   );
 });

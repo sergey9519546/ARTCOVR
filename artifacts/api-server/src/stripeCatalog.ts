@@ -55,3 +55,48 @@ export function selectStripePriceCandidate(
 ): StripePriceCandidate | undefined {
   return matchingStripePriceCandidates(artwork, candidates)[0];
 }
+
+export function productsForCreditUnit(products: Stripe.Product[]) {
+  return products
+    .filter(
+      (product) =>
+        product.active &&
+        product.metadata.artcovr_product_type === "image_generation_credit",
+    )
+    .sort(
+      (left, right) =>
+        left.created - right.created || left.id.localeCompare(right.id),
+    );
+}
+
+export function matchingCreditUnitPriceCandidates(
+  candidates: StripePriceCandidate[],
+): StripePriceCandidate[] {
+  return candidates
+    .filter(
+      ({ product, price }) =>
+        product.active &&
+        product.metadata.artcovr_product_type === "image_generation_credit" &&
+        price.active &&
+        price.type === "one_time" &&
+        price.currency === commerceConfig.currency &&
+        price.unit_amount === commerceConfig.creditPriceCents,
+    )
+    .sort((left, right) => {
+      const leftIsDefault = defaultPriceId(left.product) === left.price.id;
+      const rightIsDefault = defaultPriceId(right.product) === right.price.id;
+      if (leftIsDefault !== rightIsDefault) return leftIsDefault ? -1 : 1;
+      return (
+        left.product.created - right.product.created ||
+        left.product.id.localeCompare(right.product.id) ||
+        left.price.created - right.price.created ||
+        left.price.id.localeCompare(right.price.id)
+      );
+    });
+}
+
+export function selectCreditUnitPriceCandidate(
+  candidates: StripePriceCandidate[],
+): StripePriceCandidate | undefined {
+  return matchingCreditUnitPriceCandidates(candidates)[0];
+}

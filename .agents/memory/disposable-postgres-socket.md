@@ -7,4 +7,4 @@ The workspace lacks PostgreSQL's default `/run/postgresql` socket directory. Sta
 
 **Why:** PostgreSQL otherwise fails during startup before tests can connect over loopback.
 
-**How to apply:** When launching a temporary cluster, point its Unix socket setting at an existing temporary directory such as `/tmp`.
+**How to apply:** When launching a temporary cluster, point its Unix socket setting at an existing temporary directory such as `/tmp`, and wait for its readiness signal before running database-dependent tests.

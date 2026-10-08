@@ -90,6 +90,12 @@ export const GetMyImagesQueryParams = zod.object({
 
 export const getMyImagesResponseTotalCreditBalanceMin = 0;
 
+export const getMyImagesResponseTopUpCreditBalanceMin = 0;
+
+
+
+export const getMyImagesResponseCreditPackPurchasesItemRemainingCreditsMin = 0;
+
 export const getMyImagesResponseCreditActivityMax = 25;
 
 export const getMyImagesResponsePurchasesItemIncludedCreditsMin = 0;
@@ -101,7 +107,17 @@ export const getMyImagesResponsePurchasesItemRemainingGenerationsMin = 0;
 
 
 export const GetMyImagesResponse = zod.object({
-  "totalCreditBalance": zod.number().int().min(getMyImagesResponseTotalCreditBalanceMin).optional().describe('Current image-edit credit balance. Older responses may omit this field.'),
+  "totalCreditBalance": zod.number().int().min(getMyImagesResponseTotalCreditBalanceMin).optional().describe('Current image-edit credit balance across artwork purchases and standalone packs. Older responses may omit this field.'),
+  "topUpCreditBalance": zod.number().int().min(getMyImagesResponseTopUpCreditBalanceMin).optional().describe('Remaining credits from paid standalone credit packs.'),
+  "creditPackPurchases": zod.array(zod.object({
+  "id": zod.string(),
+  "credits": zod.number().int().min(1),
+  "amountCents": zod.number().int().min(1),
+  "currency": zod.string(),
+  "status": zod.enum(['reserved', 'paid', 'expired', 'refunded']),
+  "paidAt": zod.coerce.date().nullable(),
+  "remainingCredits": zod.number().int().min(getMyImagesResponseCreditPackPurchasesItemRemainingCreditsMin)
+})).optional().describe('Standalone credit pack purchase history. Older responses may omit this field.'),
   "creditActivity": zod.array(zod.object({
   "purchaseId": zod.string(),
   "artworkTitle": zod.string(),
@@ -109,7 +125,7 @@ export const GetMyImagesResponse = zod.object({
   "label": zod.string(),
   "amount": zod.number().int().describe('Signed credit adjustment; debits are negative and additions are positive.'),
   "occurredAt": zod.coerce.date()
-}).describe('Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.')).max(getMyImagesResponseCreditActivityMax).optional().describe('Purchase-scoped credit events, newest first. Older responses may omit activity history.'),
+}).describe('Customer-safe account credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.')).max(getMyImagesResponseCreditActivityMax).optional().describe('Account credit events, newest first. Older responses may omit activity history.'),
   "creditActivityNextCursor": zod.string().nullish().describe('Opaque continuation cursor for the next older activity page, or null when no older page is available. Older responses may omit this field.'),
   "purchases": zod.array(zod.object({
   "id": zod.string(),
@@ -158,6 +174,67 @@ export const GetMyImagesResponse = zod.object({
   "generationId": zod.string().nullable(),
   "code": zod.enum(['asset_unavailable'])
 })).optional().describe('Authorized files that could not be prepared; refresh the account to retry. No private storage details are returned.')
+})
+
+
+/**
+ * Returns the server-configured unit price and maximum quantity after verifying the Stripe credit price is available.
+ * @summary Get standalone credit purchase options
+ */
+
+
+
+
+export const GetCreditPackOptionsResponse = zod.object({
+  "currency": zod.string(),
+  "creditPriceCents": zod.number().int().min(1),
+  "maxCredits": zod.number().int().min(1)
+})
+
+
+/**
+ * Creates a Stripe Checkout session for a server-priced quantity of generation credits. It does not grant artwork access.
+ * @summary Start a standalone credit pack checkout
+ */
+export const createCreditPackCheckoutBodyCreditsMax = 50;
+
+
+
+export const CreateCreditPackCheckoutBody = zod.object({
+  "credits": zod.number().int().min(1).max(createCreditPackCheckoutBodyCreditsMax),
+  "idempotencyKey": zod.string().uuid()
+})
+
+
+
+
+
+export const CreateCreditPackCheckoutResponse = zod.object({
+  "creditPackPurchaseId": zod.string(),
+  "checkoutUrl": zod.string().url(),
+  "expiresAt": zod.coerce.date(),
+  "credits": zod.number().int().min(1),
+  "amountCents": zod.number().int().min(1)
+})
+
+
+/**
+ * @summary Check a standalone credit checkout after returning from Stripe
+ */
+export const getCreditPackCheckoutStatusPathSessionIdMax = 200;
+
+
+
+export const GetCreditPackCheckoutStatusParams = zod.object({
+  "sessionId": zod.coerce.string().min(1).max(getCreditPackCheckoutStatusPathSessionIdMax)
+})
+
+
+
+
+export const GetCreditPackCheckoutStatusResponse = zod.object({
+  "status": zod.enum(['reserved', 'paid', 'expired', 'refunded']),
+  "credits": zod.number().int().min(1)
 })
 
 

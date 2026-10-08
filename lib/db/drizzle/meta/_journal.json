@@ -43,6 +43,13 @@
       "when": 1791351352032,
       "tag": "0005_petite_sage",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791428196330,
+      "tag": "0006_pale_joseph",
+      "breakpoints": true
     }
   ]
 }

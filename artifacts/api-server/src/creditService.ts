@@ -1,5 +1,10 @@
-import { and, eq, sql } from "drizzle-orm";
-import { artcovrCreditLedger, artcovrOrders, db } from "@workspace/db";
+import { and, asc, eq, sql, or } from "drizzle-orm";
+import {
+  artcovrCreditLedger,
+  artcovrCreditPackPurchases,
+  artcovrOrders,
+  db,
+} from "@workspace/db";
 import { randomUUID } from "node:crypto";
 
 type CreditExecutor = Pick<typeof db, "select" | "insert" | "execute">;
@@ -101,7 +106,10 @@ export async function listUserCreditActivity(
   const decodedCursor = cursor ? decodeCreditActivityCursor(cursor) : null;
   const ownerScope = and(
     eq(artcovrCreditLedger.clerkUserId, userId),
-    eq(artcovrOrders.clerkUserId, userId),
+    or(
+      eq(artcovrOrders.clerkUserId, userId),
+      eq(artcovrCreditPackPurchases.clerkUserId, userId),
+    ),
   );
   const rows = await executor
     .select({
@@ -116,7 +124,20 @@ export async function listUserCreditActivity(
       cursorOccurredAt: sql<string>`to_char(${artcovrCreditLedger.createdAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
     })
     .from(artcovrCreditLedger)
-    .innerJoin(artcovrOrders, eq(artcovrOrders.id, artcovrCreditLedger.orderId))
+    .leftJoin(
+      artcovrOrders,
+      and(
+        eq(artcovrOrders.id, artcovrCreditLedger.orderId),
+        eq(artcovrOrders.clerkUserId, userId),
+      ),
+    )
+    .leftJoin(
+      artcovrCreditPackPurchases,
+      and(
+        eq(artcovrCreditPackPurchases.id, artcovrCreditLedger.orderId),
+        eq(artcovrCreditPackPurchases.clerkUserId, userId),
+      ),
+    )
     .where(
       decodedCursor
         ? and(
@@ -214,6 +235,45 @@ export async function listPurchaseCreditBalances(
   );
 }
 
+export async function listCreditPackBalances(
+  executor: CreditExecutor,
+  userId: string,
+) {
+  return executor
+    .select({
+      purchaseId: artcovrCreditPackPurchases.id,
+      credits: artcovrCreditPackPurchases.credits,
+      amountCents: artcovrCreditPackPurchases.amountCents,
+      currency: artcovrCreditPackPurchases.currency,
+      status: artcovrCreditPackPurchases.status,
+      paidAt: artcovrCreditPackPurchases.paidAt,
+      createdAt: artcovrCreditPackPurchases.createdAt,
+      balance: sql<string>`coalesce(sum(${artcovrCreditLedger.amount}), 0)`,
+    })
+    .from(artcovrCreditPackPurchases)
+    .leftJoin(
+      artcovrCreditLedger,
+      and(
+        eq(artcovrCreditLedger.orderId, artcovrCreditPackPurchases.id),
+        eq(artcovrCreditLedger.clerkUserId, userId),
+      ),
+    )
+    .where(eq(artcovrCreditPackPurchases.clerkUserId, userId))
+    .groupBy(artcovrCreditPackPurchases.id)
+    .orderBy(asc(artcovrCreditPackPurchases.createdAt));
+}
+
+export async function listSpendableCreditPackBalances(
+  executor: CreditExecutor,
+  userId: string,
+) {
+  const balances = await listCreditPackBalances(executor, userId);
+  return balances.filter(
+    (purchase) =>
+      purchase.status === "paid" && numericBalance(purchase.balance) > 0,
+  );
+}
+
 export async function spendPurchaseCredit(
   executor: CreditExecutor,
   input: {
@@ -260,12 +320,32 @@ export async function releasePurchaseCredit(
     eq(artcovrOrders.id, input.purchaseId),
     eq(artcovrOrders.clerkUserId, input.userId),
   )).limit(1);
+  const [creditPack] = order
+    ? []
+    : await executor
+        .select()
+        .from(artcovrCreditPackPurchases)
+        .where(
+          and(
+            eq(artcovrCreditPackPurchases.id, input.purchaseId),
+            eq(artcovrCreditPackPurchases.clerkUserId, input.userId),
+          ),
+        )
+        .limit(1);
   const expiry = order?.entitlementExpiresAt ?? (order?.paidAt
     ? new Date(order.paidAt.getTime() + 30 * 24 * 60 * 60 * 1000) : null);
   // A refund/expiry may win the race with a provider failure. Do not restore
   // spendable credits to a revoked purchase, or release a legacy unspent job.
-  if (!order || order.status !== "paid" || !order.paidAt || order.accessRevokedAt ||
-      !expiry || expiry.getTime() <= Date.now()) return;
+  const canReleaseArtworkCredit = Boolean(
+    order &&
+      order.status === "paid" &&
+      order.paidAt &&
+      !order.accessRevokedAt &&
+      expiry &&
+      expiry.getTime() > Date.now(),
+  );
+  const canReleasePackCredit = creditPack?.status === "paid";
+  if (!canReleaseArtworkCredit && !canReleasePackCredit) return;
   const [spent] = await executor.select({ id: artcovrCreditLedger.id }).from(artcovrCreditLedger)
     .where(and(eq(artcovrCreditLedger.sourceId, `generation:${input.generationId}:spend`),
       eq(artcovrCreditLedger.orderId, input.purchaseId),

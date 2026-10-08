@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { eq, inArray } from "drizzle-orm";
 import {
   artcovrCreditLedger,
+  artcovrCreditPackPurchases,
   artcovrGenerations,
   artcovrOrders,
   artcovrReferenceUploads,
@@ -13,7 +14,7 @@ import {
 import { ImageProviderError, type ImageEditClient } from "@workspace/integrations-openai-ai-server/image";
 import { getPublicCatalog } from "./catalog";
 import { admitGeneration, runGeneration, generationStatus } from "./generationService";
-import { getPurchaseCreditBalance } from "./creditService";
+import { getPurchaseCreditBalance, spendPurchaseCredit } from "./creditService";
 import { addWatermark, createImageEditResult } from "./lib/imagePipeline";
 
 async function fixture() {
@@ -117,6 +118,91 @@ test("duplicate requests and workers produce one edit and one allowance charge",
     assert.equal(rows[0].allowanceSlot, 1);
     await assert.rejects(admitGeneration({ ...input, prompt: "A different request" }, f.io), { code: "generation_request_conflict" });
   } finally { await f.cleanup(); }
+});
+
+test("edits spend included credits first, then top-up credits on an owned artwork", async () => {
+  const f = await fixture();
+  const purchaseId = await f.order();
+  const creditPackId = `credit_pack_${randomUUID()}`;
+  const spentGenerationIds = Array.from({ length: 4 }, () => randomUUID());
+  try {
+    await db.insert(artcovrCreditPackPurchases).values({
+      id: creditPackId,
+      clerkUserId: f.userId,
+      idempotencyKey: randomUUID(),
+      credits: 1,
+      amountCents: 150,
+      currency: "usd",
+      status: "paid",
+      paidAt: new Date(),
+    });
+    await db.insert(artcovrCreditLedger).values({
+      id: `credit-${randomUUID()}`,
+      clerkUserId: f.userId,
+      accountKey: f.userId,
+      orderId: creditPackId,
+      entryType: "grant",
+      amount: 1,
+      reason: "Standalone credit pack grant",
+      sourceId: `credit-pack-test:${creditPackId}`,
+    });
+
+    const includedCreditJob = await admitGeneration(
+      { ...f.input, purchaseId },
+      f.io,
+    );
+    assert.equal(includedCreditJob.creditSourcePurchaseId, purchaseId);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 1);
+    await runGeneration(includedCreditJob, f.userId, {
+      ...f.io,
+      createImageEditResult: async () => {
+        throw new Error("Deterministic local test failure");
+      },
+    });
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 4);
+
+    for (const generationId of spentGenerationIds) {
+      assert.equal(
+        await db.transaction((tx) =>
+          spendPurchaseCredit(tx, {
+            userId: f.userId,
+            purchaseId,
+            generationId,
+          }),
+        ),
+        true,
+      );
+    }
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, purchaseId), 0);
+
+    const job = await admitGeneration(
+      { ...f.input, purchaseId },
+      f.io,
+    );
+    assert.equal(job.purchaseId, purchaseId);
+    assert.equal(job.creditSourcePurchaseId, creditPackId);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 0);
+
+    await runGeneration(job, f.userId, {
+      ...f.io,
+      createImageEditResult: async () => {
+        throw new Error("Deterministic local test failure");
+      },
+    });
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 1);
+
+    const retry = await admitGeneration(
+      { ...f.input, prompt: "A new edit using the returned top-up credit.", purchaseId },
+      f.io,
+    );
+    assert.equal(retry.creditSourcePurchaseId, creditPackId);
+    assert.equal(await getPurchaseCreditBalance(db, f.userId, creditPackId), 0);
+  } finally {
+    await f.cleanup();
+    await db
+      .delete(artcovrCreditPackPurchases)
+      .where(eq(artcovrCreditPackPurchases.id, creditPackId));
+  }
 });
 
 test("concurrent request-ID reuse across purchases rejects the conflicting edit without a second charge", async () => {

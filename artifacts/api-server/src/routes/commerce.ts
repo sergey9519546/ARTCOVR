@@ -7,7 +7,12 @@ import {
 } from "express";
 import { and, eq, gt, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { artcovrGenerations, artcovrOrders, db } from "@workspace/db";
+import {
+  artcovrCreditPackPurchases,
+  artcovrGenerations,
+  artcovrOrders,
+  db,
+} from "@workspace/db";
 import { getPublicArtworkById } from "../catalog";
 import {
   checkoutReservationMs,
@@ -15,13 +20,22 @@ import {
   expireStaleExclusiveReservations,
 } from "../commerceService";
 import { logger } from "../lib/logger";
-import { getStripePriceForArtwork, StripeCatalogError } from "../stripeService";
+import {
+  getStripePriceForArtwork,
+  getStripePriceForCreditUnit,
+  StripeCatalogError,
+} from "../stripeService";
 import {
   createCheckoutSession,
   retrieveCheckoutSession,
   StripeCheckoutModeError,
 } from "../stripeClient";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
+import {
+  getAuthenticatedUserId,
+  requireAuth,
+} from "../middlewares/auth";
+import { commerceConfig } from "../commerce-config";
 import { recordFunnelEvent } from "../salesReport";
 import {
   CheckoutAdmissionLimiter,
@@ -37,6 +51,7 @@ const checkoutBody = z.object({
 });
 
 const exclusiveInventoryStatuses = ["reserved", "paid"] as const;
+const maxCreditPackQuantity = 50;
 
 type CheckoutFailureDetails = {
   err: unknown;
@@ -74,6 +89,344 @@ export function checkoutReturnUrls(artworkSlug: string, publicOrigin: string) {
     cancelUrl: `${origin}/checkout/${artworkSlug}?status=cancelled`,
   };
 }
+
+export function creditPackCheckoutReturnUrls(publicOrigin: string) {
+  const origin = getTrustedPublicOrigin({ ARTCOVR_PUBLIC_ORIGIN: publicOrigin });
+  return {
+    successUrl: `${origin}/my-images?credit_checkout=return&session_id={CHECKOUT_SESSION_ID}`,
+    cancelUrl: `${origin}/my-images?credit_checkout=cancelled`,
+  };
+}
+
+const creditPackCheckoutBody = z.object({
+  credits: z.number().int().min(1).max(maxCreditPackQuantity),
+  idempotencyKey: z.string().uuid(),
+}).strict();
+
+type CreditPackCheckoutFailureDetails = {
+  err: unknown;
+  creditPackPurchaseId: string;
+  code: string;
+};
+
+type CreditPackRouteDependencies = {
+  getStripePriceForCreditUnit: typeof getStripePriceForCreditUnit;
+  createCheckoutSession: typeof createCheckoutSession;
+  retrieveCheckoutSession: typeof retrieveCheckoutSession;
+  checkoutAdmission: CheckoutAdmissionLimiter;
+  logCheckoutFailure: (
+    details: CreditPackCheckoutFailureDetails,
+    message: string,
+  ) => void;
+};
+
+const defaultCreditPackRouteDependencies: CreditPackRouteDependencies = {
+  getStripePriceForCreditUnit,
+  createCheckoutSession,
+  retrieveCheckoutSession,
+  checkoutAdmission: new CheckoutAdmissionLimiter(),
+  logCheckoutFailure: (details, message) => logger.error(details, message),
+};
+
+function creditPackCheckoutResponse(
+  purchase: typeof artcovrCreditPackPurchases.$inferSelect,
+  checkoutUrl: string,
+) {
+  return {
+    creditPackPurchaseId: purchase.id,
+    checkoutUrl,
+    expiresAt: (
+      purchase.reservationExpiresAt ??
+      new Date(purchase.createdAt.getTime() + checkoutReservationMs)
+    ).toISOString(),
+    credits: purchase.credits,
+    amountCents: purchase.amountCents,
+  };
+}
+
+export function createCreditPackCheckoutHandler(
+  overrides: Partial<CreditPackRouteDependencies> = {},
+): RequestHandler {
+  const dependencies = {
+    ...defaultCreditPackRouteDependencies,
+    ...overrides,
+  };
+
+  return async (req, res): Promise<void> => {
+    const clerkUserId = getAuthenticatedUserId(req);
+    const parsed = creditPackCheckoutBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({
+        code: "invalid_request",
+        message: "Choose a whole-number credit quantity between 1 and 50.",
+      });
+      return;
+    }
+
+    const [existing] = await db
+      .select()
+      .from(artcovrCreditPackPurchases)
+      .where(
+        eq(
+          artcovrCreditPackPurchases.idempotencyKey,
+          parsed.data.idempotencyKey,
+        ),
+      )
+      .limit(1);
+    if (existing) {
+      if (
+        existing.clerkUserId !== clerkUserId ||
+        existing.credits !== parsed.data.credits
+      ) {
+        res.status(409).json({
+          code: "idempotency_conflict",
+          message: "That checkout request is already tied to another purchase.",
+        });
+        return;
+      }
+      if (existing.status !== "reserved") {
+        res.status(409).json({
+          code:
+            existing.status === "paid"
+              ? "credit_pack_purchase_complete"
+              : "idempotency_expired",
+          message:
+            existing.status === "paid"
+              ? "That credit pack has already been paid for."
+              : "That checkout reservation has expired. Start checkout again.",
+        });
+        return;
+      }
+      if (!existing.stripeCheckoutSessionId) {
+        res.status(409).json({
+          code: "checkout_in_progress",
+          message: "That checkout is still being prepared. Try again shortly.",
+        });
+        return;
+      }
+      const session = await dependencies.retrieveCheckoutSession(
+        existing.stripeCheckoutSessionId,
+      );
+      if (session.url && session.status === "open") {
+        res.json(creditPackCheckoutResponse(existing, session.url));
+        return;
+      }
+      res.status(409).json({
+        code: "checkout_in_progress",
+        message: "That checkout is being confirmed. Refresh your account shortly.",
+      });
+      return;
+    }
+
+    const admission = dependencies.checkoutAdmission.admit([
+      `ip:${req.ip || req.socket.remoteAddress || "unknown"}`,
+      `clerk:${clerkUserId}`,
+    ]);
+    if (!admission.allowed) {
+      res.set("Retry-After", String(admission.retryAfterSeconds));
+      res.status(429).json({
+        code: "checkout_rate_limited",
+        message: "Too many new checkout attempts. Try again later.",
+      });
+      return;
+    }
+
+    let price: Awaited<ReturnType<typeof getStripePriceForCreditUnit>>;
+    try {
+      price = await dependencies.getStripePriceForCreditUnit();
+    } catch (error) {
+      if (error instanceof StripeCatalogError) {
+        res.status(503).json({
+          code: error.code,
+          message: "Standalone generation credits are not configured yet.",
+        });
+        return;
+      }
+      throw error;
+    }
+    if (
+      price.type !== "one_time" ||
+      price.active !== true ||
+      price.currency !== commerceConfig.currency ||
+      price.unit_amount !== commerceConfig.creditPriceCents
+    ) {
+      res.status(503).json({
+        code: "stripe_price_missing",
+        message: "Standalone generation credits are not configured yet.",
+      });
+      return;
+    }
+
+    const purchaseId = `credit_pack_${randomUUID()}`;
+    const reservationExpiresAt = new Date(Date.now() + checkoutReservationMs);
+    const [purchase] = await db
+      .insert(artcovrCreditPackPurchases)
+      .values({
+        id: purchaseId,
+        clerkUserId,
+        idempotencyKey: parsed.data.idempotencyKey,
+        credits: parsed.data.credits,
+        amountCents: price.unit_amount! * parsed.data.credits,
+        currency: price.currency,
+        status: "reserved",
+        reservationExpiresAt,
+      })
+      .onConflictDoNothing()
+      .returning();
+    if (!purchase) {
+      res.status(409).json({
+        code: "checkout_in_progress",
+        message: "That checkout is still being prepared. Try again in a moment.",
+      });
+      return;
+    }
+
+    try {
+      const returnUrls = creditPackCheckoutReturnUrls(
+        getTrustedPublicOrigin(),
+      );
+      const session = await dependencies.createCheckoutSession(
+        {
+          orderId: purchase.id,
+          priceId: price.id,
+          quantity: purchase.credits,
+          metadata: {
+            purchase_type: "image_generation_credit",
+            credit_pack_purchase_id: purchase.id,
+            credits: String(purchase.credits),
+            unit_amount_cents: String(price.unit_amount),
+            currency: price.currency,
+          },
+          successUrl: returnUrls.successUrl,
+          cancelUrl: returnUrls.cancelUrl,
+          expiresAt: reservationExpiresAt,
+        },
+        `credit-pack:${parsed.data.idempotencyKey}`,
+      );
+      if (!session.url) {
+        throw new Error("Stripe returned checkout without a URL.");
+      }
+      await db
+        .update(artcovrCreditPackPurchases)
+        .set({ stripeCheckoutSessionId: session.id })
+        .where(eq(artcovrCreditPackPurchases.id, purchase.id));
+      res.json(creditPackCheckoutResponse(purchase, session.url));
+    } catch (error) {
+      await db
+        .update(artcovrCreditPackPurchases)
+        .set({ status: "expired" })
+        .where(
+          and(
+            eq(artcovrCreditPackPurchases.id, purchase.id),
+            eq(artcovrCreditPackPurchases.status, "reserved"),
+          ),
+        );
+      const code =
+        error instanceof StripeCatalogError
+          ? error.code
+          : error instanceof StripeCheckoutModeError
+            ? error.code
+            : "stripe_checkout_failed";
+      dependencies.logCheckoutFailure(
+        { err: error, creditPackPurchaseId: purchase.id, code },
+        "ARTCOVR credit pack checkout failed",
+      );
+      res.status(error instanceof StripeCatalogError ? 503 : 502).json({
+        code,
+        message:
+          error instanceof StripeCatalogError
+            ? "Standalone generation credits are not configured yet."
+            : "Stripe could not open checkout. Please try again.",
+      });
+    }
+  };
+}
+
+router.get(
+  "/functions/v1/credit-pack-options",
+  requireAuth,
+  async (_req, res): Promise<void> => {
+    try {
+      const price = await getStripePriceForCreditUnit();
+      if (
+        price.type !== "one_time" ||
+        price.active !== true ||
+        price.currency !== commerceConfig.currency ||
+        price.unit_amount !== commerceConfig.creditPriceCents
+      ) {
+        throw new StripeCatalogError("Credit price does not match configuration.");
+      }
+      res
+        .set("Cache-Control", "private, no-store")
+        .json({
+          currency: price.currency,
+          creditPriceCents: price.unit_amount,
+          maxCredits: maxCreditPackQuantity,
+        });
+    } catch (error) {
+      if (error instanceof StripeCatalogError) {
+        res.status(503).json({
+          code: error.code,
+          message: "Standalone generation credits are not configured yet.",
+        });
+        return;
+      }
+      throw error;
+    }
+  },
+);
+
+router.post(
+  "/functions/v1/credit-pack-checkouts",
+  requireAuth,
+  createCreditPackCheckoutHandler(),
+);
+
+export function createCreditPackCheckoutStatusHandler(): RequestHandler {
+  return async (req, res): Promise<void> => {
+    const clerkUserId = getAuthenticatedUserId(req);
+    const sessionId = req.params.sessionId;
+    if (typeof sessionId !== "string") {
+      res.status(404).json({
+        code: "credit_pack_checkout_not_found",
+        message: "That credit checkout was not found.",
+      });
+      return;
+    }
+    const [purchase] = await db
+      .select({
+        status: artcovrCreditPackPurchases.status,
+        credits: artcovrCreditPackPurchases.credits,
+      })
+      .from(artcovrCreditPackPurchases)
+      .where(
+        and(
+          eq(
+            artcovrCreditPackPurchases.stripeCheckoutSessionId,
+            sessionId,
+          ),
+          eq(artcovrCreditPackPurchases.clerkUserId, clerkUserId),
+        ),
+      )
+      .limit(1);
+    if (!purchase) {
+      res.status(404).json({
+        code: "credit_pack_checkout_not_found",
+        message: "That credit checkout was not found.",
+      });
+      return;
+    }
+    res
+      .set("Cache-Control", "private, no-store")
+      .json({ status: purchase.status, credits: purchase.credits });
+  };
+}
+
+router.get(
+  "/functions/v1/credit-pack-checkouts/:sessionId",
+  requireAuth,
+  createCreditPackCheckoutStatusHandler(),
+);
 
 export function createCheckoutHandler(
   overrides: Partial<CheckoutRouteDependencies> = {},

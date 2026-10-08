@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { AccountCreditActivity } from './accountCreditActivity';
+import type { AccountCreditPackPurchase } from './accountCreditPackPurchase';
 import type { AccountDownload } from './accountDownload';
 import type { AccountGeneration } from './accountGeneration';
 import type { AccountPurchase } from './accountPurchase';
@@ -13,12 +14,19 @@ import type { AccountUnavailableDownload } from './accountUnavailableDownload';
 
 export interface AccountData {
   /**
-     * Current image-edit credit balance. Older responses may omit this field.
+     * Current image-edit credit balance across artwork purchases and standalone packs. Older responses may omit this field.
      * @minimum 0
      */
   totalCreditBalance?: number;
   /**
-     * Purchase-scoped credit events, newest first. Older responses may omit activity history.
+     * Remaining credits from paid standalone credit packs.
+     * @minimum 0
+     */
+  topUpCreditBalance?: number;
+  /** Standalone credit pack purchase history. Older responses may omit this field. */
+  creditPackPurchases?: AccountCreditPackPurchase[];
+  /**
+     * Account credit events, newest first. Older responses may omit activity history.
      * @maxItems 25
      */
   creditActivity?: AccountCreditActivity[];

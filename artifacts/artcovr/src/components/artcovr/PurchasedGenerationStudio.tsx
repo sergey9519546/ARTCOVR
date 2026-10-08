@@ -17,6 +17,7 @@ type Props = {
   artwork: Artwork;
   purchase: AccountPurchase;
   generations: AccountGeneration[];
+  accountCreditBalance: number;
   baseImageUrl?: string;
   selectedPreviewImageUrl?: string;
   onGenerationCompleted(): void | Promise<void>;
@@ -38,6 +39,7 @@ function PurchaseEditor({
   artwork,
   purchase,
   generations,
+  accountCreditBalance,
   baseImageUrl,
   selectedPreviewImageUrl,
   onGenerationCompleted,
@@ -65,7 +67,9 @@ function PurchaseEditor({
   const [coverTitle, setCoverTitle] = useState("");
   const [coverArtist, setCoverArtist] = useState("");
   const [styleMode, setStyleMode] = useState<"exact" | "expand">("exact");
-  const remainingCredits = purchaseCreditBalance(purchase);
+  const remainingCredits = Number.isSafeInteger(accountCreditBalance)
+    ? Math.max(0, accountCreditBalance)
+    : purchaseCreditBalance(purchase);
   const ready = isPromptReady(prompt) && remainingCredits > 0 && !reference.uploading;
 
   const { phase, setPhase, message, setMessage, hasPending, start, resume } = useGenerationJob({

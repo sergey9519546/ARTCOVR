@@ -8,7 +8,7 @@
 import type { AccountCreditActivityEvent } from './accountCreditActivityEvent';
 
 /**
- * Customer-safe credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
+ * Customer-safe account credit activity. Internal ledger identifiers, reasons, source identifiers, and Stripe events are not exposed.
  */
 export interface AccountCreditActivity {
   purchaseId: string;

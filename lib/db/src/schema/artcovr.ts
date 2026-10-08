@@ -113,6 +113,9 @@ export const artcovrGenerations = pgTable(
     artworkId: text("artwork_id").notNull(),
     clerkUserId: text("clerk_user_id").notNull(),
     purchaseId: text("purchase_id"),
+    // Credit source is separate from purchaseId, which continues to grant
+    // artwork access. It may identify this artwork order or a standalone pack.
+    creditSourcePurchaseId: text("credit_source_purchase_id"),
     parentGenerationId: text("parent_generation_id"),
     referenceUploadId: text("reference_upload_id"),
     phase: text("phase").notNull(),
@@ -137,6 +140,9 @@ export const artcovrGenerations = pgTable(
     ),
     artworkIdx: index("artcovr_generations_artwork_idx").on(table.artworkId),
     purchaseIdx: index("artcovr_generations_purchase_idx").on(table.purchaseId),
+    creditSourceIdx: index("artcovr_generations_credit_source_idx").on(
+      table.creditSourcePurchaseId,
+    ),
     expiryIdx: index("artcovr_generations_expiry_idx").on(table.expiresAt),
   }),
 );

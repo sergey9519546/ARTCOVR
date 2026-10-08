@@ -131,8 +131,20 @@ export type AccountCreditActivity = {
   occurredAt: string;
 };
 
+export type AccountCreditPackPurchase = {
+  id: string;
+  credits: number;
+  amountCents: number;
+  currency: string;
+  status: "reserved" | "paid" | "expired" | "refunded";
+  paidAt: string | null;
+  remainingCredits: number;
+};
+
 export type AccountData = {
   totalCreditBalance?: number;
+  topUpCreditBalance?: number;
+  creditPackPurchases?: AccountCreditPackPurchase[];
   creditActivity?: AccountCreditActivity[];
   creditActivityNextCursor?: string | null;
   purchases: AccountPurchase[];
@@ -341,6 +353,52 @@ export function createCheckout(
       email: email || null,
     }),
   });
+}
+
+export type CreditPackOptions = {
+  currency: string;
+  creditPriceCents: number;
+  maxCredits: number;
+};
+
+export type CreditPackCheckoutResponse = {
+  creditPackPurchaseId: string;
+  checkoutUrl: string;
+  expiresAt: string;
+  credits: number;
+  amountCents: number;
+};
+
+export type CreditPackCheckoutStatus = {
+  status: "reserved" | "paid" | "expired" | "refunded";
+  credits: number;
+};
+
+export function getCreditPackOptions() {
+  return request<CreditPackOptions>(
+    "/functions/v1/credit-pack-options",
+    { method: "GET" },
+  );
+}
+
+export function createCreditPackCheckout(
+  credits: number,
+  idempotencyKey: string,
+) {
+  return request<CreditPackCheckoutResponse>(
+    "/functions/v1/credit-pack-checkouts",
+    {
+      method: "POST",
+      body: JSON.stringify({ credits, idempotencyKey }),
+    },
+  );
+}
+
+export function getCreditPackCheckoutStatus(sessionId: string) {
+  return request<CreditPackCheckoutStatus>(
+    `/functions/v1/credit-pack-checkouts/${encodeURIComponent(sessionId)}`,
+    { method: "GET" },
+  );
 }
 
 export function getMyImages(): Promise<AccountData>;

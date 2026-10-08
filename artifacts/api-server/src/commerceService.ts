@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import { and, eq, inArray, isNull, lte, ne, or } from "drizzle-orm";
 import {
   artcovrCreditLedger,
+  artcovrCreditPackPurchases,
   artcovrOrders,
   artcovrRefundEvents,
   artcovrWebhookEvents,
@@ -41,6 +42,24 @@ function customerEmail(session: Stripe.Checkout.Session) {
     session.customer_details?.email?.trim().toLowerCase() ||
     session.customer_email?.trim().toLowerCase() ||
     null
+  );
+}
+
+function creditPackSessionMatches(
+  session: Stripe.Checkout.Session,
+  purchase: typeof artcovrCreditPackPurchases.$inferSelect,
+) {
+  return (
+    session.mode === "payment" &&
+    session.client_reference_id === purchase.id &&
+    session.metadata?.purchase_type === "image_generation_credit" &&
+    session.metadata?.credit_pack_purchase_id === purchase.id &&
+    session.metadata?.credits === String(purchase.credits) &&
+    session.metadata?.unit_amount_cents ===
+      String(purchase.amountCents / purchase.credits) &&
+    session.metadata?.currency?.toLowerCase() === purchase.currency.toLowerCase() &&
+    session.amount_total === purchase.amountCents &&
+    session.currency?.toLowerCase() === purchase.currency.toLowerCase()
   );
 }
 
@@ -93,7 +112,102 @@ export async function fulfillCheckoutSession(
       .limit(1);
 
     if (!order) {
-      throw new Error(`No ARTCOVR order found for Stripe session ${session.id}`);
+      let [creditPack] = await tx
+        .select()
+        .from(artcovrCreditPackPurchases)
+        .where(
+          eq(artcovrCreditPackPurchases.stripeCheckoutSessionId, session.id),
+        )
+        .limit(1);
+
+      if (!creditPack) {
+        throw new Error(`No ARTCOVR order found for Stripe session ${session.id}`);
+      }
+
+      await lockPurchaseCredits(tx, creditPack.id);
+      [creditPack] = await tx
+        .select()
+        .from(artcovrCreditPackPurchases)
+        .where(eq(artcovrCreditPackPurchases.id, creditPack.id))
+        .limit(1);
+      if (!creditPack) {
+        throw new Error("Credit pack purchase disappeared during fulfillment");
+      }
+
+      const modeMismatch =
+        event.livemode !== expectedLivemode ||
+        session.livemode !== expectedLivemode ||
+        event.livemode !== session.livemode;
+      if (modeMismatch || !creditPackSessionMatches(session, creditPack)) {
+        await tx
+          .update(artcovrWebhookEvents)
+          .set({ status: "rejected", processedAt: new Date() })
+          .where(eq(artcovrWebhookEvents.id, event.id));
+        logger.error(
+          {
+            diagnosis: modeMismatch
+              ? stripeWebhookModeMismatchDiagnosis
+              : "credit_pack_checkout_mismatch",
+            creditPackPurchaseId: creditPack.id,
+            stripeCheckoutSessionId: session.id,
+            stripeEventId: event.id,
+            expectedLivemode,
+            eventLivemode: event.livemode,
+            sessionLivemode: session.livemode,
+          },
+          "ARTCOVR rejected a standalone credit checkout webhook",
+        );
+        return;
+      }
+
+      if (creditPack.status === "refunded") {
+        await tx
+          .update(artcovrWebhookEvents)
+          .set({ status: "processed", processedAt: new Date() })
+          .where(eq(artcovrWebhookEvents.id, event.id));
+        return;
+      }
+
+      if (paid && creditPack.status !== "paid") {
+        const sessionCustomerId = stripeId(session.customer);
+        await tx
+          .update(artcovrCreditPackPurchases)
+          .set({
+            status: "paid",
+            stripePaymentIntentId: stripeId(session.payment_intent) ?? null,
+            stripeCustomerId: sessionCustomerId ?? null,
+            paidAt: stripeDate(session.created),
+          })
+          .where(eq(artcovrCreditPackPurchases.id, creditPack.id));
+
+        await tx
+          .insert(artcovrCreditLedger)
+          .values({
+            id: `credit_${crypto.randomUUID()}`,
+            clerkUserId: creditPack.clerkUserId,
+            accountKey: creditPack.clerkUserId,
+            orderId: creditPack.id,
+            entryType: "grant",
+            amount: creditPack.credits,
+            reason: "Standalone generation credit pack grant",
+            sourceId: `credit-pack-checkout:${session.id}`,
+            stripeEventId: event.id,
+          })
+          .onConflictDoNothing();
+        logger.info(
+          {
+            creditPackPurchaseId: creditPack.id,
+            credits: creditPack.credits,
+          },
+          "ARTCOVR standalone credit pack fulfilled",
+        );
+      }
+
+      await tx
+        .update(artcovrWebhookEvents)
+        .set({ status: paid ? "processed" : "received", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      return;
     }
     await lockPurchaseCredits(tx, order.id);
     [order] = await tx.select().from(artcovrOrders).where(eq(artcovrOrders.id, order.id)).limit(1);
@@ -273,7 +387,52 @@ async function expireCheckoutSession(event: Stripe.Event, expectedLivemode: bool
       .limit(1);
 
     if (!order) {
-      throw new Error(`No ARTCOVR order found for expired Stripe session ${session.id}`);
+      const [creditPack] = await tx
+        .select()
+        .from(artcovrCreditPackPurchases)
+        .where(
+          eq(artcovrCreditPackPurchases.stripeCheckoutSessionId, session.id),
+        )
+        .limit(1);
+      if (!creditPack) {
+        throw new Error(`No ARTCOVR purchase found for expired Stripe session ${session.id}`);
+      }
+      const modeMismatch =
+        event.livemode !== expectedLivemode ||
+        session.livemode !== expectedLivemode;
+      if (modeMismatch) {
+        await tx
+          .update(artcovrWebhookEvents)
+          .set({ status: "rejected", processedAt: new Date() })
+          .where(eq(artcovrWebhookEvents.id, event.id));
+        logger.error(
+          {
+            diagnosis: stripeWebhookModeMismatchDiagnosis,
+            creditPackPurchaseId: creditPack.id,
+            stripeCheckoutSessionId: session.id,
+            stripeEventId: event.id,
+            expectedLivemode,
+            eventLivemode: event.livemode,
+            sessionLivemode: session.livemode,
+          },
+          "ARTCOVR rejected expired credit pack webhook from the wrong account mode",
+        );
+        return;
+      }
+      await tx
+        .update(artcovrCreditPackPurchases)
+        .set({ status: "expired" })
+        .where(
+          and(
+            eq(artcovrCreditPackPurchases.id, creditPack.id),
+            eq(artcovrCreditPackPurchases.status, "reserved"),
+          ),
+        );
+      await tx
+        .update(artcovrWebhookEvents)
+        .set({ status: "processed", processedAt: new Date() })
+        .where(eq(artcovrWebhookEvents.id, event.id));
+      return;
     }
 
     const modeMismatch =
@@ -342,7 +501,16 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
       .from(artcovrOrders)
       .where(eq(artcovrOrders.stripePaymentIntentId, paymentIntentId))
       .limit(1);
-    if (!order) {
+    let [creditPack] = order
+      ? []
+      : await tx
+          .select()
+          .from(artcovrCreditPackPurchases)
+          .where(
+            eq(artcovrCreditPackPurchases.stripePaymentIntentId, paymentIntentId),
+          )
+          .limit(1);
+    if (!order && !creditPack) {
       await tx
         .update(artcovrWebhookEvents)
         .set({ status: "processed", processedAt: new Date() })
@@ -354,9 +522,23 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
       return;
     }
 
-    await lockPurchaseCredits(tx, order.id);
-    [order] = await tx.select().from(artcovrOrders).where(eq(artcovrOrders.id, order.id)).limit(1);
-    if (!order) throw new Error("Refund purchase disappeared during fulfillment");
+    const purchaseId = order?.id ?? creditPack!.id;
+    await lockPurchaseCredits(tx, purchaseId);
+    if (order) {
+      [order] = await tx
+        .select()
+        .from(artcovrOrders)
+        .where(eq(artcovrOrders.id, purchaseId))
+        .limit(1);
+      if (!order) throw new Error("Refund purchase disappeared during fulfillment");
+    } else {
+      [creditPack] = await tx
+        .select()
+        .from(artcovrCreditPackPurchases)
+        .where(eq(artcovrCreditPackPurchases.id, purchaseId))
+        .limit(1);
+      if (!creditPack) throw new Error("Refund purchase disappeared during fulfillment");
+    }
 
     const existingRefunds = await tx
       .select({
@@ -365,7 +547,7 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
         amountCents: artcovrRefundEvents.amountCents,
       })
       .from(artcovrRefundEvents)
-      .where(eq(artcovrRefundEvents.orderId, order.id));
+      .where(eq(artcovrRefundEvents.orderId, purchaseId));
     const knownRefundIds = new Set(
       existingRefunds
         .map((refund) => refund.stripeRefundId)
@@ -386,7 +568,7 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
         .insert(artcovrRefundEvents)
         .values({
           id: `refund:${refundId}`,
-          orderId: order.id,
+          orderId: purchaseId,
           stripeRefundId: refundId,
           stripeEventId: event.id,
           amountCents,
@@ -410,7 +592,7 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
         .insert(artcovrRefundEvents)
         .values({
           id: `refund-event:${event.id}`,
-          orderId: order.id,
+          orderId: purchaseId,
           stripeEventId: event.id,
           amountCents: missingRefundCents,
           refundedAt: stripeDate(event.created),
@@ -420,7 +602,10 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
     }
 
     const refundId =
-      latestRefundId ?? charge.refunds?.data[0]?.id ?? order.stripeRefundId;
+      latestRefundId ??
+      charge.refunds?.data[0]?.id ??
+      order?.stripeRefundId ??
+      creditPack?.stripeRefundId;
     const refundAt = new Date();
     const refundTotals = {
       refundedCents: recordedRefundCents,
@@ -428,10 +613,17 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
     };
 
     if (!charge.refunded) {
-      await tx
-        .update(artcovrOrders)
-        .set(refundTotals)
-        .where(eq(artcovrOrders.id, order.id));
+      if (order) {
+        await tx
+          .update(artcovrOrders)
+          .set(refundTotals)
+          .where(eq(artcovrOrders.id, purchaseId));
+      } else {
+        await tx
+          .update(artcovrCreditPackPurchases)
+          .set(refundTotals)
+          .where(eq(artcovrCreditPackPurchases.id, purchaseId));
+      }
       await tx
         .update(artcovrWebhookEvents)
         .set({ status: "processed", processedAt: refundAt })
@@ -439,22 +631,34 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
       return;
     }
 
-    await tx
-      .update(artcovrOrders)
-      .set({
-        status: "refunded",
-        ...refundTotals,
-        refundedAt: refundAt,
-        accessRevokedAt: new Date(),
-        accessRevocationReason: "stripe_refund",
-      })
-      .where(eq(artcovrOrders.id, order.id));
+    const userId = order?.clerkUserId ?? creditPack!.clerkUserId;
+    if (order) {
+      await tx
+        .update(artcovrOrders)
+        .set({
+          status: "refunded",
+          ...refundTotals,
+          refundedAt: refundAt,
+          accessRevokedAt: new Date(),
+          accessRevocationReason: "stripe_refund",
+        })
+        .where(eq(artcovrOrders.id, purchaseId));
+    } else {
+      await tx
+        .update(artcovrCreditPackPurchases)
+        .set({
+          status: "refunded",
+          ...refundTotals,
+          refundedAt: refundAt,
+        })
+        .where(eq(artcovrCreditPackPurchases.id, purchaseId));
+    }
 
     await revokePurchaseCreditsInTransaction(tx, {
-        userId: order.clerkUserId ?? `guest:${order.id}`,
-        purchaseId: order.id,
-        reason: "Purchase refunded",
-        sourceId: `purchase:${order.id}:refund`,
+      userId,
+      purchaseId,
+      reason: "Purchase refunded",
+      sourceId: `purchase:${purchaseId}:refund`,
     });
 
     await tx
@@ -496,6 +700,16 @@ async function expireFailedPaymentIntent(
       .where(eq(artcovrOrders.stripePaymentIntentId, paymentIntent.id))
       .limit(1);
 
+    let [creditPack] = order
+      ? []
+      : await tx
+          .select()
+          .from(artcovrCreditPackPurchases)
+          .where(
+            eq(artcovrCreditPackPurchases.stripePaymentIntentId, paymentIntent.id),
+          )
+          .limit(1);
+
     if (order && (order.status === "reserved" || order.status === "paid")) {
       await lockPurchaseCredits(tx, order.id);
       await tx
@@ -514,6 +728,33 @@ async function expireFailedPaymentIntent(
           reason: "Payment failed",
           sourceId: `purchase:${order.id}:payment-failed`,
         });
+      }
+    } else if (
+      creditPack &&
+      (creditPack.status === "reserved" || creditPack.status === "paid")
+    ) {
+      await lockPurchaseCredits(tx, creditPack.id);
+      [creditPack] = await tx
+        .select()
+        .from(artcovrCreditPackPurchases)
+        .where(eq(artcovrCreditPackPurchases.id, creditPack.id))
+        .limit(1);
+      if (
+        creditPack &&
+        (creditPack.status === "reserved" || creditPack.status === "paid")
+      ) {
+        await tx
+          .update(artcovrCreditPackPurchases)
+          .set({ status: "expired" })
+          .where(eq(artcovrCreditPackPurchases.id, creditPack.id));
+        if (creditPack.status === "paid") {
+          await revokePurchaseCreditsInTransaction(tx, {
+            userId: creditPack.clerkUserId,
+            purchaseId: creditPack.id,
+            reason: "Payment failed",
+            sourceId: `purchase:${creditPack.id}:payment-failed`,
+          });
+        }
       }
     }
 

@@ -323,6 +323,7 @@ export async function createCheckoutSession(
   input: {
     orderId: string;
     priceId: string;
+    quantity?: number;
     successUrl: string;
     cancelUrl: string;
     expiresAt: Date;
@@ -334,7 +335,7 @@ export async function createCheckoutSession(
   const form = new URLSearchParams({
     mode: "payment",
     "line_items[0][price]": input.priceId,
-    "line_items[0][quantity]": "1",
+    "line_items[0][quantity]": String(input.quantity ?? 1),
     customer_creation: "always",
     allow_promotion_codes: "false",
     client_reference_id: input.orderId,
