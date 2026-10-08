@@ -1,4 +1,4 @@
-import { APIConnectionTimeoutError, toFile, type OpenAI } from "openai";
+import { APIConnectionTimeoutError, APIError, toFile, type OpenAI } from "openai";
 import type { ImageEditParamsNonStreaming } from "openai/resources/images";
 import { getOpenAI } from "../client";
 
@@ -10,10 +10,54 @@ export type ImageEditInput = {
 
 export type ImageEditClient = Pick<OpenAI, "images">;
 
+type ImageProviderDiagnostics = Readonly<{
+  status: number | null;
+  code: string | null;
+  param: string | null;
+  requestId: string | null;
+}>;
+
+const diagnosticCodes = new Set([
+  "invalid_api_key", "model_not_found", "insufficient_permissions", "permission_denied",
+  "insufficient_quota", "rate_limit_exceeded", "invalid_request_error",
+  "unsupported_parameter", "unsupported_value", "invalid_value",
+  "content_policy_violation", "moderation_blocked", "billing_hard_limit_reached",
+  "billing_not_active",
+]);
+const diagnosticParams = new Set([
+  "model", "image", "image[]", "size", "quality", "n", "output_format",
+  "input_fidelity", "prompt", "mask", "background", "moderation",
+  "output_compression", "stream", "partial_images",
+]);
+const diagnosticRequestId = /^(?:req_[A-Za-z0-9_-]{1,96}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i;
+
+function providerDiagnostics(error: unknown): ImageProviderDiagnostics {
+  // Read only known SDK fields. Never retain its body, message, headers, or cause.
+  if (!(error instanceof APIError)) {
+    return Object.freeze({ status: null, code: null, param: null, requestId: null });
+  }
+  return Object.freeze({
+    status: typeof error.status === "number" && Number.isInteger(error.status) &&
+      error.status >= 400 && error.status <= 599 ? error.status : null,
+    code: typeof error.code === "string" && diagnosticCodes.has(error.code) ? error.code : null,
+    param: typeof error.param === "string" && diagnosticParams.has(error.param) ? error.param : null,
+    requestId: typeof error.requestID === "string" && error.requestID === error.requestID.trim() &&
+      diagnosticRequestId.test(error.requestID)
+      ? error.requestID : null,
+  });
+}
+
 export class ImageProviderError extends Error {
-  constructor(public readonly code: "provider_timeout" | "provider_failed" | "invalid_provider_image", message: string) {
+  readonly diagnostics: ImageProviderDiagnostics;
+
+  constructor(
+    public readonly code: "provider_timeout" | "provider_failed" | "invalid_provider_image",
+    message: string,
+    providerError?: unknown,
+  ) {
     super(message);
     this.name = "ImageProviderError";
+    this.diagnostics = providerDiagnostics(providerError);
   }
 }
 
@@ -74,13 +118,13 @@ export async function editImageWithMetadata(
   try {
     response = await imageClient.images.edit(request);
   } catch (error) {
-    // Provider messages may echo credentials, input text, or request bodies.
-    // Preserve only a safe category, never the raw error or a nested cause.
+    // Preserve the safe category and allowlisted diagnostics, never the raw
+    // provider message, body, or nested cause that could contain customer data.
     if (error instanceof APIConnectionTimeoutError ||
         (error instanceof Error && ["APIConnectionTimeoutError", "TimeoutError", "AbortError"].includes(error.name))) {
-      throw new ImageProviderError("provider_timeout", "The image editing provider timed out. Please try again.");
+      throw new ImageProviderError("provider_timeout", "The image editing provider timed out. Please try again.", error);
     }
-    throw new ImageProviderError("provider_failed", "The image editing provider could not complete this edit. Please try again.");
+    throw new ImageProviderError("provider_failed", "The image editing provider could not complete this edit. Please try again.", error);
   }
   return {
     bytes: decodeImage(response.data?.[0]?.b64_json),

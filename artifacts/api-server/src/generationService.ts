@@ -7,7 +7,9 @@ import {
   artcovrReferenceUploads,
   db,
 } from "@workspace/db";
+import { ImageProviderError } from "@workspace/integrations-openai-ai-server/image";
 import { getPublicArtworkById } from "./catalog";
+import { logger } from "./lib/logger";
 import { buildGenerationPrompt, PromptLengthError } from "./lib/prompt";
 import {
   addWatermark,
@@ -643,6 +645,16 @@ export async function runGeneration(
       await io.removePrivate(uploaded).catch(() => undefined);
   } catch (error) {
     await io.removePrivate(uploaded).catch(() => undefined);
+    if (error instanceof ImageProviderError) {
+      try {
+        logger.warn(
+          { event: "image_provider_failed", generationId: job.id, provider: error.diagnostics },
+          "Image generation provider failed",
+        );
+      } catch {
+        // Diagnostics must never prevent job failure handling or credit release.
+      }
+    }
     const providerCode =
       error instanceof Error &&
       "code" in error &&

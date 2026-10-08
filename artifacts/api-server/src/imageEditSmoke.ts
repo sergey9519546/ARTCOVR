@@ -147,7 +147,9 @@ export async function runImageEditSmoke(args = process.argv.slice(2)) {
     return 0;
   } catch (error) {
     const { ImageProviderError } = await import("@workspace/integrations-openai-ai-server/image");
-    if (error instanceof SmokeError || error instanceof ImageProviderError) {
+    if (error instanceof ImageProviderError) {
+      console.error(JSON.stringify({ error: error.code, provider: error.diagnostics }));
+    } else if (error instanceof SmokeError) {
       console.error(error.message);
     } else {
       console.error("Image-edit smoke failed. Check server-side provider configuration and local input/output access. No automatic retry was made.");

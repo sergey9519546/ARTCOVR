@@ -117,7 +117,6 @@ let stripeProxyModeVerification: Promise<void> | undefined;
 
 export async function assertStripeProxyMode() {
   const expectedLivemode = expectedStripeLivemode();
-  if (verifiedStripeProxyLivemode === expectedLivemode) return;
 
   if (stripeProxyModeVerification) {
     await stripeProxyModeVerification;

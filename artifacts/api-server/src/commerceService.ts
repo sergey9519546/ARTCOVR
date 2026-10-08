@@ -631,7 +631,7 @@ async function revokeRefundedCharge(event: Stripe.Event, expectedLivemode: boole
       return;
     }
 
-    const userId = order?.clerkUserId ?? creditPack!.clerkUserId;
+    const userId = order ? (order.clerkUserId ?? `guest:${order.id}`) : creditPack!.clerkUserId;
     if (order) {
       await tx
         .update(artcovrOrders)

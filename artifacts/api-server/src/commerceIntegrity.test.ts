@@ -8,6 +8,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import {
   artcovrCreditLedger,
   artcovrOrders,
+  artcovrRefundEvents,
   artcovrWebhookEvents,
   db,
 } from "@workspace/db";
@@ -784,6 +785,63 @@ test("a failed agent PaymentIntent revokes an existing grant once", async () => 
     await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, orderId));
     await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
     await db.delete(artcovrWebhookEvents).where(eq(artcovrWebhookEvents.id, eventId));
+  }
+});
+
+test("a full guest artwork refund revokes access and remaining guest credits once", async () => {
+  const suffix = randomUUID();
+  const orderId = `order-guest-refund-${suffix}`;
+  const guestId = `guest:${orderId}`;
+  const paymentIntentId = `pi_guest_refund_${suffix}`;
+  const refundId = `re_guest_refund_${suffix}`;
+  const eventIds = [`evt_guest_refund_${suffix}`, `evt_guest_refund_retry_${suffix}`];
+  const refundEvent = (id: string) => ({ id, livemode: false, type: "charge.refunded", data: { object: {
+    id: `ch_guest_refund_${suffix}`, livemode: false, payment_intent: paymentIntentId, refunded: true,
+    amount: 10_000, amount_refunded: 10_000,
+    refunds: { data: [{ id: refundId, amount: 10_000, created: Math.floor(Date.now() / 1000) }] },
+  } } }) as unknown as Stripe.Event;
+  const dependencies = { expectedLivemode: false, refundPaymentIntent: async () => {
+    throw new Error("A received guest refund must never create another Stripe refund.");
+  } };
+  try {
+    await db.insert(artcovrOrders).values({
+      ...orderValues({ id: orderId, artworkId: `art-guest-refund-${suffix}`, idempotencyKey: randomUUID(),
+        status: "paid", clerkUserId: null, customerEmail: `guest-${suffix}@example.test`,
+        stripePaymentIntentId: paymentIntentId, saleMode: "repeatable" }),
+      paidAt: new Date(), entitlementExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000),
+    });
+    await db.insert(artcovrCreditLedger).values([
+      { id: `grant-guest-refund-${suffix}`, clerkUserId: guestId, accountKey: guestId, orderId, entryType: "grant",
+        amount: 3, reason: "Guest purchase credit grant", sourceId: `guest-grant:${suffix}` },
+      { id: `spend-guest-refund-${suffix}`, clerkUserId: guestId, accountKey: guestId, orderId, entryType: "spend",
+        amount: -1, reason: "Guest purchase generation spend", sourceId: `guest-spend:${suffix}` },
+    ]);
+    await fulfillCheckoutSession(refundEvent(eventIds[0]), dependencies);
+    await fulfillCheckoutSession(refundEvent(eventIds[0]), dependencies);
+    await fulfillCheckoutSession(refundEvent(eventIds[1]), dependencies);
+    const [order] = await db.select().from(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+    assert.equal(order?.clerkUserId, null);
+    assert.equal(order?.status, "refunded");
+    assert.equal(order?.stripeRefundId, refundId);
+    assert.equal(order?.refundedCents, 10_000);
+    assert.ok(order?.accessRevokedAt);
+    assert.equal(order?.accessRevocationReason, "stripe_refund");
+    const ledger = await db.select().from(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, orderId));
+    assert.equal(ledger.reduce((total, entry) => total + entry.amount, 0), 0);
+    const revocations = ledger.filter((entry) => entry.entryType === "revoke");
+    assert.equal(revocations.length, 1);
+    assert.equal(revocations[0]?.clerkUserId, guestId);
+    assert.equal(revocations[0]?.amount, -2);
+    const refunds = await db.select().from(artcovrRefundEvents).where(eq(artcovrRefundEvents.orderId, orderId));
+    assert.equal(refunds.length, 1);
+    const receipts = await db.select().from(artcovrWebhookEvents).where(inArray(artcovrWebhookEvents.id, eventIds));
+    assert.equal(receipts.length, 2);
+    assert.ok(receipts.every((receipt) => receipt.status === "processed"));
+  } finally {
+    await db.delete(artcovrRefundEvents).where(eq(artcovrRefundEvents.orderId, orderId));
+    await db.delete(artcovrCreditLedger).where(eq(artcovrCreditLedger.orderId, orderId));
+    await db.delete(artcovrOrders).where(eq(artcovrOrders.id, orderId));
+    await db.delete(artcovrWebhookEvents).where(inArray(artcovrWebhookEvents.id, eventIds));
   }
 });
 

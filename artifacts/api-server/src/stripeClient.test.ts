@@ -211,3 +211,41 @@ test("Checkout session fixtures preserve lifecycle status, expanded prices, and 
     "cs_expired_fixture",
   );
 });
+
+test("Stripe mode is rechecked after a successful mutation before another write", async (t) => {
+  const previous = process.env.NODE_ENV;
+  process.env.NODE_ENV = "development";
+  t.after(() => {
+    if (previous === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previous;
+  });
+  let connectedLivemode = false;
+  const requests: string[] = [];
+  t.mock.method(ReplitConnectors.prototype, "proxy", async (_service: string, path: string, options: { method?: string }) => {
+    const method = options.method ?? "GET";
+    requests.push(`${method} ${path}`);
+    let payload: unknown;
+    if (method === "GET" && path === "/v1/prices?limit=1") {
+      payload = { data: [{ id: "price_mode_recheck", livemode: connectedLivemode }], has_more: false };
+    } else if (method === "POST" && path === "/v1/checkout/sessions") {
+      payload = { id: "cs_mode_recheck", livemode: connectedLivemode, status: "open", url: "https://checkout.stripe.test/mode-recheck" };
+    } else {
+      throw new Error(`Unexpected Stripe boundary request: ${method} ${path}`);
+    }
+    return new Response(JSON.stringify(payload), { status: 200, headers: { "Content-Type": "application/json" } });
+  });
+  const input = { orderId: "order_mode_recheck", priceId: "price_mode_recheck",
+    successUrl: "https://artcovr.example/return", cancelUrl: "https://artcovr.example/cancel",
+    expiresAt: new Date(Date.now() + 31 * 60_000), metadata: {} };
+  const first = await createCheckoutSession(input, "mode-recheck-first");
+  assert.equal(first.livemode, false);
+  connectedLivemode = true;
+  await assert.rejects(createCheckoutSession(input, "mode-recheck-second"), (error: unknown) => {
+    assert.ok(error instanceof StripeConnectionModeError);
+    assert.equal(error.code, "stripe_connection_mode_mismatch");
+    assert.equal(error.expectedLivemode, false);
+    assert.equal(error.actualLivemode, true);
+    return true;
+  });
+  assert.deepEqual(requests, ["GET /v1/prices?limit=1", "POST /v1/checkout/sessions", "GET /v1/prices?limit=1"]);
+});

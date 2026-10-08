@@ -327,7 +327,13 @@ test("the real SDK propagates a timeout without retrying a paid edit", async (t)
     },
   });
   await assert.rejects(editImageWithMetadata([artwork], "Edit the cover.", client),
-    (error: unknown) => error instanceof ImageProviderError && error.code === "provider_timeout");
+    (error: unknown) => {
+      assert.ok(error instanceof ImageProviderError);
+      assert.equal(error.code, "provider_timeout");
+      assert.deepEqual(error.diagnostics, { status: null, code: null, param: null, requestId: null });
+      assert.equal(error.cause, undefined);
+      return true;
+    });
   assert.equal(requests, 1);
 });
 
@@ -340,4 +346,100 @@ test("an explicitly configured older model is never silently upscaled to satisfy
   await editImageWithMetadata([artwork], "Edit the cover.", client);
   assert.equal(calls[0]!.model, "gpt-image-1.5");
   assert.equal(calls[0]!.input_fidelity, "high");
+});
+
+test("SDK HTTP failures retain only allowlisted diagnostics without retrying the edit", async (t) => {
+  image2(t);
+  const privateText = "fake-secret-do-not-echo private-prompt private-photo-base64";
+  const cases = [
+    { status: 400, code: "invalid_value", param: "size", requestId: "req_invalid_size" },
+    { status: 401, code: "invalid_api_key", param: null, requestId: "req_invalid_key" },
+    { status: 403, code: "model_not_found", param: "model", requestId: "9f2ec0b7-2302-4a12-9314-b82f1da072dd" },
+    { status: 404, code: "model_not_found", param: "model", requestId: "req_missing_model" },
+    { status: 429, code: "insufficient_quota", param: null, requestId: "req_quota" },
+    { status: 500, code: null, param: null, requestId: "req_provider_failure" },
+  ];
+  for (const expected of cases) {
+    let requests = 0;
+    const client = getOpenAI({ OPENAI_API_KEY: "fake-direct-key" }).withOptions({
+      logLevel: "off",
+      fetch: async (url) => {
+        if (String(url) === "data:,") return new Response("");
+        requests += 1;
+        return new Response(JSON.stringify({
+          error: { message: privateText, code: expected.code, param: expected.param, type: privateText },
+        }), {
+          status: expected.status,
+          headers: { "content-type": "application/json", "x-request-id": expected.requestId },
+        });
+      },
+    });
+    await assert.rejects(editImageWithMetadata([artwork, identity], privateText, client), (error: unknown) => {
+      assert.ok(error instanceof ImageProviderError);
+      assert.equal(error.code, "provider_failed");
+      assert.deepEqual(error.diagnostics, expected);
+      assert.ok(Object.isFrozen(error.diagnostics), "diagnostics are an immutable snapshot");
+      assert.equal(error.cause, undefined);
+      assert.doesNotMatch(JSON.stringify({ error, message: error.message }), /fake-secret|private-prompt|private-photo|fake-direct/);
+      return true;
+    });
+    assert.equal(requests, 1);
+  }
+});
+
+test("SDK diagnostic fields reject unknown, malformed and private values", async (t) => {
+  image2(t);
+  const cases = [
+    { code: "fake-secret-do-not-echo", param: "prompt=private-prompt", requestId: "sk_fake-secret-do-not-echo" },
+    { code: { secret: "fake-secret-do-not-echo" }, param: ["private-photo-base64"], requestId: "req_" + "x".repeat(97) },
+    { code: "unknown_provider_code", param: "image[0]", requestId: "unknown-request-id" },
+    { code: null, param: null, requestId: null },
+  ];
+  for (const rejected of cases) {
+    let requests = 0;
+    const client = getOpenAI({ OPENAI_API_KEY: "fake-direct-key" }).withOptions({
+      logLevel: "off",
+      fetch: async (url) => {
+        if (String(url) === "data:,") return new Response("");
+        requests += 1;
+        return new Response(JSON.stringify({
+          error: { message: "private-prompt private-photo-base64", code: rejected.code, param: rejected.param },
+        }), {
+          status: 400,
+          headers: {
+            "content-type": "application/json",
+            ...(rejected.requestId === null ? {} : { "x-request-id": rejected.requestId }),
+          },
+        });
+      },
+    });
+    await assert.rejects(editImageWithMetadata([artwork], "Edit the cover.", client), (error: unknown) => {
+      assert.ok(error instanceof ImageProviderError);
+      assert.deepEqual(error.diagnostics, { status: 400, code: null, param: null, requestId: null });
+      assert.equal(error.cause, undefined);
+      assert.doesNotMatch(JSON.stringify({ error, message: error.message }), /fake-secret|private-prompt|private-photo|unknown_provider|image\[0\]/);
+      return true;
+    });
+    assert.equal(requests, 1);
+  }
+});
+
+test("non-SDK errors cannot impersonate provider HTTP diagnostics", async (t) => {
+  image2(t);
+  const original = Object.assign(new Error("fake-secret-do-not-echo"), {
+    status: 403,
+    code: "model_not_found",
+    param: "model",
+    requestID: "req_untrusted_error",
+    cause: { prompt: "private-prompt", image: "private-photo-base64" },
+  });
+  const { client, calls } = stubProvider(original);
+  await assert.rejects(editImageWithMetadata([artwork], "Edit the cover.", client), (error: unknown) => {
+    assert.ok(error instanceof ImageProviderError);
+    assert.deepEqual(error.diagnostics, { status: null, code: null, param: null, requestId: null });
+    assert.equal(error.cause, undefined);
+    assert.doesNotMatch(JSON.stringify({ error, message: error.message }), /fake-secret|private-prompt|private-photo|req_untrusted/);
+    return true;
+  });
+  assert.equal(calls.length, 1);
 });
