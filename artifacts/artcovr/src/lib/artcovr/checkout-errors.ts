@@ -5,6 +5,9 @@ const terminalCheckoutCodes = new Set([
   "idempotency_conflict",
   "idempotency_expired",
   "invalid_checkout_amount",
+  "stripe_checkout_mode_mismatch",
+  "stripe_connection_mode_mismatch",
+  "stripe_connection_mode_unverified",
   "stripe_checkout_failed",
   "stripe_checkout_invalid",
 ]);

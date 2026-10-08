@@ -16,6 +16,7 @@ import {
 import app from "./app";
 import { getPublicArtworkBySlug } from "./catalog";
 import {
+  assertStripeProxyMode,
   listStripeEvents,
   refundPaymentIntent,
 } from "./stripeClient";
@@ -24,6 +25,7 @@ import { WebhookHandlers } from "./webhookHandlers";
 const enabled = process.env.ARTCOVR_RUN_STRIPE_MPP_E2E === "1";
 
 async function stripeTestPost(path: string, body: URLSearchParams) {
+  await assertStripeProxyMode();
   const response = await new ReplitConnectors().proxy("stripe", path, {
     method: "POST",
     headers: {

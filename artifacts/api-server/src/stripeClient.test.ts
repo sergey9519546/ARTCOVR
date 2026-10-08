@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { ReplitConnectors } from "@replit/connectors-sdk";
 import type Stripe from "stripe";
 import {
+  assertStripeProxyMode,
   assertStripeConnectionEnvironment,
+  createCheckoutSession,
   expectedStripeLivemode,
   listStripeCheckoutSessions,
+  StripeConnectionModeError,
   StripeCheckoutModeError,
   validateCheckoutSessionMode,
 } from "./stripeClient";
@@ -109,6 +113,49 @@ test("checkout mode validation rejects a session from the wrong account mode", (
       return true;
     },
   );
+});
+
+test("development checkout is blocked before any Stripe write when the proxy is live", async (t) => {
+  const previous = process.env.NODE_ENV;
+  process.env.NODE_ENV = "development";
+  t.after(() => {
+    if (previous === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previous;
+  });
+
+  const requests: string[] = [];
+  t.mock.method(
+    ReplitConnectors.prototype,
+    "proxy",
+    async (_service: string, path: string, options: { method?: string }) => {
+      requests.push(`${options.method ?? "GET"} ${path}`);
+      return new Response(
+        JSON.stringify({
+          data: [{ id: "price_live_fixture", livemode: true }],
+          has_more: false,
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    },
+  );
+
+  await assert.rejects(
+    createCheckoutSession(
+      {
+        orderId: "order_test",
+        priceId: "price_test",
+        successUrl: "https://artcovr.com/return",
+        cancelUrl: "https://artcovr.com/cancel",
+        expiresAt: new Date(Date.now() + 60_000),
+        metadata: {},
+      },
+      "checkout-test-idempotency",
+    ),
+    (error: unknown) =>
+      error instanceof StripeConnectionModeError &&
+      error.code === "stripe_connection_mode_mismatch",
+  );
+  assert.deepEqual(requests, ["GET /v1/prices?limit=1"]);
 });
 
 test("Checkout session fixtures preserve lifecycle status, expanded prices, and pagination", async () => {

@@ -19,6 +19,32 @@ export class StripeProxyError extends Error {
   }
 }
 
+export class StripeConnectionModeError extends Error {
+  readonly code:
+    | "stripe_connection_mode_mismatch"
+    | "stripe_connection_mode_unverified";
+  readonly expectedLivemode: boolean;
+  readonly actualLivemode: boolean | undefined;
+
+  constructor(expectedLivemode: boolean, actualLivemode?: boolean) {
+    const expectedMode = expectedLivemode ? "live" : "test";
+    const actualMode =
+      actualLivemode === undefined
+        ? "unknown"
+        : actualLivemode
+          ? "live"
+          : "test";
+    super(`Stripe connection mode is ${actualMode}; expected ${expectedMode}.`);
+    this.name = "StripeConnectionModeError";
+    this.code =
+      actualLivemode === undefined
+        ? "stripe_connection_mode_unverified"
+        : "stripe_connection_mode_mismatch";
+    this.expectedLivemode = expectedLivemode;
+    this.actualLivemode = actualLivemode;
+  }
+}
+
 export function expectedStripeLivemode(
   env: Record<string, string | undefined> = process.env,
 ) {
@@ -86,10 +112,61 @@ export function validateCheckoutSessionMode(
   return session;
 }
 
+let verifiedStripeProxyLivemode: boolean | undefined;
+let stripeProxyModeVerification: Promise<void> | undefined;
+
+export async function assertStripeProxyMode() {
+  const expectedLivemode = expectedStripeLivemode();
+  if (verifiedStripeProxyLivemode === expectedLivemode) return;
+
+  if (stripeProxyModeVerification) {
+    await stripeProxyModeVerification;
+    if (verifiedStripeProxyLivemode !== expectedLivemode) {
+      throw new StripeConnectionModeError(
+        expectedLivemode,
+        verifiedStripeProxyLivemode,
+      );
+    }
+    return;
+  }
+
+  const verification = (async () => {
+    const page = await stripeRequest<Stripe.ApiList<Stripe.Price>>(
+      "/v1/prices?limit=1",
+    );
+    const modes = new Set(
+      page.data
+        .map((price) => price.livemode)
+        .filter((livemode): livemode is boolean => typeof livemode === "boolean"),
+    );
+    if (modes.size !== 1) {
+      throw new StripeConnectionModeError(expectedLivemode);
+    }
+
+    const actualLivemode = [...modes][0];
+    if (actualLivemode !== expectedLivemode) {
+      throw new StripeConnectionModeError(expectedLivemode, actualLivemode);
+    }
+    verifiedStripeProxyLivemode = actualLivemode;
+  })();
+  stripeProxyModeVerification = verification;
+  try {
+    await verification;
+  } finally {
+    if (stripeProxyModeVerification === verification) {
+      stripeProxyModeVerification = undefined;
+    }
+  }
+}
+
 async function stripeRequest<T>(
   path: string,
   options: StripeRequestOptions = {},
 ): Promise<T> {
+  if ((options.method ?? "GET") === "POST") {
+    await assertStripeProxyMode();
+  }
+
   const connectors = new ReplitConnectors();
   const headers: Record<string, string> = { Accept: "application/json" };
   if (options.form) {
@@ -446,6 +523,7 @@ export async function ensureStripeWebhook(url: string) {
   if (expectedStripeLivemode() && !["artcovr.com", "artcovr.replit.app"].includes(target.hostname)) {
     throw new Error("Live Stripe webhooks may only target ARTCOVR production domains; preview registration is blocked.");
   }
+  await assertStripeProxyMode();
   const page = await stripeRequest<Stripe.ApiList<Stripe.WebhookEndpoint>>(
     "/v1/webhook_endpoints?limit=100",
   );

@@ -72,12 +72,14 @@ test("credit activity is purchase-scoped and omits internal ledger fields", asyn
   ];
   const select = () => ({
     from: () => ({
-      innerJoin: () => ({
-      where: () => ({
-        orderBy: () => ({
-          limit: async () => rows,
+      leftJoin: () => ({
+        leftJoin: () => ({
+          where: () => ({
+            orderBy: () => ({
+              limit: async () => rows,
+            }),
+          }),
         }),
-      }),
       }),
     }),
   });
@@ -131,12 +133,14 @@ test("credit activity returns a bounded page and an opaque cursor", async () => 
   }));
   const select = () => ({
     from: () => ({
-      innerJoin: () => ({
-      where: () => ({
-        orderBy: () => ({
-          limit: async () => rows,
+      leftJoin: () => ({
+        leftJoin: () => ({
+          where: () => ({
+            orderBy: () => ({
+              limit: async () => rows,
+            }),
+          }),
         }),
-      }),
       }),
     }),
   });

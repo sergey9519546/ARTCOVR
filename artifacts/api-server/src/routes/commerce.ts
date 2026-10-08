@@ -28,6 +28,7 @@ import {
 import {
   createCheckoutSession,
   retrieveCheckoutSession,
+  StripeConnectionModeError,
   StripeCheckoutModeError,
 } from "../stripeClient";
 import { getTrustedPublicOrigin } from "../middlewares/trustBoundary";
@@ -326,16 +327,25 @@ export function createCreditPackCheckoutHandler(
           ? error.code
           : error instanceof StripeCheckoutModeError
             ? error.code
+            : error instanceof StripeConnectionModeError
+              ? error.code
             : "stripe_checkout_failed";
       dependencies.logCheckoutFailure(
         { err: error, creditPackPurchaseId: purchase.id, code },
         "ARTCOVR credit pack checkout failed",
       );
-      res.status(error instanceof StripeCatalogError ? 503 : 502).json({
+      res.status(
+        error instanceof StripeCatalogError ||
+          error instanceof StripeConnectionModeError
+          ? 503
+          : 502,
+      ).json({
         code,
         message:
           error instanceof StripeCatalogError
             ? "Standalone generation credits are not configured yet."
+            : error instanceof StripeConnectionModeError
+              ? "Checkout is temporarily unavailable. Please try again later."
             : "Stripe could not open checkout. Please try again.",
       });
     }
@@ -709,7 +719,9 @@ export function createCheckoutHandler(
       .set({ status: "expired" })
       .where(and(eq(artcovrOrders.id, order.id), eq(artcovrOrders.status, "reserved")));
 
-    const modeMismatch = error instanceof StripeCheckoutModeError;
+    const sessionModeMismatch = error instanceof StripeCheckoutModeError;
+    const connectionModeMismatch = error instanceof StripeConnectionModeError;
+    const modeMismatch = sessionModeMismatch || connectionModeMismatch;
     const code =
       error instanceof StripeCatalogError
         ? error.code
@@ -719,7 +731,9 @@ export function createCheckoutHandler(
     const message =
       error instanceof StripeCatalogError
         ? "This cover is not fully configured for checkout yet."
-        : "Stripe could not open checkout. Please try again.";
+        : connectionModeMismatch
+          ? "Checkout is temporarily unavailable. Please try again later."
+          : "Stripe could not open checkout. Please try again.";
     dependencies.logCheckoutFailure(
       {
         err: error,
@@ -727,16 +741,31 @@ export function createCheckoutHandler(
         code,
         ...(modeMismatch
           ? {
-              diagnosis: "stripe_checkout_mode_mismatch",
-              stripeCheckoutSessionId: error.sessionId,
-              expectedLivemode: error.expectedLivemode,
-              actualLivemode: error.actualLivemode,
+              diagnosis: sessionModeMismatch
+                ? "stripe_checkout_mode_mismatch"
+                : "stripe_connection_mode_mismatch",
+              ...(sessionModeMismatch
+                ? {
+                    stripeCheckoutSessionId: error.sessionId,
+                    expectedLivemode: error.expectedLivemode,
+                    actualLivemode: error.actualLivemode,
+                  }
+                : connectionModeMismatch
+                  ? {
+                      expectedLivemode: error.expectedLivemode,
+                      actualLivemode: error.actualLivemode,
+                    }
+                  : {}),
             }
           : {}),
       },
       "ARTCOVR checkout failed",
     );
-    res.status(error instanceof StripeCatalogError ? 503 : 502).json({ code, message });
+    res.status(
+      error instanceof StripeCatalogError || connectionModeMismatch
+        ? 503
+        : 502,
+    ).json({ code, message });
   }
   };
 }
